@@ -1,0 +1,15 @@
+raven==6.1.0
+objgraph==3.1.0
+aiohttp==1.0.5
+validators==0.12.0
+colour==0.1.4
+pymongo==3.4.0
+discord.py==0.16.12
+cachetools==2.0.1
+numpy
+repoze.timeago==0.5
+jsonpickle==0.9.5
+emoji==0.4.5
+Pillow
+beautifulsoup4==4.6.0
+typing==3.6.2
