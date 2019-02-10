@@ -94,7 +94,6 @@ class _Themes(dict):
                     path = parent_path
 
     def _load_themes(self):
-
         """
         Theme loader.
 
@@ -199,10 +198,38 @@ class _Banners(dict):
                 self[banner_id] = Banner(banner_id, **banner)
 
 
+class Teams(Customization):
+    """
+    Class holding teams information.
+    """
+
+    def __init__(self, id, **team_data):
+        self.owner = team_data["owner"]
+        self.admins = team_data["admins"]
+        self.members = team_data["members"]
+        self.min_level = team_data["min_level"]
+        self.pendings = team_data["pendings"]
+        super().__init__(id, **team_data)
+
+
+class _Teams(dict):
+    def __init__(self):
+        super().__init__()
+        self._load_teams()
+
+    def _load_teams(self):
+        self.clear()
+        with open('dueutil/game/configs/teams.json') as teams_file:
+            teams_details = json.load(teams_file)
+            for team_id, team, in teams_details.items():
+                self[team_id] = Teams(team_id, **team)
+
+
 # Load customizations from json files
 backgrounds = _Backgrounds()
 banners = _Banners()
 themes = _Themes()
+teams = _Teams()
 
 
 def get_theme(theme_id: str) -> Theme:
@@ -225,3 +252,7 @@ def get_banner(banner_id: str) -> Banner:
 
 def get_themes() -> Dict[str, Theme]:
     return themes
+
+
+def get_teams() -> Dict[str, Teams]:
+    return teams

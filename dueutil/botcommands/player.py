@@ -298,6 +298,7 @@ async def compare(ctx, player1, player2=None, **details):
     
     If the "Player2" argument is not given, it will compare you to the "Player1"
     """
+    
     plr = details["author"]
     if player2 is None and player1 == plr:
         raise util.DueUtilException(ctx.channel, "There is no reason to compare yourself! You are as good as yourself (:")
@@ -307,30 +308,20 @@ async def compare(ctx, player1, player2=None, **details):
     compare_Embed = discord.Embed()
 
     if player2 is None:
-        compare_Embed.title = "Comparing yourself with %s!" % player1.name_clean
-        compare_Embed.add_field(
-            name="You",
-            value=("Level: %s\nHealth: %.2f\nAttack: %.2f\nStrength: %.2f\nAccuracy: %.2f" % (plr.level, plr.hp * plr.strg, plr.attack, plr.strg, plr.accy)), 
-            inline=True
-        )
-        compare_Embed.add_field(
-            name=player1.name_clean,
-            value=("Level: %s\nHealth: %.2f\nAttack: %.2f\nStrength: %.2f\nAccuracy: %.2f" % (player1.level, player1.hp * player1.strg, player1.attack, player1.strg, player1.accy)), 
-            inline=True
-        )
-    else:
-        compare_Embed.title = "Comparing %s with %s!" % (player1.name_clean, player2.name_clean)
-        compare_Embed.add_field(
-            name=player1.name_clean,
-            value=("Level: %s\nHealth: %.2f\nAttack: %.2f\nStrength: %.2f\nAccuracy: %.2f" % (player1.level, player1.hp * player1.strg, player1.attack, player1.strg, player1.accy)), 
-            inline=True
-        )
-        compare_Embed.add_field(
-            name=player2.name_clean,
-            value=("Level: %s\nHealth: %.2f\nAttack: %.2f\nStrength: %.2f\nAccuracy: %.2f" % (player2.level, player2.hp * player2.strg, player2.attack, player2.strg, player2.accy)), 
-            inline=True
-        )
-        
+        player2 = player1
+        player1 = plr
+    compare_Embed.title = "Comparing **%s** with **%s**!" % (player1.name_clean, player2.name_clean)
+    compare_Embed.add_field(
+        name=player1.name_clean,
+        value=("Level: %s\nHealth: %.2f\nAttack: %.2f\nStrength: %.2f\nAccuracy: %.2f" % (player1.level, player1.hp * player1.strg, player1.attack, player1.strg, player1.accy)), 
+        inline=True
+    )
+    compare_Embed.add_field(
+        name=player2.name_clean,
+        value=("Level: %s\nHealth: %.2f\nAttack: %.2f\nStrength: %.2f\nAccuracy: %.2f" % (player2.level, player2.hp * player2.strg, player2.attack, player2.strg, player2.accy)), 
+        inline=True
+    )
+
     await util.say(ctx.channel, embed=compare_Embed)
 
 @commands.command(args_pattern='PCS?', aliases=["sc"])

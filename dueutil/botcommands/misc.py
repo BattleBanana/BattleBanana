@@ -80,10 +80,54 @@ async def wish(*_, **details):
     player.quest_spawn_build_up += 0.00005
 
 
+@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="SPI?")
+async def createteam(ctx, name, leader, lower_level=1, **details):
+    """
+    [CMD_KEY]createteam (name) (leader) (Minimum Level)
+
+    Name: Team's name
+    Leader: Who owns the team
+
+    Very basic.. isn't it?
+    """
+
+    if name != util.filter_string(name):
+        raise util.DueUtilException(ctx.channel, "Invalid background name!")
+    if name.lower() in customizations.teams:
+        raise util.DueUtilException(ctx.channel, "That team already exists!")
+    if lower_level < 1:
+        raise util.DueUtilException(ctx.channel, "Minimum level cannot be under 1!")
+    try:
+        if leader.team is not None:
+            raise util.DueUtilException(ctx.channel, "This player is already in a team!")
+    except AttributeError:
+        leader.__setstate__({'team': ""})
+    
+    try:
+        team_file = open('dueutil/game/configs/teams.json', "r+")
+    except IOError:
+        team_file = open('dueutil/game/configs/teams.json', "w+")
+
+    with team_file:
+        try:
+            teams = json.load(team_file)
+        except ValueError:
+            teams = {}
+
+        led_id = leader.id
+        teams[name.lower()] = {"name": name.lower(), "owner": led_id, "admins": [led_id], "members": [led_id], "min_level": lower_level, "pendings": []}
+
+        team_file.seek(0)
+        team_file.truncate()
+        json.dump(teams, team_file, indent=4, sort_keys=True)
+
+    # leader.team = name.lower()
+    await util.say(ctx.channel, "Successfully added %s to teams!" % name.lower())
+
+
 @commands.command(permission=Permission.DUEUTIL_MOD, args_pattern="SSSSIP?")
 async def uploadbg(ctx, icon, name, description, url, price, submitter=None, **details):
     """
-    
     [CMD_KEY]uploadbg (a bunch of args)
     
     Takes:
