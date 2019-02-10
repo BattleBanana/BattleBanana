@@ -121,7 +121,8 @@ async def createteam(ctx, name, leader, lower_level=1, **details):
         team_file.truncate()
         json.dump(teams, team_file, indent=4, sort_keys=True)
 
-    # leader.team = name.lower()
+    leader.team = name.lower()
+    leader.save()
     await util.say(ctx.channel, "Successfully added %s to teams!" % name.lower())
 
 
