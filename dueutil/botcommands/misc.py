@@ -80,52 +80,6 @@ async def wish(*_, **details):
     player.quest_spawn_build_up += 0.00005
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="SPI?")
-async def createteam(ctx, name, leader, lower_level=1, **details):
-    """
-    [CMD_KEY]createteam (name) (leader) (Minimum Level)
-
-    Name: Team's name
-    Leader: Who owns the team
-
-    Very basic.. isn't it?
-    """
-
-    if name != util.filter_string(name):
-        raise util.DueUtilException(ctx.channel, "Invalid background name!")
-    if name.lower() in customizations.teams:
-        raise util.DueUtilException(ctx.channel, "That team already exists!")
-    if lower_level < 1:
-        raise util.DueUtilException(ctx.channel, "Minimum level cannot be under 1!")
-    try:
-        if leader.team is not None:
-            raise util.DueUtilException(ctx.channel, "This player is already in a team!")
-    except AttributeError:
-        leader.__setstate__({'team': ""})
-    
-    try:
-        team_file = open('dueutil/game/configs/teams.json', "r+")
-    except IOError:
-        team_file = open('dueutil/game/configs/teams.json', "w+")
-
-    with team_file:
-        try:
-            teams = json.load(team_file)
-        except ValueError:
-            teams = {}
-
-        led_id = leader.id
-        teams[name.lower()] = {"name": name.lower(), "owner": led_id, "admins": [led_id], "members": [led_id], "min_level": lower_level, "pendings": []}
-
-        team_file.seek(0)
-        team_file.truncate()
-        json.dump(teams, team_file, indent=4, sort_keys=True)
-
-    leader.team = name.lower()
-    leader.save()
-    await util.say(ctx.channel, "Successfully added %s to teams!" % name.lower())
-
-
 @commands.command(permission=Permission.DUEUTIL_MOD, args_pattern="SSSSIP?")
 async def uploadbg(ctx, icon, name, description, url, price, submitter=None, **details):
     """
@@ -485,3 +439,52 @@ async def vote(ctx, **_):
     Embed.add_field(name="Vote:", value="[Here!](https://discordbots.org/bot/464601463440801792/vote)")
 
     await util.say(ctx.channel, embed=Embed)
+
+
+# @commands.command(args_pattern="I?", cooldown=300, error="You cannot use dummies again for **[COOLDOWN]**!")
+# async def usedummy(ctx, multiplier=1, **details):
+#     """
+#     [CMD_KEY]usedummy (amount)
+
+#     Use dummies to increase your stats & limit!
+#     This will cost 50'000 DUTs to use one dummy.
+
+#     NOTE: The "amount" cannot exceed 5.
+#     """
+
+#     player = details["author"]
+#     if multiplier > 5:
+#         multiplier = 5
+#     if player.money < 50000 * multiplier:
+#         raise util.DueUtilException(ctx.channel, "You cannot afford %s dummies!" % multiplier)
+
+#     player.money -= (50000 * multiplier)
+#     stats_max_limit = 50 * multiplier
+#     limit_max_limit = 10 * player.level/2 * multiplier
+
+#     attack_increase = random.uniform(*TRAIN_RANGE) * player.level * multiplier
+#     strg_increase = random.uniform(*TRAIN_RANGE) * player.level * multiplier
+#     accy_increase = random.uniform(*TRAIN_RANGE) * player.level * multiplier
+#     limit_increase = (random.uniform(.1, .2) * player.level) * multiplier
+
+#     if attack_increase > stats_max_limit:
+#         attack_increase = stats_max_limit
+#     if strg_increase > stats_max_limit:
+#         strg_increase = stats_max_limit
+#     if accy_increase > stats_max_limit:
+#         accy_increase = stats_max_limit
+#     if limit_increase > limit_max_limit
+#         limit_increase = limit_max_limit
+
+#     player.progress(attack_increase, strg_increase, accy_increase)
+#     player.item_value_limit += limit_increase
+
+#     limit = util.format_number(player.item_value_limit, money=True, full_precision=True)
+#     stats = players.STAT_GAIN_FORMAT % (attack_increase, strg_increase, accy_increase)
+
+#     Embed = discord.Embed(title="You train on dummies and feels stronger!", colour=gconf.DUE_COLOUR, type="rich")
+#     Embed.add_field(name="**Stats:** ", value="Gained: %s" & stats)
+#     Embed.add_field(name="**Limit:** ", value="Gained: %s" & limit_increase)
+#     Embed.set_footer(text="You may use this command again in 5 minutes!")
+
+#     await util.say(ctx.channel, Embed=Embed)

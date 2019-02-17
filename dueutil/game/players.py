@@ -85,7 +85,7 @@ class Player(DueUtilObject, SlotPickleMixin):
                  "quest_spawn_build_up", "donor",
                  "misc_stats", "equipped", "inventory",
                  "last_message_hashes", "command_rate_limits",
-                 "additional_attributes", "team"]
+                 "additional_attributes", "team", "team_invites"]
 
     # additional_attributes is not defined but is there for possible future use.
     # I expect new types of quests/weapons to be subclasses.
@@ -152,6 +152,7 @@ class Player(DueUtilObject, SlotPickleMixin):
         # lol no
         self.donor = False
         self.team = None
+        self.team_invites = []
 
         ##### Dumb misc stats (easy to add & remove)
         self.misc_stats = defaultdict(int,

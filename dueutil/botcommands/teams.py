@@ -11,10 +11,11 @@ import objgraph
 
 import generalconfig as gconf
 import dueutil.permissions
-from .. import dbconn
+from ..game.helpers import imagehelper
 from ..permissions import Permission
-from .. import util
-from ..game import customizations
+from .. import commands, util, events
+from ..game import customizations, awards, leaderboards, game
+from ..game import emojis
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="SPI?")
 async def createteam(ctx, name, leader, lower_level=1, **details):
@@ -82,12 +83,47 @@ async def deleteteam(ctx, name, **details):
             del teams[teamToDelete]
             team_file.seek(0)
             team_file.truncate()
-            json.dump(backgrounds, team_file, indent=4)
+            json.dump(teams, team_file, indent=4)
     except IOError:
-        raise util.DueUtilException(ctx.channel,
-                                    "Only existing team can be deleted!")
+        raise util.DueUtilException(ctx.channel, "Only existing team can be deleted!")
 
     customizations.teams._load_teams()
 
     await util.say(ctx.channel, ":wastebasket: Team **" + name.lower() + "** has been deleted!")
-    await util.duelogger.info("**%s** deleted the background **%s**" % (details["author"].name_clean, name.lower()))
+    await util.duelogger.info("**%s** deleted the **%s**'s team!" % (details["author"].name_clean, name.lower()))
+
+@commands.command(args_pattern="P", aliases=["ti"])
+async def teaminvite(ctx, player, **details):
+    """
+    [CMD_KEY]teaminvite (player)
+
+    NOTE: You cannot invite a player that is already in a team!
+    """
+
+    inviter = details["author"]
+    try:
+        if player.team is not None:
+            raise util.DueUtilException(ctx.channel, "This player is already in a team!")
+    except AttributeError:
+        player.__setstate__({'team': ""})
+
+    try: 
+        if inviter.team is None:
+            raise util.DueUtilException(ctx.channel, "You are not in any team!")
+    except AttributeError:
+        player.__setstate__({'team': ""})
+        raise util.DueUtilException(ctx.channel, "You are not in any team!")
+
+    teams = customizations.teams
+    team = teams[inviter.team]
+    if not (team['owner'] == inviter.id or inviter.id in team['admins']):
+        raise util.DueUtilException(ctx.channel, "You do not have permissions to send invites!!")
+
+    try:
+        player.team_invites.append(inviter.team)
+    except AttributeError:
+        player.__setstate__({'team_invites': []})
+        player.team_invites.append(inviter.team)
+
+    await util.say(ctx.channel, ":thumbsup: All's done! Invite has been sent to %s!" % player.name_clean)
+    
