@@ -441,7 +441,8 @@ async def vote(ctx, **_):
     await util.say(ctx.channel, embed=Embed)
 
 
-# @commands.command(args_pattern="I?", cooldown=300, error="You cannot use dummies again for **[COOLDOWN]**!")
+# @commands.command(args_pattern="I?")
+# @commands.ratelimit(cooldown=300, error="You cannot use dummies again for **[COOLDOWN]**!")
 # async def usedummy(ctx, multiplier=1, **details):
 #     """
 #     [CMD_KEY]usedummy (amount)
@@ -451,7 +452,7 @@ async def vote(ctx, **_):
 
 #     NOTE: The "amount" cannot exceed 5.
 #     """
-
+    
 #     player = details["author"]
 #     if multiplier > 5:
 #         multiplier = 5
