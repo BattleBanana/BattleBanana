@@ -14,8 +14,7 @@ import dueutil.permissions
 from ..game.helpers import imagehelper
 from ..permissions import Permission
 from .. import commands, util, events
-from ..game import customizations, awards, leaderboards, game
-from ..game import emojis
+from ..game import customizations, awards, leaderboards, game, players, emojis
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="SPI?")
 async def createteam(ctx, name, leader, lower_level=1, **details):
@@ -38,7 +37,7 @@ async def createteam(ctx, name, leader, lower_level=1, **details):
         if leader.team is not None:
             raise util.DueUtilException(ctx.channel, "This player is already in a team!")
     except AttributeError:
-        leader.__setstate__({'team': ""})
+        leader.__setstate__({'team': None})
     
     try:
         team_file = open('dueutil/game/configs/teams.json', "r+")
@@ -60,16 +59,19 @@ async def createteam(ctx, name, leader, lower_level=1, **details):
 
     leader.team = name.lower()
     leader.save()
+    customizations.teams._load_teams()
+
     await util.say(ctx.channel, "Successfully added %s to teams!" % name.lower())
 
 
 @commands.command(persmission=Permission.DUEUTIL_ADMIN, args_pattern="S")
 async def deleteteam(ctx, name, **details):
     """
-    [CMD_KEY]deleteteam (name)
+    [CMD_KEY]deleteteam (team name)
 
     Deletes a team
     """
+
     teamToDelete = name.lower()
     if teamToDelete not in customizations.teams:
         raise util.DueUtilException(ctx.channel, "Team not found!")
@@ -80,6 +82,21 @@ async def deleteteam(ctx, name, **details):
             teams = json.load(team_file)
             if teamToDelete not in teams:
                 raise util.DueUtilException(ctx.channel, "You cannot delete this team!")
+            
+            team_target = teams[teamToDelete]
+
+            owner = players.find_player(team_target['owner'])
+            owner.team = None
+            owner.save()
+            for admins in team_target['admins']:
+                admin = players.find_player(admins)
+                admin.team = None
+                admin.save()
+            for members in team_target['members']:
+                member = players.find_player(members)
+                member.team = None
+                member.save()
+            
             del teams[teamToDelete]
             team_file.seek(0)
             team_file.truncate()
@@ -92,8 +109,9 @@ async def deleteteam(ctx, name, **details):
     await util.say(ctx.channel, ":wastebasket: Team **" + name.lower() + "** has been deleted!")
     await util.duelogger.info("**%s** deleted the **%s**'s team!" % (details["author"].name_clean, name.lower()))
 
+
 @commands.command(args_pattern="P", aliases=["ti"])
-async def teaminvite(ctx, player, **details):
+async def teaminvite(ctx, member, **details):
     """
     [CMD_KEY]teaminvite (player)
 
@@ -102,16 +120,16 @@ async def teaminvite(ctx, player, **details):
 
     inviter = details["author"]
     try:
-        if player.team is not None:
+        if member.team is not None:
             raise util.DueUtilException(ctx.channel, "This player is already in a team!")
     except AttributeError:
-        player.__setstate__({'team': ""})
+        member.__setstate__({'team': None})
 
     try: 
         if inviter.team is None:
             raise util.DueUtilException(ctx.channel, "You are not in any team!")
     except AttributeError:
-        player.__setstate__({'team': ""})
+        member.__setstate__({'team': None})
         raise util.DueUtilException(ctx.channel, "You are not in any team!")
 
     teams = customizations.teams
@@ -120,10 +138,40 @@ async def teaminvite(ctx, player, **details):
         raise util.DueUtilException(ctx.channel, "You do not have permissions to send invites!!")
 
     try:
-        player.team_invites.append(inviter.team)
+        if inviter.team not in member.team_invites:
+            member.team_invites.append(inviter.team)
+        else:
+            raise util.DueUtilException(ctx.channel, "This player has already been invited to your team!")
     except AttributeError:
-        player.__setstate__({'team_invites': []})
-        player.team_invites.append(inviter.team)
+        member.__setstate__({'team_invites': []})
+        member.team_invites.append(inviter.team)
 
-    await util.say(ctx.channel, ":thumbsup: All's done! Invite has been sent to %s!" % player.name_clean)
+    await util.say(ctx.channel, ":thumbsup: All's done! Invite has been sent to **%s**!" % member.name_clean)
     
+
+@commands.command(args_pattern=None, aliases=["si"])
+async def showinvites(ctx, **details):
+    """
+    [CMD_KEY]showinvites
+
+    Display team invites you have received!
+    """
+    
+    member = details["author"]
+
+    Embed = discord.Embed(title="Displaying your team invites!", type="rich", colour=gconf.DUE_COLOUR)
+    try:
+        if member.team_invites is None:
+            member.team_invites = []
+    except AttributeError:
+        member.__setstate__({'team_invites': []})
+    
+    if len(member.team_invites) == 0:
+        Embed.add_field(name="No invites!", value="You do not have invites!")
+    else:
+        team_list=""
+        for team_name in member.team_invites:
+            team_list += ("- " + team_name + "\n")
+        Embed.add_field(name="You have been invited in %s teams!" % len(member.team_invites), value=team_list)
+
+    await util.say(ctx.channel, embed = Embed)

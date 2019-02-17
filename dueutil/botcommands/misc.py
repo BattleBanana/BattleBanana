@@ -441,7 +441,7 @@ async def vote(ctx, **_):
     await util.say(ctx.channel, embed=Embed)
 
 
-# @commands.command(args_pattern="I?")
+# @commands.command(args_pattern="C?")
 # @commands.ratelimit(cooldown=300, error="You cannot use dummies again for **[COOLDOWN]**!")
 # async def usedummy(ctx, multiplier=1, **details):
 #     """
@@ -488,4 +488,4 @@ async def vote(ctx, **_):
 #     Embed.add_field(name="**Limit:** ", value="Gained: %s" & limit_increase)
 #     Embed.set_footer(text="You may use this command again in 5 minutes!")
 
-#     await util.say(ctx.channel, Embed=Embed)
+#     await util.say(ctx.channel, embed=Embed)
