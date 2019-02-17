@@ -91,7 +91,3 @@ async def deleteteam(ctx, name, **details):
 
     await util.say(ctx.channel, ":wastebasket: Team **" + name.lower() + "** has been deleted!")
     await util.duelogger.info("**%s** deleted the background **%s**" % (details["author"].name_clean, name.lower()))
-
-@commands.command(args_pattern="P")
-async def teaminvite(ctx, player, **details):
-
