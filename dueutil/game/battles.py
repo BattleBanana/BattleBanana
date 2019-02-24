@@ -60,12 +60,13 @@ async def give_awards_for_battle(channel, battle_log: _BattleLog):
         loser = battle_log.loser
         # if "Duerus" in winner.awards:
         #    await awards.give_award(channel, loser, "Duerus")
-        if ("TopDog" in loser.awards) and ((winner.id is not 115269304705875969) or (winner.id is not 261799488719552513)):
-            loser.awards.remove("TopDog")
-            await awards.give_award(channel, winner, "TopDog")
-            awards.update_award_stat("TopDog", "top_dog", winner.id)
-            loser.save()
-            winner.save()
+        if ("TopDog" in loser.awards):
+            if not ((winner.id == '115269304705875969') or (winner.id == '261799488719552513')):
+                loser.awards.remove("TopDog")
+                await awards.give_award(channel, winner, "TopDog")
+                awards.update_award_stat("TopDog", "top_dog", winner.id)
+                loser.save()
+                winner.save()
         if battle_log.turn_count == 1 and winner.level - loser.level <= 2.5:
             await  awards.give_award(channel, winner, "CritHit")
         # If it's me
