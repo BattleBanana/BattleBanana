@@ -441,6 +441,16 @@ async def vote(ctx, **_):
     await util.say(ctx.channel, embed=Embed)
 
 
+@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None, hidden=True)
+async def cleartopdogs(ctx, **details):
+    await util.say(ctx.channel, ":arrows_counterclockwise: Removing every active topdog!")
+    for v in sorted(game.players.players.items()):
+        if 'TopDog' in v.awards:
+            del v.awards.remove("TopDog")
+            v.save()
+    
+    await util.say(ctx.channel, "Scan is done! ")
+
 # @commands.command(args_pattern="C?")
 # @commands.ratelimit(cooldown=300, error="You cannot use dummies again for **[COOLDOWN]**!")
 # async def usedummy(ctx, multiplier=1, **details):
