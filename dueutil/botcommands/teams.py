@@ -171,7 +171,10 @@ async def showinvites(ctx, **details):
     else:
         team_list=""
         for team_name in member.team_invites:
-            team_list += ("- " + team_name + "\n")
+            if team_name in customizations.teams:
+                team_list += ("- " + team_name + "\n")
+            else:
+                del member.team_invites.remove(team_name)
         Embed.add_field(name="You have been invited in %s teams!" % len(member.team_invites), value=team_list)
 
     await util.say(ctx.channel, embed = Embed)

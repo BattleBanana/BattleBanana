@@ -177,10 +177,6 @@ def get_server(server_id):
     return get_client(server_id).get_server(server_id)
 
 
-#def get_all_servers():
-#    return get_all_servers
-
-
 def ultra_escape_string(string):
     """
     A simple function to escape all discord crap!

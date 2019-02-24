@@ -1,26 +1,26 @@
 {
-    "surmount": {
-        "pendings": [],
-        "members": [
-            "335660300608995331"
-        ],
-        "admins": [
-            "335660300608995331"
-        ],
-        "owner": "335660300608995331",
-        "min_level": 1,
-        "name": "surmount"
-    },
     "dumbledores army": {
-        "pendings": [],
-        "members": [
-            "465694107776450562"
-        ],
-        "admins": [
-            "465694107776450562"
-        ],
+        "name": "dumbledores army",
         "owner": "465694107776450562",
         "min_level": 1,
-        "name": "dumbledores army"
+        "admins": [
+            "465694107776450562"
+        ],
+        "pendings": [],
+        "members": [
+            "465694107776450562"
+        ]
+    },
+    "surmount": {
+        "name": "surmount",
+        "owner": "335660300608995331",
+        "min_level": 1,
+        "admins": [
+            "335660300608995331"
+        ],
+        "pendings": [],
+        "members": [
+            "335660300608995331"
+        ]
     }
 }

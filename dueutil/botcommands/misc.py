@@ -446,7 +446,7 @@ async def cleartopdogs(ctx, **details):
     await util.say(ctx.channel, ":arrows_counterclockwise: Removing every active topdog!")
     for id, v in sorted(game.players.players.items()):
         if 'TopDog' in v.awards:
-            if not v.id == awards.get_award_stat('TopDog').top_dog:
+            if not (v.id == awards.get_award_stat('TopDog').top_dog):
                 v.awards.remove("TopDog")
                 v.save()
     
