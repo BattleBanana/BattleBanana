@@ -444,58 +444,9 @@ async def vote(ctx, **_):
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None, hidden=True)
 async def cleartopdogs(ctx, **details):
     await util.say(ctx.channel, ":arrows_counterclockwise: Removing every active topdog!")
-    for v in sorted(game.players.players.items()):
+    for id, v in sorted(game.players.players.items()):
         if 'TopDog' in v.awards:
-            del v.awards.remove("TopDog")
+            v.awards.remove("TopDog")
             v.save()
     
     await util.say(ctx.channel, "Scan is done! ")
-
-# @commands.command(args_pattern="C?")
-# @commands.ratelimit(cooldown=300, error="You cannot use dummies again for **[COOLDOWN]**!")
-# async def usedummy(ctx, multiplier=1, **details):
-#     """
-#     [CMD_KEY]usedummy (amount)
-
-#     Use dummies to increase your stats & limit!
-#     This will cost 50'000 DUTs to use one dummy.
-
-#     NOTE: The "amount" cannot exceed 5.
-#     """
-    
-#     player = details["author"]
-#     if multiplier > 5:
-#         multiplier = 5
-#     if player.money < 50000 * multiplier:
-#         raise util.DueUtilException(ctx.channel, "You cannot afford %s dummies!" % multiplier)
-
-#     player.money -= (50000 * multiplier)
-#     stats_max_limit = 50 * multiplier
-#     limit_max_limit = 10 * player.level/2 * multiplier
-
-#     attack_increase = random.uniform(*TRAIN_RANGE) * player.level * multiplier
-#     strg_increase = random.uniform(*TRAIN_RANGE) * player.level * multiplier
-#     accy_increase = random.uniform(*TRAIN_RANGE) * player.level * multiplier
-#     limit_increase = (random.uniform(.1, .2) * player.level) * multiplier
-
-#     if attack_increase > stats_max_limit:
-#         attack_increase = stats_max_limit
-#     if strg_increase > stats_max_limit:
-#         strg_increase = stats_max_limit
-#     if accy_increase > stats_max_limit:
-#         accy_increase = stats_max_limit
-#     if limit_increase > limit_max_limit
-#         limit_increase = limit_max_limit
-
-#     player.progress(attack_increase, strg_increase, accy_increase)
-#     player.item_value_limit += limit_increase
-
-#     limit = util.format_number(player.item_value_limit, money=True, full_precision=True)
-#     stats = players.STAT_GAIN_FORMAT % (attack_increase, strg_increase, accy_increase)
-
-#     Embed = discord.Embed(title="You train on dummies and feels stronger!", colour=gconf.DUE_COLOUR, type="rich")
-#     Embed.add_field(name="**Stats:** ", value="Gained: %s" & stats)
-#     Embed.add_field(name="**Limit:** ", value="Gained: %s" & limit_increase)
-#     Embed.set_footer(text="You may use this command again in 5 minutes!")
-
-#     await util.say(ctx.channel, embed=Embed)
