@@ -34,7 +34,7 @@ ERROR_OF_DEATH = "Timeout context manager should be used inside a task"
 """ 
 DueUtil: The most 1337 (worst) discord bot ever.     
 This bot is not well structured...
-(c) [REDACTED] - All rights reserved
+(c) MacDue & DeveloperAnonymous - All rights reserved
 (Sections of this bot are MIT and GPL)
 """
 

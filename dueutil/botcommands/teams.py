@@ -145,6 +145,7 @@ async def teaminvite(ctx, member, **details):
     except AttributeError:
         member.__setstate__({'team_invites': []})
         member.team_invites.append(inviter.team)
+    member.save()
 
     await util.say(ctx.channel, ":thumbsup: All's done! Invite has been sent to **%s**!" % member.name_clean)
     
@@ -170,11 +171,88 @@ async def showinvites(ctx, **details):
         Embed.add_field(name="No invites!", value="You do not have invites!")
     else:
         team_list=""
+        i = 0
         for team_name in member.team_invites:
             if team_name in customizations.teams:
-                team_list += ("- " + team_name + "\n")
+                i += 1
+                team_list += ("%s- " + team_name + "\n") % i
             else:
-                del member.team_invites.remove(team_name)
-        Embed.add_field(name="You have been invited in %s teams!" % len(member.team_invites), value=team_list)
+                member.team_invites.remove(team_name)
+        Embed.add_field(name="You have been invited in **%s** teams!" % len(member.team_invites), value=team_list)
 
     await util.say(ctx.channel, embed = Embed)
+
+
+@commands.command(args_pattern="I", aliases=["AI"])
+async def acceptinvite(ctx, team_index, **details):
+    """
+    [CMD_KEY]acceptinvite (team index)
+
+    Accept a team invite.
+
+    Aliases: AI
+    """
+
+    member = details["author"]
+    team_index -= 1
+
+    try:
+        if member.team is not None:
+            raise util.DueUtilException(ctx.channel, "This player is already in a team!")
+    except AttributeError:
+        member.__setstate__({'team': None})
+    try:
+        if member.team_invites is None:
+            member.team_invites = []
+            raise util.DueUtilException(ctx.channel, "You are not invited in any team! lol")
+    except AttributeError:
+        member.__setstate__({'team_invites': []})
+        raise util.DueUtilException(ctx.channel, "You are not invited in any team! lol")
+    if team_index >= len(member.team_invites):
+        raise util.DueUtilException(ctx.channel, "Invite not found!")
+
+    team_name = member.team_invites[team_index]
+    with open('dueutil/game/configs/teams.json', 'r+') as team_file:
+        teams = json.load(team_file)
+
+        team_target = teams[team_name]
+        team_target["members"].append(member.id)
+
+        team_file.seek(0)
+        team_file.truncate()
+        json.dump(teams, team_file, indent=4)
+    del member.team_invites[team_index]
+            
+    await util.say(ctx.channel, "Successfully joined **%s**!" % team_name)
+
+@commands.command(args_pattern="I", aliases=["DI"])
+async def declineinvite(ctx, team_index, **details):
+    """
+    [CMD_KEY]declineinvite (team index)
+
+    Decline a team invite.
+
+    Aliases: DI
+    """
+
+    member = details["author"]
+    team_index -= 1
+
+    try:
+        if member.team is not None:
+            raise util.DueUtilException(ctx.channel, "This player is already in a team!")
+    except AttributeError:
+        member.__setstate__({'team': None})
+    try:
+        if member.team_invites is None:
+            member.team_invites = []
+            raise util.DueUtilException(ctx.channel, "You are not invited in any team! lol")
+    except AttributeError:
+        member.__setstate__({'team_invites': []})
+        raise util.DueUtilException(ctx.channel, "You are not invited in any team! lol")
+    if team_index >= len(member.team_invites):
+        raise util.DueUtilException(ctx.channel, "Invite not found!")
+    team_name = member.team_invites[team_index]
+    del member.team_invites[team_index]
+            
+    await util.say(ctx.channel, "Successfully deleted **%s** invite!" % team_name)
