@@ -198,16 +198,16 @@ async def acceptinvite(ctx, team_index, **details):
 
     try:
         if member.team is not None:
-            raise util.DueUtilException(ctx.channel, "This player is already in a team!")
+            raise util.DueUtilException(ctx.channel, "You are already in a team!")
     except AttributeError:
         member.__setstate__({'team': None})
     try:
         if member.team_invites is None:
             member.team_invites = []
-            raise util.DueUtilException(ctx.channel, "You are not invited in any team! lol")
+            raise util.DueUtilException(ctx.channel, "You are not invited in any team!")
     except AttributeError:
         member.__setstate__({'team_invites': []})
-        raise util.DueUtilException(ctx.channel, "You are not invited in any team! lol")
+        raise util.DueUtilException(ctx.channel, "You are not invited in any team!")
     if team_index >= len(member.team_invites):
         raise util.DueUtilException(ctx.channel, "Invite not found!")
 
@@ -239,20 +239,15 @@ async def declineinvite(ctx, team_index, **details):
     team_index -= 1
 
     try:
-        if member.team is not None:
-            raise util.DueUtilException(ctx.channel, "This player is already in a team!")
-    except AttributeError:
-        member.__setstate__({'team': None})
-    try:
         if member.team_invites is None:
             member.team_invites = []
-            raise util.DueUtilException(ctx.channel, "You are not invited in any team! lol")
     except AttributeError:
         member.__setstate__({'team_invites': []})
-        raise util.DueUtilException(ctx.channel, "You are not invited in any team! lol")
     if team_index >= len(member.team_invites):
         raise util.DueUtilException(ctx.channel, "Invite not found!")
+        
     team_name = member.team_invites[team_index]
     del member.team_invites[team_index]
+    member.save()
             
     await util.say(ctx.channel, "Successfully deleted **%s** invite!" % team_name)
