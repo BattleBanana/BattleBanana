@@ -179,7 +179,8 @@ async def showinvites(ctx, **details):
             else:
                 member.team_invites.remove(team_name)
         Embed.add_field(name="You have been invited in **%s** teams!" % len(member.team_invites), value=team_list)
-
+    
+    member.save()
     await util.say(ctx.channel, embed = Embed)
 
 
@@ -212,6 +213,7 @@ async def acceptinvite(ctx, team_index, **details):
         raise util.DueUtilException(ctx.channel, "Invite not found!")
 
     team_name = member.team_invites[team_index]
+    member.team = team_name
     with open('dueutil/game/configs/teams.json', 'r+') as team_file:
         teams = json.load(team_file)
 
@@ -222,6 +224,7 @@ async def acceptinvite(ctx, team_index, **details):
         team_file.truncate()
         json.dump(teams, team_file, indent=4)
     del member.team_invites[team_index]
+    member.save()
             
     await util.say(ctx.channel, "Successfully joined **%s**!" % team_name)
 
