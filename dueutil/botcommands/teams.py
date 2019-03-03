@@ -184,7 +184,7 @@ async def showinvites(ctx, **details):
     await util.say(ctx.channel, embed = Embed)
 
 
-@commands.command(args_pattern="I", aliases=["AI"])
+@commands.command(args_pattern="I", aliases=["ai"])
 async def acceptinvite(ctx, team_index, **details):
     """
     [CMD_KEY]acceptinvite (team index)
@@ -228,7 +228,7 @@ async def acceptinvite(ctx, team_index, **details):
             
     await util.say(ctx.channel, "Successfully joined **%s**!" % team_name)
 
-@commands.command(args_pattern="I", aliases=["DI"])
+@commands.command(args_pattern="I", aliases=["di"])
 async def declineinvite(ctx, team_index, **details):
     """
     [CMD_KEY]declineinvite (team index)
