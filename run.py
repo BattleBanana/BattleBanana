@@ -8,6 +8,8 @@ from threading import Thread
 import aiohttp
 import time
 import sys
+import sentry_sdk
+sentry_sdk.init("https://5322a6d1b40841d7a6000e45a3c61a03@sentry.io/1406854")
 
 import discord
 from dueutil.permissions import Permission
