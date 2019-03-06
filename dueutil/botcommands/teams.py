@@ -16,6 +16,7 @@ from ..permissions import Permission
 from .. import commands, util, events
 from ..game import customizations, awards, leaderboards, game, players, emojis
 
+
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="SPI?")
 async def createteam(ctx, name, leader, lower_level=1, **details):
     """
@@ -190,8 +191,6 @@ async def acceptinvite(ctx, team_index, **details):
     [CMD_KEY]acceptinvite (team index)
 
     Accept a team invite.
-
-    Aliases: AI
     """
 
     member = details["author"]
@@ -216,6 +215,10 @@ async def acceptinvite(ctx, team_index, **details):
     member.team = team_name
     with open('dueutil/game/configs/teams.json', 'r+') as team_file:
         teams = json.load(team_file)
+        if not (team_name in teams):
+            del member.team_invites[team_index]
+            member.save()
+            raise util.DueUtilException(ctx.channel, "This team does not exist anymore!")
 
         team_target = teams[team_name]
         team_target["members"].append(member.id)
@@ -228,14 +231,13 @@ async def acceptinvite(ctx, team_index, **details):
             
     await util.say(ctx.channel, "Successfully joined **%s**!" % team_name)
 
+
 @commands.command(args_pattern="I", aliases=["di"])
 async def declineinvite(ctx, team_index, **details):
     """
     [CMD_KEY]declineinvite (team index)
 
     Decline a team invite.
-
-    Aliases: DI
     """
 
     member = details["author"]
@@ -254,3 +256,36 @@ async def declineinvite(ctx, team_index, **details):
     member.save()
             
     await util.say(ctx.channel, "Successfully deleted **%s** invite!" % team_name)
+
+
+@commands.command(args_pattern=None, aliases=["mt"])
+async def myteam(ctx, **details):
+    """
+    [CMD_KEY]teams
+
+    Display your team!
+
+    Couldn't find 
+    a longer description 
+    for this than 
+    that :shrug:
+    So now it is longer
+    """
+
+    member = details["author"]
+    with open('dueutil/game/configs/teams.json', 'r+') as team_file:
+        teams = json.load(team_file)
+
+        try:
+            if member.team is not None:
+                if member.team in teams:
+                    await util.say(ctx.channel, "You are appart **%s**!" % member.team)
+                else:
+                    member.team = None
+                    await util.say(ctx.channel, "You are **not** appart a team!")
+            else:
+                await util.say(ctx.channel, "You are **not** appart a team!")
+        except AttributeError:
+            member.__setstate__({'team': None})
+            await util.say(ctx.channel, "You are **not** appart a team!")
+    member.save()
