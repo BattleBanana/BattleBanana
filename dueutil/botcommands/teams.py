@@ -211,6 +211,7 @@ async def acceptinvite(ctx, team_index, **details):
     if team_index >= len(member.team_invites):
         raise util.DueUtilException(ctx.channel, "Invite not found!")
 
+    teams = customizations.teams
     team_name = member.team_invites[team_index]
     member.team = team_name
     with open('dueutil/game/configs/teams.json', 'r+') as team_file:
@@ -273,19 +274,66 @@ async def myteam(ctx, **details):
     """
 
     member = details["author"]
+    teams = customizations.teams
+
+    try:
+        if member.team is not None:
+            if member.team in teams:
+                await util.say(ctx.channel, "You are appart **%s**!" % member.team)
+            else:
+                member.team = None
+                await util.say(ctx.channel, "You are **not** appart a team!")
+        else:
+            await util.say(ctx.channel, "You are **not** appart a team!")
+    except AttributeError:
+        member.__setstate__({'team': None})
+        await util.say(ctx.channel, "You are **not** appart a team!")
+
+    member.save()
+
+@commands.command(args_pattern="P", aliases=["pu"])
+async def promoteuser(ctx, user, **details):
+    """
+    [CMD_KEY]promoteuser (player)
+
+    Promote a member of your team to admin.
+    Being an admin allows you to manage the team: Invite players, kick players, etc.
+
+    NOTE: Only the owner can promote members!
+    """
+
+    member = details["author"]
+    team = customizations.teams[member.team]
+
+    try:
+        if member.team is None:
+            raise util.DueUtilException(ctx.channel, "You are not in a team!")
+    except AttributeError:
+        member.__setstate__({'team': None})
+        raise util.DueUtilException(ctx.channel, "You are not in a team!")
+    try:
+        if user.team is None:
+            raise util.DueUtilException(ctx.channel, "This player is not in a team!")
+    except AttributeError:
+        member.__setstate__({'team': None})
+        raise util.DueUtilException(ctx.channel, "This player is not in a team!")
+    if not(member.id == team["owner"]):
+        raise util.DueUtilException(ctx.channel, "You are not allowed to promote users! (You must be owner!)")
+    if not (member.team == user.team):
+        raise util.DueUtilException(ctx.channel, "This player is not in your team, therefore, you cannot take actions on him!")
+    if member.id == user.id:
+        raise util.DueUtilException(ctx.channel, "You are not allowed to promote yourself!")
+    
     with open('dueutil/game/configs/teams.json', 'r+') as team_file:
         teams = json.load(team_file)
+        team = teams[member.team]
+        if user.id in team["admins"]:
+            raise util.DueUtilException(ctx.channel, "This user is already an admin!")
 
-        try:
-            if member.team is not None:
-                if member.team in teams:
-                    await util.say(ctx.channel, "You are appart **%s**!" % member.team)
-                else:
-                    member.team = None
-                    await util.say(ctx.channel, "You are **not** appart a team!")
-            else:
-                await util.say(ctx.channel, "You are **not** appart a team!")
-        except AttributeError:
-            member.__setstate__({'team': None})
-            await util.say(ctx.channel, "You are **not** appart a team!")
-    member.save()
+        team["admins"].append(user.id)
+
+        team_file.seek(0)
+        team_file.truncate()
+        json.dump(teams, team_file, indent=4)
+    
+    await util.say(ctx.channel, "Successfully **promoted %s** as an **admin** in **%s**!" % (user.name, team["name"]))
