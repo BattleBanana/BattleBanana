@@ -337,3 +337,58 @@ async def promoteuser(ctx, user, **details):
         json.dump(teams, team_file, indent=4)
     
     await util.say(ctx.channel, "Successfully **promoted %s** as an **admin** in **%s**!" % (user.name, team["name"]))
+
+
+@commands.command(args_pattern="P", aliases=["tk"])
+async def teamkick(ctx, user, **details):
+    """
+    [CMD_KEY]teamkick (player)
+
+    Allows you to kick a member from your team.
+    You don't like him? Get ride of him!
+
+    NOTE: Team owner & admin are able to kick users from their team!
+        Admins cannot kick other admins or the owner.
+        Only the owner can kick an admin.
+    """
+
+    member = details["author"]
+    team = customizations.teams[member.team]
+
+    if member == user:
+        raise util.DueUtilException(ctx.channel, "There is no reason to kick yourself!")
+    try:
+        if member.team is None:
+            raise util.DueUtilException(ctx.channel, "You are not in a team!")
+    except AttributeError:
+        member.__setstate__({'team': None})
+        raise util.DueUtilException(ctx.channel, "You are not in a team!")
+    
+    try:
+        if user.team is None:
+            raise util.DueUtilException(ctx.channel, "This player is not in a team!")
+        if not (member.team == user.team):
+            raise util.DueUtilException(ctx.channel, "This player is not in your team!")
+    except AttributeError:
+        member.__setstate__({'team': None})
+        raise util.DueUtilException(ctx.channel, "This player is not in your team!")
+
+    if user.id in team["admins"] and not (member.id == team["owner"]):
+        raise util.DueUtilException(ctx.channel, "You must be the owner to kick this player from the team!")
+    if member.id not in team["admins"]:
+        raise util.DueUtilException(ctx.channel, "You must be an admin to use this command!")
+    
+    with open('dueutil/game/configs/teams.json', 'r+') as team_file:
+        teams = json.load(team_file)
+        team = teams[member.team]
+
+        user.team = None
+        team["members"].remove(user.id)
+        if user.id in team["admins"]:
+            team["admins"].remove(user.id)
+
+        team_file.seek(0)
+        team_file.truncate()
+        json.dump(teams, team_file, indent=4)
+
+    await util.say(ctx.channel, "Successfully kicked **%s** from your team, adios amigos!" % user.name)
