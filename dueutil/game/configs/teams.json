@@ -1,1 +1,39 @@
-{}
+{
+    "dumbledores army": {
+        "admins": [
+            "465694107776450562"
+        ],
+        "members": [
+            "465694107776450562",
+            "115269304705875969"
+        ],
+        "min_level": 50,
+        "name": "dumbledores army",
+        "owner": "465694107776450562",
+        "pendings": []
+    },
+    "epic-gamers": {
+        "admins": [
+            "503189176380948490"
+        ],
+        "members": [
+            "503189176380948490"
+        ],
+        "min_level": 1,
+        "name": "epic-gamers",
+        "owner": "503189176380948490",
+        "pendings": []
+    },
+    "surmount": {
+        "admins": [
+            "335660300608995331"
+        ],
+        "members": [
+            "335660300608995331"
+        ],
+        "min_level": 60,
+        "name": "surmount",
+        "owner": "335660300608995331",
+        "pendings": []
+    }
+}
