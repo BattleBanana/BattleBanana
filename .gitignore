@@ -11,3 +11,4 @@ imagecache/
 dueutil.json
 dbconfig.json
 generalconfig.py
+dueutil/game/configs/teams.json
