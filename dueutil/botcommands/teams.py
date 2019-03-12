@@ -383,7 +383,8 @@ async def teamkick(ctx, user, **details):
         team = teams[member.team]
 
         user.team = None
-        team["members"].remove(user.id)
+        if user.id in team["members"]:
+            team["members"].remove(user.id)
         if user.id in team["admins"]:
             team["admins"].remove(user.id)
 
