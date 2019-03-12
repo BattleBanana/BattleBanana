@@ -507,7 +507,7 @@ async def optouthere(ctx, **details):
             client = util.get_client(ctx.server.id)
             await client.add_roles(ctx.author, optout_role)
             await util.say(ctx.channel, (":ok_hand: You've opted out of DueUtil on this server!\n"
-                                         + "You won't exp, quests, or be usable in commands here."))
+                                         + "You won't get exp, quests or be able to use commands here."))
     else:
         await util.say(ctx.channel, ("You've already opted out on this sever!\n"
                                      + "Join the fun over here do ``%soptinhere``" % details["cmd_key"]))
