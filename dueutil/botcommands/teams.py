@@ -339,6 +339,41 @@ async def promoteuser(ctx, user, **details):
     await util.say(ctx.channel, "Successfully **promoted %s** as an **admin** in **%s**!" % (user.name, team["name"]))
 
 
+@commands.command(args_pattern="P", aliases=["pu"])
+async def demoteuser(ctx, user, **details):
+    """
+    [CMD_KEY]demoteuser (player)
+
+    Promote a member of your team to admin.
+    Being an admin allows you to manage the team: Invite players, kick players, etc.
+
+    NOTE: Only the owner can promote members!
+    """
+
+    member = details["author"]
+    team = customizations.teams[member.team]
+
+    try:
+        if member.team is None:
+            raise util.DueUtilException(ctx.channel, "You are not in a team!")
+    except AttributeError:
+        member.__setstate__({'team': None})
+        raise util.DueUtilException(ctx.channel, "You are not in a team!")
+    try:
+        if user.team is None:
+            raise util.DueUtilException(ctx.channel, "This player is not in your team!")
+    except AttributeError:
+        member.__setstate__({'team': None})
+        raise util.DueUtilException(ctx.channel, "This player is not in a team!")
+    if not(member.id == team["owner"]):
+        raise util.DueUtilException(ctx.channel, "You are not allowed to demote this users! (You must be owner!)")
+    if not (member.team == user.team):
+        raise util.DueUtilException(ctx.channel, "This player is not in your team!")
+    if member == user:
+        raise util.DueUtilException(ctx.channel, "There is no reason to demote yourself!")
+
+
+
 @commands.command(args_pattern="P", aliases=["tk"])
 async def teamkick(ctx, user, **details):
     """
