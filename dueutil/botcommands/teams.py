@@ -125,7 +125,6 @@ async def teaminvite(ctx, member, **details):
             raise util.DueUtilException(ctx.channel, "This player is already in a team!")
     except AttributeError:
         member.__setstate__({'team': None})
-
     try: 
         if inviter.team is None:
             raise util.DueUtilException(ctx.channel, "You are not in any team!")
@@ -133,9 +132,12 @@ async def teaminvite(ctx, member, **details):
         member.__setstate__({'team': None})
         raise util.DueUtilException(ctx.channel, "You are not in any team!")
 
+    if inviter == member:
+        raise util.DueUtilException(ctx.channel, "You cannot invite yourself!")
+
     teams = customizations.teams
     team = teams[inviter.team]
-    if not (team['owner'] == inviter.id or inviter.id in team['admins']):
+    if not (inviter.id in team['admins']):
         raise util.DueUtilException(ctx.channel, "You do not have permissions to send invites!!")
 
     try:
