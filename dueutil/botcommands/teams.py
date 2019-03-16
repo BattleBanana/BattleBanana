@@ -127,10 +127,10 @@ async def teaminvite(ctx, member, **details):
         member.__setstate__({'team': None})
     try: 
         if inviter.team is None:
-            raise util.DueUtilException(ctx.channel, "You are **not** appart of a team!"")
+            raise util.DueUtilException(ctx.channel, "You are **not** a part of a team!")
     except AttributeError:
         member.__setstate__({'team': None})
-        raise util.DueUtilException(ctx.channel, "You are **not** appart of a team!"")
+        raise util.DueUtilException(ctx.channel, "You are **not** a part of a team!")
 
     if inviter == member:
         raise util.DueUtilException(ctx.channel, "You cannot invite yourself!")
@@ -158,7 +158,7 @@ async def showinvites(ctx, **details):
     """
     [CMD_KEY]showinvites
 
-    Display team invites you have received!
+    Display any team invites that you have received!
     """
     
     member = details["author"]
@@ -200,16 +200,16 @@ async def acceptinvite(ctx, team_index, **details):
 
     try:
         if member.team is not None:
-            raise util.DueUtilException(ctx.channel, "You are already in a team!")
+            raise util.DueUtilException(ctx.channel, "You have not been invited to any teams.")
     except AttributeError:
         member.__setstate__({'team': None})
     try:
         if member.team_invites is None:
             member.team_invites = []
-            raise util.DueUtilException(ctx.channel, "You are not invited in any team!")
+            raise util.DueUtilException(ctx.channel, "You have not been invited to any teams.")
     except AttributeError:
         member.__setstate__({'team_invites': []})
-        raise util.DueUtilException(ctx.channel, "You are not invited in any team!")
+        raise util.DueUtilException(ctx.channel, "You have not been invited to any teams.")
     if team_index >= len(member.team_invites):
         raise util.DueUtilException(ctx.channel, "Invite not found!")
 
@@ -240,7 +240,7 @@ async def declineinvite(ctx, team_index, **details):
     """
     [CMD_KEY]declineinvite (team index)
 
-    Decline a team invite.
+    Decline a team invite cuz you're too good for it.
     """
 
     member = details["author"]
@@ -264,7 +264,7 @@ async def declineinvite(ctx, team_index, **details):
 @commands.command(args_pattern=None, aliases=["mt"])
 async def myteam(ctx, **details):
     """
-    [CMD_KEY]teams
+    [CMD_KEY]myteam
 
     Display your team!
 
@@ -281,15 +281,15 @@ async def myteam(ctx, **details):
     try:
         if member.team is not None:
             if member.team in teams:
-                await util.say(ctx.channel, "You are appart **%s**!" % member.team)
+                await util.say(ctx.channel, "You are a part of **%s**!" % member.team)
             else:
                 member.team = None
-                await util.say(ctx.channel, "You are **not** appart of a team!")
+                await util.say(ctx.channel, "You are **not** a part of a team!")
         else:
-            await util.say(ctx.channel, "You are **not** appart of a team!")
+            await util.say(ctx.channel, "You are **not** a part of a team!")
     except AttributeError:
         member.__setstate__({'team': None})
-        await util.say(ctx.channel, "You are **not** appart of a team!")
+        await util.say(ctx.channel, "You are **not** a part of a team!")
 
     member.save()
 
@@ -322,7 +322,7 @@ async def promoteuser(ctx, user, **details):
     if not(member.id == team["owner"]):
         raise util.DueUtilException(ctx.channel, "You are not allowed to promote users! (You must be owner!)")
     if not (member.team == user.team):
-        raise util.DueUtilException(ctx.channel, "This player is not in your team, therefore, you cannot take actions on him!")
+        raise util.DueUtilException(ctx.channel, "This player is not in your team!")
     if member.id == user.id:
         raise util.DueUtilException(ctx.channel, "You are not allowed to promote yourself!")
     
@@ -346,10 +346,9 @@ async def demoteuser(ctx, user, **details):
     """
     [CMD_KEY]demoteuser (player)
 
-    Promote a member of your team to admin.
-    Being an admin allows you to manage the team: Invite players, kick players, etc.
+    Demote an admin of your team to a normal member.
 
-    NOTE: Only the owner can promote members!
+    NOTE: Only the owner can demote members!
     """
 
     member = details["author"]
@@ -367,10 +366,10 @@ async def demoteuser(ctx, user, **details):
     except AttributeError:
         member.__setstate__({'team': None})
         raise util.DueUtilException(ctx.channel, "This player is not in a team!")
-    if not(member.id == team["owner"]):
-        raise util.DueUtilException(ctx.channel, "You are not allowed to demote this users! (You must be owner!)")
     if not (member.team == user.team):
         raise util.DueUtilException(ctx.channel, "This player is not in your team!")
+    if not(member.id == team["owner"]):
+        raise util.DueUtilException(ctx.channel, "You are not allowed to demote users! (You must be the owner!)")
     if member == user:
         raise util.DueUtilException(ctx.channel, "There is no reason to demote yourself!")
 
@@ -382,7 +381,7 @@ async def teamkick(ctx, user, **details):
     [CMD_KEY]teamkick (player)
 
     Allows you to kick a member from your team.
-    You don't like him? Get ride of him!
+    You don't like him? Get rid of him!
 
     NOTE: Team owner & admin are able to kick users from their team!
         Admins cannot kick other admins or the owner.
@@ -404,10 +403,11 @@ async def teamkick(ctx, user, **details):
     try:
         if user.team is None:
             raise util.DueUtilException(ctx.channel, "This player is not in a team!")
-        if not (member.team == user.team):
-            raise util.DueUtilException(ctx.channel, "This player is not in your team!")
     except AttributeError:
         member.__setstate__({'team': None})
+        raise util.DueUtilException(ctx.channel, "This player is not in a team!")
+    
+    if not (member.team == user.team):
         raise util.DueUtilException(ctx.channel, "This player is not in your team!")
 
     if user.id in team["admins"] and not (member.id == team["owner"]):
