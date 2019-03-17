@@ -36,7 +36,7 @@ class FeedbackHandler:
         report.set_footer(text="Sent at " + util.pretty_time())
         await util.say(ctx.channel,
                        ":mailbox_with_mail: Sent! You can view your %s here: <%s>" % (self.type, trello_link))
-        await util.say(self.channel, embed=report)
+        await util.say(ctx.channel, embed=report)
 
 
 bug_reporter = FeedbackHandler(channel=gconf.bug_channel, type="bug report", trello_list="bugs")
