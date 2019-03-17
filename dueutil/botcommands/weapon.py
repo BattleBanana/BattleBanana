@@ -464,7 +464,7 @@ async def buy_weapon(weapon_name, **details):
                                                       full_precision=True) + "**"))
     elif customer.equipped["weapon"] != weapons.NO_WEAPON_ID:
         if len(customer.inventory["weapons"]) < weapons.MAX_STORED_WEAPONS:
-            if weapon.w_id not in customer.inventory["weapons"]:
+            if weapon.w_id not in customer.inventory["weapons"] and not(weapon.w_id == customer.equipped["weapon"]):
                 customer.store_weapon(weapon)
                 customer.money -= weapon.price
                 await util.say(channel, ("**" + customer.name_clean + "** bought a **" + weapon.name_clean + "** for "
@@ -474,7 +474,7 @@ async def buy_weapon(weapon_name, **details):
                                          + weapon.name_clean.lower() + "** to equip this weapon."))
             else:
                 raise util.DueUtilException(channel,
-                                            "Cannot store new weapon! A you already have a weapon with the same name!")
+                                            "Cannot store new weapon! You already have a weapon with the same name!")
         else:
             raise util.DueUtilException(channel, "No free weapon slots!")
     else:
