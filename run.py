@@ -154,7 +154,8 @@ class DueUtilClient(discord.Client):
                     try:
                         # Attempt to warn user
                         yield from util.say(channel,
-                                            "The action could not be performed as I'm **missing permissions**!")
+                                            "The action could not be performed as I'm **missing permissions**! Make sure I have the following permissions:\n"
+                                            + "- Embed links;\n- Attach files;\n- Use external emojis;\n- Add reactions\n")
                     except util.SendMessagePermMissing:
                         pass  # They've block sending messages too.
                 return
