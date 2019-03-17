@@ -39,7 +39,7 @@ class FeedbackHandler:
         await util.say(self.channel, embed=report)
 
 
-bug_reporter = FeedbackHandler(channel=gconf.bug_channel, type="bug report", trello_list="bug reports")
+bug_reporter = FeedbackHandler(channel=gconf.bug_channel, type="bug report", trello_list="bugs")
 suggestion_sender = FeedbackHandler(channel=gconf.feedback_channel, type="suggestion", trello_list="suggestions")
 
 
@@ -52,10 +52,8 @@ async def bugreport(ctx, report, **_):
     Leaves a bug report on the official DueUtil server and trello.
     
     """
-    util.say(ctx, "This feature is currently disabled!\n"
-                + "Make sure to join my support server to report any bug:\n"
-                + "https://discord.gg/P7DBDEC")
-    """await bug_reporter.send_report(ctx, report)"""
+
+    await bug_reporter.send_report(ctx, report)
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern="S")
@@ -67,8 +65,5 @@ async def suggest(ctx, suggestion, **_):
     Leaves a suggestion on the official server and trello.
     
     """
-    util.say(ctx, "This feature is currently disabled!\n"
-                + "Make sure to join my support server to suggest anything:\n"
-                + "https://discord.gg/P7DBDEC")
 
-    """await suggestion_sender.send_report(ctx, suggestion)"""
+    await suggestion_sender.send_report(ctx, suggestion)
