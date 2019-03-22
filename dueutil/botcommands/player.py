@@ -25,7 +25,7 @@ async def daily(ctx, **details):
     You can use this command once very 24 hours!
     """
     player = details["author"]
-    BALANCED_AMOUNT = DAILY_AMOUNT * player.level
+    BALANCED_AMOUNT = DAILY_AMOUNT * player.level * (player.prestige_level + 1)
     player.money += BALANCED_AMOUNT
     player.save()
     await util.say(ctx.channel, e.DUT + " **%s** collected their daily ¤%d!" % (player, BALANCED_AMOUNT))
