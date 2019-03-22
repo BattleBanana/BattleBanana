@@ -412,6 +412,8 @@ async def prestige(ctx, **details):
     user.money -= req_money
     user.prestige()
 
+    await util.say(ctx.channel, "You successfully prestiged! You are now at prestige %s, congrats!" % user.prestige_level)
+
 @commands.command(args_pattern="P?", aliases=["mp", "showprestige", "sp"])
 async def myprestige(ctx, player=None, **details):
     """
