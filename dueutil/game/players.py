@@ -115,7 +115,7 @@ class Player(DueUtilObject, SlotPickleMixin):
         self.strg = 1
         self.accy = 1
         self.hp = 10
-        self.money = (self.money / 2)
+        self.money = self.money
         self.prestige_level += 1
 
         ##### USAGE STATS #####
