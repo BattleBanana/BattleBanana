@@ -140,16 +140,20 @@ async def acceptquest(ctx, quest_index, **details):
             return (max(0.01, (stat / avg_player_stat)
                         * quest.level * (turns / average_quest_battle_turns) / 2 * (quest_scale + 0.5) * 3))
 
-        add_strg = min(attr_gain(quest.strg), 100)
+        # Put some random in the prestige gain so its not a raw 20 * prestige
+        prestige_gain = random.uniform(0.75, 1.25) * (20 * player.prestige_level)
+        max_stats_gain = 100 + prestige_gain
+        add_strg = min(attr_gain(quest.strg), 100) + prestige_gain
         # Limit these with add_strg. Since if the quest is super strong. It would not be beatable.
         # Add a little random so the limit is not super visible
-        add_attack = min(attr_gain(quest.attack), min(add_strg * 3 * random.uniform(0.6, 1.5), 100))
-        add_accy = min(attr_gain(quest.accy), min(add_strg * 3 * random.uniform(0.6, 1.5), 100))
+        add_attack = min(attr_gain(quest.attack), min(add_strg * 3 * random.uniform(0.6, 1.5), max_stats_gain)) + prestige_gain
+        add_accy = min(attr_gain(quest.accy), min(add_strg * 3 * random.uniform(0.6, 1.5), max_stats_gain)) + prestige_gain
 
         stats_reward = players.STAT_GAIN_FORMAT % (add_attack, add_strg, add_accy)
         quest_results = reward + stats_reward
 
-        player.progress(add_attack, add_strg, add_accy, max_attr=100, max_exp=10000)
+        prestige_exp_gain = (20 * player.prestige_level) / 2
+        player.progress(add_attack, add_strg, add_accy, max_attr=max_stats_gain, max_exp=10000 + prestige_exp_gain)
         player.money += quest.money
         stats.increment_stat(stats.Stat.MONEY_CREATED, quest.money)
 

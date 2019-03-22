@@ -50,11 +50,14 @@ async def train(ctx, **details):
     strg_increase = random.uniform(*TRAIN_RANGE) * player.level
     accy_increase = random.uniform(*TRAIN_RANGE) * player.level
 
+    prestige_gain = random.uniform(0.75, 1.25) * (20 * player.prestige_level)
+    maxstats = maxstats + prestige_gain
+
     if player.donor:
         maxstats = 200
-        attack_increase = attack_increase * 2
-        strg_increase = strg_increase * 2
-        accy_increase = accy_increase * 2
+        attack_increase = attack_increase * 2 + prestige_gain
+        strg_increase = strg_increase * 2 + prestige_gain
+        accy_increase = accy_increase * 2 + prestige_gain
 
     if attack_increase > maxstats:
         attack_increase = maxstats
@@ -387,6 +390,53 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
 
     await util.say(ctx.channel, embed=transaction_log)
 
+@commands.command(args_pattern=None)
+async def prestige(ctx, **details):
+    """
+    [CMD_KEY]prestige
+
+    Make you restart from 0, 
+    keeping few stats 
+    and having some bonuses :)
+    """
+
+    user = details["author"]
+    prestige_level = 80 + (20 * user.prestige_level)
+    req_money = 5000000 * (user.prestige_level + 1)
+
+    if user.level < prestige_level:
+        raise util.DueUtilException(ctx.channel, "You need to be level %s or higher to go to the next prestige!" % prestige_level)
+    if user.money < req_money:
+        raise util.DueUtilException(ctx.channel, "You need atleast %s %s to afford the next prestige!" % (util.format_number_precise(req_money), e.DUT))
+
+    user.money -= req_money
+    user.prestige()
+
+@commands.command(args_pattern="P?", aliases=["mp", "showprestige", "sp"])
+async def myprestige(ctx, player=None, **details):
+    """
+    [CMD_KEY]myprestige (player)
+
+    Display what prestige the player is, if no argument is given, it will display your prestige and how many DUTs & level you need for the next prestige!
+    """
+
+    if player is None:
+        player = details["author"]
+    prestige_level = 80 + (20 * player.prestige_level)
+    req_money = 5000000 * (player.prestige_level + 1)
+
+    message = "You are prestige **%s**! " % player.prestige_level
+    if prestige_level > player.level:
+        message += "You need **%s** more levels & " % (prestige_level - player.level)
+    else:
+        message += "You satisfy the level requirement & "
+    if req_money > player.money:
+        message += "you need **%s %s** to afford the next prestige!" % (util.format_number_precise(req_money - player.money), e.DUT)
+    else:
+        message += "you satisfy the money requirement!"
+    
+    await util.say(ctx.channel, message)
+
 @commands.command(hidden=True, args_pattern=None)
 async def benfont(ctx, **details):
     """
@@ -563,3 +613,4 @@ def banner_info(banner_name, **details):
     embed.set_footer(text="Buy this banner for " + util.format_number(banner.price // price_divisor, money=True,
                                                                       full_precision=True))
     return embed
+

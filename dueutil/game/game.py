@@ -211,6 +211,22 @@ async def check_for_recalls(ctx, player):
         ":bangbang: " + ("One" if len(weapons_to_recall) == 1 else "Some") + " of your weapons has been recalled!\n"
         + "You get a refund of ``" + util.format_number(recall_amount, money=True, full_precision=True) + "``"))
 
+async def check_for_missing_new_stats(ctx, player):
+    """
+    Check if the player have all the fields
+    """
+    try: # Prestige
+        player.prestige_level = player.prestige_level
+    except AttributeError:
+        player.__setstate__({'prestige_level': 0})
+    try: # Team
+        player.team = player.team
+    except AttributeError:
+        player.__setstate__({'team': None})
+    try: # Team invites
+        player.team_invites = player.team_invites
+    except AttributeError:
+        player.__setstate__({'team_invites': []})
 
 async def on_message(message):
     player = players.find_player(message.author.id)
@@ -224,6 +240,7 @@ async def on_message(message):
     if player is not None:
         await manage_quests(message, player, spam_level)
         await check_for_recalls(message, player)
+        await check_for_missing_new_stats(message, player)
 
 
 events.register_message_listener(on_message)

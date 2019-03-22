@@ -85,7 +85,8 @@ class Player(DueUtilObject, SlotPickleMixin):
                  "quest_spawn_build_up", "donor",
                  "misc_stats", "equipped", "inventory",
                  "last_message_hashes", "command_rate_limits",
-                 "additional_attributes", "team", "team_invites"]
+                 "additional_attributes", "team", "team_invites",
+                 "prestige_level"]
 
     # additional_attributes is not defined but is there for possible future use.
     # I expect new types of quests/weapons to be subclasses.
@@ -100,6 +101,77 @@ class Player(DueUtilObject, SlotPickleMixin):
             super().__init__("NO_ID", "DueUtil Player", **kwargs)
         self.reset()
         self.money = 100
+
+    def prestige(self, discord_user=None):
+        if discord_user is not None:
+            self.name = discord_user.name
+        self.benfont = False
+
+        ##### STATS #####
+        self.level = 1
+        self.exp = 0
+        self.total_exp = 0
+        self.attack = 1
+        self.strg = 1
+        self.accy = 1
+        self.hp = 10
+        self.money = (self.money / 2)
+        self.prestige_level += 1
+
+        ##### USAGE STATS #####
+        self.last_progress = 0
+        self.last_quest = 0
+        self.wagers_won = self.wagers_won
+        self.quests_won = self.quests_won
+        self.quest_day_start = self.quest_day_start
+        self.quests_completed_today = self.quests_completed_today
+        self.last_message_hashes = Ring(10)
+        self.spam_detections = 0
+
+        if not hasattr(self, "command_rate_limits"):
+            self.command_rate_limits = {}
+
+        ##### THINGS #####
+        self.quests = []
+        self.received_wagers = []
+
+        if not hasattr(self, "awards"):
+            self.awards = []
+        else:
+            # Keep special awards even after reset
+            kept_awards = [award_id for award_id in self.awards if awards.get_award(award_id).special]
+            # To ensure stats don't get weird
+            for award_id in set(self.awards) - set(kept_awards):
+                awards.update_award_stat(award_id, "times_given", -1)
+            self.awards = kept_awards
+
+        # To help the noobz
+        self.quest_spawn_build_up = 1
+
+        # lol no
+        self.donor = self.donor
+        self.team = self.team
+        self.team_invites = []
+
+        ##### Dumb misc stats (easy to add & remove)
+        self.misc_stats = self.misc_stats
+
+        ##### Equiped items
+        self.equipped = defaultdict(Player.DEFAULT_FACTORIES["equipped"],
+                                    weapon=weapons.NO_WEAPON_ID,
+                                    banner="discord blue",
+                                    theme="default",
+                                    background="default")
+
+        ##### Inventory. defaultdict so I can add more stuff - without fuss
+        ##### Also makes shop simpler
+        self.inventory = defaultdict(Player.DEFAULT_FACTORIES["inventory"],
+                                     weapons=[],
+                                     themes=["default"],
+                                     backgrounds=["default"],
+                                     banners=["discord blue"])
+
+        self.save()
 
     def reset(self, discord_user=None):
 
@@ -118,6 +190,8 @@ class Player(DueUtilObject, SlotPickleMixin):
         self.accy = 1
         self.hp = 10
         self.money = 0
+        # lol nah
+        self.prestige_level = 0
 
         ##### USAGE STATS #####
         self.last_progress = 0

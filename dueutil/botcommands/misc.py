@@ -364,6 +364,7 @@ async def giveexp(ctx, player, exp, **_):
     await util.say(ctx.channel, "**%s** has been given **%s** exp!"
                    % (player.name_clean, util.format_number(exp, full_precision=True)))
     await game.check_for_level_up(ctx, player)
+    player.save()
 
 
 @commands.command(permission=Permission.DUEUTIL_MOD, args_pattern=None)
