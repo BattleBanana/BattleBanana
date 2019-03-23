@@ -143,11 +143,11 @@ async def acceptquest(ctx, quest_index, **details):
         # Put some random in the prestige gain so its not a raw 20 * prestige
         prestige_gain = random.uniform(0.75, 1.25) * (20 * player.prestige_level)
         max_stats_gain = 100 + prestige_gain
-        add_strg = min(attr_gain(quest.strg) + prestige_gain, 100)
+        add_strg = min(attr_gain(quest.strg), 100 + prestige_gain)
         # Limit these with add_strg. Since if the quest is super strong. It would not be beatable.
         # Add a little random so the limit is not super visible
-        add_attack = min(attr_gain(quest.attack) + prestige_gain, min(add_strg * 3 * random.uniform(0.6, 1.5), max_stats_gain))
-        add_accy = min(attr_gain(quest.accy) + prestige_gain, min(add_strg * 3 * random.uniform(0.6, 1.5), max_stats_gain))
+        add_attack = min(attr_gain(quest.attack), min(add_strg * 3 * random.uniform(0.6, 1.5) + prestige_gain, max_stats_gain))
+        add_accy = min(attr_gain(quest.accy), min(add_strg * 3 * random.uniform(0.6, 1.5) + prestige_gain, max_stats_gain))
 
         stats_reward = players.STAT_GAIN_FORMAT % (add_attack, add_strg, add_accy)
         quest_results = reward + stats_reward
