@@ -294,9 +294,16 @@ async def unban(ctx, player, **_):
     await util.say(ctx.channel, ":unicorn: **" + player.name_clean + "** has been unbanned!")
     await util.duelogger.info("**%s** has been unbanned" % player.name_clean)
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="P")
+@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None, hidden=True)
 async def bans(ctx, **_):
-    print("WIP!!")
+    bans_embed = discord.Embed(title="Ban list", type="rich", color=gconf.DUE_COLOUR)
+    stringe = ""
+    for k, v in dueutil.permissions.special_permissions.items():
+        if v == "banned":
+            stringe += "<@%s> (%s)\n" % (k,k)
+    bans_embed.add_field(name="There is what I collected about bad people:", value=stringe or "Nobody is banned!")
+
+    await util.say(ctx.channel, embed=bans_embed)
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="P")
