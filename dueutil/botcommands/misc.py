@@ -77,7 +77,7 @@ async def wish(*_, **details):
     """
 
     player = details["author"]
-    player.quest_spawn_build_up += 0.00005
+    player.quest_spawn_build_up += 0.005
 
 
 @commands.command(permission=Permission.DUEUTIL_MOD, args_pattern="SSSSIP?")
