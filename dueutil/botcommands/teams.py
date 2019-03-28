@@ -127,10 +127,10 @@ async def teaminvite(ctx, member, **details):
         member.__setstate__({'team': None})
     try: 
         if inviter.team is None:
-            raise util.DueUtilException(ctx.channel, "You are **not** a part of a team!")
+            raise util.DueUtilException(ctx.channel, "You are not a part of a team!")
     except AttributeError:
         member.__setstate__({'team': None})
-        raise util.DueUtilException(ctx.channel, "You are **not** a part of a team!")
+        raise util.DueUtilException(ctx.channel, "You are not a part of a team!")
 
     if inviter == member:
         raise util.DueUtilException(ctx.channel, "You cannot invite yourself!")
