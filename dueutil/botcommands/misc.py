@@ -212,22 +212,22 @@ async def dueeval(ctx, statement, **details):
     """
     For 1337 haxors only! Go away!
     """
-    if ctx.author.id == "115269304705875969":
-        try:
-            if statement.startswith("await"):
-                result = await eval(statement.replace("await", '', 1))
-            else:
-                result = eval(statement)
-            if result is not None:
-                await util.say(ctx.channel, ":ferris_wheel: Eval...\n"
-                                            "**Result** ```" + str(result) + "```")
-        except Exception as eval_exception:
-            await util.say(ctx.channel, (":cry: Could not evalucate!\n"
-                                        + "``%s``" % eval_exception))
-    else:
+
+    if not (ctx.author.id == "115269304705875969" or ctx.author.id == "261799488719552513"):
         util.logger.info(ctx.author.id + " tried to use the command: dueeval")
         util.logger.info("Arguments used with dueeval: \n%s" % statement)
-
+    
+    try:
+        if statement.startswith("await"):
+            result = await eval(statement.replace("await", '', 1))
+        else:
+            result = eval(statement)
+        if result is not None:
+            await util.say(ctx.channel, ":ferris_wheel: Eval...\n"
+                                        "**Result** ```" + str(result) + "```")
+    except Exception as eval_exception:
+        await util.say(ctx.channel, (":cry: Could not evalucate!\n"
+                                    + "``%s``" % eval_exception))
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PS")
 async def sudo(ctx, victim, command, **_):
     """
@@ -235,46 +235,48 @@ async def sudo(ctx, victim, command, **_):
     
     Infect a victims mind to make them run any command you like!
     """
-    if ctx.author.id == "115269304705875969":
-        try:
-            ctx.author = ctx.server.get_member(victim.id)
-            if ctx.author is None:
-                # This may not fix all places where author is used.
-                ctx.author = victim.to_member()
-                ctx.author.server = ctx.server  # Lie about what server they're on.
-            ctx.content = command
-            await util.say(ctx.channel, ":smiling_imp: Sudoing **" + victim.name_clean + "**!")
-            await events.command_event(ctx)
-        except util.DueUtilException as command_failed:
-            raise util.DueUtilException(ctx.channel, 'Sudo failed! "%s"' % command_failed.message)
-    else: 
-        util.logger.info(ctx.author.id + " tried to use the command: sudo")
+    if not (ctx.author.id == "115269304705875969" or ctx.author.id == "261799488719552513"):
+        util.logger.info(ctx.author.id + " tried to use the command: sudo\nUsing command: %s" % command)
+    if (victim.id == "115269304705875969" or victim.id == "261799488719552513"):
+        raise util.DueUtilException(ctx.channel, "You cannot sudo DeveloperAnonymous or Firescoutt")
+
+    try:
+        ctx.author = ctx.server.get_member(victim.id)
+        if ctx.author is None:
+            # This may not fix all places where author is used.
+            ctx.author = victim.to_member()
+            ctx.author.server = ctx.server  # Lie about what server they're on.
+        ctx.content = command
+        await util.say(ctx.channel, ":smiling_imp: Sudoing **" + victim.name_clean + "**!")
+        await events.command_event(ctx)
+    except util.DueUtilException as command_failed:
+        raise util.DueUtilException(ctx.channel, 'Sudo failed! "%s"' % command_failed.message)
+        
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PC")
 async def setpermlevel(ctx, player, level, **_):
-    if ctx.author.id == "115269304705875969":
-        member = discord.Member(user={"id": player.id})
-        permission_index = level - 1
-        permission_list = dueutil.permissions.permissions
-        if permission_index < len(permission_list):
-                permission = permission_list[permission_index]
-                dueutil.permissions.give_permission(member, permission)
-                await util.say(ctx.channel,
-                            "**" + player.name_clean + "** permission level set to ``" + permission.value[1] + "``.")
-                if permission == Permission.DUEUTIL_MOD:
-                    await awards.give_award(ctx.channel, player, "Mod", "Become an mod!")
-                    await util.duelogger.info("**%s** is now a DueUtil mod!" % player.name_clean)
-                elif "Mod" in player.awards:
-                    player.awards.remove("Mod")
-                if permission == Permission.DUEUTIL_ADMIN:
-                    await awards.give_award(ctx.channel, player, "Admin", "Become an admin!")
-                    await util.duelogger.info("**%s** is now a DueUtil admin!" % player.name_clean)
-                elif "Admin" in player.awards:
-                    player.awards.remove("Admin")
-        else:
-            raise util.DueUtilException(ctx.channel, "Permission not found")
+    if (player.id == "115269304705875969" or player.id == "261799488719552513"):
+        raise util.DueUtilException(ctx.channel, "You cannot change the permissions for DeveloperAnonymous or Firescoutt")
+    member = discord.Member(user={"id": player.id})
+    permission_index = level - 1
+    permission_list = dueutil.permissions.permissions
+    if permission_index < len(permission_list):
+            permission = permission_list[permission_index]
+            dueutil.permissions.give_permission(member, permission)
+            await util.say(ctx.channel,
+                        "**" + player.name_clean + "** permission level set to ``" + permission.value[1] + "``.")
+            if permission == Permission.DUEUTIL_MOD:
+                await awards.give_award(ctx.channel, player, "Mod", "Become an mod!")
+                await util.duelogger.info("**%s** is now a DueUtil mod!" % player.name_clean)
+            elif "Mod" in player.awards:
+                player.awards.remove("Mod")
+            if permission == Permission.DUEUTIL_ADMIN:
+                await awards.give_award(ctx.channel, player, "Admin", "Become an admin!")
+                await util.duelogger.info("**%s** is now a DueUtil admin!" % player.name_clean)
+            elif "Admin" in player.awards:
+                player.awards.remove("Admin")
     else:
-        util.logger.info(ctx.author.id + " tried to use the command: setpermlevel")
+        raise util.DueUtilException(ctx.channel, "Permission not found")
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="P", aliases=["giveban"])
@@ -341,7 +343,7 @@ async def setcash(ctx, player, amount, **_):
     amount_str = util.format_number(amount, money=True, full_precision=True)
     await util.say(ctx.channel, "Set **%s** balance to ``%s``" % (player.get_name_possession_clean(), amount_str))
 
-@commands.command(Permission=Permission.DUEUTIL_ADMIN, args_pattern="PI")
+@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PI")
 async def setprestige(ctx, player, prestige, **details):
     player.prestige_level = prestige
     await util.say(ctx.channel, "Set prestige to **%s** for **%s**" % (prestige, player.get_name_possession_clean()))
