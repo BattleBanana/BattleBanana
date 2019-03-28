@@ -333,19 +333,18 @@ async def givecash(ctx, player, amount, **_):
         await util.say(ctx.channel,
                        "Subtracted ``" + amount_str + "`` from **" + player.get_name_possession_clean() + "** account!")
     player.save()
-    if ctx.author.id != "115269304705875969":
-        util.logger.info(ctx.author.id + " gave " + amount_str + " DUTs to " + player.id)
-        util.logger.info(ctx.author.id + " tried to use the command: givecash")
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PI")
 async def setcash(ctx, player, amount, **_):
-    if ctx.author.id != "115269304705875969":
-        util.logger.info(ctx.author.id + " tried to use the command: setcash")
-        util.logger.info(ctx.author.id + " has set cash for " + player.id)
     player.money = amount
     amount_str = util.format_number(amount, money=True, full_precision=True)
     await util.say(ctx.channel, "Set **%s** balance to ``%s``" % (player.get_name_possession_clean(), amount_str))
+
+@commands.command(Permission=Permission.DUEUTIL_ADMIN, args_pattern="PI")
+async def setprestige(ctx, player, prestige, **details):
+    player.prestige_level = prestige
+    await util.say(ctx.channel, "Set prestige to **%s** for **%s**" % (prestige, player.get_name_possession_clean()))
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PS")
@@ -358,10 +357,6 @@ async def giveaward(ctx, player, award_id, **_):
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PR")
 async def giveexp(ctx, player, exp, **_):
-    if ctx.author.id != "115269304705875969":
-        util.logger.info(ctx.author.id + " tried to use the command: giveexp")
-        util.logger.info(ctx.author.id + " used giveexp on " + player.id)
-        
     # (attack + strg + accy) * 100
     if exp < 0.1:
         raise util.DueUtilException(ctx.channel, "The minimum exp that can be given is 0.1!")

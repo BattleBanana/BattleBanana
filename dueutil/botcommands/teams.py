@@ -62,7 +62,7 @@ async def createteam(ctx, name, leader, lower_level=1, **details):
     leader.save()
     customizations.teams._load_teams()
 
-    await util.say(ctx.channel, "Successfully added %s to teams!" % name.lower())
+    await util.say(ctx.channel, "Successfully added **%s** to teams!" % name.lower())
 
 
 @commands.command(persmission=Permission.DUEUTIL_ADMIN, args_pattern="S")
@@ -107,8 +107,8 @@ async def deleteteam(ctx, name, **details):
 
     customizations.teams._load_teams()
 
-    await util.say(ctx.channel, ":wastebasket: Team **" + name.lower() + "** has been deleted!")
-    await util.duelogger.info("**%s** deleted the **%s**'s team!" % (details["author"].name_clean, name.lower()))
+    await util.say(ctx.channel, ":wastebasket: Team **%s** has been deleted!" % name.lower())
+    await util.duelogger.info("**%s** deleted the **%s**'s team!" % (details["author"].get_name_possession_clean(), name.lower()))
 
 
 @commands.command(args_pattern="P", aliases=["ti"])
@@ -150,7 +150,7 @@ async def teaminvite(ctx, member, **details):
         member.team_invites.append(inviter.team)
     member.save()
 
-    await util.say(ctx.channel, ":thumbsup: All's done! Invite has been sent to **%s**!" % member.name_clean)
+    await util.say(ctx.channel, ":thumbsup: All's done! Invite has been sent to **%s**!" % member.get_name_possession_clean())
     
 
 @commands.command(args_pattern=None, aliases=["si"])
@@ -338,7 +338,7 @@ async def promoteuser(ctx, user, **details):
         team_file.truncate()
         json.dump(teams, team_file, indent=4)
     
-    await util.say(ctx.channel, "Successfully **promoted %s** as an **admin** in **%s**!" % (user.name, team["name"]))
+    await util.say(ctx.channel, "Successfully **promoted %s** as an **admin** in **%s**!" % (user.get_name_possession_clean(), team["name"]))
 
 
 @commands.command(args_pattern="P", aliases=["pu"])
@@ -429,4 +429,4 @@ async def teamkick(ctx, user, **details):
         team_file.truncate()
         json.dump(teams, team_file, indent=4)
 
-    await util.say(ctx.channel, "Successfully kicked **%s** from your team, adios amigos!" % user.name)
+    await util.say(ctx.channel, "Successfully kicked **%s** from your team, adios amigos!" % user.player.get_name_possession_clean())
