@@ -281,6 +281,8 @@ async def setpermlevel(ctx, player, level, **_):
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="P", aliases=["giveban"])
 async def ban(ctx, player, **_):
+    if (player.id == "115269304705875969" or (player.id == "261799488719552513" and not (ctx.author.id == "115269304705875969"))):
+        raise util.DueUtilException(ctx.channel, "You cannot change the permissions for DeveloperAnonymous or Firescoutt")
     dueutil.permissions.give_permission(player.to_member(), Permission.BANNED)
     await util.say(ctx.channel, emojis.MACBAN+" **" + player.name_clean + "** banned!")
     await util.duelogger.concern("**%s** has been banned!" % player.name_clean)
