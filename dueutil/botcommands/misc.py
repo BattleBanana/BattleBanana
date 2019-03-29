@@ -277,7 +277,7 @@ async def setpermlevel(ctx, player, level, **_):
                 player.awards.remove("Admin")
     else:
         raise util.DueUtilException(ctx.channel, "Permission not found")
-# agfdgdfgd
+
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="P", aliases=["giveban"])
 async def ban(ctx, player, **_):
