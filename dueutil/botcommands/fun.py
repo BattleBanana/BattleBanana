@@ -342,3 +342,17 @@ async def pandemic(ctx, **_):
                              value=warning_symbols.get(pandemic_level, warning_symbols[2]))
 
     await util.say(ctx.channel, embed=pandemic_embed)
+
+import random
+@commands.command(args_pattern=None)
+async def fool(ctx, **details):
+    """
+    [CMD_KEY]fool
+
+    Are you a fool?
+    """
+    randomnumber = random.randint(1, 100)
+    if randomnumber >= 50:
+        await util.say(ctx.channel, "%s is a fool!1!!11 :confused:" % (ctx.author.mention))
+    else:
+        await util.say(ctx.channel, "%s is not a fool!1!11!1! :smiley:" % (ctx.author.mention))
