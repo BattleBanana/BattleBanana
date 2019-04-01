@@ -390,8 +390,9 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
 
     await util.say(ctx.channel, embed=transaction_log)
 
-@commands.command(args_pattern=None)
-async def prestige(ctx, **details):
+@commands.command(args_pattern="S?")
+@commands.require_cnf(warning="This will **__reset__** your stats giving you bonus!")
+async def prestige(ctx, cnf="", **details):
     """
     [CMD_KEY]prestige
 
