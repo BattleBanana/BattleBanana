@@ -108,7 +108,7 @@ async def deleteteam(ctx, name, **details):
     customizations.teams._load_teams()
 
     await util.say(ctx.channel, ":wastebasket: Team **%s** has been deleted!" % name.lower())
-    await util.duelogger.info("**%s** deleted the **%s**'s team!" % (details["author"].get_name_possession_clean(), name.lower()))
+    await util.logger.info("**%s** deleted the **%s**'s team!" % (details["author"].get_name_possession_clean(), name.lower()))
 
 
 @commands.command(args_pattern="P", aliases=["ti"])
@@ -341,7 +341,7 @@ async def promoteuser(ctx, user, **details):
     await util.say(ctx.channel, "Successfully **promoted %s** as an **admin** in **%s**!" % (user.get_name_possession_clean(), team["name"]))
 
 
-@commands.command(args_pattern="P", aliases=["pu"])
+@commands.command(args_pattern="P", aliases=["du"])
 async def demoteuser(ctx, user, **details):
     """
     [CMD_KEY]demoteuser (player)
@@ -354,26 +354,29 @@ async def demoteuser(ctx, user, **details):
     member = details["author"]
     team = customizations.teams[member.team]
 
-    try:
-        if member.team is None:
-            raise util.DueUtilException(ctx.channel, "You are not in a team!")
-    except AttributeError:
-        member.__setstate__({'team': None})
+    if member.team is None:
         raise util.DueUtilException(ctx.channel, "You are not in a team!")
-    try:
-        if user.team is None:
-            raise util.DueUtilException(ctx.channel, "This player is not in your team!")
-    except AttributeError:
-        member.__setstate__({'team': None})
-        raise util.DueUtilException(ctx.channel, "This player is not in a team!")
+    if user.team is None:
+        raise util.DueUtilException(ctx.channel, "This player is not in your team!")
     if not (member.team == user.team):
         raise util.DueUtilException(ctx.channel, "This player is not in your team!")
     if not(member.id == team["owner"]):
         raise util.DueUtilException(ctx.channel, "You are not allowed to demote users! (You must be the owner!)")
     if member == user:
         raise util.DueUtilException(ctx.channel, "There is no reason to demote yourself!")
+    
+    with open('dueutil/game/configs/teams.json', 'r+') as team_file:
+        teams = json.load(team_file)
+        team = teams[user.team]
 
+        if user.id in team["admins"]):
+            team["admins"].remove(user.id)
+            user.save()
+        else:
+            raise util.DueUtilException(ctx.channel, "This player is already a member. If you meant to kick him, please use [CMD_KEY]teamkick (user)")
 
+    await util.say(ctx.channel, "**%s** has been demoted to **Member**" % (user.get_name_possession_clean()))
+        
 
 @commands.command(args_pattern="P", aliases=["tk"])
 async def teamkick(ctx, user, **details):
@@ -393,20 +396,10 @@ async def teamkick(ctx, user, **details):
 
     if member == user:
         raise util.DueUtilException(ctx.channel, "There is no reason to kick yourself!")
-    try:
-        if member.team is None:
-            raise util.DueUtilException(ctx.channel, "You are not in a team!")
-    except AttributeError:
-        member.__setstate__({'team': None})
+    if member.team is None:
         raise util.DueUtilException(ctx.channel, "You are not in a team!")
-    
-    try:
-        if user.team is None:
-            raise util.DueUtilException(ctx.channel, "This player is not in a team!")
-    except AttributeError:
-        member.__setstate__({'team': None})
+    if user.team is None:
         raise util.DueUtilException(ctx.channel, "This player is not in a team!")
-    
     if not (member.team == user.team):
         raise util.DueUtilException(ctx.channel, "This player is not in your team!")
 
@@ -429,4 +422,40 @@ async def teamkick(ctx, user, **details):
         team_file.truncate()
         json.dump(teams, team_file, indent=4)
 
-    await util.say(ctx.channel, "Successfully kicked **%s** from your team, adios amigos!" % user.player.get_name_possession_clean())
+    await util.say(ctx.channel, "Successfully kicked **%s** from your team, adios amigos!" % user.get_name_possession_clean())
+
+
+@commands.command(args_pattern=None, aliases=["lt"])
+async def leaveteam(ctx, **details):
+    """
+    [CMD_KEY]leaveteam
+
+    You don't want to be in your team anymore?
+
+    Congrats you found the right command to leave! 
+
+    :D
+    """
+
+    user = details["author"]
+
+    if not user.team:
+        raise util.DueUtilException(ctx.channel, "You are not in any team.. You can't leave the void.. My void! :smiling_imp:")
+
+    with open('dueutil/game/configs/teams.json', 'r+') as team_file:
+        teams = json.load(team_file)
+        team = teams[user.team]
+
+        if user.id == team["owner"]:
+            raise util.DueUtilException(ctx.channel, "You cannot leave this team! If you want to disband it, use `!deleteteam`")
+        if user.id in team["admins"]:
+            team["admins"].remove(user.id)
+        team["members"].remove(user.id)
+        user.team = None
+        user.save()
+
+        team_file.seek(0)
+        team_file.truncate()
+        json.dump(teams, team_file, indent=4)
+
+    await util.say(ctx.channel, "You successfully left your team!")

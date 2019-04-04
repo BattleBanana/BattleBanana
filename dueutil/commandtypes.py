@@ -1,4 +1,5 @@
 import re
+import json
 
 from .game.helpers import misc
 from .game import players
@@ -17,6 +18,16 @@ def strip_thousands_separators(value):
     # Will strip 1000s without crazy 1,,,,,,,,,,000
     # Allowed will also allow incorrect formatting.
     return re.sub(THOUSANDS_REGEX, r'\2', value)
+
+def parse_team(value):
+    # return team or False
+    try:
+        with open('dueutil/game/configs/teams.json', 'r+') as teamfile:
+            teams = json.load(teamfile)
+            return teams[value]
+    except KeyError:
+        return False
+            
 
 
 def parse_int(value):
@@ -75,6 +86,7 @@ def parse_type(arg_type, value, **extras):
     called = extras.get("called")
     ctx = extras.get("ctx")
     return {
+        'T': parse_team(value),
         'S': parse_string(value),
         'I': parse_int(value),
         'C': parse_count(value),
