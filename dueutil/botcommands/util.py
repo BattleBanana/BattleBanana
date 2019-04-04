@@ -95,7 +95,7 @@ async def help(ctx, *args, **details):
                                                          + "DueUtil guide: https://dueutil.tech/howto\n"
                                                          + "Support server: https://discord.gg/P7DBDEC\n"
                                                          + "Upvote me: https://goo.gl/BxcmqS\n"
-                                                         + "Support me (donate): https://selly.gg/u/DeveloperAnonymous"))
+                                                         + "Support me (donate): https://PayPal.me/DeveloperAnonymous"))
         help_embed.set_footer(
             text="To use admin commands you must have the manage server permission or the 'Due Commander' role.")
 
