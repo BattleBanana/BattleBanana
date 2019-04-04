@@ -369,7 +369,7 @@ async def demoteuser(ctx, user, **details):
         teams = json.load(team_file)
         team = teams[user.team]
 
-        if user.id in team["admins"]):
+        if user.id in team["admins"]:
             team["admins"].remove(user.id)
             user.save()
         else:
