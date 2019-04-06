@@ -459,3 +459,20 @@ async def leaveteam(ctx, **details):
         json.dump(teams, team_file, indent=4)
 
     await util.say(ctx.channel, "You successfully left your team!")
+
+
+@commands.command(args_pattern="T?", aliases=["st"])
+async def showteams(ctx, page=1, **details):
+    """
+    [CMD_KEY]showteams (team?)
+
+    Show all teams or display the specified team
+    """
+
+    teamlist = "Team Name - Team Owner - Min. Level"
+    for index in range(0, min(len(customizations.teams), (page * 5) - 1), 1):
+        team = customizations.teams[index]
+        teamlist += "%s - %s - %s\n" % (team["name"], team["owner"], team["min_level"])
+    
+    await util.say(ctx.channel, teamlist)
+    teamsEmbed = discord.Embed(title="There is the teams lists", description="Display all existant teams")
