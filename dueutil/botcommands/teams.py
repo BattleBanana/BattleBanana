@@ -461,7 +461,7 @@ async def leaveteam(ctx, **details):
     await util.say(ctx.channel, "You successfully left your team!")
 
 
-@commands.command(args_pattern="T?", aliases=["st"])
+@commands.command(args_pattern="I?", aliases=["st"])
 async def showteams(ctx, page=1, **details):
     """
     [CMD_KEY]showteams (team?)
@@ -469,9 +469,11 @@ async def showteams(ctx, page=1, **details):
     Show all teams or display the specified team
     """
 
-    teamlist = "Team Name - Team Owner - Min. Level"
-    for index in range(0, min(len(customizations.teams), (page * 5) - 1), 1):
-        team = customizations.teams[index]
+    teamlist = "Team Name - Team Owner - Min. Level\n"
+    teams = customizations.teams
+
+    for index in range(len(teams) - 1 - (5 * page), -1, -1):
+        team = teams[index]
         teamlist += "%s - %s - %s\n" % (team["name"], team["owner"], team["min_level"])
     
     await util.say(ctx.channel, teamlist)
