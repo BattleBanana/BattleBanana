@@ -28,6 +28,8 @@ async def createteam(ctx, name, leader, lower_level=1, **details):
     Very basic.. isn't it?
     """
 
+    if len(name) > 32 or len(name) < 4:
+        raise util.DueUtilException(ctx.channel, "Team Name must be between 4 and 32 characters")
     if name != util.filter_string(name):
         raise util.DueUtilException(ctx.channel, "Invalid team name!")
     if name.lower() in customizations.teams:
