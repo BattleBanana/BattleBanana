@@ -231,14 +231,15 @@ async def dueeval(ctx, statement, **details):
                                     + "``%s``" % eval_exception))
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="CC?", hidden=True)
-async def generatecode(ctx, value, count=1, **details):
+@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="CC?B?", hidden=True)
+async def generatecode(ctx, value, count=1, show=False, **details):
     """
     [CMD_KEY]generatecode ($$$) (amount)
 
     Generates the number of codes (amount) with price ($$$)
     """
-    
+
+    newcodes = ""
     with open("dueutil/game/configs/codes.json", "r+") as code_file:
         try:
             codes = json.load(code_file)
@@ -246,12 +247,48 @@ async def generatecode(ctx, value, count=1, **details):
             codes = {}
 
         for i in range(count):
-            code = "DUEUTILPROMO_%s" % (random.uniform(1000000000, 9999999999))
+            code = "DUEUTILPROMO_%i" % (random.uniform(1000000000, 9999999999))
+            while codes.get(code):
+                code = "DUEUTILPROMO_%i" % (random.uniform(1000000000, 9999999999))
             codes[code] = value
+            if show:
+                newcodes += "%s\n" % (code)
 
         code_file.seek(0)
         code_file.truncate()
         json.dump(codes, code_file, indent=4)
+    
+    if show:
+        code_Embed = discord.Embed(title="New codes!", type="rich", colour=gconf.DUE_COLOUR)
+        code_Embed.add_field(name="Codes:", value=newcodes)
+        code_Embed.set_footer(text="These codes can only be used once!")
+        await util.say(ctx.channel, embed=code_Embed)
+
+@commands.command(args_pattern="S")
+async def redeem(ctx, code, **details):
+    """
+    [CMD_KEY]redeem (code)
+
+    Redeem your code
+    """
+
+    with open("dueutil/game/configs/codes.json", "r+") as code_file:
+        codes = json.load(code_file)
+        if not codes.get(code):
+            raise util.DueUtilException(ctx.channel, "Code does not exist!")
+        
+        user = details["author"]
+        money = codes[code]
+        
+        del codes[code]
+        user.money += money
+        user.save()
+        
+        code_file.seek(0)
+        code_file.truncate()
+        json.dump(codes, code_file, indent=4)
+
+        await util.say(ctx.channel, "You successfully reclaimed **%s** !!" % (util.format_money(money)))
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PS")
 async def sudo(ctx, victim, command, **_):
