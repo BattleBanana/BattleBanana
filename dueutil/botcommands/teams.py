@@ -36,7 +36,7 @@ async def createteam(ctx, name, leader, lower_level=1, **details):
         raise util.DueUtilException(ctx.channel, "Minimum level cannot be under 1!")
     if leader.team is not None:
         raise util.DueUtilException(ctx.channel, "This player is already in a team!")
-    
+
     try:
         team_file = open('dueutil/game/configs/teams.json', "r+")
     except IOError:
@@ -80,7 +80,7 @@ async def deleteteam(ctx, name, **details):
             teams = json.load(team_file)
             if teamToDelete not in teams:
                 raise util.DueUtilException(ctx.channel, "You cannot delete this team!")
-            
+
             team_target = teams[teamToDelete]
 
             owner = players.find_player(team_target['owner'])
@@ -94,7 +94,7 @@ async def deleteteam(ctx, name, **details):
                 member = players.find_player(members)
                 member.team = None
                 member.save()
-            
+
             del teams[teamToDelete]
             team_file.seek(0)
             team_file.truncate()
@@ -117,11 +117,11 @@ async def teaminvite(ctx, member, **details):
     """
 
     inviter = details["author"]
-    
-        if member.team is not None:
-            raise util.DueUtilException(ctx.channel, "This player is already in a team!")
-        if inviter.team is None:
-            raise util.DueUtilException(ctx.channel, "You are not a part of a team!")
+
+    if member.team is not None:
+        raise util.DueUtilException(ctx.channel, "This player is already in a team!")
+    if inviter.team is None:
+        raise util.DueUtilException(ctx.channel, "You are not a part of a team!")
 
     if inviter == member:
         raise util.DueUtilException(ctx.channel, "You cannot invite yourself!")
@@ -131,14 +131,14 @@ async def teaminvite(ctx, member, **details):
     if not (inviter.id in team['admins']):
         raise util.DueUtilException(ctx.channel, "You do not have permissions to send invites!!")
 
-        if inviter.team not in member.team_invites:
-            member.team_invites.append(inviter.team)
-        else:
-            raise util.DueUtilException(ctx.channel, "This player has already been invited to your team!")
+    if inviter.team not in member.team_invites:
+        member.team_invites.append(inviter.team)
+    else:
+        raise util.DueUtilException(ctx.channel, "This player has already been invited to your team!")
     member.save()
 
     await util.say(ctx.channel, ":thumbsup: All's done! Invite has been sent to **%s**!" % member.get_name_possession_clean())
-    
+
 
 @commands.command(args_pattern=None, aliases=["si"])
 async def showinvites(ctx, **details):
@@ -147,13 +147,13 @@ async def showinvites(ctx, **details):
 
     Display any team invites that you have received!
     """
-    
+
     member = details["author"]
 
     Embed = discord.Embed(title="Displaying your team invites!", type="rich", colour=gconf.DUE_COLOUR)
-        if member.team_invites is None:
-            member.team_invites = []
-    
+    if member.team_invites is None:
+        member.team_invites = []
+
     if len(member.team_invites) == 0:
         Embed.add_field(name="No invites!", value="You do not have invites!")
     else:
@@ -181,11 +181,11 @@ async def acceptinvite(ctx, team_index, **details):
 
     member = details["author"]
     team_index -= 1
-if member.team is not None:
-            raise util.DueUtilException(ctx.channel, "You have not been invited to any teams.")
+    if member.team is not None:
+        raise util.DueUtilException(ctx.channel, "You have not been invited to any teams.")
     if member.team_invites is None:
-            member.team_invites = []
-            raise util.DueUtilException(ctx.channel, "You have not been invited to any teams.")
+        member.team_invites = []
+        raise util.DueUtilException(ctx.channel, "You have not been invited to any teams.")
     if team_index >= len(member.team_invites):
         raise util.DueUtilException(ctx.channel, "Invite not found!")
 
@@ -223,7 +223,7 @@ async def declineinvite(ctx, team_index, **details):
     team_index -= 1
 
     if member.team_invites is None:
-            member.team_invites = []
+        member.team_invites = []
     if team_index >= len(member.team_invites):
         raise util.DueUtilException(ctx.channel, "Invite not found!")
         
@@ -276,10 +276,10 @@ async def promoteuser(ctx, user, **details):
     member = details["author"]
     team = customizations.teams[member.team]
 
-        if member.team is None:
-            raise util.DueUtilException(ctx.channel, "You are not in a team!")
-        if user.team is None:
-            raise util.DueUtilException(ctx.channel, "This player is not in a team!")
+    if member.team is None:
+        raise util.DueUtilException(ctx.channel, "You are not in a team!")
+    if user.team is None:
+        raise util.DueUtilException(ctx.channel, "This player is not in a team!")
     if not(member.id == team["owner"]):
         raise util.DueUtilException(ctx.channel, "You are not allowed to promote users! (You must be owner!)")
     if not (member.team == user.team):
