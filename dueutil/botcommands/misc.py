@@ -243,7 +243,7 @@ async def generatecode(ctx, value, count=1, show=False, **details):
     with open("dueutil/game/configs/codes.json", "r+") as code_file:
         try:
             codes = json.load(code_file)
-        except ValueError:
+        except JSONDecodeError:
             codes = {}
 
         for i in range(count):
@@ -261,7 +261,7 @@ async def generatecode(ctx, value, count=1, show=False, **details):
     if show:
         code_Embed = discord.Embed(title="New codes!", type="rich", colour=gconf.DUE_COLOUR)
         code_Embed.add_field(name="Codes:", value=newcodes)
-        code_Embed.set_footer(text="These codes can only be used once!")
+        code_Embed.set_footer(text="These codes can only be used once! Use !redeem (code) to redeem the prize!")
         await util.say(ctx.channel, embed=code_Embed)
 
 @commands.command(args_pattern="S")
@@ -273,13 +273,16 @@ async def redeem(ctx, code, **details):
     """
 
     with open("dueutil/game/configs/codes.json", "r+") as code_file:
-        codes = json.load(code_file)
+        try:
+            codes = json.load(code_file)
+        except JSONDecodeError:
+            pass:
         if not codes.get(code):
             raise util.DueUtilException(ctx.channel, "Code does not exist!")
         
         user = details["author"]
         money = codes[code]
-        
+
         del codes[code]
         user.money += money
         user.save()
