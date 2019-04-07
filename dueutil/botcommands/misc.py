@@ -232,7 +232,7 @@ async def dueeval(ctx, statement, **details):
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="CC?B?", hidden=True)
-async def generatecode(ctx, value, count=1, show=False, **details):
+async def generatecode(ctx, value, count=1, show=True, **details):
     """
     [CMD_KEY]generatecode ($$$) (amount)
 
