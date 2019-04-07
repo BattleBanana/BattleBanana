@@ -278,16 +278,16 @@ async def promoteuser(ctx, user, **details):
     member = details["author"]
     team = customizations.teams[member.team]
 
+    if member == user:
+        raise util.DueUtilException(ctx.channel, "You are not allowed to promote yourself!")
     if member.team is None:
         raise util.DueUtilException(ctx.channel, "You are not in a team!")
     if user.team is None:
         raise util.DueUtilException(ctx.channel, "This player is not in a team!")
-    if not(member.id == team["owner"]):
+    if member.id != team["owner"]):
         raise util.DueUtilException(ctx.channel, "You are not allowed to promote users! (You must be owner!)")
-    if not (member.team == user.team):
+    if nmember.team != user.team):
         raise util.DueUtilException(ctx.channel, "This player is not in your team!")
-    if member.id == user.id:
-        raise util.DueUtilException(ctx.channel, "You are not allowed to promote yourself!")
     
     with open('dueutil/game/configs/teams.json', 'r+') as team_file:
         teams = json.load(team_file)

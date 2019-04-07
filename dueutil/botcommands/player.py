@@ -123,7 +123,7 @@ async def battlename(ctx, name="", **details):
         if len(name) not in name_len_range:
             raise util.DueUtilException(ctx.channel, "Battle name must be between **%d-%d** characters long!"
                                                      % (min(name_len_range), max(name_len_range)))
-        player.name = name
+        player.name = util.filter_string(name)
     else:
         player.name = details["author_name"]
     player.save()
