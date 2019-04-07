@@ -124,7 +124,6 @@ async def teaminvite(ctx, member, **details):
         raise util.DueUtilException(ctx.channel, "This player is already in a team!")
     if inviter.team is None:
         raise util.DueUtilException(ctx.channel, "You are not a part of a team!")
-
     if inviter == member:
         raise util.DueUtilException(ctx.channel, "You cannot invite yourself!")
 
@@ -155,7 +154,6 @@ async def showinvites(ctx, **details):
     Embed = discord.Embed(title="Displaying your team invites!", type="rich", colour=gconf.DUE_COLOUR)
     if member.team_invites is None:
         member.team_invites = []
-
     if len(member.team_invites) == 0:
         Embed.add_field(name="No invites!", value="You do not have invites!")
     else:
@@ -284,9 +282,9 @@ async def promoteuser(ctx, user, **details):
         raise util.DueUtilException(ctx.channel, "You are not in a team!")
     if user.team is None:
         raise util.DueUtilException(ctx.channel, "This player is not in a team!")
-    if member.id != team["owner"]):
+    if member.id != team["owner"]:
         raise util.DueUtilException(ctx.channel, "You are not allowed to promote users! (You must be owner!)")
-    if nmember.team != user.team):
+    if member.team != user.team:
         raise util.DueUtilException(ctx.channel, "This player is not in your team!")
     
     with open('dueutil/game/configs/teams.json', 'r+') as team_file:
@@ -321,9 +319,9 @@ async def demoteuser(ctx, user, **details):
         raise util.DueUtilException(ctx.channel, "You are not in a team!")
     if user.team is None:
         raise util.DueUtilException(ctx.channel, "This player is not in your team!")
-    if not (member.team == user.team):
+    if member.team != user.team:
         raise util.DueUtilException(ctx.channel, "This player is not in your team!")
-    if not(member.id == team["owner"]):
+    if member.id != team["owner"]:
         raise util.DueUtilException(ctx.channel, "You are not allowed to demote users! (You must be the owner!)")
     if member == user:
         raise util.DueUtilException(ctx.channel, "There is no reason to demote yourself!")
@@ -363,10 +361,10 @@ async def teamkick(ctx, user, **details):
         raise util.DueUtilException(ctx.channel, "You are not in a team!")
     if user.team is None:
         raise util.DueUtilException(ctx.channel, "This player is not in a team!")
-    if not (member.team == user.team):
+    if member.team != user.team:
         raise util.DueUtilException(ctx.channel, "This player is not in your team!")
 
-    if user.id in team["admins"] and not (member.id == team["owner"]):
+    if user.id in team["admins"] and member.id != team["owner"]:
         raise util.DueUtilException(ctx.channel, "You must be the owner to kick this player from the team!")
     if member.id not in team["admins"]:
         raise util.DueUtilException(ctx.channel, "You must be an admin to use this command!")
