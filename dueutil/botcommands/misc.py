@@ -4,6 +4,7 @@ import re
 import subprocess
 import math
 import time
+import random
 from io import StringIO
 
 import discord
@@ -228,6 +229,30 @@ async def dueeval(ctx, statement, **details):
     except Exception as eval_exception:
         await util.say(ctx.channel, (":cry: Could not evalucate!\n"
                                     + "``%s``" % eval_exception))
+
+
+@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="CC?", hidden=True)
+async def generatecode(ctx, value, count=1, **details):
+    """
+    [CMD_KEY]generatecode ($$$) (amount)
+
+    Generates the number of codes (amount) with price ($$$)
+    """
+    
+    with open("dueutil/game/configs/codes.json", "r+") as code_file:
+        try:
+            codes = json.load(code_file)
+        except ValueError:
+            codes = {}
+
+        for i in range(count):
+            code = "DUEUTILPROMO_%s" % (random.uniform(1000000000, 9999999999))
+            codes[code] = value
+
+        code_file.seek(0)
+        code_file.truncate()
+        json.dump(codes, code_file, indent=4)
+
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PS")
 async def sudo(ctx, victim, command, **_):
     """
