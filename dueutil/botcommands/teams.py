@@ -17,7 +17,7 @@ from .. import commands, util, events
 from ..game import customizations, awards, leaderboards, game, players, emojis
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="SPI?")
+@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="SPC?")
 async def createteam(ctx, name, leader, lower_level=1, **details):
     """
     [CMD_KEY]createteam (name) (leader) (Minimum Level)
@@ -104,8 +104,8 @@ async def deleteteam(ctx, name, **details):
 
     customizations.teams._load_teams()
 
+    util.logger.info("%s deleted %s's team!" % (details["author"].name_clean, name.lower()))
     await util.say(ctx.channel, ":wastebasket: Team **%s** has been deleted!" % name.lower())
-    await util.logger.info("**%s** deleted the **%s**'s team!" % (details["author"].get_name_possession_clean(), name.lower()))
 
 
 @commands.command(args_pattern="P", aliases=["ti"])
@@ -171,7 +171,7 @@ async def showinvites(ctx, **details):
     await util.say(ctx.channel, embed = Embed)
 
 
-@commands.command(args_pattern="I", aliases=["ai"])
+@commands.command(args_pattern="C", aliases=["ai"])
 async def acceptinvite(ctx, team_index, **details):
     """
     [CMD_KEY]acceptinvite (team index)
@@ -211,7 +211,7 @@ async def acceptinvite(ctx, team_index, **details):
     await util.say(ctx.channel, "Successfully joined **%s**!" % team_name)
 
 
-@commands.command(args_pattern="I", aliases=["di"])
+@commands.command(args_pattern="C", aliases=["di"])
 async def declineinvite(ctx, team_index, **details):
     """
     [CMD_KEY]declineinvite (team index)
@@ -383,7 +383,7 @@ async def teamkick(ctx, user, **details):
         team_file.truncate()
         json.dump(teams, team_file, indent=4)
 
-    await util.say(ctx.channel, "Successfully kicked **%s** from your team, adios amigos!" % user.get_name_possession_clean())
+    await util.say(ctx.channel, "Successfully kicked **%s** from your team, adios amigos!" % user.get_name_possession())
 
 
 @commands.command(args_pattern=None, aliases=["lt"])
@@ -422,20 +422,30 @@ async def leaveteam(ctx, **details):
     await util.say(ctx.channel, "You successfully left your team!")
 
 
-@commands.command(args_pattern="I?", aliases=["st"])
+@commands.command(args_pattern="C?", aliases=["st"])
 async def showteams(ctx, page=1, **details):
     """
-    [CMD_KEY]showteams (team?)
+    [CMD_KEY]showteams (page)
 
-    Show all teams or display the specified team
-    """
-
-    teamlist = "Team Name - Team Owner - Min. Level\n"
-    teams = customizations.teams
-
-    for index in range(len(teams) - 1 - (5 * page), -1, -1):
-        team = teams[index]
-        teamlist += "%s - %s - %s\n" % (team["name"], team["owner"], team["min_level"])
+    Show all existant teams
     
-    await util.say(ctx.channel, teamlist)
-    teamsEmbed = discord.Embed(title="There is the teams lists", description="Display all existant teams")
+    Obviously they are existant...
+    how would it even display something not existant?
+    """
+    
+    page = page - 1
+    if page != 0 and page * 5 >= len(customizations.teams):
+        raise util.DueUtilException(ctx.channel, "Page not found")
+    teamlist = ""
+    with open('dueutil/game/configs/teams.json', 'r+') as team_file:
+        teams = json.load(team_file)
+        teams = list(teams)
+        for index in range(len(customizations.teams) - 1 - (10 * page), -1, -1):
+            team_name = teams[index]
+            team = customizations.teams[team_name]
+            teamlist += "%s - %s - %s\n" % (team["name"], players.find_player(team["owner"]).name_clean, team["min_level"])
+    
+    teamsEmbed = discord.Embed(title="There is the teams lists", description="Display all existant teams", type="rich", colour=gconf.DUE_COLOUR)
+    teamsEmbed.add_field(name="TEAM NAME - TEAM OWNER - MIN. LEVEL", value=teamlist)
+
+    await util.say(ctx.channel, embed=teamsEmbed)
