@@ -30,7 +30,7 @@ db.createUser(
 {
     "host":"localhost",
     "user": "dueutil",
-    "pwd": "hunter1"
+    "pwd": "123"
 }
 ```
 (the host will probably be localhost)
