@@ -276,7 +276,7 @@ async def redeem(ctx, code, **details):
         try:
             codes = json.load(code_file)
         except JSONDecodeError:
-            pass:
+            pass
         if not codes.get(code):
             raise util.DueUtilException(ctx.channel, "Code does not exist!")
         
