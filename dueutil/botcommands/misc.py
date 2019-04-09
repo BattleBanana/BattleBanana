@@ -241,10 +241,7 @@ async def generatecode(ctx, value, count=1, show=True, **details):
 
     newcodes = ""
     with open("dueutil/game/configs/codes.json", "r+") as code_file:
-        try:
-            codes = json.load(code_file)
-        except JSONDecodeError:
-            codes = {}
+        codes = json.load(code_file)
 
         for i in range(count):
             code = "DUEUTILPROMO_%i" % (random.uniform(1000000000, 9999999999))
@@ -264,6 +261,35 @@ async def generatecode(ctx, value, count=1, show=True, **details):
         code_Embed.set_footer(text="These codes can only be used once! Use !redeem (code) to redeem the prize!")
         await util.say(ctx.channel, embed=code_Embed)
 
+
+@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="C?")
+async def codes(ctx, page=1, **details):
+    """
+    [CMD_KEY]codes
+
+    Shows remaining codes
+    """
+
+    page = page - 1
+    codelist=""
+    with open("dueutil/game/configs/codes.json", "r+") as code_file:
+        codes = json.load(code_file)
+        codes = list(codes)
+        if page != 0 and page * 30 >= len(codes):
+            raise util.DueUtilException(ctx.channel, "Page not found")
+
+        for index in range(len(codes) - 1 - (30 * page), -1, -1):
+            code_name = codes[index]
+            codelist += "%s\n" % (code_name)
+            if len(codelist) == 720:
+                break
+
+    code_Embed = discord.Embed(title="New codes!", type="rich", colour=gconf.DUE_COLOUR)
+    code_Embed.add_field(name="Codes:", value="%s" % (codelist if len(codelist) != 0 else "No code to display!"))
+    code_Embed.set_footer(text="These codes can only be used once! Use !redeem (code) to redeem the prize!")
+    await util.say(ctx.channel, embed=code_Embed)
+
+
 @commands.command(args_pattern="S")
 async def redeem(ctx, code, **details):
     """
@@ -275,9 +301,11 @@ async def redeem(ctx, code, **details):
     with open("dueutil/game/configs/codes.json", "r+") as code_file:
         try:
             codes = json.load(code_file)
-        except JSONDecodeError:
-            pass
+        except ValueError:
+            codes = {}
+
         if not codes.get(code):
+            code_file.close()
             raise util.DueUtilException(ctx.channel, "Code does not exist!")
         
         user = details["author"]
@@ -290,6 +318,7 @@ async def redeem(ctx, code, **details):
         code_file.seek(0)
         code_file.truncate()
         json.dump(codes, code_file, indent=4)
+        code_file.close()
 
         await util.say(ctx.channel, "You successfully reclaimed **%s** !!" % (util.format_money(money)))
 
