@@ -132,7 +132,7 @@ async def acceptquest(ctx, quest_index, **details):
 
         reward = (
             ":sparkles: **" + player.name_clean + "** defeated the **" + quest.name + "** and was rewarded with ``"
-            + util.format_number(quest.money, full_precision=True, money=True) + "``\n")
+            + util.format_number(quest.money, full_precision=True, money=True) + "`` ")
         quest_scale = quest.get_quest_scale()
         avg_player_stat = player.get_avg_stat()
 
@@ -153,7 +153,11 @@ async def acceptquest(ctx, quest_index, **details):
         quest_results = reward + stats_reward
 
         prestige_exp_gain = (20 * player.prestige_level) / 2
+        prevExp = player.exp 
         player.progress(add_attack, add_strg, add_accy, max_attr=max_stats_gain, max_exp=10000 + prestige_exp_gain)
+        expGain = player.exp - prevExp
+        quest_results = (reward + "and `%s` EXP\n" + stats_reward) % (expGain)
+
         player.money += quest.money
         stats.increment_stat(stats.Stat.MONEY_CREATED, quest.money)
 
