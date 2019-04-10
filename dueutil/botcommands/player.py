@@ -418,8 +418,8 @@ async def myprestige(ctx, player=None, **details):
 
     if player is None:
         player = details["author"]
-    prestige_level = 80 + (20 * player.prestige_level)
-    req_money = 5000000 * (player.prestige_level + 1)
+    prestige_level = 80 + (5 * user.prestige_level)
+    req_money = 5000000 * ((user.prestige_level + 1) / user.prestige_level)
 
     message = "You are prestige **%s**! " % player.prestige_level
     if prestige_level > player.level:
