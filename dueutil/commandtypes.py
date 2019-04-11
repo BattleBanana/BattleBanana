@@ -24,7 +24,7 @@ def parse_team(value):
     try:
         with open('dueutil/game/configs/teams.json', 'r+') as teamfile:
             teams = json.load(teamfile)
-            return teams[value]
+            return teams[value.lower()]
     except KeyError:
         return False
             

@@ -436,16 +436,42 @@ async def showteams(ctx, page=1, **details):
     page = page - 1
     if page != 0 and page * 5 >= len(customizations.teams):
         raise util.DueUtilException(ctx.channel, "Page not found")
-    teamlist = ""
-    with open('dueutil/game/configs/teams.json', 'r+') as team_file:
-        teams = json.load(team_file)
-        teams = list(teams)
-        for index in range(len(customizations.teams) - 1 - (10 * page), -1, -1):
-            team_name = teams[index]
-            team = customizations.teams[team_name]
-            teamlist += "%s - %s - %s\n" % (team["name"], players.find_player(team["owner"]).name_clean, team["min_level"])
-    
-    teamsEmbed = discord.Embed(title="There is the teams lists", description="Display all existant teams", type="rich", colour=gconf.DUE_COLOUR)
-    teamsEmbed.add_field(name="TEAM NAME - TEAM OWNER - MIN. LEVEL", value=teamlist)
 
+    teamsEmbed = discord.Embed(title="There is the teams lists", description="Display all existant teams", type="rich", colour=gconf.DUE_COLOUR)
+    with open('dueutil/game/configs/teams.json', 'r+') as team_file:
+        teamsdict = json.load(team_file)
+        teams = list(teamsdict)
+        for index in range(len(teams) - 1 - (10 * page), -1, -1):
+            team_name = teams[index]
+            team = teamsdict[team_name]
+            teamsEmbed.add_field(name=team["name"], value="Owner: **%s**\nMembers: **%s**\nRequired Level: **%s**" % (players.find_player(team["owner"]).name_clean, len(team["members"]), team["min_level"]))
+    
     await util.say(ctx.channel, embed=teamsEmbed)
+
+
+@commands.command(args_pattern="T", aliases=["sti"])
+async def showteaminfo(ctx, team, **details):
+    """
+    [CMD_KEY]showteaminfo (team)
+
+    Display information about selected team - Owner, Admins, Members, team name, number of members, etc
+    """
+
+    team_embed = discord.Embed(title="Team Information", description="Displaying team information", type="rich", colour=gconf.DUE_COLOUR)
+    members = ""
+    admins = ""
+    for id in team["admins"]:
+        if id != team["owner"]:
+            admins += "%s\n" % (players.find_player(id).name_clean)
+    for id in team["members"]:
+        if id not in team["admins"]:
+            members += "%s\n" % (players.find_player(id).name_clean)
+
+    team_embed.add_field(name="Global Information:", 
+                         value="Team Name: **%s**\nMember count: **%s**\nRequired level: **%s**" % (team["name"], len(team["members"]), team["min_level"]),
+                         inline=False)
+    team_embed.add_field(name="Owner:", value=players.find_player(team["owner"]).name_clean)
+    team_embed.add_field(name="Admins:", value=admins)
+    team_embed.add_field(name="Members:", value=members)
+
+    await util.say(ctx.channel, embed = team_embed)

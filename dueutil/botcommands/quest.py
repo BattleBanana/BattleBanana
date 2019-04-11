@@ -156,7 +156,7 @@ async def acceptquest(ctx, quest_index, **details):
         prevExp = player.total_exp 
         player.progress(add_attack, add_strg, add_accy, max_attr=max_stats_gain, max_exp=10000 + prestige_exp_gain)
         expGain = player.total_exp - prevExp
-        quest_results = (reward + "and `%i` EXP\n" + stats_reward) % (expGain)
+        quest_results = (reward + "and `" + str(expGain) + "` EXP\n" + stats_reward)
 
         player.money += quest.money
         stats.increment_stat(stats.Stat.MONEY_CREATED, quest.money)
