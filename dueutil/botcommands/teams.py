@@ -17,8 +17,8 @@ from .. import commands, util, events
 from ..game import customizations, awards, leaderboards, game, players, emojis
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="SPC?")
-async def createteam(ctx, name, leader, lower_level=1, **details):
+@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="SPB?C?")
+async def createteam(ctx, name, leader, isOpen=True, lower_level=1, **details):
     """
     [CMD_KEY]createteam (name) (leader) (Minimum Level)
 
@@ -51,7 +51,7 @@ async def createteam(ctx, name, leader, lower_level=1, **details):
             teams = {}
 
         led_id = leader.id
-        teams[name.lower()] = {"name": name.lower(), "owner": led_id, "admins": [led_id], "members": [led_id], "min_level": lower_level, "pendings": []}
+        teams[name.lower()] = {"name": name.lower(), "owner": led_id, "admins": [led_id], "members": [led_id], "min_level": lower_level, "pendings": [], "open": isOpen}
 
         team_file.seek(0)
         team_file.truncate()
@@ -444,7 +444,7 @@ async def showteams(ctx, page=1, **details):
         for index in range(len(teams) - 1 - (10 * page), -1, -1):
             team_name = teams[index]
             team = teamsdict[team_name]
-            teamsEmbed.add_field(name=team["name"], value="Owner: **%s**\nMembers: **%s**\nRequired Level: **%s**" % (players.find_player(team["owner"]).name_clean, len(team["members"]), team["min_level"]))
+            teamsEmbed.add_field(name=team["name"], value="Owner: **%s**\nMembers: **%s**\nRequired Level: **%s**\nRecruiting: **%s**" % (team["name"], len(team["members"]), team["min_level"], ("Yes" if team["open"] else "No")))
     
     await util.say(ctx.channel, embed=teamsEmbed)
 
@@ -468,10 +468,100 @@ async def showteaminfo(ctx, team, **details):
             members += "%s\n" % (players.find_player(id).name_clean)
 
     team_embed.add_field(name="Global Information:", 
-                         value="Team Name: **%s**\nMember count: **%s**\nRequired level: **%s**" % (team["name"], len(team["members"]), team["min_level"]),
+                         value="Team Name: **%s**\nMember count: **%s**\nRequired level: **%s**\nRecruiting: **%s**" % (team["name"], len(team["members"]), team["min_level"], ("Yes" if team["open"] else "No")),
                          inline=False)
     team_embed.add_field(name="Owner:", value=players.find_player(team["owner"]).name_clean)
     team_embed.add_field(name="Admins:", value=admins)
     team_embed.add_field(name="Members:", value=members)
 
     await util.say(ctx.channel, embed = team_embed)
+
+
+@commands.command(args_pattern="T", aliases=["jt"])
+async def jointeam(ctx, team, **details):
+    """
+    [CMD_KEY]jointeam (team)
+    
+    Join a team or puts you on pending list
+    """
+
+    user = details["author"]
+
+    if user.team is not None:
+        raise util.DueUtilException(ctx.channel, "You are already in a team.")
+    
+    with open('dueutil/game/configs/teams.json', 'r+') as team_file:
+        teams = json.load(team_file)
+        team = teams[team["name"]]
+
+        if team["open"]:
+            team["members"].append(user.id)
+            user.team = team["name"]
+            if user.id in team["pendings"]:
+                team["pendings"].remove(user.id)
+        else:
+            if user.id in team["pendings"]:
+                raise util.DueUtilException(ctx.channel, "You are already pending for that team!")
+            team["pendings"].append(user.id)
+
+        team_file.seek(0)
+        team_file.truncate()
+        json.dump(teams, team_file, indent=4)
+
+    user.save()
+    message = "You successfully joined **%s**!" % (team["name"])
+    await util.say(ctx.channel, message if team["open"] else "You have been added to the team's pending list!")
+
+
+@commands.command(args_pattern='S*', aliases=["ts"])
+@commands.extras.dict_command(optional={"min level/minimum level/level": "I", "open/recruiting": "B"})
+async def teamsettings(ctx, updates, **details):
+    """
+    [CMD_KEY]teamsettings param (value)+
+
+    You can change both properties at the same time.
+
+    Properties:
+        __minimum level__, __recruiting__
+
+    Example usage:
+
+        [CMD_KEY]teamsettings "minimum level" 10
+
+        [CMD_KEY]teamsettings recruiting true
+    """
+
+    user = details["author"]
+
+    if user.team is None:
+        raise util.DueUtilException(ctx.channel, "You are not in a team!")
+
+    with open('dueutil/game/configs/teams.json', 'r+') as team_file:
+        teams = json.load(team_file)
+        team = teams[user.team]
+        if user.id not in team["admins"]:
+            raise util.DueUtilException(ctx.channel, "You must be an admin in order to change settings!")
+        
+        for prop, value in updates.items():
+            if prop in ("minimum level", "level", "min level"):
+                if value >= 1:
+                    team["min_level"] = value
+                else:
+                    updates[prop] = "Must be at least 1!"
+                continue
+            elif prop in ("open", "recruiting"):
+                team["open"] = value
+            else:
+                continue
+
+        team_file.seek(0)
+        team_file.truncate()
+        json.dump(teams, team_file, indent=4)
+
+    if len(updates) == 0:
+        await util.say(ctx.channel, "You need to provide a valid property for the team!")
+    else:
+        result = "**Settings changed:**\n"
+        for prop, value in updates.items():
+            result += ("``%s`` → %s\n" % (prop, value))
+        await util.say(ctx.channel, result)

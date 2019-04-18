@@ -29,7 +29,6 @@ def parse_team(value):
         return False
             
 
-
 def parse_int(value):
     # An int limited between min and max number
     try:

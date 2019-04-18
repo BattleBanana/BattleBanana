@@ -24,7 +24,7 @@ class FeedbackHandler:
                                                         desc=("Automated %s added by DueUtil\n" % self.type
                                                               + "Author: %s (id %s)" % (author_name, author.id)),
                                                         list_name=self.trello_list,
-                                                        labels=["automated"])
+                                                        labels=["automated", "Bug" if self.type == "bug report" else "Suggestion"])
         author_icon_url = author.avatar_url
         if author_icon_url == "":
             author_icon_url = author.default_avatar_url

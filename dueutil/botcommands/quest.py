@@ -20,6 +20,7 @@ from ..game.helpers import misc
 
 from ..game import emojis as e
 
+quest_names = ["Bob", "Albert", "Rodrigo", "Alfonso", "Ricardo"]
 
 @commands.command(permission=Permission.DUEUTIL_MOD, args_pattern="S?P?C?", hidden=True)
 async def spawnquest(ctx, *args, **details):
