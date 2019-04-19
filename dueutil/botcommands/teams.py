@@ -494,6 +494,8 @@ async def jointeam(ctx, team, **details):
         teams = json.load(team_file)
         team = teams[team["name"]]
 
+        if user.level <= team["min_level"]:
+            raise util.DueUtilException(ctx.channel, "You must be level %s or higher to join this team!" % (str(team["min_level"])))
         if team["open"]:
             team["members"].append(user.id)
             user.team = team["name"]

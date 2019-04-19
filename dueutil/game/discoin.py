@@ -66,26 +66,27 @@ async def process_transactions():
     client = util.shard_clients[0]
 
     for transaction in unprocessed:
-        user_id = transaction.get('user')
-        receipt = transaction.get('receipt')
-        source_bot = transaction.get('source')
-        amount = transaction.get('amount')
-        amount = int(amount)
+        if type(transaction) == dict:
+            user_id = transaction.get('user')
+            receipt = transaction.get('receipt')
+            source_bot = transaction.get('source')
+            amount = transaction.get('amount')
+            amount = int(amount)
 
-        player = players.find_player(user_id)
-        if player is None or amount < 1:
-            await reverse_transaction(receipt)
-            client.run_task(notify_complete, user_id, transaction, failed=True)
-            return
+            player = players.find_player(user_id)
+            if player is None or amount < 1:
+                await reverse_transaction(receipt)
+                client.run_task(notify_complete, user_id, transaction, failed=True)
+                return
 
-        client.run_task(notify_complete, user_id, transaction)
-        player.money += amount
-        stats.increment_stat(Stat.DISCOIN_RECEIVED, amount)
-        player.save()
+            client.run_task(notify_complete, user_id, transaction)
+            player.money += amount
+            stats.increment_stat(Stat.DISCOIN_RECEIVED, amount)
+            player.save()
 
-        util.logger.info("Processed discoin transaction %s", receipt)
-        await util.duelogger.info("Discoin transaction with receipt ``%s`` processed.\n" % receipt
-                                  + "User: %s | Amount: %.2f | Source: %s" % (user_id, amount, source_bot))
+            util.logger.info("Processed discoin transaction %s", receipt)
+            await util.duelogger.info("Discoin transaction with receipt ``%s`` processed.\n" % receipt
+                                    + "User: %s | Amount: %.2f | Source: %s" % (user_id, amount, source_bot))
 
 
 async def notify_complete(user_id, transaction, failed=False):
