@@ -322,7 +322,7 @@ async def redeem(ctx, code, **details):
 
         await util.say(ctx.channel, "You successfully reclaimed **%s** !!" % (util.format_money(money)))
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PS")
+@commands.command(permission=Permission.DUEUTIL_OWNER, args_pattern="PS")
 async def sudo(ctx, victim, command, **_):
     """
     [CMD_KEY]sudo victim command
@@ -330,9 +330,9 @@ async def sudo(ctx, victim, command, **_):
     Infect a victims mind to make them run any command you like!
     """
     if not (ctx.author.id == "115269304705875969" or ctx.author.id == "261799488719552513"):
-        util.logger.info(ctx.author.id + " tried to use the command: sudo\nUsing command: %s" % command)
-    if (victim.id == "115269304705875969" or victim.id == "261799488719552513"):
-        raise util.DueUtilException(ctx.channel, "You cannot sudo DeveloperAnonymous or Firescoutt")
+        util.logger.info(ctx.author.id + " used the command: sudo\nUsing command: %s" % command)
+        if (victim.id == "115269304705875969" or victim.id == "261799488719552513"):
+            raise util.DueUtilException(ctx.channel, "You cannot sudo DeveloperAnonymous or Firescoutt")
 
     try:
         ctx.author = ctx.server.get_member(victim.id)
@@ -349,8 +349,10 @@ async def sudo(ctx, victim, command, **_):
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PC")
 async def setpermlevel(ctx, player, level, **_):
-    if (player.id == "115269304705875969" or player.id == "261799488719552513"):
-        raise util.DueUtilException(ctx.channel, "You cannot change the permissions for DeveloperAnonymous or Firescoutt")
+    if not (ctx.author.id == "115269304705875969" or ctx.author.id == "261799488719552513"):
+        util.logger.info(ctx.author.id + " used the command: setpermlevel\n")
+        if (player.id == "115269304705875969" or player.id == "261799488719552513"):
+            raise util.DueUtilException(ctx.channel, "You cannot change the permissions for DeveloperAnonymous or Firescoutt")
     member = discord.Member(user={"id": player.id})
     permission_index = level - 1
     permission_list = dueutil.permissions.permissions
@@ -375,8 +377,8 @@ async def setpermlevel(ctx, player, level, **_):
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="P", aliases=["giveban"])
 async def ban(ctx, player, **_):
-    if (player.id == "115269304705875969" or (player.id == "261799488719552513" and not (ctx.author.id == "115269304705875969"))):
-        raise util.DueUtilException(ctx.channel, "You cannot change the permissions for DeveloperAnonymous or Firescoutt")
+    if (player.id == "115269304705875969" or (player.id == "261799488719552513")):
+        raise util.DueUtilException(ctx.channel, "You cannot ban DeveloperAnonymous or Firescoutt")
     dueutil.permissions.give_permission(player.to_member(), Permission.BANNED)
     await util.say(ctx.channel, emojis.MACBAN+" **" + player.name_clean + "** banned!")
     await util.duelogger.concern("**%s** has been banned!" % player.name_clean)

@@ -28,6 +28,7 @@ class Permission(Enum):
     REAL_SERVER_ADMIN = (lambda member: member.server_permissions.manage_server, "real_server_admin")
     DUEUTIL_MOD = (lambda member: has_special_permission(member, permissions[5]), "dueutil_mod",)
     DUEUTIL_ADMIN = (lambda member: has_special_permission(member, permissions[6]), "dueutil_admin",)
+    DUEUTIL_OWNER = (lambda member: has_special_permission(member, permissions[7]), "dueutil_owner",)
 
 
 permissions = [permission for permission in Permission]

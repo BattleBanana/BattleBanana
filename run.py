@@ -188,8 +188,8 @@ class DueUtilClient(discord.Client):
                 or not loaded()):
             return
         owner = discord.Member(user={"id": config["owner"]})
-        if not permissions.has_permission(owner, Permission.DUEUTIL_ADMIN):
-            permissions.give_permission(owner, Permission.DUEUTIL_ADMIN)
+        if not permissions.has_permission(owner, Permission.DUEUTIL_OWNER):
+            permissions.give_permission(owner, Permission.DUEUTIL_OWNER)
         mentions_self_regex = "<@.?"+self.user.id+">"
         if re.match("^"+mentions_self_regex, message.content):
             message.content = re.sub(mentions_self_regex + "\s*",
@@ -312,7 +312,7 @@ if __name__ == "__main__":
     shard_count = config["shardCount"]
     shard_names = config["shardNames"]
     owner = discord.Member(user={"id": config["owner"]})
-    if not permissions.has_permission(owner, Permission.DUEUTIL_ADMIN):
-        permissions.give_permission(owner, Permission.DUEUTIL_ADMIN)
+    if not permissions.has_permission(owner, Permission.DUEUTIL_OWNER):
+        permissions.give_permission(owner, Permission.DUEUTIL_OWNER)
     util.load(shard_clients)
     run_due()
