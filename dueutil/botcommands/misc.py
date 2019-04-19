@@ -422,17 +422,19 @@ async def duereload(ctx, **_):
     raise util.DueReloadException(ctx.channel)
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PI")
-async def givecash(ctx, player, amount, **_):
-    player.money += amount
-    amount_str = util.format_number(abs(amount), money=True, full_precision=True)
-    if amount >= 0:
-        await util.say(ctx.channel,
-                       "Added ``" + amount_str + "`` to **" + player.get_name_possession_clean() + "** account!")
-    else:
-        await util.say(ctx.channel,
-                       "Subtracted ``" + amount_str + "`` from **" + player.get_name_possession_clean() + "** account!")
-    player.save()
+@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="IP*")
+async def givecash(ctx, amount, *players, **_):
+    toSend = ""
+    for player in players:
+        player.money += amount
+        amount_str = util.format_number(abs(amount), money=True, full_precision=True)
+        if amount >= 0:
+            toSend += "Added ``" + amount_str + "`` to **" + player.get_name_possession_clean() + "** account!\n"
+        else:
+            toSend += "Subtracted ``" + amount_str + "`` from **" + player.get_name_possession_clean() + "** account!\n"
+        player.save()
+
+    await util.say(ctx.channel, toSend)
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PI")
