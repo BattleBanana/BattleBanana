@@ -185,10 +185,7 @@ async def acceptinvite(ctx, team_index, **details):
     member = details["author"]
     team_index -= 1
     if member.team is not None:
-        raise util.DueUtilException(ctx.channel, "You have not been invited to any teams.")
-    if member.team_invites is None:
-        member.team_invites = []
-        raise util.DueUtilException(ctx.channel, "You have not been invited to any teams.")
+        raise util.DueUtilException(ctx.channel, "You are already in a team.")
     if team_index >= len(member.team_invites):
         raise util.DueUtilException(ctx.channel, "Invite not found!")
 
@@ -447,7 +444,7 @@ async def showteams(ctx, page=1, **details):
         for index in range(len(teams) - 1 - (10 * page), -1, -1):
             team_name = teams[index]
             team = teamsdict[team_name]
-            teamsEmbed.add_field(name=team["name"], value="Owner: **%s**\nMembers: **%s**\nRequired Level: **%s**\nRecruiting: **%s**" % (team["name"], len(team["members"]), team["min_level"], ("Yes" if team["open"] else "No")))
+            teamsEmbed.add_field(name=team["name"], value="Owner: **%s**\nMembers: **%s**\nRequired Level: **%s**\nRecruiting: **%s**" % (players.find_player(team["owner"]).name_clean, len(team["members"]), team["min_level"], ("Yes" if team["open"] else "No")))
     
     await util.say(ctx.channel, embed=teamsEmbed)
 
