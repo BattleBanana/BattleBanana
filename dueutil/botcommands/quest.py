@@ -20,8 +20,8 @@ from ..game.helpers import misc
 
 from ..game import emojis as e
 
-quest_Fnames = ["Bob", "Albert", "Rodrigo", "Alfonso", "Ricardo", "Jesus", "Dr.", "Greg", "Tony", "Eugene", "Jack", "Ben", "Phil"]
-quest_Lnames = ["Christ", "Heffely", "Clark", "McDouglas", "Sear", "Dover"]
+quest_Fnames = ["Bob", "Albert", "Rodrigo", "Alfonso", "Ricardo", "Jesus", "Dr.", "Greg", "Tony", "Eugene", "Jack", "Ben", "Phil", "Michael", "John", "Benito", "Joseph", "Abraham", "George"]
+quest_Lnames = ["Christ", "Heffely", "Clark", "McDouglas", "Sear", "Dover", "Cena", "Jackson", "Lincoln", ]
 quest_battle = ["Fight", "Defeat", "Battle"]
 
 @commands.command(permission=Permission.DUEUTIL_MOD, args_pattern="S?P?C?", hidden=True)
@@ -155,7 +155,7 @@ async def acceptquest(ctx, quest_index, **details):
         stats_reward = players.STAT_GAIN_FORMAT % (add_attack, add_strg, add_accy)
         quest_results = reward + stats_reward
 
-        prestige_exp_gain = (20 * player.prestige_level)
+        prestige_exp_gain = random.uniform(0.75, 1.5) * (100 * player.prestige_level)
         prevExp = player.total_exp 
         player.progress(add_attack, add_strg, add_accy, max_attr=max_stats_gain, max_exp=10000 + prestige_exp_gain)
         expGain = player.total_exp - prevExp
