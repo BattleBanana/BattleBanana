@@ -422,14 +422,9 @@ async def myprestige(ctx, player=None, **details):
     req_money = 5000000 + (1000000 * player.prestige_level)
 
     message = "You are prestige **%s**! " % player.prestige_level
-    if prestige_level > player.level:
-        message += "You need **%s** more levels & " % (prestige_level - player.level)
-    else:
-        message += "You satisfy the level requirement & "
-    if req_money > player.money:
-        message += "you need **%s %s** to afford the next prestige!" % (util.format_number_precise(req_money - player.money), e.DUT)
-    else:
-        message += "you satisfy the money requirement!"
+    message += "You %s & you %s" % (("satisfy the level requirement" if prestige_level <= player.level else "need **%s** additional level" % (prestige_level - player.level)),
+                                    ("satisfy the money requirement" if req_money <= player.money else "need **%s%s** to afford the next prestige." 
+                                    % (util.format_number_precise(req_money - player.money), e.DUT)))
     
     await util.say(ctx.channel, message)
 
