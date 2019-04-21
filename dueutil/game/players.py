@@ -123,8 +123,8 @@ class Player(DueUtilObject, SlotPickleMixin):
         self.last_quest = 0
         self.wagers_won = self.wagers_won
         self.quests_won = self.quests_won
-        self.quest_day_start = self.quest_day_start
-        self.quests_completed_today = self.quests_completed_today
+        self.quest_day_start = 0
+        self.quests_completed_today = 0
         self.last_message_hashes = Ring(10)
         self.spam_detections = 0
 
@@ -167,9 +167,9 @@ class Player(DueUtilObject, SlotPickleMixin):
         ##### Also makes shop simpler
         self.inventory = defaultdict(Player.DEFAULT_FACTORIES["inventory"],
                                      weapons=[],
-                                     themes=["default"],
-                                     backgrounds=["default"],
-                                     banners=["discord blue"])
+                                     themes=self.inventory.get("themes"),
+                                     backgrounds=self.inventory.get("backgrounds"),
+                                     banners=self.inventory.get("banners"))
 
         self.save()
 
