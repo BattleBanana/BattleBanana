@@ -581,3 +581,16 @@ async def teamsettings(ctx, updates, **details):
         for prop, value in updates.items():
             result += ("``%s`` → %s\n" % (prop, value))
         await util.say(ctx.channel, result)
+
+
+# @commands.command(args_pattern="I", aliases=["pendings"])
+# async def showpendings(ctx, page, **details):    
+
+
+@commands.command(args_pattern="I", aliases=["ap"])
+async def acceptpending(ctx, index, **details):
+    """
+    [CMD_KEY]acceptpending (index)
+
+    Accept a user pending to your team.
+    """

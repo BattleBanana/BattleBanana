@@ -153,9 +153,16 @@ class DueUtilClient(discord.Client):
                 else:
                     try:
                         # Attempt to warn user
+                        perms = ctx.server.me.permissions_in(ctx.channel)
                         yield from util.say(channel,
                                             "The action could not be performed as I'm **missing permissions**! Make sure I have the following permissions:\n"
-                                            + "- Embed links;\n- Attach files;\n- Use external emojis;\n- Add reactions\n")
+                                            + "- Manage Roles %s;\n" % (":white_check_mark:" if perms.manage_roles else ":x:")
+                                            + "- Embed links %s;\n" % (":white_check_mark:" if perms.embed_links else ":x:")
+                                            + "- Attach files %s;\n" % (":white_check_mark:" if perms.attach_files else ":x:")
+                                            + "- Read Message History %s;\n" % (":white_check_mark:" if perms.read_message_history else ":x:")
+                                            + "- Use external emojis %s;\n" % (":white_check_mark:" if perms.external_emojis else ":x:")
+                                            + "- Add reactions%s" % (":white_check_mark:" if perms.add_reactions else ":x:")
+                                            )
                     except util.SendMessagePermMissing:
                         pass  # They've block sending messages too.
                 return

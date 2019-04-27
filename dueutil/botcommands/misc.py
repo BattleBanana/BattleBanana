@@ -556,3 +556,12 @@ async def cleartopdogs(ctx, **details):
             v.save()
     
     await util.say(ctx.channel, "Scan is done! ")
+
+
+@commands.command(args_pattern=None)
+async def showperms(ctx, **details):
+    msg = ""
+    perms = ctx.server.me.permissions_in(ctx.channel)
+    for i, v in perms:
+        msg += "**%s** : %s\n" % (str(i), str(v))
+    await util.say(ctx.channel, msg)
