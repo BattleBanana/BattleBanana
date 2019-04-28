@@ -17,7 +17,7 @@ from .. import commands, util, events
 from ..game import customizations, awards, leaderboards, game, players, emojis
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="SPB?C?")
+@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="SB?C?")
 async def createteam(ctx, name, isOpen=True, lower_level=1, **details):
     """
     [CMD_KEY]createteam (name) (recruiting) (Minimum Level)
