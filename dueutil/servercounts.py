@@ -6,17 +6,16 @@ from . import util
 config = generalconfig.other_configs
 
 CARBON_BOT_DATA = "https://www.carbonitex.net/discord/data/botdata.php"
-DISCORD_BOTS = "/api/bots/464601463440801792/stats"
 
-DISCORD_LIST = "https://bots.discord.pw"
-BOTS_ORG = "https://discordbots.org"
+DISCORD_LIST = "https://bots.ondiscord.xyz/bot-api/bots/464601463440801792/guilds"
+BOTS_ORG = "https://discordbots.org/api/bots/464601463440801792/stats"
 
 
 async def update_server_count(shard):
 
     await _carbon_server(shard)
-    await _shard_count_update(shard, DISCORD_LIST, config["discordBotsKey"])
-    await _shard_count_update(shard, BOTS_ORG, config["discordBotsOrgKey"])
+    await _post_shard_count_bod(shard, DISCORD_LIST, config["discordBotsKey"])
+    await _post_shard_count_dbl(shard, BOTS_ORG, config["discordBotsOrgKey"])
 
 
 async def _carbon_server(shard):
@@ -28,13 +27,25 @@ async def _carbon_server(shard):
         util.logger.info("Carbon returned %s status for the payload %s" % (response.status, carbon_payload))
 
 
-async def _shard_count_update(shard, site, key):
+async def _post_shard_count_bod(shard, site, key):
+    # Seems like there is some form of standard?
 
-    # Seems like there is some from of standard?
+    headers = {"Content-Type": "application/json",
+               'Authorization': key}
+    payload = {"server_count": len(shard.servers),
+               "shard_id": shard.shard_id,
+               "shard_count": len(util.shard_clients)}
+    async with shard.session.post(site, data=json.dumps(payload), headers=headers) as response:
+        util.logger.info(site+" returned %s for the payload %s" % (response.status, payload))
+
+
+async def _post_shard_count_dbl(shard, site, key):
+    # Seems like there is some form of standard?
+
     headers = {"content-type": "application/json",
                'authorization': key}
     payload = {"server_count": len(shard.servers),
                "shard_id": shard.shard_id,
                "shard_count": len(util.shard_clients)}
-    async with shard.session.post(site+DISCORD_BOTS, data=json.dumps(payload), headers=headers) as response:
+    async with shard.session.post(site, data=json.dumps(payload), headers=headers) as response:
         util.logger.info(site+" returned %s for the payload %s" % (response.status, payload))
