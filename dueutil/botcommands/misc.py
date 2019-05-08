@@ -258,7 +258,7 @@ async def generatecode(ctx, value, count=1, show=True, **details):
     if show:
         code_Embed = discord.Embed(title="New codes!", type="rich", colour=gconf.DUE_COLOUR)
         code_Embed.add_field(name="Codes:", value=newcodes)
-        code_Embed.set_footer(text="These codes can only be used once! Use !redeem (code) to redeem the prize!")
+        code_Embed.set_footer(text="These codes can only be used once! Use %sredeem (code) to redeem the prize!" % (details["cmd_key"]))
         await util.say(ctx.channel, embed=code_Embed)
 
 
@@ -286,7 +286,7 @@ async def codes(ctx, page=1, **details):
 
     code_Embed = discord.Embed(title="New codes!", type="rich", colour=gconf.DUE_COLOUR)
     code_Embed.add_field(name="Codes:", value="%s" % (codelist if len(codelist) != 0 else "No code to display!"))
-    code_Embed.set_footer(text="These codes can only be used once! Use !redeem (code) to redeem the prize!")
+    code_Embed.set_footer(text="These codes can only be used once! Use %sredeem (code) to redeem the prize!" % (details["cmd_key"]))
     await util.say(ctx.channel, embed=code_Embed)
 
 
