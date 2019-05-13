@@ -85,7 +85,7 @@ class DueUtilClient(discord.Client):
         server_count = util.get_server_count()
         if server_count % 100 == 0:
             yield from util.say(gconf.announcement_channel,
-                                ":confetti_ball: I'm on __**%d SERVERS**__ now!!!1111\n@everyone" % server_count)
+                                ":confetti_ball: I'm on __**%d SERVERS**__ now!1!111!\n@everyone" % server_count)
 
         util.logger.info("Joined server name: %s id: %s", server.name, server.id)
 
@@ -99,7 +99,6 @@ class DueUtilClient(discord.Client):
                                         + ("**BOT SERVER**" if server_stats["bot_server"] else "")))
 
         # Message to help out new server admins.
-        done = False
         for channel in server.channels:
             if channel.type == discord.ChannelType.text:
                 try:
@@ -109,7 +108,7 @@ class DueUtilClient(discord.Client):
                                         + "guide at <https://dueutil.tech/howto/#adming>.\n"
                                         + "It shows how to change the command prefix here, and set which "
                                         + "channels I or my commands can be used in (along with a bunch of other stuff).")
-                    done = True
+                    break
                 except discord.Forbidden:
                     continue
         
@@ -243,7 +242,8 @@ class DueUtilClient(discord.Client):
     @asyncio.coroutine
     def on_ready(self):
         shard_number = shard_clients.index(self) + 1
-        help_status = discord.Game(name="dueutil.tech | shard %d/%d" % (shard_number, shard_count))
+        # help_status = discord.Game(name="dueutil.tech | shard %d/%d" % (shard_number, shard_count))
+        help_status = discord.Game(name="team are finally out || !help teams")
         yield from self.change_presence(game=help_status, afk=False)
         util.logger.info("\nLogged in shard %d as\n%s\nWith account @%s ID:%s \n-------",
                          shard_number, self.name, self.user.name, self.user.id)

@@ -86,7 +86,7 @@ class Player(DueUtilObject, SlotPickleMixin):
                  "misc_stats", "equipped", "inventory",
                  "last_message_hashes", "command_rate_limits",
                  "additional_attributes", "team", "team_invites",
-                 "prestige_level"]
+                 "prestige_level", "language"]
 
     # additional_attributes is not defined but is there for possible future use.
     # I expect new types of quests/weapons to be subclasses.
@@ -132,6 +132,7 @@ class Player(DueUtilObject, SlotPickleMixin):
             self.command_rate_limits = {}
 
         ##### THINGS #####
+        self.language = "en"
         self.quests = []
         self.received_wagers = []
 
@@ -225,7 +226,10 @@ class Player(DueUtilObject, SlotPickleMixin):
 
         # lol no
         self.donor = False
-        self.team = None
+        try:
+            self.team = self.team
+        except AttributeError:
+            self.team = None
         self.team_invites = []
 
         ##### Dumb misc stats (easy to add & remove)

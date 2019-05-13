@@ -227,6 +227,10 @@ async def check_for_missing_new_stats(ctx, player):
         player.team_invites = player.team_invites
     except AttributeError:
         player.__setstate__({'team_invites': []})
+    try: # Language
+        player.language = player.language
+    except AttributeError:
+        player.__setstate__({'language': "en"})
 
 async def on_message(message):
     player = players.find_player(message.author.id)

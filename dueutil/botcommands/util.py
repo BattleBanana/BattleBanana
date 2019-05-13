@@ -96,8 +96,7 @@ async def help(ctx, *args, **details):
                                                          + "Support server: https://discord.gg/P7DBDEC\n"
                                                          + "Upvote me: %svote\n" % (details["cmd_key"])
                                                          + "Support me (donate): https://PayPal.me/DeveloperAnonymous"))
-        help_embed.set_footer(
-            text="To use admin commands you must have the manage server permission or the 'Due Commander' role.")
+        help_embed.set_footer(text="To use admin commands you must have the manage server permission or the 'Due Commander' role.")
 
     await util.say(ctx.channel, embed=help_embed)
 

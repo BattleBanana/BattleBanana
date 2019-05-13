@@ -1,5 +1,6 @@
 import re
 import json
+import googletrans as translator
 
 from .game.helpers import misc
 from .game import players
@@ -13,21 +14,24 @@ MIN_NUMBER = -MAX_NUMBER
 STRING_TYPES = ('S', 'M')
 THOUSANDS_REGEX = re.compile(r'(\,)([0-9][0-9][0-9])')
 
-
 def strip_thousands_separators(value):
     # Will strip 1000s without crazy 1,,,,,,,,,,000
     # Allowed will also allow incorrect formatting.
     return re.sub(THOUSANDS_REGEX, r'\2', value)
 
 def parse_team(value):
-    # return team or False
     try:
         with open('dueutil/game/configs/teams.json', 'r+') as teamfile:
             teams = json.load(teamfile)
             return teams[value.lower()]
     except KeyError:
         return False
-            
+
+def parse_language(value):
+    value = value.lower()
+    if value in translator.LANGUAGES:
+        return value
+    return False
 
 def parse_int(value):
     # An int limited between min and max number
@@ -91,6 +95,7 @@ def parse_type(arg_type, value, **extras):
         'C': parse_count(value),
         'R': parse_float(value),
         'P': parse_player(value, called, ctx),
+        'L': parse_language(value),
         # This one is for page selectors that could be a page number or a string like a weapon name.
         'M': parse_count(value) if parse_count(value) else value,
         'B': value.lower() in misc.POSITIVE_BOOLS,

@@ -204,6 +204,27 @@ async def show_awards(ctx, player, page=0):
     await imagehelper.awards_screen(ctx.channel, player, page,
                                     is_player_sender=ctx.author.id == player.id)
 
+import googletrans as translator
+@commands.command(args_pattern='L', aliases=["language", "setlang", "setlan"])
+async def lang(ctx, language, **details):
+    """
+    [CMD_KEY]lang (code)
+
+    Available language:
+    af, am, ar, az, be, bg, bn, bs, ca, ceb, co, cs, cy, da, de, el, en, eo, 
+    es, et, eu, fa, fi, fil, fr, fy, ga, gd, gl, gu, ha, haw, he, hi, hmn, hr, 
+    ht, hu, hy, id, ig, is, it, iw, ja, jw, ka, kk, km, kn, ko, ku, ky, la, 
+    lb, lo, lt, lv, mg, mi, mk, ml, mn, mr, ms, mt, my, ne, nl, no, ny, pa, 
+    pl, ps, pt, ro, ru, sd, si, sk, sl, sm, sn, so, sq, sr, st, su, sv, sw, 
+    ta, te, tg, th, tl, tr, uk, ur, uz, vi, xh, yi, yo, zh-cn, zh-tw, zu
+    """
+
+    user = details["author"]
+
+    user.language = language
+    user.save()
+
+    await util.say(ctx.channel, "Successfully changed your language to **%s**! (Work in progress)" % (translator.LANGUAGES[language]), lang=user.language)
 
 @commands.command(args_pattern='C?')
 @commands.imagecommand()

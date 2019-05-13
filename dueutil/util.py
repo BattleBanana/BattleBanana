@@ -115,7 +115,24 @@ async def download_file(url):
                 return file_data
 
 
+import googletrans as Translator
+translation = Translator.Translator()
 async def say(channel, *args, **kwargs):
+    # Translate into the player's language
+    if "lang" in kwargs:
+        newArgs = list(args)
+        if "embed" in kwargs:
+            embed = kwargs["embed"]
+            embed.title = translation.translate(embed.title, kwargs["lang"]).text
+            embed.description = translation.translate(embed.description, kwargs["lang"]).text
+            for field in embed.fields:
+                field.name = translation.translate(field.name, kwargs["lang"]).text
+                field.value = translation.translate(field.value, kwargs["lang"]).text
+        else:
+            newArgs[0] = translation.translate(newArgs[0], kwargs["lang"]).text
+        args = tuple(newArgs)
+        del kwargs["lang"]
+    
     if type(channel) is str:
         # Server/Channel id
         server_id, channel_id = channel.split("/")

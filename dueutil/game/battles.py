@@ -58,8 +58,8 @@ async def give_awards_for_battle(channel, battle_log: _BattleLog):
     if battle_log.winner is not None:
         winner = battle_log.winner
         loser = battle_log.loser
-        if "Duerus" in winner.awards:
-            await awards.give_award(channel, loser, "Duerus")
+        # if "Duerus" in winner.awards:
+        #     await awards.give_award(channel, loser, "Duerus")
         if ("TopDog" in loser.awards):
             if not ((winner.id == '115269304705875969') or (winner.id == '261799488719552513')):
                 loser.awards.remove("TopDog")
