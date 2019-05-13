@@ -70,6 +70,7 @@ async def deleteteam(ctx, **details):
     """
 
     user = details["author"]
+    name = user.team
     teamToDelete = name.lower()
     if user.id not in customizations.teams[teamToDelete]["owner"]:
         raise util.DueUtilException(ctx.channel, "Oops, looks like you're not the team owner!")
