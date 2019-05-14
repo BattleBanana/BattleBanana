@@ -623,6 +623,8 @@ async def acceptpending(ctx, index, **details):
 
     user = details["author"]
     index -= 1
+    if user.team is None:
+        raise util.DueUtilException(ctx.channel, "You're not in a team!")
 
     with open('dueutil/game/configs/teams.json', 'r+') as team_file:
         teams = json.load(team_file)
@@ -656,6 +658,8 @@ async def declinepending(ctx, index, **details):
 
     user = details["author"]
     index -= 1
+    if user.team is None:
+        raise util.DueUtilException(ctx.channel, "You're not in a team!")
 
     with open('dueutil/game/configs/teams.json', 'r+') as team_file:
         teams = json.load(team_file)
