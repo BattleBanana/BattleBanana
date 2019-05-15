@@ -38,7 +38,7 @@ async def createteam(ctx, name, isOpen=True, lower_level=1, **details):
         raise util.DueUtilException(ctx.channel, "That team already exists!")
     if lower_level < 1:
         raise util.DueUtilException(ctx.channel, "Minimum level cannot be under 1!")
-    if leader.team is not None:
+    if leader.team != None:
         raise util.DueUtilException(ctx.channel, "You are already in a team!")
 
     with open('dueutil/game/configs/teams.json', "r+") as team_file:
@@ -118,7 +118,7 @@ async def teaminvite(ctx, member, **details):
 
     inviter = details["author"]
 
-    if member.team is not None:
+    if member.team != None:
         raise util.DueUtilException(ctx.channel, "This player is already in a team!")
     if inviter.team is None:
         raise util.DueUtilException(ctx.channel, "You are not a part of a team!")
@@ -179,7 +179,7 @@ async def acceptinvite(ctx, team_index, **details):
 
     member = details["author"]
     team_index -= 1
-    if member.team is not None:
+    if member.team != None:
         raise util.DueUtilException(ctx.channel, "You are already in a team.")
     if team_index >= len(member.team_invites):
         raise util.DueUtilException(ctx.channel, "Invite not found!")
@@ -246,7 +246,7 @@ async def myteam(ctx, **details):
     member = details["author"]
     teams = customizations.teams
 
-    if member.team is not None:
+    if member.team != None:
         if member.team in teams:
             await util.say(ctx.channel, "You are a part of **%s**!" % member.team)
         else:
@@ -496,7 +496,7 @@ async def jointeam(ctx, team, **details):
 
     user = details["author"]
 
-    if user.team is not None:
+    if user.team != None:
         raise util.DueUtilException(ctx.channel, "You are already in a team.")
     
     with open('dueutil/game/configs/teams.json', 'r+') as team_file:
