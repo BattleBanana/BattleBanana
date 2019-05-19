@@ -436,11 +436,14 @@ async def showteams(ctx, page=1, **details):
     with open('dueutil/game/configs/teams.json', 'r+') as team_file:
         teamsdict = json.load(team_file)
         teams = list(teamsdict)
-        for index in range(len(teams) - 1 - (10 * page), -1, -1):
+        top = (page * 5 + 5)
+        limit = top if top < len(teams) else len(teams) - 1
+        for index in range(page * 5, limit, 1):
             team_name = teams[index]
             team = teamsdict[team_name]
-            teamsEmbed.add_field(name=team["name"], value="Owner: **%s** (%s)\nMembers: **%s**\nRequired Level: **%s**\nRecruiting: **%s**" % (players.find_player(team["owner"]).name_clean, str(team["owner"]), len(team["members"]), team["min_level"], ("Yes" if team["open"] else "No")))
-    
+            teamsEmbed.add_field(name=team["name"], value="Owner: **%s** (%s)\nMembers: **%s**\nRequired Level: **%s**\nRecruiting: **%s**" % (players.find_player(team["owner"]).name_clean, str(team["owner"]), len(team["members"]), team["min_level"], ("Yes" if team["open"] else "No")), inline=False)
+        limit = (5 * page) + 5 < len(teams)
+        teamsEmbed.set_footer(text="%s" % (("Do %sshowteams %d for the next page!" % (details["cmd_key"], page + 2)) if limit else "That's all the teams!"))
     await util.say(ctx.channel, embed=teamsEmbed)
 
 
