@@ -8,6 +8,7 @@ from threading import Thread
 import aiohttp
 import time
 import sys
+from itertools import cycle
 import sentry_sdk
 sentry_sdk.init("https://5322a6d1b40841d7a6000e45a3c61a03@sentry.io/1406854")
 
@@ -39,6 +40,15 @@ This bot is not well structured...
 (c) MacDue & DeveloperAnonymous - All rights reserved
 (Sections of this bot are MIT and GPL)
 """
+
+
+async def change_status(self):
+        shard_number = shard_clients.index(self) + 1
+        status = cycle(["with %s players" % (util.get_player_count()), "shard %d/%d" % (shard_number, shard_count), "dueutil.tech"])
+        while not self.is_closed:
+            help_status = discord.Game(name=next(status))
+            await self.change_presence(game=help_status, afk=False)
+            await asyncio.sleep(60)
 
 
 class DueUtilClient(discord.Client):
@@ -88,9 +98,7 @@ class DueUtilClient(discord.Client):
                                 ":confetti_ball: I'm on __**%d SERVERS**__ now!1!111!\n@everyone" % server_count)
 
         util.logger.info("Joined server name: %s id: %s", server.name, server.id)
-
         yield from util.set_up_roles(server)
-
         server_stats = self.server_stats(server)
         yield from util.duelogger.info(("DueUtil has joined the server **"
                                         + util.ultra_escape_string(server.name) + "**!\n"
@@ -213,8 +221,7 @@ class DueUtilClient(discord.Client):
             if old_image != new_image:
                 imagecache.uncache(old_image)
             member = after
-            if (member.server.id == gconf.THE_DEN
-                    and any(role.id == gconf.DONOR_ROLE_ID for role in member.roles)):
+            if (member.server.id == gconf.THE_DEN and any(role.id == gconf.DONOR_ROLE_ID for role in member.roles)):
                 player.donor = True
                 player.save()
 
@@ -241,10 +248,8 @@ class DueUtilClient(discord.Client):
 
     @asyncio.coroutine
     def on_ready(self):
+        self.loop.create_task(change_status(self))
         shard_number = shard_clients.index(self) + 1
-        # help_status = discord.Game(name="dueutil.tech | shard %d/%d" % (shard_number, shard_count))
-        help_status = discord.Game(name="team are finally out || !help teams")
-        yield from self.change_presence(game=help_status, afk=False)
         util.logger.info("\nLogged in shard %d as\n%s\nWith account @%s ID:%s \n-------",
                          shard_number, self.name, self.user.name, self.user.id)
         self.loaded = True

@@ -173,6 +173,12 @@ def pretty_time():
 def get_server_count():
     return sum(len(client.servers) for client in shard_clients)
 
+def get_player_count():
+    count = 0
+    for client in shard_clients:
+        for server in client.servers:
+            count += server.member_count
+    return count
 
 def get_server_id(source):
     if isinstance(source, str):
