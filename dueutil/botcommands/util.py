@@ -235,6 +235,8 @@ async def setcmdkey(ctx, new_key, **details):
     Sets the prefix for commands on your server.
     The default is '!'
     """
+    if util.filter_string(new_key) != new_key:
+        raise util.DueUtilException(ctx.channel, "You must set a valid command key!")
 
     if len(new_key) in (1, 2):
         dueserverconfig.server_cmd_key(ctx.server, new_key)
