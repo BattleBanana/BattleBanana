@@ -44,7 +44,7 @@ This bot is not well structured...
 
 async def change_status(self):
         shard_number = shard_clients.index(self) + 1
-        status = cycle(["with %s players" % (util.get_player_count()), "shard %d/%d" % (shard_number, shard_count), "dueutil.tech"])
+        status = cycle(["with %s players" % (util.get_player_count()), "on shard %d/%d" % (shard_number, shard_count), "dueutil.tech"])
         while not self.is_closed:
             help_status = discord.Game(name=next(status))
             await self.change_presence(game=help_status, afk=False)
