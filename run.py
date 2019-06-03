@@ -252,6 +252,7 @@ class DueUtilClient(discord.Client):
 
     @asyncio.coroutine
     def on_ready(self):
+        shard_number = shard_clients.index(self) + 1
         util.logger.info("\nLogged in shard %d as\n%s\nWith account @%s ID:%s \n-------",
                          shard_number, self.name, self.user.name, self.user.id)
         self.loaded = True
