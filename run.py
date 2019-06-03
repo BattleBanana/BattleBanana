@@ -44,15 +44,15 @@ This bot is not well structured...
 
 
 async def change_status(self):
-        shard_number = shard_clients.index(self) + 1
-        game_stats = stats.get_stats()
-        status = cycle(["with %s players" % (util.format_number_precise(game_stats[Stat.NEW_PLAYERS_JOINED])), 
-                        "on shard %d/%d" % (shard_number, shard_count), 
-                        "dueutil.tech"])
-        while not self.is_closed:
-            help_status = discord.Game(name=next(status))
-            await self.change_presence(game=help_status, afk=False)
-            await asyncio.sleep(60)
+    shard_number = shard_clients.index(self) + 1
+    game_stats = stats.get_stats()
+    status = cycle(["with %s players" % (util.format_number_precise(game_stats[Stat.NEW_PLAYERS_JOINED])), 
+                    "on shard %d/%d" % (shard_number, shard_count), 
+                    "dueutil.tech"])
+    while not self.is_closed:
+        help_status = discord.Game(name=next(status))
+        await self.change_presence(game=help_status, afk=False)
+        await asyncio.sleep(60)
 
 
 class DueUtilClient(discord.Client):
@@ -252,12 +252,11 @@ class DueUtilClient(discord.Client):
 
     @asyncio.coroutine
     def on_ready(self):
-        self.loop.create_task(change_status(self))
-        shard_number = shard_clients.index(self) + 1
         util.logger.info("\nLogged in shard %d as\n%s\nWith account @%s ID:%s \n-------",
                          shard_number, self.name, self.user.name, self.user.id)
         self.loaded = True
         if loaded():
+            self.loop.create_task(change_status(self))
             yield from util.duelogger.bot("DueUtil has *(re)*started\n"
                                           + "Bot version → ``%s``" % gconf.VERSION)
 
