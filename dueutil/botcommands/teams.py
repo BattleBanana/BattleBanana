@@ -330,6 +330,10 @@ async def demoteuser(ctx, user, **details):
             user.save()
         else:
             raise util.DueUtilException(ctx.channel, "This player is already a member. If you meant to kick him, please use %steamkick (user)" % (details["cmd_key"]))
+       
+        team_file.seek(0)
+        team_file.truncate()
+        json.dump(teams, team_file, indent=4)
 
     await util.say(ctx.channel, "**%s** has been demoted to **Member**" % (user.get_name_possession_clean()))
         
