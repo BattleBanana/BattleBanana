@@ -17,7 +17,8 @@ from dueutil.permissions import Permission
 
 import generalconfig as gconf
 from dueutil import loader, servercounts
-from dueutil.game import players
+from dueutil.game import players, stats
+from dueutil.game.stats import Stat
 from dueutil.game.helpers import imagecache
 from dueutil.game.configs import dueserverconfig
 from dueutil import permissions
@@ -44,7 +45,9 @@ This bot is not well structured...
 
 async def change_status(self):
         shard_number = shard_clients.index(self) + 1
-        status = cycle(["with %s players" % (util.get_player_count()), "on shard %d/%d" % (shard_number, shard_count), "dueutil.tech"])
+        status = cycle(["with %s players" % (util.format_number_precise(game_stats[Stat.NEW_PLAYERS_JOINED])), 
+                        "on shard %d/%d" % (shard_number, shard_count), 
+                        "dueutil.tech"])
         while not self.is_closed:
             help_status = discord.Game(name=next(status))
             await self.change_presence(game=help_status, afk=False)
