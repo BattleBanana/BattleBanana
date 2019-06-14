@@ -88,7 +88,15 @@ def command(**command_rules):
                     raise util.DueUtilException(ctx.channel, "Please don't include spam mentions in commands.")
             else:
                 # React X
-                await util.get_client(ctx.server.id).add_reaction(ctx, emojis.CROSS_REACT)
+                if not (permissions.has_permission(ctx.author, Permission.PLAYER) or permissions.has_special_permission(ctx.author, Permission.BANNED)):
+                    player = players.find_player(ctx.author.id)
+                    local_optout = not player.is_playing(ctx.server, local=True)
+                    if local_optout:
+                        await util.say(ctx.channel, "You are opted out. Use ``%soptinhere``!" % prefix)
+                    else:
+                        await util.say(ctx.channel, "You are opted out. Use ``%soptin``!" % prefix)
+                else:
+                    await util.get_client(ctx.server.id).add_reaction(ctx, emojis.CROSS_REACT)
             return True
 
         wrapped_command.is_hidden = command_rules.get('hidden', False)
