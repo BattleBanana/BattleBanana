@@ -44,6 +44,8 @@ This bot is not well structured...
 
 
 async def change_status(self):
+    self.wait_until_ready()
+    self.wait_until_login()
     shard_number = shard_clients.index(self) + 1
     game_stats = stats.get_stats()
     status = cycle(["with %s players" % (util.format_number_precise(game_stats[Stat.NEW_PLAYERS_JOINED])), 
