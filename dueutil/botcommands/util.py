@@ -147,7 +147,6 @@ async def botinfo(ctx, **_):
     info_embed.add_field(name="Invite Due!", value="%s" % gconf.BOT_INVITE, inline=False)
     info_embed.add_field(name="Support server",
                          value="For help with the bot or a laugh join **https://discord.gg/P7DBDEC**!")
-    info_embed.add_field(name="Upvote", value=gconf.VERSION),
     await util.say(ctx.channel, embed=info_embed)
 
 

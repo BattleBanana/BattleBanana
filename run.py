@@ -51,7 +51,7 @@ async def change_status(self):
     status = cycle(["with %s players" % (util.format_number_precise(game_stats[Stat.NEW_PLAYERS_JOINED])), 
                     "on shard %d/%d" % (shard_number, shard_count), 
                     "dueutil.tech"])
-    while not self.is_closed:
+    while not self.is_closed and self._is_logged_in:
         help_status = discord.Game(name=next(status))
         await self.change_presence(game=help_status, afk=False)
         await asyncio.sleep(60)
@@ -259,9 +259,9 @@ class DueUtilClient(discord.Client):
                          shard_number, self.name, self.user.name, self.user.id)
         self.loaded = True
         if loaded():
-            self.loop.create_task(change_status(self))
             yield from util.duelogger.bot("DueUtil has *(re)*started\n"
                                           + "Bot version → ``%s``" % gconf.VERSION)
+            self.loop.create_task(change_status(self))
 
 
 class ShardThread(Thread):
