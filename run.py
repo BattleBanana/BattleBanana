@@ -48,7 +48,7 @@ async def change_status(self):
     self.wait_until_login()
     shard_number = shard_clients.index(self) + 1
     game_stats = stats.get_stats()
-    status = cycle(["with %s players" % (util.format_number_precise(game_stats[Stat.NEW_PLAYERS_JOINED])), 
+    status = cycle(["with %s players" % (util.format_number_precise(len(list(self.get_all_members())))), 
                     "on shard %d/%d" % (shard_number, shard_count), 
                     "dueutil.tech"])
     while not self.is_closed and self._is_logged_in:
