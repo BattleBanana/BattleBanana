@@ -46,7 +46,7 @@ This bot is not well structured...
 async def change_status(self):
     shard_number = shard_clients.index(self) + 1
     game_stats = stats.get_stats()
-    while not self._is_logged_in:
+    while not self._is_logged_in and self.is_closed:
         continue
     status = cycle(["with %s players on this shard" % (util.format_number_precise(len(list(self.get_all_members())))), 
                     "on shard %d/%d" % (shard_number, shard_count), 
@@ -258,10 +258,10 @@ class DueUtilClient(discord.Client):
         util.logger.info("\nLogged in shard %d as\n%s\nWith account @%s ID:%s \n-------",
                          shard_number, self.name, self.user.name, self.user.id)
         self.loaded = True
+        self.loop.create_task(change_status(self))
         if loaded():
             yield from util.duelogger.bot("DueUtil has *(re)*started\n"
                                           + "Bot version → ``%s``" % gconf.VERSION)
-            self.loop.create_task(change_status(self))
 
 
 class ShardThread(Thread):
