@@ -144,22 +144,20 @@ async def acceptquest(ctx, quest_index, **details):
                         * quest.level * (turns / average_quest_battle_turns) / 2 * (quest_scale + 0.5) * 3))
 
         # Put some random in the prestige gain so its not a raw 20 * prestige
-        prestige_gain = random.uniform(0.75, 1.25) * (20 * player.prestige_level)
-        max_stats_gain = 100 + prestige_gain
-        add_strg = min(attr_gain(quest.strg), 100 + prestige_gain)
+        max_stats_gain = 100 * player.prestige_level
+        add_strg = min(attr_gain(quest.strg), max_stats_gain)
         # Limit these with add_strg. Since if the quest is super strong. It would not be beatable.
         # Add a little random so the limit is not super visible
-        add_attack = min(attr_gain(quest.attack), min(add_strg * 3 * random.uniform(0.6, 1.5) + prestige_gain, max_stats_gain))
-        add_accy = min(attr_gain(quest.accy), min(add_strg * 3 * random.uniform(0.6, 1.5) + prestige_gain, max_stats_gain))
+        add_attack = min(attr_gain(quest.attack), min(add_strg * 3 * random.uniform(0.6, 1.5), max_stats_gain))
+        add_accy = min(attr_gain(quest.accy), min(add_strg * 3 * random.uniform(0.6, 1.5), max_stats_gain))
 
         stats_reward = players.STAT_GAIN_FORMAT % (add_attack, add_strg, add_accy)
         quest_results = reward + stats_reward
 
-        prestige_exp_gain = random.uniform(0.75, 1.5) * (100 * player.prestige_level)
         prevExp = player.total_exp 
-        player.progress(add_attack, add_strg, add_accy, max_attr=max_stats_gain, max_exp=10000 + prestige_exp_gain)
+        player.progress(add_attack, add_strg, add_accy, max_attr=max_stats_gain, max_exp=10000 * player.prestige_level)
         expGain = player.total_exp - prevExp
-        quest_results = (reward + "and `" + str(expGain) + "` EXP\n" + stats_reward)
+        quest_results = (reward + "and `" + str(round(expGain)) + "` EXP\n" + stats_reward)
 
         player.money += quest.money
         stats.increment_stat(stats.Stat.MONEY_CREATED, quest.money)

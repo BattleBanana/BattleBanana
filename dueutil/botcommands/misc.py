@@ -446,6 +446,7 @@ async def setcash(ctx, player, amount, **_):
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PI")
 async def setprestige(ctx, player, prestige, **details):
     player.prestige_level = prestige
+    player.save()
     await util.say(ctx.channel, "Set prestige to **%s** for **%s**" % (prestige, player.get_name_possession_clean()))
 
 

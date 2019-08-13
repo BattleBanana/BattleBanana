@@ -44,17 +44,14 @@ async def train(ctx, **details):
     """
 
     player = details["author"]
-    maxstats = 100
+    maxstats = 100 * (player.prestige_level + 1)
 
-    prestige_gain = random.uniform(0.75, 1.25) * (20 * player.prestige_level)
+    attack_increase = random.uniform(*TRAIN_RANGE) * player.level * (player.prestige_level + 1)
+    strg_increase = random.uniform(*TRAIN_RANGE) * player.level * (player.prestige_level + 1)
+    accy_increase = random.uniform(*TRAIN_RANGE) * player.level * (player.prestige_level + 1)
 
-    attack_increase = random.uniform(*TRAIN_RANGE) * player.level + prestige_gain
-    strg_increase = random.uniform(*TRAIN_RANGE) * player.level + prestige_gain
-    accy_increase = random.uniform(*TRAIN_RANGE) * player.level + prestige_gain
-
-    maxstats = maxstats + prestige_gain
     if player.donor:
-        maxstats = 200 + prestige_gain
+        maxstats = maxstats * 2
         attack_increase = attack_increase * 2
         strg_increase = strg_increase * 2
         accy_increase = accy_increase * 2
@@ -330,12 +327,12 @@ async def compare(ctx, player1, player2=None, **details):
     compare_Embed.title = "Comparing **%s** with **%s**!" % (player1.name_clean, player2.name_clean)
     compare_Embed.add_field(
         name=player1.name_clean,
-        value=("Level: %s\nHealth: %.2f\nAttack: %.2f\nStrength: %.2f\nAccuracy: %.2f" % (player1.level, player1.hp * player1.strg, player1.attack, player1.strg, player1.accy)), 
+        value=("Prestige: %s\nLevel: %s\nHealth: %.2f\nAttack: %.2f\nStrength: %.2f\nAccuracy: %.2f" % (player1.prestige_level, player1.level, player1.hp * player1.strg, player1.attack, player1.strg, player1.accy)), 
         inline=True
     )
     compare_Embed.add_field(
         name=player2.name_clean,
-        value=("Level: %s\nHealth: %.2f\nAttack: %.2f\nStrength: %.2f\nAccuracy: %.2f" % (player2.level, player2.hp * player2.strg, player2.attack, player2.strg, player2.accy)), 
+        value=("Prestige: %s\nLevel: %s\nHealth: %.2f\nAttack: %.2f\nStrength: %.2f\nAccuracy: %.2f" % (player2.prestige_level, player2.level, player2.hp * player2.strg, player2.attack, player2.strg, player2.accy)), 
         inline=True
     )
 

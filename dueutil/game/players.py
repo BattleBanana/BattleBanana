@@ -108,15 +108,15 @@ class Player(DueUtilObject, SlotPickleMixin):
         self.benfont = False
 
         ##### STATS #####
+        self.prestige_level += 1
         self.level = 1
         self.exp = 0
         self.total_exp = 0
-        self.attack = 1
-        self.strg = 1
-        self.accy = 1
+        self.attack = 1 + self.prestige_level
+        self.strg = 1 + self.prestige_level
+        self.accy = 1 + self.prestige_level
         self.hp = 10
         self.money = self.money
-        self.prestige_level += 1
 
         ##### USAGE STATS #####
         self.last_progress = 0

@@ -167,7 +167,7 @@ class ActiveQuest(Player, util.SlotPickleMixin):
         target_level = self.level
         self.level = 0
         self.hp = base_hp * target_level * random.uniform(0.6, 1)
-        increment_scale = random.uniform(0.4, 1)
+        increment_scale = random.uniform(0.4, 1) * ((self.quester.prestige_level + 1) / 3)
         while self.level < target_level:
             exp_next_level = gamerules.get_exp_for_next_level(self.level)
             increment = max(exp_next_level, 1000) * increment_scale / 600
