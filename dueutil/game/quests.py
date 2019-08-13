@@ -11,7 +11,7 @@ import jsonpickle
 from ..util import SlotPickleMixin
 from .. import dbconn
 from .. import util
-from ..game import players
+from ..game import players, game
 from ..game import weapons
 from ..game.helpers.misc import DueUtilObject, DueMap
 from .players import Player
@@ -161,6 +161,10 @@ class ActiveQuest(Player, util.SlotPickleMixin):
         return active_quest
 
     async def _calculate_stats(self):
+        try:
+            self.quester.prestige_level = self.quester.prestige_level
+        except AttributeError:
+            game.check_for_missing_new_stats(self.quester)
         base_attack, base_strg, base_accy, base_hp = tuple(base_value / 1.7 for base_value in
                                                            self.info.base_values())
         self.attack = self.accy = self.strg = 1

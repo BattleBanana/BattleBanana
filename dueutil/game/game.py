@@ -211,7 +211,7 @@ async def check_for_recalls(ctx, player):
         ":bangbang: " + ("One" if len(weapons_to_recall) == 1 else "Some") + " of your weapons has been recalled!\n"
         + "You get a refund of ``" + util.format_number(recall_amount, money=True, full_precision=True) + "``"))
 
-async def check_for_missing_new_stats(ctx, player):
+async def check_for_missing_new_stats(player):
     """
     Check if the player have all the fields
     """
