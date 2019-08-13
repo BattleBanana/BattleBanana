@@ -144,7 +144,7 @@ async def acceptquest(ctx, quest_index, **details):
                         * quest.level * (turns / average_quest_battle_turns) / 2 * (quest_scale + 0.5) * 3))
 
         # Put some random in the prestige gain so its not a raw 20 * prestige
-        max_stats_gain = 100 * player.prestige_level
+        max_stats_gain = 100 * (player.prestige_level + 1)
         add_strg = min(attr_gain(quest.strg), max_stats_gain)
         # Limit these with add_strg. Since if the quest is super strong. It would not be beatable.
         # Add a little random so the limit is not super visible
@@ -155,7 +155,7 @@ async def acceptquest(ctx, quest_index, **details):
         quest_results = reward + stats_reward
 
         prevExp = player.total_exp 
-        player.progress(add_attack, add_strg, add_accy, max_attr=max_stats_gain, max_exp=10000 * player.prestige_level)
+        player.progress(add_attack, add_strg, add_accy, max_attr=max_stats_gain, max_exp=10000 * (player.prestige_level + 1))
         expGain = player.total_exp - prevExp
         quest_results = (reward + "and `" + str(round(expGain)) + "` EXP\n" + stats_reward)
 
