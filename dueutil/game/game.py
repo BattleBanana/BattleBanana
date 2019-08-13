@@ -216,7 +216,7 @@ async def check_for_missing_new_stats(player):
     Check if the player have all the fields
     """
     try: # Prestige
-        player.prestige_level = player.prestige_level
+        player.prestige_level = player.prestige_level * 1
     except AttributeError:
         player.__setstate__({'prestige_level': 0})
     try: # Team
@@ -244,7 +244,7 @@ async def on_message(message):
     if player is not None:
         await manage_quests(message, player, spam_level)
         await check_for_recalls(message, player)
-        await check_for_missing_new_stats(message, player)
+        await check_for_missing_new_stats(player)
 
 
 events.register_message_listener(on_message)
