@@ -162,7 +162,7 @@ class ActiveQuest(Player, util.SlotPickleMixin):
 
     async def _calculate_stats(self):
         try:
-            self.quester.prestige_level = self.quester.prestige_level
+            self.quester.prestige_level = self.quester.prestige_level * 1
         except AttributeError:
             await game.check_for_missing_new_stats(self.quester)
         base_attack, base_strg, base_accy, base_hp = tuple(base_value / 1.7 for base_value in
