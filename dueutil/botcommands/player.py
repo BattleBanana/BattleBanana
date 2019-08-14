@@ -46,9 +46,9 @@ async def train(ctx, **details):
     player = details["author"]
     maxstats = 100 * (player.prestige_level + 1)
 
-    attack_increase = random.uniform(*TRAIN_RANGE) * player.level * (player.prestige_level + 1)
-    strg_increase = random.uniform(*TRAIN_RANGE) * player.level * (player.prestige_level + 1)
-    accy_increase = random.uniform(*TRAIN_RANGE) * player.level * (player.prestige_level + 1)
+    attack_increase = random.uniform(*TRAIN_RANGE) * player.level * ((player.prestige_level + 1) / 2 + .5)
+    strg_increase = random.uniform(*TRAIN_RANGE) * player.level * ((player.prestige_level + 1) / 2 + .5)
+    accy_increase = random.uniform(*TRAIN_RANGE) * player.level * ((player.prestige_level + 1) / 2 + .5)
 
     if player.donor:
         maxstats = maxstats * 2
