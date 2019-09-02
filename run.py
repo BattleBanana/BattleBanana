@@ -219,8 +219,9 @@ class DueUtilClient(discord.Client):
             if channel is None:
                 yield from self.create_channel(server, user.id)
                 yield from self.send_message(user, "Hello there! By DMing me you've opened a channel with my live support team."
-                                                    + "All your messages sent in my DMs are logged in order to provide help to those who needs it."
-                                                    + "If you did not want to request help, please say \"!Close\".\n\nThank you,\nDueUtil 3.0")
+                                            + "All your messages sent in my DMs are logged in order to provide help to those who needs it."
+                                            + "**Please remember that your request is answered by real humans, so there might be delay in answers. Please do not spam us!**"
+                                            + "If you did not want to request help, please say \"!Close\".\n\nThank you,\nDueUtil 3.0")
                 channel = find_channel(server, user)
             if message.content == "":
                 yield from self.send_message(user, "**:bangbang: You cannot send images! Please right click your image, \"Copy Link\" & Ctrl + V to send it!**")
