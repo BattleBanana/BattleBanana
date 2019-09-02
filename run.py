@@ -50,7 +50,8 @@ async def change_status(self):
         continue
     status = cycle(["with %s players on this shard" % (util.format_number_precise(len(list(self.get_all_members())))), 
                     "on shard %d/%d" % (shard_number, shard_count), 
-                    "dueutil.tech"])
+                    "dueutil.tech"],
+                    "support in my DMs")
     while not self.is_closed and self._is_logged_in:
         help_status = discord.Game(name=next(status))
         await self.change_presence(game=help_status, afk=False)
