@@ -167,7 +167,7 @@ class DueUtilClient(discord.Client):
                     try:
                         # Attempt to warn user
                         perms = ctx.server.me.permissions_in(ctx.channel)
-                        yield from util.say(channel,
+                        yield from util.say(ctx,
                                             "The action could not be performed as I'm **missing permissions**! Make sure I have the following permissions:\n"
                                             + "- Manage Roles %s;\n" % (":white_check_mark:" if perms.manage_roles else ":x:")
                                             + "- Embed links %s;\n" % (":white_check_mark:" if perms.embed_links else ":x:")
@@ -200,13 +200,47 @@ class DueUtilClient(discord.Client):
         util.sentry_client.captureException()
         traceback.print_exc()
 
+    
     @asyncio.coroutine
     def on_message(self, message):
         if (message.author == self.user
-            or message.channel.is_private
             or message.author.bot
-                or not loaded()):
+            or not loaded()):
             return
+
+        if message.channel.is_private:
+            def find_channel(server, user):
+                for channels in server.channels:
+                    if channels.name == user.id:
+                        return channels
+            server = util.get_server('617912143303671810')
+            user = message.channel.user
+            channel = find_channel(server, user)
+            if channel is None:
+                yield from self.create_channel(server, user.id)
+                yield from self.send_message(user, "Hello there! By DMing me you've opened a channel with my live support team."
+                                                    + "All your messages sent in my DMs are logged in order to provide help to those who needs it."
+                                                    + "If you did not want to request help, please say \"!Close\".\n\nThank you,\nDueUtil 3.0")
+                channel = find_channel(server, user)
+            if message.content == "":
+                yield from self.send_message(user, "**:bangbang: You cannot send images! Please right click your image, \"Copy Link\" & Ctrl + V to send it!**")
+                return
+            message.clean_content
+            if message.content.lower() == "!close":
+                yield from self.delete_channel(channel)
+                yield from self.send_message(user, "Successfully closed the live support!")
+            else:
+                embed = discord.Embed(title=(message.author.name + "#" + message.author.discriminator), type="rich", colour=gconf.DUE_COLOUR)
+                embed.add_field(name="Message:", value=message.content)
+                yield from util.say(channel, embed=embed)
+            return
+        if message.server.id == '617912143303671810' and message.channel.name != "general":
+            user = yield from self.get_user_info(message.channel.name)
+            embed = discord.Embed(type="rich", colour=gconf.DUE_COLOUR)
+            embed.add_field(name="Message:", value=message.content)
+            embed.set_footer(text="Answer sent by: " + message.author.name + "#" + message.author.discriminator)
+            yield from self.send_message(user, embed=embed)
+
         owner = discord.Member(user={"id": config["owner"]})
         if not permissions.has_permission(owner, Permission.DUEUTIL_OWNER):
             permissions.give_permission(owner, Permission.DUEUTIL_OWNER)
