@@ -209,6 +209,9 @@ class DueUtilClient(discord.Client):
             return
 
         if message.channel.is_private: # Someone DMs the bot
+            if message.content == "":
+                yield from self.send_message(user, "**:bangbang: You cannot send images! Please right click your image, \"Copy Link\" & Ctrl + V to send it!**")
+                return
             def find_channel(server, user):
                 for channels in server.channels:
                     if channels.name == user.id:
@@ -223,9 +226,7 @@ class DueUtilClient(discord.Client):
                                             + "**Please remember that your request is answered by real humans, so there might be delay in answers. Please do not spam us!**"
                                             + "If you did not want to request help, please say \"!Close\".\n\nThank you,\nDueUtil 3.0")
                 channel = find_channel(server, user)
-            if message.content == "":
-                yield from self.send_message(user, "**:bangbang: You cannot send images! Please right click your image, \"Copy Link\" & Ctrl + V to send it!**")
-                return
+            
             message.clean_content
             if message.content.lower() == "!close":
                 yield from self.delete_channel(channel)
@@ -237,6 +238,9 @@ class DueUtilClient(discord.Client):
             return
 
         if message.server.id == '617912143303671810' and message.channel.name != "general": # We answer in a channel
+            if message.content == "":
+                yield from self.send_message(user, "**:bangbang: You cannot send images! Please right click your image, \"Copy Link\" & Ctrl + V to send it!**")
+                return
             def find_channel(server, user):
                 for channels in server.channels:
                     if channels.name == user.id:
