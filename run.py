@@ -208,7 +208,7 @@ class DueUtilClient(discord.Client):
             or not loaded()):
             return
 
-        if message.channel.is_private:
+        if message.channel.is_private: # Someone DMs the bot
             def find_channel(server, user):
                 for channels in server.channels:
                     if channels.name == user.id:
@@ -235,8 +235,23 @@ class DueUtilClient(discord.Client):
                 embed.add_field(name="Message:", value=message.content)
                 yield from util.say(channel, embed=embed)
             return
-        if message.server.id == '617912143303671810' and message.channel.name != "general":
+
+        if message.server.id == '617912143303671810' and message.channel.name != "general": # We answer in a channel
+            def find_channel(server, user):
+                for channels in server.channels:
+                    if channels.name == user.id:
+                        return channels
             user = yield from self.get_user_info(message.channel.name)
+            server = util.get_server('617912143303671810')
+            if message.content.lower() == "!close":
+                embed = discord.Embed(type="rich", colour=gconf.DUE_COLOUR)
+                embed.add_field(name="Support Closed", value="Your support channel was closed by **%s**. " % (message.author.name + "#" + message.author.discriminator)
+                                                            + "*Please note that we do not keep an arvhive of your previous messages once the channel is closed!*")
+                embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/363777039813050368/618213084795895823/due3Logo.png")
+                embed.set_footer(text="If your question was not fully answered or if you still have a question, please answer to this message with your question!")
+                yield from self.send_message(user, embed=embed)
+                yield from self.delete_channel(find_channel(server, user))
+                return
             embed = discord.Embed(type="rich", colour=gconf.DUE_COLOUR)
             embed.add_field(name="Message:", value=message.content)
             embed.set_footer(text="Answer sent by: " + message.author.name + "#" + message.author.discriminator)
