@@ -167,7 +167,7 @@ class DueUtilClient(discord.Client):
                     try:
                         # Attempt to warn user
                         perms = ctx.server.me.permissions_in(ctx.channel)
-                        yield from util.say(ctx,
+                        yield from util.say(ctx.channel,
                                             "The action could not be performed as I'm **missing permissions**! Make sure I have the following permissions:\n"
                                             + "- Manage Roles %s;\n" % (":white_check_mark:" if perms.manage_roles else ":x:")
                                             + "- Embed links %s;\n" % (":white_check_mark:" if perms.embed_links else ":x:")
