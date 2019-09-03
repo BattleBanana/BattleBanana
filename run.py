@@ -208,6 +208,7 @@ class DueUtilClient(discord.Client):
             return
 
         if message.channel.is_private: # Someone DMs the bot
+            user = message.channel.user
             if message.content == "":
                 yield from self.send_message(user, "**:bangbang: You cannot send images! Please right click your image, \"Copy Link\" & Ctrl + V to send it!**")
                 return
@@ -218,7 +219,6 @@ class DueUtilClient(discord.Client):
                         return channels
 
             server = util.get_server('617912143303671810')
-            user = message.channel.user
             channel = find_channel(server, user)
 
             if channel is None:
@@ -230,7 +230,7 @@ class DueUtilClient(discord.Client):
             channel = find_channel(server, user)
             message.clean_content
 
-            if message.content.lower() == "!close":
+            if message.content.lower() == "!close" and find_channel(server, user):
                 embed = discord.Embed(type="rich", colour=gconf.DUE_COLOUR)
                 embed.add_field(name="Support Closed", value="You closed your support channel! "
                                                             + "*Please note that we do not keep an arvhive of your previous messages once the channel is closed!*")
@@ -239,12 +239,13 @@ class DueUtilClient(discord.Client):
 
                 yield from self.delete_channel(channel)
                 yield from self.send_message(user, embed=embed)
-            else:
+            elif find_channel(server, user):
                 embed = discord.Embed(title=(message.author.name + "#" + message.author.discriminator), type="rich", colour=gconf.DUE_COLOUR)
                 embed.add_field(name="Message:", value=message.content)
                 yield from util.say(channel, embed=embed)
 
         elif message.server.id == '617912143303671810' and message.channel.name != "general": # We answer in a channel
+            user = yield from self.get_user_info(message.channel.name)
             if message.content == "":
                 yield from self.send_message(user, "**:bangbang: You cannot send images! Please right click your image, \"Copy Link\" & Ctrl + V to send it!**")
                 return
@@ -254,7 +255,6 @@ class DueUtilClient(discord.Client):
                     if channels.name == user.id:
                         return channels
 
-            user = yield from self.get_user_info(message.channel.name)
             server = util.get_server('617912143303671810')
             
             if message.content.lower() == "!close":
