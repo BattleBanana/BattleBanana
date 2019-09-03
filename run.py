@@ -213,65 +213,76 @@ class DueUtilClient(discord.Client):
             if message.content == "":
                 yield from self.send_message(user, "**:bangbang: You cannot send images! Please right click your image, \"Copy Link\" & Ctrl + V to send it!**")
                 return
+
             def find_channel(server, user):
                 for channels in server.channels:
                     if channels.name == user.id:
                         return channels
+
             server = util.get_server('617912143303671810')
             user = message.channel.user
             channel = find_channel(server, user)
+
             if channel is None:
                 yield from self.create_channel(server, user.id)
                 yield from self.send_message(user, "Hello there! By DMing me you've opened a channel with my live support team. "
                                             + "All your messages sent in my DMs are logged in order to provide help to those who needs it.\n\n"
-                                            + "**Please remember that your request is answered by real humans, so there might be delay in answers. Please do not spam us!**"
+                                            + "**Please remember that your request is answered by real humans, so there might be delay in answers. Please do not spam us!** "
                                             + "If you did not want to request help, please say \"!Close\".\n\nThank you,\nDueUtil 3.0")
-                channel = find_channel(server, user)
-            
+            channel = find_channel(server, user)
             message.clean_content
+
             if message.content.lower() == "!close":
+                embed = discord.Embed(type="rich", colour=gconf.DUE_COLOUR)
+                embed.add_field(name="Support Closed", value="You closed your support channel! "
+                                                            + "*Please note that we do not keep an arvhive of your previous messages once the channel is closed!*")
+                embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/363777039813050368/618213084795895823/due3Logo.png")
+                embed.set_footer(text="If your question was not fully answered or if you still have a question, please answer to this message with your question!")
+
                 yield from self.delete_channel(channel)
-                yield from self.send_message(user, "Successfully closed the live support!")
+                yield from self.send_message(user, embed=embed)
             else:
                 embed = discord.Embed(title=(message.author.name + "#" + message.author.discriminator), type="rich", colour=gconf.DUE_COLOUR)
                 embed.add_field(name="Message:", value=message.content)
                 yield from util.say(channel, embed=embed)
-            return
 
-        if message.server.id == '617912143303671810' and message.channel.name != "general": # We answer in a channel
+        elif message.server.id == '617912143303671810' and message.channel.name != "general": # We answer in a channel
             if message.content == "":
                 yield from self.send_message(user, "**:bangbang: You cannot send images! Please right click your image, \"Copy Link\" & Ctrl + V to send it!**")
                 return
+
             def find_channel(server, user):
                 for channels in server.channels:
                     if channels.name == user.id:
                         return channels
+
             user = yield from self.get_user_info(message.channel.name)
             server = util.get_server('617912143303671810')
+            
             if message.content.lower() == "!close":
                 embed = discord.Embed(type="rich", colour=gconf.DUE_COLOUR)
                 embed.add_field(name="Support Closed", value="Your support channel was closed by **%s**. " % (message.author.name + "#" + message.author.discriminator)
                                                             + "*Please note that we do not keep an arvhive of your previous messages once the channel is closed!*")
                 embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/363777039813050368/618213084795895823/due3Logo.png")
                 embed.set_footer(text="If your question was not fully answered or if you still have a question, please answer to this message with your question!")
-                yield from self.send_message(user, embed=embed)
                 yield from self.delete_channel(find_channel(server, user))
-                return
-            embed = discord.Embed(type="rich", colour=gconf.DUE_COLOUR)
-            embed.add_field(name="Message:", value=message.content)
-            embed.set_footer(text="Answer sent by: " + message.author.name + "#" + message.author.discriminator)
-            yield from self.send_message(user, embed=embed)
-
-        owner = discord.Member(user={"id": config["owner"]})
-        if not permissions.has_permission(owner, Permission.DUEUTIL_OWNER):
-            permissions.give_permission(owner, Permission.DUEUTIL_OWNER)
-        mentions_self_regex = "<@.?"+self.user.id+">"
-        if re.match("^"+mentions_self_regex, message.content):
-            message.content = re.sub(mentions_self_regex + "\s*",
-                                     dueserverconfig.server_cmd_key(message.server),
-                                     message.content)
-        
-        yield from events.on_message_event(message)
+                yield from self.send_message(user, embed=embed)
+            else:
+                embed = discord.Embed(type="rich", colour=gconf.DUE_COLOUR)
+                embed.add_field(name="Message:", value=message.content)
+                embed.set_footer(text="Sent by: " + message.author.name + "#" + message.author.discriminator)
+                yield from self.send_message(user, embed=embed)
+        else:
+            owner = discord.Member(user={"id": config["owner"]})
+            if not permissions.has_permission(owner, Permission.DUEUTIL_OWNER):
+                permissions.give_permission(owner, Permission.DUEUTIL_OWNER)
+            mentions_self_regex = "<@.?"+self.user.id+">"
+            if re.match("^"+mentions_self_regex, message.content):
+                message.content = re.sub(mentions_self_regex + "\s*",
+                                        dueserverconfig.server_cmd_key(message.server),
+                                        message.content)
+            
+            yield from events.on_message_event(message)
 
     @asyncio.coroutine
     def on_member_update(self, before, after):
