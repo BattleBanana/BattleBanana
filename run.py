@@ -17,7 +17,7 @@ from dueutil.permissions import Permission
 
 import generalconfig as gconf
 from dueutil import loader, servercounts
-from dueutil.game import players, stats
+from dueutil.game import players, stats, emojis
 from dueutil.game.stats import Stat
 from dueutil.game.helpers import imagecache
 from dueutil.game.configs import dueserverconfig
@@ -241,14 +241,18 @@ class DueUtilClient(discord.Client):
                 yield from self.delete_channel(channel)
                 yield from self.send_message(user, embed=embed)
             elif find_channel(server, user):
-                embed = discord.Embed(title=(message.author.name + "#" + message.author.discriminator), type="rich", colour=gconf.DUE_COLOUR)
-                embed.add_field(name="Message:", value=message.content)
-                yield from util.say(channel, embed=embed)
+                try:
+                    embed = discord.Embed(title=(message.author.name + "#" + message.author.discriminator), type="rich", colour=gconf.DUE_COLOUR)
+                    embed.add_field(name="Message:", value=message.content)
+                    yield from util.say(channel, embed=embed)
+                    yield from self.add_reaction(message, emojis.CHECK_REACT)
+                except:
+                    yield from self.add_reaction(message, emojis.CROSS_REACT)
 
         elif message.server.id == '617912143303671810' and message.channel.name != "general": # We answer in a channel
             user = yield from self.get_user_info(message.channel.name)
             if message.content == "":
-                yield from self.send_message(user, "**:bangbang: You cannot send images! Please right click your image, \"Copy Link\" & Ctrl + V to send it!**")
+                yield from self.send_message(message.channel, "**:bangbang: You cannot send images! Please right click your image, \"Copy Link\" & Ctrl + V to send it!**")
                 return
 
             def find_channel(server, user):
@@ -267,10 +271,14 @@ class DueUtilClient(discord.Client):
                 yield from self.delete_channel(find_channel(server, user))
                 yield from self.send_message(user, embed=embed)
             else:
-                embed = discord.Embed(type="rich", colour=gconf.DUE_COLOUR)
-                embed.add_field(name="Message:", value=message.content)
-                embed.set_footer(text="Sent by: " + message.author.name + "#" + message.author.discriminator)
-                yield from self.send_message(user, embed=embed)
+                try:
+                    embed = discord.Embed(type="rich", colour=gconf.DUE_COLOUR)
+                    embed.add_field(name="Message:", value=message.content)
+                    embed.set_footer(text="Sent by: " + message.author.name + "#" + message.author.discriminator)
+                    yield from self.send_message(user, embed=embed)
+                    yield from self.add_reaction(message, emojis.CHECK_REACT)
+                except:
+                    yield from self.add_reaction(message, emojis.CROSS_REACT)
         else:
             owner = discord.Member(user={"id": config["owner"]})
             if not permissions.has_permission(owner, Permission.DUEUTIL_OWNER):
