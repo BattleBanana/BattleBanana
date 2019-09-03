@@ -46,7 +46,7 @@ This bot is not well structured...
 async def change_status(self):
     shard_number = shard_clients.index(self) + 1
     game_stats = stats.get_stats()
-    while not self._is_logged_in and self.is_closed:
+    while not self._is_logged_in or self.is_closed or not loaded():
         continue
     status = cycle(["with %s players on this shard" % (util.format_number_precise(len(list(self.get_all_members())))), 
                     "on shard %d/%d" % (shard_number, shard_count), 
