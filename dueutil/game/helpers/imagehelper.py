@@ -407,7 +407,7 @@ async def stats_screen(channel, player):
     draw.text((241 - width, 253), str(player.quests_won), main_colour, font=font)
     width = draw.textsize(str(player.wagers_won), font=font)[0]
     draw.text((241 - width, 267), str(player.wagers_won), main_colour, font=font)
-    wep = get_text_limit_len(draw, player.weapon.name if hasattr(player, "weapon_hidden") and not player.weapon_hidden else "Hidden", font, 95)
+    wep = get_text_limit_len(draw, player.weapon.name if not hasattr(player, "weapon_hidden") or not player.weapon_hidden else "Hidden", font, 95)
     width = draw.textsize(wep, font=font)[0]
     draw.text((241 - width, 232), wep, main_colour, font=font)
 
