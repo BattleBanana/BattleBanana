@@ -222,7 +222,7 @@ async def check_for_missing_new_stats(player):
         player.__setstate__({'team': None})
         
     if not hasattr(player, "team_invites"):
-        player.__setstate__({'team_invites': []]})
+        player.__setstate__({'team_invites': []})
         
     if not hasattr(player, "weapon_hidden"):
         player.__setstate__({'weapon_hidden': False})
