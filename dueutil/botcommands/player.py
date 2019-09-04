@@ -202,6 +202,23 @@ async def show_awards(ctx, player, page=0):
                                     is_player_sender=ctx.author.id == player.id)
 
 
+@commands.command(args_pattern=None, aliases=["hmw"])
+async def hidemyweapon(ctx, **details):
+    """
+    [CMD_KEY]hidemyweapon
+
+    Hides your weapon
+    """
+    player = details["author"]
+
+    if player.weapon_hidden:
+        player.weapon_hidden = False
+    else:
+        player.weapon_hidden = True
+
+    await util.say(ctx.channel, "Your weapon is now hidden!" if player.weapon_hidden else "Your weapon is not hidden anymore!")
+
+
 @commands.command(args_pattern='C?')
 @commands.imagecommand()
 async def myawards(ctx, page=1, **details):
