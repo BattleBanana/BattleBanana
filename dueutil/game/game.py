@@ -215,22 +215,17 @@ async def check_for_missing_new_stats(player):
     """
     Check if the player have all the fields
     """
-    try: # Prestige
-        player.prestige_level = player.prestige_level * 1
-    except AttributeError:
+    if not hasattr(player, "prestige_level"):
         player.__setstate__({'prestige_level': 0})
-    try: # Team
-        player.team = player.team
-    except AttributeError:
+
+    if not hasattr(player, "team"):
         player.__setstate__({'team': None})
-    try: # Team invites
-        player.team_invites = player.team_invites
-    except AttributeError:
-        player.__setstate__({'team_invites': []})
-    try: # Language
-        player.language = player.language
-    except AttributeError:
-        player.__setstate__({'language': "en"})
+        
+    if not hasattr(player, "team_invites"):
+        player.__setstate__({'team_invites': []]})
+        
+    if not hasattr(player, "weapon_hidden"):
+        player.__setstate__({'weapon_hidden': False})
 
 async def on_message(message):
     player = players.find_player(message.author.id)
