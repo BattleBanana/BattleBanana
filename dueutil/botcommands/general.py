@@ -8,6 +8,7 @@ from . import player as player_cmds
 from . import weapon as weap_cmds
 from ..game import weapons, customizations
 from ..game.helpers.shopabstract import ShopBuySellItem
+from ..game.helpers import imagehelper
 from functools import wraps
 
 ### Fill in the blanks buy/sell functions
@@ -159,6 +160,8 @@ async def item_action(item_name, action, department=None, **details):
         else:
             action_result = action(item_name, **details)
         if isinstance(action_result, discord.Embed):
+            background = customizations.get_background(item_name)
+            await imagehelper.stats_screen(details["channel"], details["author"], background)
             await util.say(details["channel"], embed=action_result)
     else:
         raise util.DueUtilException(details["channel"], ITEM_NOT_FOUND)

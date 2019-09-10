@@ -319,7 +319,7 @@ async def quests_screen(channel, player, page):
                      content=e.QUEST+" **" + player.get_name_possession_clean() + "** Quests!")
 
 
-async def stats_screen(channel, player):
+async def stats_screen(channel, player, bg=None):
     theme = player.theme
 
     if "fontColour" in theme:
@@ -338,7 +338,7 @@ async def stats_screen(channel, player):
         side_colour = theme["sideColour"]
         exp_colour = theme["expColour"]
 
-    image = player.background.image.copy()
+    image = player.background.image.copy() if bg==None else bg.image.copy()
 
     draw = ImageDraw.Draw(image)
     profile_screen = profile_parts["screen"][theme["screen"]]

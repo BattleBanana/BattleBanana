@@ -600,10 +600,8 @@ def background_info(background_name, **details):
     price_divisor = details.get('price_divisor', 1)
     background = customizations.get_background(background_name)
     embed.title = str(background)
-    embed.set_image(url="https://dueutil.tech/duefiles/backgrounds/" + background["image"])
-    embed.set_footer(
-        text="Buy this background for " + util.format_number(background["price"] // price_divisor, money=True,
-                                                             full_precision=True))
+    embed.set_footer(text="Buy this background for " + util.format_number(background["price"] // price_divisor, 
+                            money=True, full_precision=True))
     return embed
 
 
