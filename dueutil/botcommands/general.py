@@ -241,7 +241,7 @@ departments = {
                                               and name.lower() in customizations.banners
                                               and customizations.get_banner(name).can_use_banner(details["author"])),
         "item_exists_sell": lambda details, name: name.lower() in details["author"].inventory["banners"]
-    },
+    }
 #    "shields": {
  #       "alias": [
   #          "shields",
