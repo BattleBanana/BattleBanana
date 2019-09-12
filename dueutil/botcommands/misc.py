@@ -509,6 +509,8 @@ async def updatebot(ctx, **_):
 async def stopbot(ctx, **_):
     await util.say(ctx.channel, ":wave: Stopping DueUtil!")
     await util.duelogger.concern("DueUtil shutting down!")
+    for client in util.shard_clients:
+        await client.change_presence(game=discord.Game(name="restarting"), status=discord.Status.idle, afk=True)
     os._exit(0)
 
 
@@ -516,6 +518,8 @@ async def stopbot(ctx, **_):
 async def restartbot(ctx, **_):
     await util.say(ctx.channel, ":ferris_wheel: Restarting DueUtil!")
     await util.duelogger.concern("DueUtil restarting!!")
+    for client in util.shard_clients:
+        await client.change_presence(game=discord.Game(name="restarting"), status=discord.Status.idle, afk=True)
     os._exit(1)
 
 
