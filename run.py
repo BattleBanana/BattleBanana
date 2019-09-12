@@ -249,8 +249,11 @@ class DueUtilClient(discord.Client):
                 except:
                     yield from self.add_reaction(message, emojis.CROSS_REACT)
 
-        elif message.server.id == '617912143303671810' and message.channel.name != "general": # We answer in a channel
-            user = yield from self.get_user_info(message.channel.name)
+        elif message.server.id == '617912143303671810': # We answer in a channel
+            try:
+                user = yield from self.get_user_info(message.channel.name)
+            except:
+                return
             if message.content == "":
                 yield from self.send_message(message.channel, "**:bangbang: You cannot send images! Please right click your image, \"Copy Link\" & Ctrl + V to send it!**")
                 return
