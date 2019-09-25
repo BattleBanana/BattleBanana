@@ -1,10 +1,12 @@
 import json
 import jsonpickle
+import pymongo
 from pymongo import MongoClient
 
 db = None
 config = {}
-
+ASCENDING = pymongo.ASCENDING
+DESCENDING = pymongo.DESCENDING
 
 def conn():
     global db
