@@ -14,4 +14,3 @@ Pillow
 beautifulsoup4==4.6.0
 typing==3.6.2
 sentry_sdk
-aiohttp
