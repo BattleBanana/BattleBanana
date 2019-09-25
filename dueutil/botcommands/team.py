@@ -14,12 +14,12 @@ import dueutil.permissions
 from ..game.helpers import imagehelper
 from ..permissions import Permission
 from .. import commands, util, events
-from ..game import customizations, awards, leaderboards, game, players, emojis
+from ..game import customizations, awards, leaderboards, game, players, emojis, teams
 
 @commands.command(args_pattern="SB?C?")
 async def createteam(ctx, name, isOpen=True, lower_level=1, **details):
     """
-    [CMD_KEY]createteam (name) (recruiting) (Minimum Level)
+    ;createteam (name) (recruiting) (Minimum Level)
 
     Name: Team's name
     recruiting: Accepts people?
@@ -27,38 +27,9 @@ async def createteam(ctx, name, isOpen=True, lower_level=1, **details):
 
     Very basic.. isn't it?
     """
+    teams.Team(details["author"], name, "Team Description", lower_level, isOpen, ctx)
 
-    leader = details["author"]
-    name = name.lower()
-    if len(name) > 32 or len(name) < 4:
-        raise util.DueUtilException(ctx.channel, "Team Name must be between 4 and 32 characters")
-    if name != util.filter_string(name):
-        raise util.DueUtilException(ctx.channel, "Invalid team name!")
-    if name in customizations.teams:
-        raise util.DueUtilException(ctx.channel, "That team already exists!")
-    if lower_level < 1:
-        raise util.DueUtilException(ctx.channel, "Minimum level cannot be under 1!")
-    if leader.team != None:
-        raise util.DueUtilException(ctx.channel, "You are already in a team!")
-
-    with open('dueutil/game/configs/teams.json', "r+") as team_file:
-        try:
-            teams = json.load(team_file)
-        except ValueError:
-            teams = {}
-
-        led_id = leader.id
-        teams[name] = {"name": name, "owner": led_id, "admins": [led_id], "members": [led_id], "min_level": lower_level, "pendings": [], "open": isOpen}
-
-        team_file.seek(0)
-        team_file.truncate()
-        json.dump(teams, team_file, indent=4)
-
-    leader.team = name
-    leader.save()
-    customizations.teams._load_teams()
-
-    await util.say(ctx.channel, "Successfully added **%s** to teams!" % name)
+    await util.say(ctx.channel, "Successfully created **%s**!" % (name))
 
 
 @commands.command(args_pattern=None)
@@ -69,43 +40,11 @@ async def deleteteam(ctx, **details):
     Deletes your team
     """
 
-    user = details["author"]
-    name = user.team
-    teamToDelete = name.lower()
-    if user.id not in customizations.teams[teamToDelete]["owner"]:
-        raise util.DueUtilException(ctx.channel, "Oops, looks like you're not the team owner!")
+    team = details["author"].team
+    name = team.name
+    team.Delete()
 
-    try:
-        with open('dueutil/game/configs/teams.json', 'r+') as team_file:
-            teams = json.load(team_file)
-            if teamToDelete not in teams:
-                raise util.DueUtilException(ctx.channel, "You cannot delete this team!")
-
-            team_target = teams[teamToDelete]
-
-            owner = players.find_player(team_target['owner'])
-            owner.team = None
-            owner.save()
-            for admins in team_target['admins']:
-                admin = players.find_player(admins)
-                admin.team = None
-                admin.save()
-            for members in team_target['members']:
-                member = players.find_player(members)
-                member.team = None
-                member.save()
-
-            del teams[teamToDelete]
-            team_file.seek(0)
-            team_file.truncate()
-            json.dump(teams, team_file, indent=4)
-    except IOError:
-        raise util.DueUtilException(ctx.channel, "Only existing team can be deleted!")
-
-    customizations.teams._load_teams()
-
-    util.logger.info("%s deleted %s's team!" % (details["author"].name_clean, name.lower()))
-    await util.say(ctx.channel, ":wastebasket: Team **%s** has been deleted!" % name.lower())
+    await util.say(ctx.channel, "%s successfully deleted!" % (name))
 
 
 @commands.command(args_pattern="P", aliases=["ti"])
@@ -118,25 +57,23 @@ async def teaminvite(ctx, member, **details):
 
     inviter = details["author"]
 
+    team = inviter.team
     if member.team != None:
         raise util.DueUtilException(ctx.channel, "This player is already in a team!")
     if inviter.team is None:
         raise util.DueUtilException(ctx.channel, "You are not a part of a team!")
     if inviter == member:
         raise util.DueUtilException(ctx.channel, "You cannot invite yourself!")
-
-    teams = customizations.teams
-    team = teams[inviter.team]
-    if not (inviter.id in team['admins']):
+    if not (inviter.id in team.admins:
         raise util.DueUtilException(ctx.channel, "You do not have permissions to send invites!!")
 
     if inviter.team not in member.team_invites:
         member.team_invites.append(inviter.team)
     else:
-        raise util.DueUtilException(ctx.channel, "This player has already been invited to your team!")
+        raise util.DueUtilException(ctx.channel, "This player has already been invited to join your team!")
     member.save()
 
-    await util.say(ctx.channel, ":thumbsup: All's done! Invite has been sent to **%s**!" % member.get_name_possession_clean())
+    await util.say(ctx.channel, ":thumbsup: Invite has been sent to **%s**!" % member.get_name_possession_clean())
 
 
 @commands.command(args_pattern=None, aliases=["si"])
@@ -149,21 +86,18 @@ async def showinvites(ctx, **details):
 
     member = details["author"]
 
-    Embed = discord.Embed(title="Displaying your team invites!", type="rich", colour=gconf.DUE_COLOUR)
+    Embed = discord.Embed(title="Displaying your team invites!", description="You were invited to join these teams!", type="rich", colour=gconf.DUE_COLOUR)
     if member.team_invites is None:
         member.team_invites = []
     if len(member.team_invites) == 0:
         Embed.add_field(name="No invites!", value="You do not have invites!")
     else:
-        team_list=""
-        i = 0
-        for team_name in member.team_invites:
-            if team_name in customizations.teams:
-                i += 1
-                team_list += ("%s- " + team_name + "\n") % i
-            else:
-                member.team_invites.remove(team_name)
-        Embed.add_field(name="You have been invited in **%s** teams!" % len(member.team_invites), value=team_list)
+        for team in member.team_invites:
+            if team:
+                Embed.add_field(name=team.name, 
+                                value="Owner: **%s** (%s)\nMembers: **%s**\nRequired Level: **%s**\nRecruiting: **%s**" 
+                                % (team.owner.name_clean, team.owner.id, len(team.members), team.level, ("Yes" if team.open else "No")), 
+                                inline=False))
     
     member.save()
     await util.say(ctx.channel, embed=Embed)
@@ -330,10 +264,6 @@ async def demoteuser(ctx, user, **details):
             user.save()
         else:
             raise util.DueUtilException(ctx.channel, "This player is already a member. If you meant to kick him, please use %steamkick (user)" % (details["cmd_key"]))
-       
-        team_file.seek(0)
-        team_file.truncate()
-        json.dump(teams, team_file, indent=4)
 
     await util.say(ctx.channel, "**%s** has been demoted to **Member**" % (user.get_name_possession_clean()))
         
@@ -445,7 +375,7 @@ async def showteams(ctx, page=1, **details):
         for index in range(page * 5, limit, 1):
             team_name = teams[index]
             team = teamsdict[team_name]
-            teamsEmbed.add_field(name=team["name"], value="Owner: **%s** (%s)\nMembers: **%s**\nRequired Level: **%s**\nRecruiting: **%s**" % (players.find_player(team["owner"]).name_clean, str(team["owner"]), len(team["members"]), team["min_level"], ("Yes" if team["open"] else "No")), inline=False)
+            teamsEmbed.add_field(name=team["name"], value="Owner: **%s** (%s)\nMembers: **%s**\nRequired Level: **%s**\nRecruiting: **%s**" % (players.find_player(team["owner"]).name_clean, str(team["owner"]), len(team["members"]), team.level, ("Yes" if team.open else "No")), inline=False)
         limit = (5 * page) + 5 < len(teams)
         teamsEmbed.set_footer(text="%s" % (("Do %sshowteams %d for the next page!" % (details["cmd_key"], page + 2)) if limit else "That's all the teams!"))
     await util.say(ctx.channel, embed=teamsEmbed)
@@ -477,7 +407,7 @@ async def showteaminfo(ctx, team, **details):
         
 
     team_embed.add_field(name="Global Information:", 
-                         value="Team Name: **%s**\nMember count: **%s**\nRequired level: **%s**\nRecruiting: **%s**" % (team["name"], len(team["members"]), team["min_level"], ("Yes" if team["open"] else "No")),
+                         value="Team Name: **%s**\nMember count: **%s**\nRequired level: **%s**\nRecruiting: **%s**" % (team["name"], len(team["members"]), team.level, ("Yes" if team.open else "No")),
                          inline=False)
     if len(pendings) == 0:
         pendings = "Nobody is pending!"
@@ -510,9 +440,9 @@ async def jointeam(ctx, team, **details):
         teams = json.load(team_file)
         team = teams[team["name"]]
 
-        if user.level < team["min_level"]:
-            raise util.DueUtilException(ctx.channel, "You must be level %s or higher to join this team!" % (str(team["min_level"])))
-        if team["open"]:
+        if user.level < team.level:
+            raise util.DueUtilException(ctx.channel, "You must be level %s or higher to join this team!" % (str(team.level)))
+        if team.open:
             team["members"].append(user.id)
             user.team = team["name"]
             if user.id in team["pendings"]:
@@ -528,7 +458,7 @@ async def jointeam(ctx, team, **details):
 
     user.save()
     message = "You successfully joined **%s**!" % (team["name"])
-    await util.say(ctx.channel, message if team["open"] else "You have been added to the team's pending list!")
+    await util.say(ctx.channel, message if team.open else "You have been added to the team's pending list!")
 
 
 @commands.command(args_pattern='S*', aliases=["ts"])
@@ -563,12 +493,12 @@ async def teamsettings(ctx, updates, **details):
         for prop, value in updates.items():
             if prop in ("minimum level", "level", "min level"):
                 if value >= 1:
-                    team["min_level"] = value
+                    team.level = value
                 else:
                     updates[prop] = "Must be at least 1!"
                 continue
             elif prop in ("open", "recruiting"):
-                team["open"] = value
+                team.open = value
             else:
                 continue
 
