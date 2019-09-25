@@ -4,7 +4,7 @@ aiohttp==1.0.5
 validators==0.12.0
 colour==0.1.4
 pymongo==3.4.0
-discord.py==0.16.12
+discord==0.16.12
 cachetools==2.0.1
 numpy
 repoze.timeago==0.5
