@@ -115,8 +115,6 @@ async def download_file(url):
                 return file_data
 
 
-import googletrans as Translator
-translation = Translator.Translator()
 async def say(channel, *args, **kwargs):
     if type(channel) is str:
         # Server/Channel id
