@@ -2,7 +2,7 @@ import re
 import json
 
 from .game.helpers import misc
-from .game import players
+from .game import players, teams
 from .permissions import Permission
 from . import util
 
@@ -19,12 +19,10 @@ def strip_thousands_separators(value):
     return re.sub(THOUSANDS_REGEX, r'\2', value)
 
 def parse_team(value):
-    try:
-        with open('dueutil/game/configs/teams.json', 'r+') as teamfile:
-            teams = json.load(teamfile)
-            return teams[value.lower()]
-    except KeyError:
+    team = teams.find_team(value)
+    if team is None:
         return False
+    return team
 
 
 def parse_int(value):
