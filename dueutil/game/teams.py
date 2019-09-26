@@ -29,10 +29,10 @@ class Teams(dict):
     def prune(self):
 
         """
-        Removes player that the bot has not seen 
-        for over an hour. If anyone mentions these
-        players (in a command) their data will be
-        fetched directly from the database
+        Removes teams that the bot has not seen 
+        for over 10 minutes. After that, their 
+        data will be fetched directly from the 
+        database
         """
         teams_pruned = 0
         for id, team in list(self.items()):
@@ -60,24 +60,33 @@ class Team(DueUtilObject, SlotPickleMixin):
         self.level = level
         self.open = isOpen
         self.owner = owner
-        self.admins = [owner]
-        self.members = [owner]
+        self.admins = []
+        self.members = []
         self.pendings = []
+        
         self.no_save = kwargs.pop("no_save") if "no_save" in kwargs else False
-        self.save()
+        
+        self.AddAdmin(self, owner)
+        self.AddMember(self, owner)
+        
         owner.team = self
+        
+        self.save()
         owner.save()
         
     
     @property
     def avgLevel(self):
+        level = 0
         for member in self.members:
-            yield sum(member.level)/len(self.members) 
+            level += member.level
+        return int(level/len(self.members))
     
     def AddMember(self, ctx, member):
         if member in self.members:
             raise util.DueUtilException(ctx.channel, "Already a member!")
-        member.team_invites.remove(self)
+        if self in member.team_invites:
+            member.team_invites.remove(self)
         self.members.append(member)
         self.save()
         member.save()
@@ -118,6 +127,7 @@ class Team(DueUtilObject, SlotPickleMixin):
             self.members.remove(member)
             member.team = None
             member.save()
+        self.save()
         dbconn.get_collection_for_object(Team).remove({'_id': self.id})
         
 def find_team(team_id: str) -> Team:
@@ -132,6 +142,6 @@ def load_team(team_id):
     response = dbconn.get_collection_for_object(Team).find_one({"_id": team_id})
     if response is not None and 'data' in response:
         team_data = response['data']
-        loaded_team = jsonpickle.decode(player_data)
+        loaded_team = jsonpickle.decode(team_data)
         teams[loaded_team.id] = util.load_and_update(REFERENCE_TEAM, loaded_team)
         return True
