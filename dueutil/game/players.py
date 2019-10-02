@@ -103,8 +103,6 @@ class Player(DueUtilObject, SlotPickleMixin):
         self.money = 100
 
     def prestige(self, discord_user=None):
-        if discord_user is not None:
-            self.name = discord_user.name
         self.benfont = False
 
         ##### STATS #####
@@ -153,7 +151,7 @@ class Player(DueUtilObject, SlotPickleMixin):
         # lol no
         self.donor = self.donor
         self.team = self.team
-        self.team_invites = []
+        self.team_invites = self.team_invites
 
         ##### Dumb misc stats (easy to add & remove)
         self.misc_stats = self.misc_stats
@@ -230,8 +228,8 @@ class Player(DueUtilObject, SlotPickleMixin):
         self.donor = False
         try:
             self.team = self.team
-        except AttributeError:
-            self.team = None
+        except:
+            self.Team = None
         self.team_invites = []
 
         ##### Dumb misc stats (easy to add & remove)

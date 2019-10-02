@@ -22,28 +22,7 @@ from .customizations import Theme
 from . import emojis as e
 
 
-class Teams(dict):
-    # Amount of time before the bot will prune a player.
-    PRUNE_INACTIVITY_TIME = 600  # (10 mins)
-
-    def prune(self):
-
-        """
-        Removes teams that the bot has not seen 
-        for over 10 minutes. After that, their 
-        data will be fetched directly from the 
-        database
-        """
-        teams_pruned = 0
-        for id, team in list(self.items()):
-            del self[id]
-            teams_pruned += 1
-        gc.collect()
-        util.logger.info("Pruned %d teams for inactivity (10 minutes)", teams_pruned)
-
-
-teams = Teams()
-
+teams = {}
 
 class Team(DueUtilObject, SlotPickleMixin):
     """
@@ -60,75 +39,90 @@ class Team(DueUtilObject, SlotPickleMixin):
         self.level = level
         self.open = isOpen
         self.owner = owner
-        self.admins = []
-        self.members = []
+        self.admins = [owner]
+        self.members = [owner]
         self.pendings = []
         
         self.no_save = kwargs.pop("no_save") if "no_save" in kwargs else False
         
-        self.AddAdmin(self, owner)
-        self.AddMember(self, owner)
-        
-        owner.team = self
+        # owner.team = self.id
         
         self.save()
-        owner.save()
+        # owner.save()
         
     
     @property
     def avgLevel(self):
         level = 0
         for member in self.members:
-            level += member.level
-        return int(level/len(self.members))
+            level += players.find_player(member).level
+        return "%.2f" % (level/len(self.members))
+    
+    def isMember(self, member):
+        return member.id in self.members
+    
+    def isAdmin(self, member):
+        return member.id in self.admins
     
     def AddMember(self, ctx, member):
-        if member in self.members:
+        if member.user_id in self.members:
             raise util.DueUtilException(ctx.channel, "Already a member!")
-        if self in member.team_invites:
-            member.team_invites.remove(self)
-        self.members.append(member)
+        
+        if self.id in member.team_invites:
+            member.team_invites.remove(self.id)
+        self.members.append(member.user_id)
         self.save()
         member.save()
 
     def Kick(self, ctx, member):
-        if not (member in self.members):
+        if not (member.user_id in self.members):
             raise util.DueUtilException(ctx.channel, "This player is not in the team")
-        if member in self.members:
-            self.members.remove(member)
-        if member in self.admins:
-            self.admins.remove(member)
-        member.Team = None
+        
+        if member.user_id in self.members:
+            self.members.remove(member.user_id)
+        if member.user_id in self.admins:
+            self.admins.remove(member.user_id)
         self.save()
+        member.team = None
         member.save()
 
     def AddAdmin(self, ctx, member):
-        if member in self.admins:
+        if member.user_id in self.admins:
             raise util.DueUtilException(ctx.channel, "Already an admin!")
-        self.admins.append(member)
-        member.save()
+        
+        self.admins.append(member.user_id)
         self.save()
+        member.save()
         
     def RemoveAdmin(self, ctx, member):
-        if member not in self.admins:
+        if member.user_id not in self.admins:
             raise util.DueUtilException(ctx.channel, "Not an admin!")
-        self.admins.remove(member)
+        
+        self.admins.remove(member.user_id)
         self.save()
         member.save()
 
     def AddPending(self, ctx, member):
-        if member in self.pendings:
+        if member.user_id in self.pendings:
             raise util.DueUtilException(ctx.channel, "Already pending!")
-        self.pendings.append(member)
+        
+        self.pendings.append(member.user_id)
         self.save()
 
     def Delete(self):
         for member in self.members:
-            self.members.remove(member)
+            member = players.find_player(member)
             member.team = None
             member.save()
+        if self.id in teams:
+            del teams[self.id]
         self.save()
         dbconn.get_collection_for_object(Team).remove({'_id': self.id})
+        
+    def get_name_possession(self):
+        if self.name.endswith('s'):
+            return self.name + "'"
+        return self.name + "'s"
         
 def find_team(team_id: str) -> Team:
     if team_id in teams:
