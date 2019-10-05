@@ -6,6 +6,7 @@ import re
 import traceback
 from threading import Thread
 import aiohttp
+import gc
 import time
 import sys
 from itertools import cycle
@@ -41,7 +42,7 @@ This bot is not well structured...
 (c) MacDue & DeveloperAnonymous - All rights reserved
 (Sections of this bot are MIT and GPL)
 """
-
+gc.enable()
 
 class DueUtilClient(discord.Client):
     """
