@@ -131,7 +131,6 @@ class Player(DueUtilObject, SlotPickleMixin):
             self.command_rate_limits = {}
 
         ##### THINGS #####
-        self.language = "en"
         self.quests = []
         self.received_wagers = []
 
