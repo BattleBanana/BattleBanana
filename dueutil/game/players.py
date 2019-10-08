@@ -28,7 +28,7 @@ STAT_GAIN_FORMAT = (e.ATK + ": +%.2f " + e.STRG + ": +%.2f " + e.ACCY + ": +%.2f
 
 class Players(dict):
     # Amount of time before the bot will prune a player.
-    PRUNE_INACTIVITY_TIME = 3600  # (1 hour)
+    PRUNE_INACTIVITY_TIME = 1300  # (1 hour)
 
     def prune(self):
 
