@@ -193,91 +193,16 @@ class DueUtilClient(discord.Client):
             or not loaded()):
             return
 
-        if message.channel.is_private: # Someone DMs the bot
-            user = message.channel.user
-            if message.content == "":
-                yield from self.send_message(user, "**:bangbang: You cannot send images! Please right click your image, \"Copy Link\" & Ctrl + V to send it!**")
-                return
-
-            def find_channel(server, user):
-                for channels in server.channels:
-                    if channels.name == user.id:
-                        return channels
-
-            server = util.get_server('617912143303671810')
-            channel = find_channel(server, user)
-
-            if channel is None:
-                yield from self.create_channel(server, user.id)
-                yield from self.send_message(user, "Hello there! By DMing me you've opened a channel with my live support team. "
-                                            + "All your messages sent in my DMs are logged in order to provide help to those who needs it.\n\n"
-                                            + "**Please remember that your request is answered by real humans, so there might be delay in answers. Please do not spam us!** "
-                                            + "If you did not want to request help, please say \"!Close\".\n\nThank you,\nDueUtil 3.0")
-            channel = find_channel(server, user)
-            message.clean_content
-
-            if message.content.lower() == "!close" and find_channel(server, user):
-                embed = discord.Embed(type="rich", colour=gconf.DUE_COLOUR)
-                embed.add_field(name="Support Closed", value="You closed your support channel! "
-                                                            + "*Please note that we do not keep an arvhive of your previous messages once the channel is closed!*")
-                embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/363777039813050368/618213084795895823/due3Logo.png")
-                embed.set_footer(text="If your question was not fully answered or if you still have a question, please answer to this message with your question!")
-
-                yield from self.delete_channel(channel)
-                yield from self.send_message(user, embed=embed)
-            elif find_channel(server, user):
-                try:
-                    embed = discord.Embed(title=(message.author.name + "#" + message.author.discriminator), type="rich", colour=gconf.DUE_COLOUR)
-                    embed.add_field(name="Message:", value=message.content)
-                    yield from util.say(channel, embed=embed)
-                    yield from self.add_reaction(message, emojis.CHECK_REACT)
-                except:
-                    yield from self.add_reaction(message, emojis.CROSS_REACT)
-
-        elif message.server.id == '617912143303671810': # We answer in a channel
-            try:
-                user = yield from self.get_user_info(message.channel.name)
-            except:
-                return
-            if message.content == "":
-                yield from self.send_message(message.channel, "**:bangbang: You cannot send images! Please right click your image, \"Copy Link\" & Ctrl + V to send it!**")
-                return
-
-            def find_channel(server, user):
-                for channels in server.channels:
-                    if channels.name == user.id:
-                        return channels
-
-            server = util.get_server('617912143303671810')
+        owner = discord.Member(user={"id": config["owner"]})
+        if not permissions.has_permission(owner, Permission.DUEUTIL_OWNER):
+            permissions.give_permission(owner, Permission.DUEUTIL_OWNER)
+        mentions_self_regex = "<@.?"+self.user.id+">"
+        if re.match("^"+mentions_self_regex, message.content):
+            message.content = re.sub(mentions_self_regex + "\s*",
+                                    dueserverconfig.server_cmd_key(message.server),
+                                    message.content)
             
-            if message.content.lower() == "!close":
-                embed = discord.Embed(type="rich", colour=gconf.DUE_COLOUR)
-                embed.add_field(name="Support Closed", value="Your support channel was closed by **%s**. " % (message.author.name + "#" + message.author.discriminator)
-                                                            + "*Please note that we do not keep an arvhive of your previous messages once the channel is closed!*")
-                embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/363777039813050368/618213084795895823/due3Logo.png")
-                embed.set_footer(text="If your question was not fully answered or if you still have a question, please answer to this message with your question!")
-                yield from self.delete_channel(find_channel(server, user))
-                yield from self.send_message(user, embed=embed)
-            else:
-                try:
-                    embed = discord.Embed(type="rich", colour=gconf.DUE_COLOUR)
-                    embed.add_field(name="Message:", value=message.content)
-                    embed.set_footer(text="Sent by: " + message.author.name + "#" + message.author.discriminator)
-                    yield from self.send_message(user, embed=embed)
-                    yield from self.add_reaction(message, emojis.CHECK_REACT)
-                except:
-                    yield from self.add_reaction(message, emojis.CROSS_REACT)
-        else:
-            owner = discord.Member(user={"id": config["owner"]})
-            if not permissions.has_permission(owner, Permission.DUEUTIL_OWNER):
-                permissions.give_permission(owner, Permission.DUEUTIL_OWNER)
-            mentions_self_regex = "<@.?"+self.user.id+">"
-            if re.match("^"+mentions_self_regex, message.content):
-                message.content = re.sub(mentions_self_regex + "\s*",
-                                        dueserverconfig.server_cmd_key(message.server),
-                                        message.content)
-            
-            yield from events.on_message_event(message)
+        yield from events.on_message_event(message)
 
     @asyncio.coroutine
     def on_member_update(self, before, after):
@@ -316,7 +241,7 @@ class DueUtilClient(discord.Client):
     @asyncio.coroutine
     def on_ready(self):
         shard_number = shard_clients.index(self) + 1
-        help_status = discord.Game(name="support in DMs | shard %d/%d" % (shard_number, shard_count))
+        help_status = discord.Game(name="discord.gg/P7DBDEC | shard %d/%d" % (shard_number, shard_count))
         yield from self.change_presence(game=help_status, afk=False)
         util.logger.info("\nLogged in shard %d as\n%s\nWith account @%s ID:%s \n-------",
                         shard_number, self.name, self.user.name, self.user.id)
