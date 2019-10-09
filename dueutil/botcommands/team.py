@@ -381,8 +381,11 @@ async def showteams(ctx, page=1, **details):
         else:
             teams.teams[loaded_team.id] = util.load_and_update(teams.REFERENCE_TEAM, loaded_team)
             team = teams.teams[loaded_team.id]
-        owner = players.find_player(team.owner)
-        teamsEmbed.add_field(name=team.name, value="Owner: **%s** (%s)\nDescription: **%s**\nMembers: **%s**\nAverage Level: **%s**\nRequired Level: **%s**\nRecruiting: **%s**" % (owner.name, owner.id, team.description, len(team.members), team.avgLevel, team.level, ("Yes" if team.open else "No")), inline=False)
+        try:
+            owner = players.find_player(team.owner)
+            teamsEmbed.add_field(name=team.name, value="Owner: **%s** (%s)\nDescription: **%s**\nMembers: **%s**\nAverage Level: **%s**\nRequired Level: **%s**\nRecruiting: **%s**" % (owner.name, owner.id, team.description, len(team.members), team.avgLevel, team.level, ("Yes" if team.open else "No")), inline=False)
+        except:
+            util.logging.warning("Team (%s) failed to load" % (team.name))
     
     limit = page_size * page + page_size < len(db_teams)
     teamsEmbed.set_footer(text="%s" % (("Do %sshowteams %d for the next page!" % (details["cmd_key"], page + 2)) if limit else "That's all the teams!"))
@@ -593,3 +596,23 @@ async def declinepending(ctx, user, **details):
     team.pendings.remove(user.user_id)
     
     await util.say(ctx.channel, "Removed **%s** from pendings!" % (user.name_clean))
+    
+    
+@commands.command(args_pattern=None)
+async def atfjson(ctx, **details):
+    import json
+    with open('dueutil/game/configs/teams.json', 'r+') as team_file:
+        teams_dict = json.load(team_file)
+        for team in teams_dict:
+            t1 = teams_dict[team]
+            teams.Team(t1["owner"], t1["name"], "This is a new and awesome team!", t1["min_level"], t1["open"])
+            t2 = teams.find_team(t1["name"])
+            for member in t1["members"]:
+                t2.members.append(member)
+            for member in t1["admins"]:
+                t2.admins.append(member)
+            for member in t1["pendings"]:
+                t2.pendings.append(member)
+            t2.save()
+            
+    await util.say(ctx.channel, "Done")
