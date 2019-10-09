@@ -80,13 +80,13 @@ class Player(DueUtilObject, SlotPickleMixin):
                  "wagers_won", "quests_won",
                  "quest_day_start", "benfont",
                  "quests_completed_today",
-                 "spam_detections", "quests",
-                 "received_wagers", "awards",
-                 "quest_spawn_build_up", "donor",
-                 "misc_stats", "equipped", "inventory",
-                 "last_message_hashes", "command_rate_limits",
-                 "additional_attributes", "team", "team_invites",
-                 "prestige_level", "language", "weapon_hidden"]
+                 "quests", "received_wagers", 
+                 "awards", "quest_spawn_build_up", 
+                 "donor", "misc_stats", "equipped", 
+                 "inventory", "last_message_hashes", 
+                 "command_rate_limits", "team", 
+                 "team_invites", "prestige_level", 
+                 "weapon_hidden"]
 
     # additional_attributes is not defined but is there for possible future use.
     # I expect new types of quests/weapons to be subclasses.
@@ -124,7 +124,6 @@ class Player(DueUtilObject, SlotPickleMixin):
         self.quest_day_start = 0
         self.quests_completed_today = 0
         self.last_message_hashes = Ring(10)
-        self.spam_detections = 0
         self.weapon_hidden = False
 
         if not hasattr(self, "command_rate_limits"):
@@ -200,7 +199,6 @@ class Player(DueUtilObject, SlotPickleMixin):
         self.quest_day_start = 0
         self.quests_completed_today = 0
         self.last_message_hashes = Ring(10)
-        self.spam_detections = 0
         self.weapon_hidden = False
 
         if not hasattr(self, "command_rate_limits"):

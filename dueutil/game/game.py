@@ -226,6 +226,17 @@ async def check_for_missing_new_stats(player):
         
     if not hasattr(player, "weapon_hidden"):
         player.__setstate__({'weapon_hidden': False})
+        
+async def check_for_removed_stats(player):
+    """
+    Removes stats that were removed
+    """
+    if hasattr(player, "spam_detections"):
+        delattr(player, "spam_detections")
+    if hasattr(player, "additional_attributes"):
+        delattr(player, "additional_attributes")
+    if hasattr(player, "language"):
+        delattr(player, "language")
 
 async def on_message(message):
     player = players.find_player(message.author.id)
@@ -240,6 +251,7 @@ async def on_message(message):
         await manage_quests(message, player, spam_level)
         await check_for_recalls(message, player)
         await check_for_missing_new_stats(player)
+        await check_for_removed_stats(player)
 
 
 events.register_message_listener(on_message)
