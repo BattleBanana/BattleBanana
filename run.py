@@ -42,7 +42,6 @@ This bot is not well structured...
 (c) MacDue & DeveloperAnonymous - All rights reserved
 (Sections of this bot are MIT and GPL)
 """
-gc.enable()
 
 class DueUtilClient(discord.Client):
     """
