@@ -189,6 +189,7 @@ class DueUtilClient(discord.Client):
     def on_message(self, message):
         if (message.author == self.user
             or message.author.bot
+            or message.channel.is_private
             or not loaded()):
             return
 
