@@ -597,8 +597,8 @@ async def declinepending(ctx, user, **details):
     
     await util.say(ctx.channel, "Removed **%s** from pendings!" % (user.name_clean))
     
-    
-@commands.command(args_pattern=None)
+
+@commands.command(args_pattern=None, permissions=Permission.DUEUTIL_OWNER)
 async def atfjson(ctx, **details):
     import json
     with open('dueutil/game/configs/teams.json', 'r+') as team_file:
