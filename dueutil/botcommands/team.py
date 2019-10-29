@@ -20,7 +20,7 @@ from ..game import customizations, awards, leaderboards, game, players, emojis, 
 @commands.command(args_pattern="SS?B?C?")
 async def createteam(ctx, name, description="This is a new and awesome team!", isOpen=True, level=1, **details):
     """
-    ;createteam name (description) (recruiting) (Minimum Level)
+    [CMD_KEY]createteam name (description) (recruiting) (Minimum Level)
 
     Name: Team's name
     Description: Describe your team
@@ -596,23 +596,3 @@ async def declinepending(ctx, user, **details):
     team.pendings.remove(user.user_id)
     
     await util.say(ctx.channel, "Removed **%s** from pendings!" % (user.name_clean))
-    
-
-@commands.command(args_pattern=None, permissions=Permission.DUEUTIL_OWNER)
-async def atfjson(ctx, **details):
-    import json
-    with open('dueutil/game/configs/teams.json', 'r+') as team_file:
-        teams_dict = json.load(team_file)
-        for team in teams_dict:
-            t1 = teams_dict[team]
-            teams.Team(t1["owner"], t1["name"], "This is a new and awesome team!", t1["min_level"], t1["open"])
-            t2 = teams.find_team(t1["name"])
-            for member in t1["members"]:
-                t2.members.append(member)
-            for member in t1["admins"]:
-                t2.admins.append(member)
-            for member in t1["pendings"]:
-                t2.pendings.append(member)
-            t2.save()
-            
-    await util.say(ctx.channel, "Done")
