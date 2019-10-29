@@ -92,7 +92,7 @@ async def help(ctx, *args, **details):
                                     + ":question: - Something is wrong with the command's syntax.\n"
                                     + ":x: - You don't have the required permissions to use the command."))
         help_embed.add_field(name=":link: Links", value=("**Invite me: %s**\n" % gconf.BOT_INVITE
-                                                         + "DueUtil guide: https://dueutil.tech/howto\n"
+                                                         + "DueUtil guide: https://dueutil.xyz/howto\n"
                                                          + "Support server: https://discord.gg/P7DBDEC\n"
                                                          + "Upvote me: ``%svote``\n" % (details["cmd_key"])
                                                          + "Support me: https://PayPal.me/DeveloperAnonymous"))
