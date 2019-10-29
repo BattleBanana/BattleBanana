@@ -435,8 +435,8 @@ async def myprestige(ctx, player=None, **details):
     prestige_level = 80 + (5 * player.prestige_level)
     req_money = 5000000 + (1000000 * player.prestige_level)
 
-    message = "You are prestige **%s**! " % player.prestige_level
-    message += "You %s & you %s" % (("satisfy the level requirement" if prestige_level <= player.level else "need **%s** additional level" % (prestige_level - player.level)),
+    message = "%s prestige **%s**! " % ("**You** are" if player == details["author"] else "**" + player.name + "** is", player.prestige_level)
+    message += "**%s** %s & %s" % ("You" if player == details["author"] else player.name, ("satisfy the level requirement" if prestige_level <= player.level else "need **%s** additional level(s)" % (prestige_level - player.level)),
                                     ("satisfy the money requirement" if req_money <= player.money else "need **%s%s** to afford the next prestige." 
                                     % (util.format_number_precise(req_money - player.money), e.DUT)))
     
