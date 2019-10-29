@@ -104,8 +104,7 @@ class DueUtilClient(discord.Client):
                 try:
                     yield from self.send_message(channel, ":wave: __Thanks for adding me!__\n"
                                         + "If you need help configuring me in your "
-                                        + "server, you can slide in my DMs & "
-                                        + "my live support team will be glad to help you!")
+                                        + "server, see on https://dueutil.xyz/howto/#adming")
                     break
                 except discord.Forbidden:
                     continue
@@ -241,7 +240,7 @@ class DueUtilClient(discord.Client):
     @asyncio.coroutine
     def on_ready(self):
         shard_number = shard_clients.index(self) + 1
-        help_status = discord.Game(name="discord.gg/P7DBDEC | shard %d/%d" % (shard_number, shard_count))
+        help_status = discord.Game(name="dueutil.xyz | shard %d/%d" % (shard_number, shard_count))
         yield from self.change_presence(game=help_status, afk=False)
         util.logger.info("\nLogged in shard %d as\n%s\nWith account @%s ID:%s \n-------",
                         shard_number, self.name, self.user.name, self.user.id)
