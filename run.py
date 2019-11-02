@@ -105,7 +105,7 @@ class DueUtilClient(discord.Client):
                     yield from self.send_message(channel, ":wave: __Thanks for adding me!__\n"
                                      + "If you would like to customize me to fit your "
                                      + "server take a quick look at the admins "
-                                     + "guide at <https://dueutil.tech/howto/#adming>.\n"
+                                     + "guide at <https://dueutil.xyz/howto/#adming>.\n"
                                      + "It shows how to change the command prefix here, and set which "
                                      + "channels I or my commands can be used in (along with a bunch of other stuff).")
                     break

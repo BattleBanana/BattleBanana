@@ -121,7 +121,7 @@ async def warn_on_invalid_image(channel, url):
     if not await url_image(url):
         await util.say(channel,
                        (":warning: The image url provided does not seem to be correct!\n"
-                        + "The url must point directly to an image file such as <https://dueutil.tech/img/slime.png>."))
+                        + "The url must point directly to an image file such as <https://dueutil.xyz/img/slime.png>."))
 
 
 async def load_image_url(url, **kwargs):
@@ -130,11 +130,11 @@ async def load_image_url(url, **kwargs):
     parsed_url = urlparse(url)
     do_not_compress = kwargs.get("raw", False)
     if (parsed_url.hostname is not None
-        and "dueutil.tech" in parsed_url.hostname
+        and "dueutil.xyz" in parsed_url.hostname
             and parsed_url.path.startswith("/imagecache/")):
         # We don't want to download imagecache images again.
         filename = "assets" + parsed_url.path
-        url = ""  # We don't want to cache any dueutil.tech stuff
+        url = ""  # We don't want to cache any dueutil.xyz stuff
     else:
         filename = imagecache.get_cached_filename(url)
     if not do_not_compress and os.path.isfile(filename):
@@ -319,7 +319,7 @@ async def quests_screen(channel, player, page):
                      content=e.QUEST+" **" + player.get_name_possession_clean() + "** Quests!")
 
 
-async def stats_screen(channel, player, bg=None):
+async def stats_screen(channel, player):
     theme = player.theme
 
     if "fontColour" in theme:
@@ -338,7 +338,7 @@ async def stats_screen(channel, player, bg=None):
         side_colour = theme["sideColour"]
         exp_colour = theme["expColour"]
 
-    image = player.background.image.copy() if bg==None else bg.image.copy()
+    image = player.background.image.copy()
 
     draw = ImageDraw.Draw(image)
     profile_screen = profile_parts["screen"][theme["screen"]]

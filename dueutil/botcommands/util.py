@@ -139,7 +139,7 @@ async def botinfo(ctx, **_):
     info_embed = discord.Embed(title="DueUtil's Information", type="rich", color=gconf.DUE_COLOUR)
     info_embed.description = "DueUtil is customizable bot to add fun commands, quests and battles to your server."
     info_embed.add_field(name="Created by", value="[MacDue#4453](https://dueutil.tech/)")
-    info_embed.add_field(name="Continued by", value="DeveloperAnonymous#9830")
+    info_embed.add_field(name="Continued by", value="[DeveloperAnonymous#9830](https://dueutil.xyz/)")
     info_embed.add_field(name="Framework",
                          value="[discord.py %s :two_hearts:](http://discordpy.readthedocs.io/en/latest/)"
                                % discord.__version__)

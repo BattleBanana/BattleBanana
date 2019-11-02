@@ -160,9 +160,6 @@ async def item_action(item_name, action, department=None, **details):
         else:
             action_result = action(item_name, **details)
         if isinstance(action_result, discord.Embed):
-            background = customizations.get_background(item_name)
-            if background:
-                await imagehelper.stats_screen(details["channel"], details["author"], background)
             await util.say(details["channel"], embed=action_result)
     else:
         raise util.DueUtilException(details["channel"], ITEM_NOT_FOUND)

@@ -83,7 +83,7 @@ async def player_message(message, player, spam_level):
             if dbconn.conn()["dueutiltechusers"].find({"_id": player.id}).count() > 0:
                 if "DueUtilTech" not in player.awards:
                     player.inventory["themes"].append("dueutil.tech")
-                await awards.give_award(message.channel, player, "DueUtilTech", "<https://dueutil.tech/>")
+                await awards.give_award(message.channel, player, "DueUtilTech", "<https://dueutil.xyz/>")
 
             ### DueUtil - the hidden spelling game!
             # The non-thread safe Apsell calls
