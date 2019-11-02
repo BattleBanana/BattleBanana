@@ -103,8 +103,11 @@ class DueUtilClient(discord.Client):
             if channel.type == discord.ChannelType.text:
                 try:
                     yield from self.send_message(channel, ":wave: __Thanks for adding me!__\n"
-                                        + "If you need help configuring me in your "
-                                        + "server, see on https://dueutil.xyz/howto/#adming")
+                                     + "If you would like to customize me to fit your "
+                                     + "server take a quick look at the admins "
+                                     + "guide at <https://dueutil.tech/howto/#adming>.\n"
+                                     + "It shows how to change the command prefix here, and set which "
+                                     + "channels I or my commands can be used in (along with a bunch of other stuff).")
                     break
                 except discord.Forbidden:
                     continue
