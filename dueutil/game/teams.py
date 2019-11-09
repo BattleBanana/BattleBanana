@@ -38,17 +38,16 @@ class Team(DueUtilObject, SlotPickleMixin):
         self.description = description
         self.level = level
         self.open = isOpen
-        self.owner = owner
-        self.admins = [owner]
-        self.members = [owner]
+        self.owner = owner.user_id
+        self.admins = [owner.user_id]
+        self.members = [owner.user_id]
         self.pendings = []
         
         self.no_save = kwargs.pop("no_save") if "no_save" in kwargs else False
         
-        # owner.team = self.id
-        
+        owner.team = self.id
         self.save()
-        # owner.save()
+        owner.save()
         
     
     @property
@@ -70,6 +69,7 @@ class Team(DueUtilObject, SlotPickleMixin):
         
         if self.id in member.team_invites:
             member.team_invites.remove(self.id)
+        member.team = self.id
         self.members.append(member.user_id)
         self.save()
         member.save()
@@ -82,8 +82,8 @@ class Team(DueUtilObject, SlotPickleMixin):
             self.members.remove(member.user_id)
         if member.user_id in self.admins:
             self.admins.remove(member.user_id)
-        self.save()
         member.team = None
+        self.save()
         member.save()
 
     def AddAdmin(self, ctx, member):
@@ -107,6 +107,13 @@ class Team(DueUtilObject, SlotPickleMixin):
             raise util.DueUtilException(ctx.channel, "Already pending!")
         
         self.pendings.append(member.user_id)
+        self.save()
+        
+    def RemovePending(self, ctx, member):
+        if not (member.user_id in self.pendings):
+            raise util.DueUtilException(ctx.channel, "Not pending!")
+        
+        self.pendings.remove(member.user_id)
         self.save()
 
     def Delete(self):
