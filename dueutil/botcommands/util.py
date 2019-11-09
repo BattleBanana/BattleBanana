@@ -95,7 +95,7 @@ async def help(ctx, *args, **details):
                                                          + "DueUtil guide: https://dueutil.xyz/howto\n"
                                                          + "Support server: https://discord.gg/P7DBDEC\n"
                                                          + "Upvote me: ``%svote``\n" % (details["cmd_key"])
-                                                         + "Support me: https://PayPal.me/DeveloperAnonymous"))
+                                                         + "Support me: https://patreon.com/developeranonymous"))
         help_embed.set_footer(text="To use admin commands you must have the manage server permission or the 'Due Commander' role.")
 
     await util.say(ctx.channel, embed=help_embed)
@@ -124,7 +124,7 @@ async def donate(ctx, **_):
     """
 
     donation_embed = discord.Embed(title="Donate", type="rich", color=gconf.DUE_COLOUR)
-    donation_embed.add_field(name="Paypal (Donation)", value="[Here](https://paypal.me/DeveloperAnonymous)", inline=True)
+    donation_embed.add_field(name="Paypal (Donation)", value="[Here](https://patreon.com/developeranonymous)", inline=True)
     donation_embed.add_field(name="Selly (Buy DUTS)", value="[Here](https://selly.gg/@DeveloperAnonymous)", inline=True)
     await util.say(ctx.channel, embed=donation_embed)
 
