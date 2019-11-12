@@ -130,12 +130,32 @@ async def say(channel, *args, **kwargs):
         client.run_task(say, *((channel,) + args), **kwargs)
     else:
         try:
-            await client.send_message(channel, *args, **kwargs)
+            return await client.send_message(channel, *args, **kwargs)
         except discord.Forbidden as send_error:
             raise SendMessagePermMissing(send_error)
 
+
 async def typing(channel):
     await get_client(channel.server.id).send_typing(channel)
+
+def check(msg):
+    msg = msg.content.lower()
+    return msg.startswith("hit") or msg.startswith("stand")
+    
+async def wait_for_message(ctx, timeout=120):
+    channel = ctx.channel
+    return await get_client(channel.server.id).wait_for_message(author=ctx.author, timeout=timeout, channel=channel, check=check)
+
+
+async def edit_message(message, **kwargs):
+    content = kwargs.pop("content") if "content" in kwargs else None
+    embed = kwargs.pop("embed") if "embed" in kwargs else None
+    channel = message.channel
+    await get_client(channel.server.id).edit_message(message, new_content=content, embed=embed)
+
+
+async def delete_message(message):
+    await get_client(message.channel.server.id).delete_message(message)
 
 
 def load_and_update(reference, bot_object):

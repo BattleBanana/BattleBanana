@@ -9,7 +9,7 @@ import time
 import generalconfig as gconf
 from .. import events
 from .. import util, dbconn
-from ..game import players
+from ..game import players, blackjack
 from ..game import stats, weapons, quests, awards
 from ..game.configs import dueserverconfig
 from ..game.helpers import imagehelper
@@ -226,6 +226,11 @@ async def check_for_missing_new_stats(player):
         
     if not hasattr(player, "weapon_hidden"):
         player.__setstate__({'weapon_hidden': False})
+    
+    if not hasattr(player, "gamble_play"):
+        player.__setstate__({'gamble_play': False})
+    if not hasattr(player, "last_played"):
+        player.__setstate__({'last_played': 0})
         
 async def check_for_removed_stats(player):
     """

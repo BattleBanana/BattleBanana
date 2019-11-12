@@ -596,3 +596,32 @@ async def declinepending(ctx, user, **details):
     team.pendings.remove(user.id)
     
     await util.say(ctx.channel, "Removed **%s** from pendings!" % (user.name_clean))
+    
+# import json
+# @commands.command(args_pattern=None, hidden=True, permission=Permission.DUEUTIL_ADMIN)
+# async def atfjson(ctx, **details):
+#     """
+#     DONT FUCKING USE IT FIRESCOUTT
+#     """
+    
+#     glitchedTeams = ""
+#     with open('dueutil/game/configs/teams.json', 'r+') as team_file:
+#         team_list = json.load(team_file)
+#         for team in team_list:
+#             try:
+#                 team = team_list[team]
+#                 if teams.find_team(team["name"]):
+#                     continue
+#                 teams.Team(players.find_player(team["owner"]), team["name"], "This is a new and awesome team!", team["min_level"], team["open"])
+#                 new_team = teams.find_team(team["name"])
+#                 for member in team["members"]:
+#                     new_team.members.append(member)
+#                 for admin in team["admins"]:
+#                     new_team.admins.append(admin)
+#                 for pending in team["pendings"]:
+#                     new_team.pendings.append(pending)
+#             except:
+#                 glitchedTeams += team["name"] + "\n"
+                
+#     await util.say(ctx.channel, "Done!")
+#     await util.say(ctx.channel, "```" + glitchedTeams + "```")

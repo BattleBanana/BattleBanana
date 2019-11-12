@@ -156,6 +156,7 @@ class DueUtilClient(discord.Client):
                         yield from util.say(ctx.channel,
                                             "The action could not be performed as I'm **missing permissions**! Make sure I have the following permissions:\n"
                                             + "- Manage Roles %s;\n" % (":white_check_mark:" if perms.manage_roles else ":x:")
+                                            + "- Manage messages %s;\n" % (":white_check_mark:" if perms.manage_messages else ":x:")
                                             + "- Embed links %s;\n" % (":white_check_mark:" if perms.embed_links else ":x:")
                                             + "- Attach files %s;\n" % (":white_check_mark:" if perms.attach_files else ":x:")
                                             + "- Read Message History %s;\n" % (":white_check_mark:" if perms.read_message_history else ":x:")

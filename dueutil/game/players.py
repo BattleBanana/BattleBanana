@@ -86,7 +86,7 @@ class Player(DueUtilObject, SlotPickleMixin):
                  "inventory", "last_message_hashes", 
                  "command_rate_limits", "team", 
                  "team_invites", "prestige_level", 
-                 "weapon_hidden"]
+                 "weapon_hidden", "gamble_play", "last_played"]
 
     # additional_attributes is not defined but is there for possible future use.
     # I expect new types of quests/weapons to be subclasses.
@@ -125,6 +125,8 @@ class Player(DueUtilObject, SlotPickleMixin):
         self.quests_completed_today = 0
         self.last_message_hashes = Ring(10)
         self.weapon_hidden = False
+        self.gamble_play = self.gamble_play
+        self.last_played = self.last_played
 
         if not hasattr(self, "command_rate_limits"):
             self.command_rate_limits = {}
@@ -200,6 +202,8 @@ class Player(DueUtilObject, SlotPickleMixin):
         self.quests_completed_today = 0
         self.last_message_hashes = Ring(10)
         self.weapon_hidden = False
+        self.gamble_play = False if not hasattr(self, "gamble_play") else self.gamble_play
+        self.last_played = 0
 
         if not hasattr(self, "command_rate_limits"):
             self.command_rate_limits = {}
