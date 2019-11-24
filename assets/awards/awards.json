@@ -229,6 +229,11 @@
         "name":"Bug Killer",
         "special":true,
         "message":"Find a bug and help Anonymous kill it!"
-    }
+    },
+    "Prestige":{
+       "icon":"prestige.png",
+       "name":"Prestigious",
+       "message":"Prestige for the first time!"
+   }
    }
 }

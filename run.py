@@ -248,11 +248,16 @@ class DueUtilClient(discord.Client):
         yield from self.change_presence(game=help_status, afk=False)
         util.logger.info("\nLogged in shard %d as\n%s\nWith account @%s ID:%s \n-------",
                         shard_number, self.name, self.user.name, self.user.id)
+        yield from util.duelogger.bot("Shard %s has started!" % shard_number)
         self.loaded = True
         if loaded():
             yield from util.duelogger.bot("DueUtil has *(re)*started\n"
                                         + "Bot version → ``%s``" % gconf.VERSION)
 
+    @asyncio.coroutine
+    def on_resumed(self):
+        shard_number = shard_clients.index(self) + 1
+        yield from util.duelogger.bot("Shard %s has restarted!" % shard_number)
 
 class ShardThread(Thread):
     """

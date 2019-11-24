@@ -544,10 +544,15 @@ async def ping(ctx,**_):
 
 
 @commands.command(args_pattern=None)
-async def vote(ctx, **_):
-    Embed = discord.Embed(title="Vote for me :D", type="rich", description="Thanks for voting for me!", colour=gconf.DUE_COLOUR)
+async def vote(ctx, **details):
+    """
+    Obtain ¤50'000 for voting on Discord Bot List
+    """
+    
+    Embed = discord.Embed(title="Vote for your favorite Discord Bot", type="rich", description="Thanks for voting for me!", colour=gconf.DUE_COLOUR)
     Embed.add_field(name="Vote:", value="[Discord Bot list](https://discordbots.org/bot/464601463440801792/vote)\n"
                                         "[Bot On Discord](https://bots.ondiscord.xyz/bots/464601463440801792)")
+    Embed.set_footer(text="You will receive your reward shortly after voting!")
 
     await util.say(ctx.channel, embed=Embed)
 

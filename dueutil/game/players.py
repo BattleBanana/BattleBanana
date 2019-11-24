@@ -88,7 +88,6 @@ class Player(DueUtilObject, SlotPickleMixin):
                  "team_invites", "prestige_level", 
                  "weapon_hidden", "gamble_play", "last_played"]
 
-    # additional_attributes is not defined but is there for possible future use.
     # I expect new types of quests/weapons to be subclasses.
 
     DEFAULT_FACTORIES = {"equipped": lambda: "default", "inventory": lambda: ["default"]}
