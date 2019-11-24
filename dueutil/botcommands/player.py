@@ -20,7 +20,7 @@ async def daily(ctx, **details):
     """
     [CMD_KEY]daily
 
-    ¤50! Your daily pocket money!
+    ¤50 * your level! Your daily pocket money!
 
     You can use this command once very 24 hours!
     """

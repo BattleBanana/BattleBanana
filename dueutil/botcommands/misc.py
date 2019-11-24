@@ -535,6 +535,10 @@ async def meminfo(ctx, **_):
 
 @commands.command(args_pattern=None)
 async def ping(ctx,**_):
+    """
+    [CMD_KEY]ping
+    pong! Gives you the response time.
+    """
     channel = ctx.channel
     t1 = time.perf_counter()
     await util.typing(channel)
@@ -566,12 +570,3 @@ async def cleartopdogs(ctx, **details):
             v.save()
     
     await util.say(ctx.channel, "Scan is done! ")
-
-
-@commands.command(args_pattern=None)
-async def showperms(ctx, **details):
-    msg = ""
-    perms = ctx.server.me.permissions_in(ctx.channel)
-    for i, v in perms:
-        msg += "**%s** : %s\n" % (str(i), str(v))
-    await util.say(ctx.channel, msg)
