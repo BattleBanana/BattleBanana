@@ -92,7 +92,7 @@ async def blackjack(ctx, price, **details):
     # Dealer's turn
     while True:
         user_value, dealer_value = blackjackGame.compare_decks(user_hand, dealer_hand)
-        if dealer_value >= 21 or user_value > 21:
+        if dealer_value >= 21 or user_value > 21 or dealer_value > user_value:
             break
         if dealer_value <= 15: # Make him pick a card
             dealer_hand += deck.deal(1)
