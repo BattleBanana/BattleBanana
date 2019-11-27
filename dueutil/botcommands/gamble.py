@@ -94,26 +94,8 @@ async def blackjack(ctx, price, **details):
         user_value, dealer_value = blackjackGame.compare_decks(user_hand, dealer_hand)
         if dealer_value >= 21 or user_value > 21 or dealer_value > user_value:
             break
-        if dealer_value <= 15: # Make him pick a card
+        if dealer_value < 17: # Make him pick a card
             dealer_hand += deck.deal(1)
-        elif dealer_value == 16:
-            value = random.randrange(1,100)
-            if value <= 75: # 75% chance to pick a card
-                dealer_hand += deck.deal(1)
-            else:
-                break
-        elif dealer_value == 17:
-            value = random.randrange(1,100)
-            if value <= 50: # 50% chance to pick a card
-                dealer_hand += deck.deal(1)
-            else:
-                break
-        elif dealer_value == 18:
-            value = random.randrange(1,100)
-            if value <= 25: # 25% chance to pick a card
-                dealer_hand += deck.deal(1)
-            else:
-                break
         else:
             break
     
