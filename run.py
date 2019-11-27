@@ -254,10 +254,11 @@ class DueUtilClient(discord.Client):
             yield from util.duelogger.bot("DueUtil has *(re)*started\n"
                                         + "Bot version → ``%s``" % gconf.VERSION)
 
-    @asyncio.coroutine
-    def on_resumed(self):
-        shard_number = shard_clients.index(self) + 1
-        yield from util.duelogger.bot("Shard %s has restarted!" % shard_number)
+#TODO: Make this without errors
+    # @asyncio.coroutine
+    # def on_resumed(self):
+    #     shard_number = shard_clients.index(self) + 1
+    #     yield from util.duelogger.bot("Shard %s has restarted!" % shard_number)
 
 class ShardThread(Thread):
     """
