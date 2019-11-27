@@ -122,6 +122,7 @@ async def blackjack(ctx, price, **details):
         gain = price
         result = "This is a tie! %s-%s" % (user_value, dealer_value)
     
+    # Manage the message
     gain = math.floor(gain)
     user.money += gain
     result += " You were rewarded with `¤%s`" % (gain) if gain > 0 else " You lost `¤%s`." % (price)
