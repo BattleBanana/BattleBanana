@@ -119,14 +119,8 @@ async def blackjack(ctx, price, **details):
         else:
             result = "Dealer win with an hand of %s against %s" % (dealer_value, user_value)
     else:
-        if len(user_hand.cards) > len(dealer_hand.cards):
-            result = "Dealer win with less cards!"
-        elif len(user_hand.cards) < len(dealer_hand.cards):
-            gain = price * 2
-            result = "You win with less cards!"
-        else:
-            gain = price
-            result = "This is a tie! %s-%s" % (user_value, dealer_value)
+        gain = price
+        result = "This is a tie! %s-%s" % (user_value, dealer_value)
     
     gain = math.floor(gain)
     user.money += gain
