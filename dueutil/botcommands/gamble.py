@@ -6,7 +6,7 @@ import time
 from io import StringIO
 import random
 
-import pydealer
+from pydealer import Deck
 
 import discord
 import objgraph
@@ -46,7 +46,7 @@ async def blackjack(ctx, price, **details):
     
     
     # Create new deck, make player playing
-    deck = pydealer.Deck()
+    deck = Deck() + Deck() + Deck() + Deck()
     deck.shuffle()
     user.gamble_play = True
     user.last_played = time.time()

@@ -7,7 +7,7 @@ import repoze.timeago
 import generalconfig as gconf
 from ..game.configs import dueserverconfig
 from ..permissions import Permission
-from ..game import stats, awards, discoin
+from ..game import stats, awards
 from ..game.stats import Stat
 from .. import commands, events, util, permissions
 
