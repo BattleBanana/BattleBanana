@@ -135,10 +135,13 @@ class DueUtilClient(discord.Client):
             util.logger.error("None message/command error: %s", error)
         elif isinstance(error, util.DueUtilException):
             # A normal dueutil user error
-            if error.channel is not None:
-                yield from self.send_message(error.channel, error.get_message())
-            else:
-                yield from self.send_message(ctx.channel, error.get_message())
+            try:
+                if error.channel is not None:
+                    yield from self.send_message(error.channel, error.get_message())
+                else:
+                    yield from self.send_message(ctx.channel, error.get_message())
+            except:
+                util.logger.warning("Unable to send Exception message")
             return
         elif isinstance(error, util.DueReloadException):
             loader.reload_modules()
@@ -165,6 +168,8 @@ class DueUtilClient(discord.Client):
                                             )
                     except util.SendMessagePermMissing:
                         pass  # They've block sending messages too.
+                    except discord.errors.Forbidden: 
+                        pass
                 return
         elif isinstance(error, discord.HTTPException):
             util.logger.error("Discord HTTP error: %s", error)
