@@ -267,8 +267,10 @@ def char_is_emoji(character):
 def is_server_emoji(server, possible_emoji):
     if server is None:
         return False
+    if possible_emoji.startswith("<a:"):
+        possible_emoji = "<" + possible_emoji[2:]
     possible_emojis = [str(custom_emoji) for custom_emoji in server.emojis if str(custom_emoji) in possible_emoji]
-    return len(possible_emojis) == 1 and possible_emojis[0] == possible_emoji
+    return len(possible_emojis) == 1 and (possible_emojis[0] == possible_emoji)
 
 
 def is_discord_emoji(server, possible_emoji):
