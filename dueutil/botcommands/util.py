@@ -600,7 +600,7 @@ async def exchange(ctx, amount, currency, **details):
     receipt = discoin.DISCOIN + discoin.TRANSACTIONS + "/" + transaction['id'] + "/show"
     
     exchange_embed = discord.Embed(title=e.DISCOIN + " Exchange complete!", type="rich", color=gconf.DUE_COLOUR)
-    exchange_embed.add_field(name="Exchange amount (DUT):", value=util.format_number(amount, money=True, full_precision=True))
+    exchange_embed.add_field(name="Exchange amount (DUTS):", value=util.format_number(amount, money=True, full_precision=True))
     exchange_embed.add_field(name="Result amount (%s):" % currency, value="$" + util.format_number_precise(transaction['payout']))
     exchange_embed.add_field(name="Receipt:", value=receipt, inline=False)
     exchange_embed.set_footer(text="Keep the receipt for if something goes wrong!")

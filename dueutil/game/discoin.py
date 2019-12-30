@@ -100,15 +100,6 @@ async def process_transactions():
                 await reverse_transaction(user_id, source_id, amount, transaction_id)
                 client.run_task(notify_complete, user_id, transaction, failed=True)
                 continue
-            
-            if amount > MAX_TRANSACTION:
-                extra = amount - MAX_TRANSACTION
-                await reverse_transaction(user_id, source_id, extra, transaction_id)
-                client.run_task(notify_complete, user_id, transaction, extra=True)
-                stats.increment_stat(Stat.DISCOIN_RECEIVED, MAX_TRANSACTION)
-                player.money += MAX_TRANSACTION
-                player.save()
-                continue
 
             client.run_task(notify_complete, user_id, transaction)
             stats.increment_stat(Stat.DISCOIN_RECEIVED, amount)
