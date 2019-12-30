@@ -543,7 +543,7 @@ async def currencies(ctx, **details):
     """
     [CMD_KEY]currencies
     
-    Display current every currencies available on Discoin
+    Display every currencies currently available on Discoin
     """
     
     embed = discord.Embed(title=e.DISCOIN + " Exchange complete!", type="rich", color=gconf.DUE_COLOUR)
