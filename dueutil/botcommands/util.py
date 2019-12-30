@@ -573,6 +573,8 @@ async def exchange(ctx, amount, currency, **details):
         raise util.DueUtilException(ctx.channel, "There is no reason to exchange DUT for DUT!")
     if not currency in discoin.CODES:
         raise util.DueUtilException(ctx.channel, "Not a valid currency! Use `%scurrencies` to know which currency is available." % details['cmd_key'])
+    if amount > discoin.MAX_TRANSACTION:
+        raise util.DueUtilException(ctx.channel, "The amount you try to exchange exceeds the maximum DUTS transfer limit of %s." % discoin.MAX_TRANSACTION)
 
     if player.money - amount < 0:
         await util.say(ctx.channel, "You do not have **%s**!\n"

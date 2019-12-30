@@ -19,6 +19,7 @@ FILTER = "?filter=to.id||eq||DUTS&filter=handled||eq||false"
 headers = {"Authorization": gconf.other_configs["discoinKey"], "Content-Type": "application/json"}
 handled = {"handled": True}
 CODES = {}
+MAX_TRANSACTION = 500000
 
 async def get_raw_currencies():
     async with aiohttp.ClientSession() as session:
@@ -99,6 +100,15 @@ async def process_transactions():
                 await reverse_transaction(user_id, source_id, amount, transaction_id)
                 client.run_task(notify_complete, user_id, transaction, failed=True)
                 continue
+            
+            if amount > MAX_TRANSACTION:
+                extra = amount - MAX_TRANSACTION
+                await reverse_transaction(user_id, source_id, extra, transaction_id)
+                client.run_task(notify_complete, user_id, transaction, extra=True)
+                stats.increment_stat(Stat.DISCOIN_RECEIVED, MAX_TRANSACTION)
+                player.money += MAX_TRANSACTION
+                player.save()
+                continue
 
             client.run_task(notify_complete, user_id, transaction)
             stats.increment_stat(Stat.DISCOIN_RECEIVED, amount)
@@ -110,7 +120,7 @@ async def process_transactions():
                                     + "User: %s | Amount: %.2f | Source: %s" % (user_id, amount, "%s (%s)" % (source_name, source_id)))
 
 
-async def notify_complete(user_id, transaction, failed=False):
+async def notify_complete(user_id, transaction, failed=False, extra=False):
     client = util.shard_clients[0]
     user = await client.get_user_info(user_id)
     await mark_as_completed(transaction)
@@ -138,13 +148,33 @@ async def notify_complete(user_id, transaction, failed=False):
                 await util.say(user, embed=embed, client=client)
             except Exception as error:
                 util.logger.error("Could not notify the successful transaction to the user: %s", error)
-        else:
+        elif failed:
             embed.add_field(name=":warning: Your Discoin exchange has been reversed", value="To exchange to DueUtil you must be a player "
                                                                                         + "and the amount has to be worth at least 1 DUT.")
             try:
                 await util.say(user, embed=embed, client=client)
             except Exception as error:
                 util.logger.error("Could not notify the failed transaction to the user: %s", error)
+        elif extra:
+            payout = int(transaction.get('payout'))
+            amount = int(transaction.get('amount'))
+            
+            source = transaction.get('from')
+            source_id = source.get('id')
+            source_name = source.get('name')
+            
+            embed.add_field(name=":warning: Your Discoin exchange has been partially reversed", 
+                            value="The total amount of the exchange was above `%s`. "
+                            + "You will receive `%s` and the extra of `%s` will be sent back to its origin!"
+                            % (util.format_number(MAX_TRANSACTION, money=True, full_precision=True),
+                               util.format_number(MAX_TRANSACTION, money=True, full_precision=True),
+                               util.format_number(payout - MAX_TRANSACTION, money=True, full_precision=True))
+                            )
+            try:
+                await util.say(user, embed=embed, client=client)
+            except Exception as error:
+                util.logger.error("Could not notify the extra transaction to the user: %s", error)
+            
     except Exception as error:
         util.logger.error("Could not notify discoin complete %s", error)
         traceback.print_exc()
