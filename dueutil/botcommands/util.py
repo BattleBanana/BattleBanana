@@ -7,7 +7,7 @@ import repoze.timeago
 import generalconfig as gconf
 from ..game.configs import dueserverconfig
 from ..permissions import Permission
-from ..game import stats, awards
+from ..game import stats, awards, discoin
 from ..game.stats import Stat
 from .. import commands, events, util, permissions
 
@@ -537,3 +537,70 @@ async def optinhere(ctx, **details):
                                          + "To use DueUtil do ``%soptin``" % details["cmd_key"]))
         else:
             await util.say(ctx.channel, "You've not opted out on this server.")
+
+@commands.command(args_pattern=None)
+async def currencies(ctx, **details):
+    """
+    [CMD_KEY]currencies
+    
+    Display current every currencies available on Discoin
+    """
+    
+    embed = discord.Embed(title=e.DISCOIN + " Exchange complete!", type="rich", color=gconf.DUE_COLOUR)
+    for id in discoin.CODES:
+        currency = discoin.CODES[id]
+        embed.add_field(name=id, value=currency['name'], inline=False)
+    
+    if len(embed.fields) == 0:
+        embed.add_field(name="An error occured!", value="There was an error retrieving Discoin's currencies.")
+    embed.set_footer(text="Visit https://dash.discoin.zws.im/#/currencies for exchange rate.")
+    
+    await util.say(ctx.channel, embed=embed)
+
+@commands.command(args_pattern="CS")
+async def exchange(ctx, amount, currency, **details):
+    """
+    [CMD_KEY]exchange (amount) (currency)
+    Exchange your DUTS (DueUtil 3.0 Tokens) for other bot currencies!
+    For more information go to: https://dash.discoin.zws.im/#/
+    Note: Exchanges can take a few minutes to process!
+    """
+
+    player = details["author"]
+    currency = currency.upper()
+
+    if currency == "DUTS":
+        raise util.DueUtilException(ctx.channel, "There is no reason to exchange DUT for DUT!")
+    if not currency in discoin.CODES:
+        raise util.DueUtilException(ctx.channel, "Not a valid currency! Use `%scurrencies` to know which currency is available." % details['cmd_key'])
+
+    if player.money - amount < 0:
+        await util.say(ctx.channel, "You do not have **%s**!\n"
+                        % util.format_number(amount, full_precision=True, money=True)
+                       + "The maximum you can exchange is **%s**"
+                       % util.format_number(player.money, full_precision=True, money=True))
+        return
+
+    try:
+        response = await discoin.make_transaction(player.id, amount, currency)
+    except Exception as discoin_error:
+        util.logger.error("Discoin exchange failed %s", discoin_error)
+        raise util.DueUtilException(ctx.channel, "Something went wrong at Discoin!")
+
+    if response.get('statusCode'):
+        raise util.DueUtilException(ctx.channel, "Something went wrong at Discoin! %s %s" % (response['statusCode'], response['error']))
+
+    await awards.give_award(ctx.channel, player, "Discoin")
+    player.money -= amount
+    player.save()
+    
+    transaction = response
+    receipt = discoin.DISCOIN + discoin.TRANSACTIONS + "/" + transaction['id'] + "/show"
+    
+    exchange_embed = discord.Embed(title=e.DISCOIN + " Exchange complete!", type="rich", color=gconf.DUE_COLOUR)
+    exchange_embed.add_field(name="Exchange amount (DUT):", value=util.format_number(amount, money=True, full_precision=True))
+    exchange_embed.add_field(name="Result amount (%s):" % currency, value="$" + util.format_number_precise(transaction['payout']))
+    exchange_embed.add_field(name="Receipt:", value=receipt, inline=False)
+    exchange_embed.set_footer(text="Keep the receipt for if something goes wrong!")
+    
+    await util.say(ctx.channel, embed=exchange_embed)
