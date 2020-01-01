@@ -570,7 +570,7 @@ async def exchange(ctx, amount, currency, **details):
     currency = currency.upper()
 
     if currency == "DUTS":
-        raise util.DueUtilException(ctx.channel, "There is no reason to exchange DUT for DUT!")
+        raise util.DueUtilException(ctx.channel, "There is no reason to exchange DUTS for DUTS!")
     if not currency in discoin.CODES:
         raise util.DueUtilException(ctx.channel, "Not a valid currency! Use `%scurrencies` to know which currency is available." % details['cmd_key'])
     if amount > discoin.MAX_TRANSACTION:

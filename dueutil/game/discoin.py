@@ -13,8 +13,8 @@ import traceback
 
 DISCOIN = "https://discoin.zws.im"
 # Endpoints
-TRANSACTIONS = "/transactions"
-CURRENCIES = "/currencies"
+TRANSACTIONS = DISCOIN + "/transactions"
+CURRENCIES = DISCOIN + "/currencies"
 FILTER = "?filter=to.id||eq||DUTS&filter=handled||eq||false"
 headers = {"Authorization": gconf.other_configs["discoinKey"], "Content-Type": "application/json"}
 handled = {"handled": True}
@@ -23,7 +23,7 @@ MAX_TRANSACTION = 500000
 
 async def get_raw_currencies():
     async with aiohttp.ClientSession() as session:
-        async with session.get(DISCOIN + CURRENCIES, headers=headers) as response:
+        async with session.get(CURRENCIES, headers=headers) as response:
             return await response.json()
 
 async def get_currencies():
@@ -45,7 +45,7 @@ async def make_transaction(sender_id, amount, to):
 
     with aiohttp.Timeout(10):
         async with aiohttp.ClientSession() as session:
-            async with session.post(DISCOIN + TRANSACTIONS,
+            async with session.post(TRANSACTIONS,
                                     data=json.dumps(transaction_data), headers=headers) as response:
                 return await response.json()
 
@@ -57,13 +57,13 @@ async def reverse_transaction(user, From, amount, id):
 
 async def unprocessed_transactions():
     async with aiohttp.ClientSession() as session:
-        async with session.get(DISCOIN + TRANSACTIONS + FILTER, headers=headers) as response:
+        async with session.get(TRANSACTIONS + FILTER, headers=headers) as response:
             return await response.json()
 
 
 async def mark_as_completed(transaction):
     async with aiohttp.ClientSession() as session:
-        async with session.patch(url=DISCOIN + TRANSACTIONS + "/" + transaction['id'],
+        async with session.patch(url=TRANSACTIONS + "/" + transaction['id'],
                                 data=json.dumps(handled), headers=headers) as response:
             return await response.json()
 
