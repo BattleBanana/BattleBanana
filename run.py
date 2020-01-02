@@ -196,8 +196,7 @@ class DueUtilClient(discord.Client):
     @asyncio.coroutine
     def on_message(self, message):
         if (message.author == self.user
-            or message.author.bot
-            or not loaded()):
+            or message.author.bot):
             return
         
         # Live support
@@ -305,6 +304,9 @@ class DueUtilClient(discord.Client):
                     yield from self.add_reaction(message, emojis.CHECK_REACT)
                 except:
                     yield from self.add_reaction(message, emojis.CROSS_REACT)
+            return
+
+        if not loaded():
             return
 
         owner = discord.Member(user={"id": config["owner"]})
