@@ -197,8 +197,115 @@ class DueUtilClient(discord.Client):
     def on_message(self, message):
         if (message.author == self.user
             or message.author.bot
-            or message.channel.is_private
             or not loaded()):
+            return
+        
+        # Live support
+        if message.channel.is_private or (message.server == util.get_server('617912143303671810') and players.find_player(message.channel.name)):
+            support_server = util.get_server('617912143303671810')
+            
+            # User writes us
+            if message.channel.is_private:
+                user_id = message.author.id
+                user = message.author
+                player = players.find_player(user_id)
+                headers = {'Authorization': gconf.other_configs['botToken']}
+                
+                if message.content.lower().startswith("!requestsupport"):
+                    try:
+                        if not util.find_channel(user_id):
+                            yield from self.create_channel(server=support_server, name=user_id, type=0)
+                            yield from self.add_reaction(message, emojis.CHECK_REACT)
+                        else:
+                            yield from self.add_reaction(message, emojis.CROSS_REACT)
+                            
+                    except:
+                        yield from self.add_reaction(message, emojis.CROSS_REACT)
+                    return
+
+                elif message.content.lower().startswith("!close"):
+                    embed = discord.Embed(type="rich", colour=gconf.DUE_COLOUR)
+                    embed.add_field(name="Support Closed", value="Thank you for using **DueUtil live support**!\n"
+                                                                + "*Please note that we delete any archive of our previous messages.*")
+                    embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/363777039813050368/618213084795895823/due3Logo.png")
+                    embed.set_footer(text="If your question was not fully answered or if you still have a question, please answer `!requestsupport` to this message with your question!")
+                    try:
+                        channel = util.find_channel(user_id)
+                        if channel:
+                            msg = yield from util.say(user, "Closing support... Please wait.", client=self)
+                        yield from self.delete_channel(channel)
+                        yield from util.edit_message(msg, embed=embed, client=self)
+                        yield from self.add_reaction(message, emojis.CHECK_REACT)
+                    except:
+                        yield from self.add_reaction(message, emojis.CROSS_REACT)
+                    return
+
+                channel = util.find_channel(user_id)
+                if channel:
+                    try:
+                        msg = message.content if message.content else "No content"
+                        attachments = message.attachments
+
+                        embed = discord.Embed(title=(message.author.name + "#" + message.author.discriminator), type="rich", colour=gconf.DUE_COLOUR)
+                        embed.add_field(name="Message:", value=msg)
+
+                        if len(attachments) > 0:
+                            attachment = attachments[0]
+                            filename = attachment['filename']
+                            extension = filename.split('.')
+                            extension = extension[len(extension) - 1]
+                            if extension in gconf.SUPPORTED_FILES:
+                                embed.set_image(url=attachment.get('url'))
+                            else:
+                                yield from util.say(user, "Supported files are: " + ', '.join(gconf.SUPPORTED_FILES), client=self)
+                        yield from self.move_channel(channel, 4)
+                        yield from util.say(channel, embed=embed)
+                        yield from self.add_reaction(message, emojis.CHECK_REACT)
+                    except:
+                        yield from self.add_reaction(message, emojis.CROSS_REACT)
+            
+            # We reply 
+            elif (message.server == util.get_server('617912143303671810') and players.find_player(message.channel.name)):
+                user = yield from self.get_user_info(message.channel.name)
+                channel = message.channel
+
+                if message.content.lower().startswith("!close"):
+                    embed = discord.Embed(title="DueUtil live support", type="rich", colour=gconf.DUE_COLOUR)
+                    embed.add_field(name="Support Closed", value="Thank you for using **DueUtil live support**!\n"
+                                                                + "*Please note that we delete any archive of our previous messages.*")
+                    embed.add_field(name="Closed by:", value=f"{message.author.name}#{message.author.discriminator}")
+                    embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/363777039813050368/618213084795895823/due3Logo.png")
+                    embed.set_footer(text="If your question was not answered, please answer `!requestsupport` to re-open a ticket!")
+                    try:
+                        yield from self.delete_channel(channel)
+                        yield from util.say(user, embed=embed, client=self)
+                    except:
+                        yield from self.add_reaction(message, emojis.CROSS_REACT)
+                    return
+
+                try:
+                    msg = message.content if message.content else "No content"
+                    attachments = message.attachments
+
+                    embed = discord.Embed(title="DueUtil live support", type="rich", colour=gconf.DUE_COLOUR)
+                    embed.add_field(name=f"{message.author.name}#{message.author.discriminator}", value=msg)
+                    embed.set_footer(text="Make sure to report to @DeveloperAnonymous#9830 for any abuse from the live squad!",
+                                    icon_url="https://cdn.discordapp.com/attachments/363777039813050368/618213084795895823/due3Logo.png")
+
+                    if len(attachments) > 0:
+                        attachment = attachments[0]
+                        filename = attachment['filename']
+                        extension = filename.split('.')
+                        extension = extension[len(extension) - 1]
+                        if extension in gconf.SUPPORTED_FILES:
+                            embed.set_image(url=attachment.get('url'))
+                        else:
+                            yield from util.say(channel, "Supported files are: " + ', '.join(gconf.SUPPORTED_FILES))
+                        
+                    yield from util.say(user, embed=embed, client=self)
+                    yield from self.add_reaction(message, emojis.CHECK_REACT)
+                except:
+                    yield from self.add_reaction(message, emojis.CROSS_REACT)
             return
 
         owner = discord.Member(user={"id": config["owner"]})

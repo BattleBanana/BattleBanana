@@ -148,10 +148,11 @@ async def wait_for_message(ctx, timeout=120):
 
 
 async def edit_message(message, **kwargs):
-    content = kwargs.pop("content") if "content" in kwargs else None
-    embed = kwargs.pop("embed") if "embed" in kwargs else None
-    channel = message.channel
-    await get_client(channel.server.id).edit_message(message, new_content=content, embed=embed)
+    content = kwargs.pop("content", " ")
+    embed = kwargs.pop("embed", None)
+    client= kwargs.pop("client", get_client(message.channel.server.id))
+
+    await client.edit_message(message, new_content=content, embed=embed)
 
 
 async def delete_message(message):
@@ -195,6 +196,12 @@ def get_client(source):
 
 def get_server(server_id):
     return get_client(server_id).get_server(server_id)
+
+def find_channel(channel_name):
+    channels = get_server(gconf.other_configs['supportServer']).channels
+    for channel in channels:
+        if channel.name == channel_name:
+            return channel
 
 
 def ultra_escape_string(string):

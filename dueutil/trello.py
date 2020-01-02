@@ -25,8 +25,9 @@ class TrelloClient:
         return await self.fetch_json('boards/%s/lists' % board_id)
 
     async def fetch_json(self, url):
-        async with aiohttp.ClientSession().get(self.base_request + url, params=self.key_and_token) as response:
-            return await response.json()
+        async with aiohttp.ClientSession() as session:
+            with session.get(self.base_request + url, params=self.key_and_token) as response:
+                return await response.json()
 
     async def get_labels(self, board_id):
         return await self.fetch_json('boards/%s/labels' % board_id)
