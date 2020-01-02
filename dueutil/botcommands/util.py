@@ -557,11 +557,12 @@ async def currencies(ctx, **details):
     
     await util.say(ctx.channel, embed=embed)
 
+@commands.ratelimit(cooldown=300, error="Your next transfer available is in **[COOLDOWN]**!", save=True)
 @commands.command(args_pattern="CS")
 async def exchange(ctx, amount, currency, **details):
     """
     [CMD_KEY]exchange (amount) (currency)
-    Exchange your DUTS (DueUtil 3.0 Tokens) for other bot currencies!
+    Exchange your DUC (DueUtil 3.0 Credits) for other bot currencies!
     For more information go to: https://dash.discoin.zws.im/#/
     Note: Exchanges can take a few minutes to process!
     """
@@ -569,12 +570,12 @@ async def exchange(ctx, amount, currency, **details):
     player = details["author"]
     currency = currency.upper()
 
-    if currency == "DUTS":
-        raise util.DueUtilException(ctx.channel, "There is no reason to exchange DUTS for DUTS!")
+    if currency == "DUC":
+        raise util.DueUtilException(ctx.channel, "There is no reason to exchange DUC for DUC!")
     if not currency in discoin.CODES:
         raise util.DueUtilException(ctx.channel, "Not a valid currency! Use `%scurrencies` to know which currency is available." % details['cmd_key'])
     if amount > discoin.MAX_TRANSACTION:
-        raise util.DueUtilException(ctx.channel, "The amount you try to exchange exceeds the maximum DUTS transfer limit of %s." % discoin.MAX_TRANSACTION)
+        raise util.DueUtilException(ctx.channel, "The amount you try to exchange exceeds the maximum DUC transfer limit of %s." % discoin.MAX_TRANSACTION)
 
     if player.money - amount < 0:
         await util.say(ctx.channel, "You do not have **%s**!\n"
