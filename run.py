@@ -196,7 +196,8 @@ class DueUtilClient(discord.Client):
     @asyncio.coroutine
     def on_message(self, message):
         if (message.author == self.user
-            or message.author.bot):
+            or message.author.bot
+            or not loaded()):
             return
         
         # Live support
@@ -306,8 +307,6 @@ class DueUtilClient(discord.Client):
                     yield from self.add_reaction(message, emojis.CROSS_REACT)
             return
 
-        if not loaded():
-            return
 
         owner = discord.Member(user={"id": config["owner"]})
         if not permissions.has_permission(owner, Permission.DUEUTIL_OWNER):
@@ -404,6 +403,7 @@ def run_due():
     if not os.path.exists("assets/imagecache/"):
         os.makedirs("assets/imagecache/")
     loader.load_modules(packages=loader.GAME)
+    loader.load_modules(packages=loader.COMMANDS)
     if not stopped:
         for shard_number in range(0, shard_count):
             loaded_clients = len(shard_clients)
@@ -413,7 +413,6 @@ def run_due():
                 pass
         while not loaded():
             pass
-        loader.load_modules(packages=loader.COMMANDS)
         util.logger.info("Ready after %ds", time.time() - start_time)
         ### Tasks
         loop = asyncio.get_event_loop()
