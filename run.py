@@ -208,7 +208,6 @@ class DueUtilClient(discord.Client):
             if message.channel.is_private:
                 user_id = message.author.id
                 user = message.author
-                headers = {'Authorization': gconf.other_configs['botToken']}
                 
                 if message.content.lower().startswith("!requestsupport"):
                     try:
