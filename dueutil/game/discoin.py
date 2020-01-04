@@ -34,10 +34,8 @@ async def get_currencies():
         
         for currency in sorted_currencies:
             CODES[currency['id']] = {'id': currency['id'], 'name': currency['name']}
-    except TypeError as error:
-        raise util.logger.warning("Unable to retrieve currencies: " + str(error))
-    except Exception as error:
-        raise util.logger.error("An error other than TypeError happened during currency retrieving: " + str(error))
+    except:
+        pass
         
 
 async def make_transaction(sender_id, amount, to):
