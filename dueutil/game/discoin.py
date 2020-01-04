@@ -27,12 +27,17 @@ async def get_raw_currencies():
             return await response.json()
 
 async def get_currencies():
-    currencies = await get_raw_currencies()
-    sorted_currencies = sorted(currencies, key = lambda k: k['name'])
-    CODES.clear()
-    
-    for currency in sorted_currencies:
-        CODES[currency['id']] = {'id': currency['id'], 'name': currency['name']}
+    try:
+        currencies = await get_raw_currencies()
+        sorted_currencies = sorted(currencies, key = lambda k: k['name'])
+        CODES.clear()
+        
+        for currency in sorted_currencies:
+            CODES[currency['id']] = {'id': currency['id'], 'name': currency['name']}
+    except TypeError as error:
+        raise util.logger.warning("Unable to retrieve currencies: " + error)
+    except Exception as error:
+        raise util.logger.error("An error other than TypeError happened during currency retrieving: " + error)
         
 
 async def make_transaction(sender_id, amount, to):
