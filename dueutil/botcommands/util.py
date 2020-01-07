@@ -598,7 +598,7 @@ async def exchange(ctx, amount, currency, **details):
     player.save()
     
     transaction = response
-    receipt = discoin.DISCOIN + discoin.TRANSACTIONS + "/" + transaction['id'] + "/show"
+    receipt = discoin.DISCOINDASH + "/" + transaction['id'] + "/show"
     
     exchange_embed = discord.Embed(title=e.DISCOIN + " Exchange complete!", type="rich", color=gconf.DUE_COLOUR)
     exchange_embed.add_field(name="Exchange amount (DUC):", value=util.format_number(amount, money=True, full_precision=True))

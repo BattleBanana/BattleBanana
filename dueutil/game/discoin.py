@@ -12,6 +12,7 @@ import traceback
 # A quick discoin implementation.
 
 DISCOIN = "https://discoin.zws.im"
+DISCOINDASH = "https://dash.discoin.zws.im/#/transactions"
 # Endpoints
 TRANSACTIONS = DISCOIN + "/transactions"
 CURRENCIES = DISCOIN + "/currencies"
@@ -136,7 +137,7 @@ async def notify_complete(user_id, transaction, failed=False):
             embed.add_field(name="Result amount (DUC):",
                             value=util.format_number(payout, money=True, full_precision=True))
             embed.add_field(name="Receipt:", 
-                            value="%s/%s/show" % (TRANSACTIONS, transaction['id']), 
+                            value="%s/%s/show" % (DISCOINDASH, transaction['id']), 
                             inline=False)
             try:
                 await util.say(user, embed=embed, client=client)
