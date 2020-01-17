@@ -591,7 +591,10 @@ async def exchange(ctx, amount, currency, **details):
         raise util.DueUtilException(ctx.channel, "Something went wrong at Discoin!")
 
     if response.get('statusCode'):
-        raise util.DueUtilException(ctx.channel, "Something went wrong at Discoin! %s %s" % (response['statusCode'], response['error']))
+        try:
+            raise util.DueUtilException(ctx.channel, "Something went wrong at Discoin! %s, %s" % (response['statusCode'], response['error']))
+        except:
+            raise util.DueUtilException(ctx.channel, "Something went wrong at Discoin! " + str(response))
 
     await awards.give_award(ctx.channel, player, "Discoin")
     player.money -= amount
