@@ -343,6 +343,17 @@ async def pandemic(ctx, **_):
 
     await util.say(ctx.channel, embed=pandemic_embed)
 
+# import aiohttp
+# @commands.command(args_pattern=None)
+# async def darkjoke(ctx, **details):
+#     async with aiohttp.ClientSession() as session:
+#         async with session.get(url="https://sv443.net/jokeapi/category/Dark") as response:
+#             json = await response.json()
+#             if json['type'] == "twopart":
+#                 await util.say(ctx.channel, f"{json['setup']}\n{json['delivery']}")
+#             else:
+#                 await util.say(ctx.channel, json["joke"])
+
 # import random
 # @commands.command(args_pattern=None)
 # async def fool(ctx, **details):

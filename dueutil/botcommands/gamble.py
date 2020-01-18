@@ -70,7 +70,7 @@ async def blackjack(ctx, price, **details):
     while True:
         user.last_played = time.time()
         user_value, dealer_value = blackjackGame.compare_decks(user_hand, dealer_hand)
-        if user_value > 21:
+        if user_value >= 21:
             break
         user_msg = await util.wait_for_message(ctx)
         
