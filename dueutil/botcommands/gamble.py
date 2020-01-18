@@ -26,6 +26,7 @@ Have fun kiddos!
 """
 
 @commands.command(args_pattern="I", aliases=["bj"])
+@commands.ratelimit(cooldown=30, error="You can't use blackjack again for **[COOLDOWN]**!", save=True)
 async def blackjack(ctx, price, **details):
     """
     [CMD_KEY]blackjack (bet)
