@@ -363,6 +363,8 @@ async def showteams(ctx, page=1, **details):
     
     page_size = 5
     page = page - 1
+    if page < 0:
+        raise util.DueUtilException(ctx.channel, "Page not found!")
     
     teamsEmbed = discord.Embed(title="There is the teams lists", description="Display all existant teams", type="rich", colour=gconf.DUE_COLOUR)
 
@@ -526,6 +528,8 @@ async def showteampendings(ctx, page=1, **details):
     page_size = 10
     page = page - 1
     team = teams.find_team(user.team)
+    if page < 0:
+        raise util.DueUtilException(ctx.channel, "Page not found!")
     if team is None:
         user.Team = None
     if user.team is None:
