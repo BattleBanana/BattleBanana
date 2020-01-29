@@ -111,7 +111,7 @@ async def process_transactions():
             player.save()
 
             util.logger.info("Processed discoin transaction %s", transaction_id)
-            await util.duelogger.info("Discoin transaction with receipt ``%s`` processed.\n" % transaction_id
+            await util.say(gconf.other_configs['discoinTransactions'], ":grey_exclamation: Discoin transaction with receipt ``%s`` processed.\n" % transaction_id
                                     + "User: %s | Amount: %.2f | Source: %s" % (user_id, amount, "%s (%s)" % (source_name, source_id)))
 
 

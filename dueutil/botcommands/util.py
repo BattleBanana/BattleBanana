@@ -558,7 +558,7 @@ async def currencies(ctx, **details):
     await util.say(ctx.channel, embed=embed)
 
 @commands.ratelimit(cooldown=300, error="Your next transfer available is in **[COOLDOWN]**!", save=True)
-@commands.command(args_pattern="CS")
+@commands.command(args_pattern="CS", aliases=["convert"])
 async def exchange(ctx, amount, currency, **details):
     """
     [CMD_KEY]exchange (amount) (currency)
@@ -610,3 +610,5 @@ async def exchange(ctx, amount, currency, **details):
     exchange_embed.set_footer(text="Keep the receipt for if something goes wrong!")
     
     await util.say(ctx.channel, embed=exchange_embed)
+    await util.say(gconf.other_configs['discoinTransactions'], ":grey_exclamation: Discoin transaction with receipt ``%s`` processed.\n" % transaction['id']
+                        + "User: %s | Amount: %.2f | To: %s" % (player.id, amount, "%s (%s)" % (transaction['from']['name'], currency)))
