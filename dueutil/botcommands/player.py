@@ -22,13 +22,18 @@ async def daily(ctx, **details):
 
     ¤50 * your level! Your daily pocket money!
 
-    You can use this command once very 24 hours!
+    You can use this command once every 24 hours!
     """
+    
+    responses = [' Worked in a pizza shop and earned ',
+                 ' Sold some newspapers and made ',
+                 ' Managed to hack into DueUtils code and generate ']
+
     player = details["author"]
     BALANCED_AMOUNT = DAILY_AMOUNT * player.level * (player.prestige_level + 1)
     player.money += BALANCED_AMOUNT
     player.save()
-    await util.say(ctx.channel, e.DUT + " **%s** collected their daily ¤%d!" % (player, BALANCED_AMOUNT))
+    await util.say(ctx.channel, e.DUT + " **%s** random.choice(responses) ¤%d!" % (player, BALANCED_AMOUNT))
 
 @commands.command(args_pattern=None)
 @commands.ratelimit(cooldown=21600, error="You've done all the training you can for now! You can train again in **[COOLDOWN]**!", save=True)
