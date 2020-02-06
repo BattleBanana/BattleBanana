@@ -139,25 +139,25 @@ async def blackjack(ctx, price, **details):
     
     await util.edit_message(msg, embed=blackjack_embed)
 
-@commands.command(args_pattern="I", aliases=["rr"])
-@commands.ratelimit(cooldown=30, error="You can't use Russian Roulette again for **[COOLDOWN]**!", save=True)
-async def russianroulette(ctx, price, **details):
-    """
-    [CMD_KEY]rusaianroulette ~~(bet)~~
-    
-    Play Russian Roulette with your friends.
-    
-    Game objective: Survive.
-    """
+#@commands.command(args_pattern="I", aliases=["rr"])
+#@commands.ratelimit(cooldown=30, error="You can't use Russian Roulette again for **[COOLDOWN]**!", save=True)
+#async def russianroulette(ctx, price, **details):
+    #"""
+   # [CMD_KEY]rusaianroulette ~~(bet)~~
+    #
+    #Play Russian Roulette with your friends.
+    #
+    #Game objective: Survive.
+    #"""
 
 # i do it when I figure it out 
 # aka googleing it and testing it with other bot
 
-    user = details["author"]
+#    user = details["author"]
     
-    if user.money < price:
-        raise util.DueUtilException(ctx.channel, "You cannot bet that much!")
-    if price < 1:
-        raise util.DueUtilException(ctx.channel, "You cannot bet under ¤1")
-    if (user.gamble_play and int(time.time() - user.last_played) < 120) or int(time.time() - user.last_played) < 120:
-        raise util.DueUtilException(ctx.channel, "You are already playing!")
+    #if user.money < price:
+    #    raise util.DueUtilException(ctx.channel, "You cannot bet that much!")
+    #if price < 1:
+    #    raise util.DueUtilException(ctx.channel, "You cannot bet under ¤1")
+    #if (user.gamble_play and int(time.time() - user.last_played) < 120) or int(time.time() - user.last_played) < 120:
+        #raise util.DueUtilException(ctx.channel, "You are already playing!")
