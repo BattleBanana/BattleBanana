@@ -139,7 +139,7 @@ async def blackjack(ctx, price, **details):
     
     await util.edit_message(msg, embed=blackjack_embed)
 
-commands.command(args_pattern="I", aliases=["rr"])
+@commands.command(args_pattern="I", aliases=["rr"])
 @commands.ratelimit(cooldown=30, error="You can't use Russian Roulette again for **[COOLDOWN]**!", save=True)
 async def russianroulette(ctx, price, **details):
     """
