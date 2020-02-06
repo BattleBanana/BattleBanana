@@ -25,9 +25,27 @@ async def daily(ctx, **details):
     You can use this command once every 24 hours!
     """
     
-    responses = [' Worked in a pizza shop and earned ',
-                 ' Sold some newspapers and made ',
-                 ' Managed to hack into DueUtils code and generate ']
+    responses = ['worked in a pizza shop and earned',
+                 'sold some newspapers and made',
+                 'managed to hack into DueUtils code and generate',
+                 'placed a winning bet and won',
+                 'won the lottery worth',
+                 'pickpocketed ans stole',
+                 'worked for',
+                 'found a wallet worth',
+                 'took out a small loan of',
+                 'you delivered some pizzas and earned',
+                 'looked under a couch and found',
+                 'did a chore and earned',
+                 'worked at an office job and made',
+                 'became a professional scammer and earned',
+                 'baked some cupcakes and recieved',
+                 'found some money on the floor and made',
+                 'You got out of bed. Have',
+                 'A drunk person you saw on the street paid you for being you. You recieved',
+                 'You got drunk and found some money in your pocket when you woke up',
+                 'You won an underground dance competition and got',
+                 'broke something and got']
 
     player = details["author"]
     BALANCED_AMOUNT = DAILY_AMOUNT * player.level * (player.prestige_level + 1)
