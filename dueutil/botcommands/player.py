@@ -34,18 +34,22 @@ async def daily(ctx, **details):
                  'worked for',
                  'found a wallet worth',
                  'took out a small loan of',
-                 'you delivered some pizzas and earned',
+                 'delivered some pizzas and earned',
                  'looked under a couch and found',
                  'did a chore and earned',
                  'worked at an office job and made',
                  'became a professional scammer and earned',
                  'baked some cupcakes and recieved',
                  'found some money on the floor and made',
-                 'You got out of bed. Have',
+                 'got out of bed. Have',
                  'A drunk person you saw on the street paid you for being you. You recieved',
-                 'You got drunk and found some money in your pocket when you woke up',
-                 'You won an underground dance competition and got',
-                 'broke something and got']
+                 'got drunk and found some money in your pocket when you woke up',
+                 'won an underground dance competition and got',
+                 'broke something and got',
+                 'wrote a hit song and got',
+                 'fixed dueutil and was rewarded with',
+                 'was given money for no reason, heres',
+                 'found']
 
     player = details["author"]
     BALANCED_AMOUNT = DAILY_AMOUNT * player.level * (player.prestige_level + 1)
