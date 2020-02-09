@@ -49,7 +49,12 @@ async def daily(ctx, **details):
                  'wrote a hit song and got',
                  'fixed dueutil and was rewarded with',
                  'was given money for no reason, heres',
-                 'found']
+                 'found',
+                 'broke into a car and found',
+                 'robbed the local bank and got',
+                 'did the !daily command and earned',
+                 'sold their soul for',
+                 'begged the dueutil gods for']
 
     player = details["author"]
     BALANCED_AMOUNT = DAILY_AMOUNT * player.level * (player.prestige_level + 1)
