@@ -8,6 +8,7 @@ from .game.configs import dueserverconfig
 from . import events, util, commandtypes
 from .permissions import Permission
 from . import commandextras
+from dueutil import dbconn
 
 extras = commandextras
 IMAGE_REQUEST_COOLDOWN = 5
@@ -83,6 +84,7 @@ def command(**command_rules):
                     # Run command
                     details["cmd_key"] = prefix
                     details["command_name"] = name
+                    dbconn.conn()["stats"].update({"stat": "commandsused"}, {"$inc": {"count": 1}}, upsert=True)
                     await command_func(ctx, *command_args, **get_command_details(ctx, **details))
                 else:
                     raise util.DueUtilException(ctx.channel, "Please don't include spam mentions in commands.")
