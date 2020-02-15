@@ -359,12 +359,11 @@ class DueUtilClient(discord.Client):
         help_status = discord.Game(name="dueutil.xyz | shard %d/%d" % (shard_number, shard_count))
         yield from self.change_presence(game=help_status, afk=False)
         util.logger.info("\nLogged in shard %d as\n%s\nWith account @%s ID:%s \n-------",
-                        shard_number, self.name, self.user.name, self.user.id)
-        yield from util.duelogger.bot("Shard %s has started!" % shard_number)
+                         shard_number, self.name, self.user.name, self.user.id)
         self.loaded = True
         if loaded():
             yield from util.duelogger.bot("DueUtil has *(re)*started\n"
-                                        + "Bot version → ``%s``" % gconf.VERSION)
+                                          + "Bot version → ``%s``" % gconf.VERSION)
 
 
 class ShardThread(Thread):
@@ -403,7 +402,6 @@ def run_due():
     if not os.path.exists("assets/imagecache/"):
         os.makedirs("assets/imagecache/")
     loader.load_modules(packages=loader.GAME)
-    loader.load_modules(packages=loader.COMMANDS)
     if not stopped:
         for shard_number in range(0, shard_count):
             loaded_clients = len(shard_clients)
@@ -413,6 +411,7 @@ def run_due():
                 pass
         while not loaded():
             pass
+        loader.load_modules(packages=loader.COMMANDS)
         util.logger.info("Ready after %ds", time.time() - start_time)
         ### Tasks
         loop = asyncio.get_event_loop()
