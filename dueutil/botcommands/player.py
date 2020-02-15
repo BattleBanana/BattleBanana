@@ -25,15 +25,30 @@ async def daily(ctx, **details):
     You can use this command once every 24 hours!
     """
     
-    responses = [' Worked in a pizza shop and earned ',
-                 ' Sold some newspapers and made ',
-                 ' Managed to hack into DueUtils code and generate ']
+    responses = [
+        '{user} worked in a pizza shop and earned {daily}',
+        '{user} old some newspapers and made {daily}',
+        '{user} managed to hack into DueUtils code and generate {daily}',
+        '{user} found a wallet with {daily}',
+        '{user} pickpocketed and stole {daily}',
+        '{user} did a chore and earned {daily}',
+        '{user} got sponsored by Raid: Shadow Legends and earned {daily}',
+        '{user} got their monthly youtube ad revenue of {daily}',
+        '{user} got {daily} from charity',
+        '{user} robbed their local bank and retrieved {daily}',
+        '{user} ran `!daily` and earned {daily}',
+        '{user} found {daily} in their old pants',
+        '{user} sold their soul for {daily}',
+        '{user} gained {daily} for doing absolutely nothing',
+        '{daily} dropped from the tree. {user} picked it up',
+        '{user} fought against lolis & anime girls and made a total of {daily}'
+    ]
 
     player = details["author"]
     BALANCED_AMOUNT = DAILY_AMOUNT * player.level * (player.prestige_level + 1)
     player.money += BALANCED_AMOUNT
     player.save()
-    await util.say(ctx.channel, e.DUT + " **%s** random.choice(responses) ¤%d!" % (player, BALANCED_AMOUNT))
+    await util.say(ctx.channel, e.DUT + f' {random.choice(responses).format(user=f"**{player}**", daily=f"¤{BALANCED_AMOUNT}")}')
 
 @commands.command(args_pattern=None)
 @commands.ratelimit(cooldown=21600, error="You've done all the training you can for now! You can train again in **[COOLDOWN]**!", save=True)
