@@ -123,8 +123,7 @@ async def donate(ctx, **_):
     """
 
     donation_embed = discord.Embed(title="Donate", type="rich", color=gconf.DUE_COLOUR)
-    donation_embed.add_field(name="Paypal (Donation)", value="[Here](https://patreon.com/developeranonymous)", inline=True)
-    donation_embed.add_field(name="Selly (Buy DUTS)", value="[Here](https://selly.gg/@DeveloperAnonymous)", inline=True)
+    donation_embed.add_field(name="Patreon (Donation)", value="[Here](https://patreon.com/developeranonymous)", inline=True)
     await util.say(ctx.channel, embed=donation_embed)
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
