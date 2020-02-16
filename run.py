@@ -402,16 +402,14 @@ def run_due():
     if not os.path.exists("assets/imagecache/"):
         os.makedirs("assets/imagecache/")
     loader.load_modules(packages=loader.GAME)
+    loader.load_modules(packages=loader.COMMANDS)
     if not stopped:
-        loader.load_modules(packages=loader.COMMANDS)
+        util.logger.info("Modules loaded after %ds", time.time() - start_time)
         for shard_number in range(0, shard_count):
             loaded_clients = len(shard_clients)
             shard_thread = ShardThread(asyncio.new_event_loop(), shard_number)
             shard_thread.start()
-        while not loaded():
-            asyncio.sleep(1)
-        
-        util.logger.info("Ready after %ds", time.time() - start_time)
+
         ### Tasks
         loop = asyncio.get_event_loop()
         from dueutil import tasks
