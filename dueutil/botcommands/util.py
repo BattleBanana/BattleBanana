@@ -611,3 +611,23 @@ async def exchange(ctx, amount, currency, **details):
     await util.say(ctx.channel, embed=exchange_embed)
     await util.say(gconf.other_configs['discoinTransactions'], ":grey_exclamation: Discoin transaction with receipt ``%s`` processed.\n" % transaction['id']
                         + "User: %s | Amount: %.2f | To: %s" % (player.id, amount, "%s (%s)" % (transaction['from']['name'], currency)))
+
+@commands.command(args_pattern="S?", permissions=Permission.DUEUTIL_ADMIN)
+async def status(ctx, message=None, **details):
+    """
+    If message is none the status will be reset to the default one.
+
+    This sets the status of all the shards to the one specified.
+    """
+
+    if message is None:
+        count = len(util.shard_clients)
+        for shard in util.shard_clients:
+            shardID = shard.shard_id + 1
+            game = discord.Game(name="dueutil.xyz | shard %d/%d" % (shardID, count))
+            await shard.change_presence(game=game, afk=False)
+    else:
+        for shard in util.shard_clients:
+            await shard.change_presence(game=discord.Game(name=message), afk=False)
+
+    await util.say(ctx.channel, "All done!")
