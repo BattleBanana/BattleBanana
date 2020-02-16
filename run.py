@@ -202,7 +202,7 @@ class DueUtilClient(discord.Client):
             return
         
         # Live support
-        # # if message.channel.is_private or (message.server == util.get_server('617912143303671810') and players.find_player(message.channel.name)):
+        # if message.channel.is_private or (message.server == util.get_server('617912143303671810') and players.find_player(message.channel.name)):
         #     support_server = util.get_server('617912143303671810')
             
         #     # User writes us
@@ -356,8 +356,8 @@ class DueUtilClient(discord.Client):
     @asyncio.coroutine
     def on_ready(self):
         shard_number = shard_clients.index(self) + 1
-        help_status = discord.Game(name="dueutil.xyz | shard %d/%d" % (shard_number, shard_count))
-        yield from self.change_presence(game=help_status, afk=False)
+        game = discord.Game(name="dueutil.xyz | shard %d/%d" % (shard_number, shard_count))
+        yield from self.change_presence(game=game, afk=False)
         util.logger.info("\nLogged in shard %d as\n%s\nWith account @%s ID:%s \n-------",
                          shard_number, self.name, self.user.name, self.user.id)
         self.loaded = True
@@ -403,15 +403,14 @@ def run_due():
         os.makedirs("assets/imagecache/")
     loader.load_modules(packages=loader.GAME)
     if not stopped:
+        loader.load_modules(packages=loader.COMMANDS)
         for shard_number in range(0, shard_count):
             loaded_clients = len(shard_clients)
             shard_thread = ShardThread(asyncio.new_event_loop(), shard_number)
             shard_thread.start()
-            while len(shard_clients) <= loaded_clients:
-                pass
         while not loaded():
-            pass
-        loader.load_modules(packages=loader.COMMANDS)
+            asyncio.sleep(1)
+        
         util.logger.info("Ready after %ds", time.time() - start_time)
         ### Tasks
         loop = asyncio.get_event_loop()
