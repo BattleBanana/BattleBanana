@@ -27,7 +27,7 @@ async def daily(ctx, **details):
     
     responses = [
         '{user} worked in a pizza shop and earned {daily}',
-        '{user} old some newspapers and made {daily}',
+        '{user} sold some newspapers and made {daily}',
         '{user} managed to hack into DueUtils code and generate {daily}',
         '{user} found a wallet with {daily}',
         '{user} pickpocketed and stole {daily}',
@@ -41,7 +41,15 @@ async def daily(ctx, **details):
         '{user} sold their soul for {daily}',
         '{user} gained {daily} for doing absolutely nothing',
         '{daily} dropped from the tree. {user} picked it up',
-        '{user} fought against lolis & anime girls and made a total of {daily}'
+        '{user} fought against lolis & anime girls and made a total of {daily}',
+        '{user} placed a winning bet and won {daily}',
+        '{user} looked under a couch and found {daily}',
+        '{user} took out a small loan of {daily}',
+        '{user} worked for {daily}',
+        '{user} won a lottery worth {daily}',
+        '{user} stole a car for {daily}',
+        '{user} sold their soul for {daily}',
+        'Comrade Stalin gave {user} {daily} duts in an effort to establish communism on DueUtil'
     ]
 
     player = details["author"]
