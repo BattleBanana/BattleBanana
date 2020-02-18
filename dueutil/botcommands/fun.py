@@ -312,7 +312,6 @@ async def battletopdog(ctx, **_):
         await util.say(ctx.channel, ("Finding the top dog...")
     else:
         raise util.DueUtilException(ctx.channel, ":bangbang: Sorry there was an error trying to find the topdog!")
-        break
                        
 ####
 
@@ -333,6 +332,32 @@ async def battletopdog(ctx, **_):
         awards.give_award(ctx.channel, player_two, "InconceivableBattle")
     await battles.give_awards_for_battle(ctx.channel, battle_log)
         
+
+@commands.command(args_pattern=None, aliases=("viewtd", "vtd"))
+async def viewtopdog(ctx, **_):
+    """
+    [CMD_KEY]viewtopdog
+    See the info page of the "top dog"
+    """
+    top_dog_stats = awards.get_award_stat("TopDog")
+    if top_dog_stats is not None and "top_dog" in top_dog_stats:
+        top_dog = players.find_player(top_dog_stats["top_dog"])
+        await util.say(ctx.channel, ("Finding the top dog...")
+    else:
+        raise util.DueUtilException(ctx.channel, ":bangbang: Sorry there was an error trying to find the topdog!")
+        break
+###
+    await imagehelper.stats_screen(ctx.channel, top_dog)
+
+
+async def show_awards(ctx, top_dog, page=0):
+    # Always show page 1 (0)
+    if page != 0 and page * 5 >= len(top_dog.awards):
+        raise util.DueUtilException(ctx.channel, "Page not found")
+
+    await imagehelper.awards_screen(ctx.channel, top_dog, page,
+                                    is_top_dog_sender=ctx.author.id == top_dog.id)
+                       
 
 @commands.command(args_pattern=None)
 async def pandemic(ctx, **_):
