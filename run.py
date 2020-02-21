@@ -357,7 +357,10 @@ class DueUtilClient(discord.Client):
     def on_ready(self):
         shard_number = shard_clients.index(self) + 1
         game = discord.Game(name="dueutil.xyz | shard %d/%d" % (shard_number, shard_count))
-        yield from self.change_presence(game=game, afk=False)
+        try:
+            yield from self.change_presence(game=game, afk=False)
+        except Exception as e:
+            util.logger.error("Failed to change presence")
         util.logger.info("\nLogged in shard %d as\n%s\nWith account @%s ID:%s \n-------",
                          shard_number, self.name, self.user.name, self.user.id)
         self.loaded = True
@@ -402,14 +405,18 @@ def run_due():
     if not os.path.exists("assets/imagecache/"):
         os.makedirs("assets/imagecache/")
     loader.load_modules(packages=loader.GAME)
-    loader.load_modules(packages=loader.COMMANDS)
     if not stopped:
+        loader.load_modules(packages=loader.COMMANDS)
         util.logger.info("Modules loaded after %ds", time.time() - start_time)
+        shard_time = time.time()
         for shard_number in range(0, shard_count):
             loaded_clients = len(shard_clients)
             shard_thread = ShardThread(asyncio.new_event_loop(), shard_number)
             shard_thread.start()
-
+        while not loaded():
+            yield from asyncio.sleep(10)
+        util.logger.info("Bot started after %ds\nShards took %d to load", time.time() - start_time, time.time() - shard_time)
+        
         ### Tasks
         loop = asyncio.get_event_loop()
         from dueutil import tasks
