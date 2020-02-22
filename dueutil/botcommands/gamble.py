@@ -26,7 +26,7 @@ Have fun kiddos!
 """
 
 @commands.command(args_pattern="I", aliases=["bj"])
-@commands.ratelimit(cooldown=30, error="You can't use blackjack again for **[COOLDOWN]**!", save=True)
+@commands.ratelimit(cooldown=5, error="You can't use blackjack again for **[COOLDOWN]**!", save=True)
 async def blackjack(ctx, price, **details):
     """
     [CMD_KEY]blackjack (bet)
@@ -51,7 +51,6 @@ async def blackjack(ctx, price, **details):
     deck.shuffle()
     user.gamble_play = True
     user.last_played = time.time()
-    user.money -= price
     gain = 0
     
     # Hands out 2 cards to each & calculate the count
@@ -100,39 +99,53 @@ async def blackjack(ctx, price, **details):
         else:
             break
     
-    # Manages who wins/loses
+
+    # Manage who wins/loses
     user_value, dealer_value = blackjackGame.compare_decks(user_hand, dealer_hand)
+    gain = 0
     if user_value > dealer_value:
         if user_value > 21:
+            gain -= price
             result = "You busted!"
         elif user_value == 21:
-            gain = price * 2.5
+            gain += price * 1.5
             result = "You win with a blackjack!"
         else:
-            gain = price * 2
+            gain += price
             result = "You win with an hand of %s against %s" % (user_value, dealer_value)
     elif user_value < dealer_value:
         if dealer_value > 21:
-            gain = price * 2
+            if user_value == 21: # If you have 21 and dealer busted
+                gain += price * 1.5
+            else:
+                gain -= price
             result = "Dealer busted!"
         elif dealer_value == 21:
+            gain -= price
             result = "Dealer win with a blackjack!"
         else:
+            gain -= price
             result = "Dealer win with an hand of %s against %s" % (dealer_value, user_value)
     else:
-        gain = price
         result = "This is a tie! %s-%s" % (user_value, dealer_value)
     
     # Manage the message
     gain = math.floor(gain)
     user.money += gain
-    result += " You were rewarded with `¤%s`" % (gain) if gain > 0 else " You lost `¤%s`." % (price)
+    if gain > 0:
+        result += " You were rewarded with `¤%s`" % (gain)
+    elif gain < 0:
+        result += " You lost `¤%s`." % (price)
+    else:
+        result += " You got your bet back!"
+    
     blackjack_embed.clear_fields()
     blackjack_embed.add_field(name="Your hand (%s)" % (user_value), value=user_hand)
     blackjack_embed.add_field(name="Dealer's hand (%s)" % (dealer_value), value=dealer_hand)
     blackjack_embed.add_field(name="Result", value=result, inline=False)
     blackjack_embed.set_footer()
     
+    user.command_rate_limits[command_name] = int(time.time())
     user.gamble_play = False
     user.last_played = 0
     user.save()
