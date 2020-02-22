@@ -407,15 +407,16 @@ def run_due():
     loader.load_modules(packages=loader.GAME)
     if not stopped:
         loader.load_modules(packages=loader.COMMANDS)
-        util.logger.info("Modules loaded after %ds", time.time() - start_time)
+        util.logger.info("Modules loaded after %.2fs", time.time() - start_time)
         shard_time = time.time()
         for shard_number in range(0, shard_count):
             loaded_clients = len(shard_clients)
             shard_thread = ShardThread(asyncio.new_event_loop(), shard_number)
             shard_thread.start()
-            while len(shard_clients) <= loaded_clients:
-                pass
-        util.logger.info("Bot started after %ds & Shards started after %s", time.time() - start_time, time.time() - shard_time)
+        while not loaded():
+            pass
+        util.logger.info("Bot started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - shard_time)
+
         ### Tasks
         loop = asyncio.get_event_loop()
         from dueutil import tasks
