@@ -6,7 +6,7 @@ import asyncio
 
 import generalconfig as gconf
 from .. import commands, util, dbconn
-from ..game import awards, players, leaderboards
+from ..game import awards, players, leaderboards, battles
 from ..game.helpers import misc, imagehelper
 from ..game import emojis
 
@@ -300,53 +300,49 @@ async def topdog(ctx, **_):
         await util.say(ctx.channel, "There is not a top dog yet!")
         
         
-@commands.command(args_pattern=None, aliases=("bttopdog", "bttd"))
-async def battletopdog(ctx, **_):
+@commands.command(args_pattern=None, aliases=("btd"))
+async def battletopdog(ctx, **details):
     """
     [CMD_KEY]battletopdog
     Battle the "top dog"
     """
     top_dog_stats = awards.get_award_stat("TopDog")
-    if top_dog_stats is not None and "top_dog" in top_dog_stats:
-        top_dog = players.find_player(top_dog_stats["top_dog"])
-        await util.say(ctx.channel, ("Finding the top dog...")
-    else:
-        raise util.DueUtilException(ctx.channel, ":bangbang: Sorry there was an error trying to find the topdog!")
-                       
-####
+    if top_dog_stats is None or not "top_dog" in top_dog_stats:
+        raise util.DueUtilException(ctx.channel, "Sorry there was an error trying to find the topdog!")
+
+    top_dog = players.find_player(top_dog_stats["top_dog"])
+    if top_dog is None:
+        raise util.DueUtilException(ctx.channel, "Sorry there was an error trying to find the topdog!")
 
     player = details["author"]
-    if top_dog = player        
+    if top_dog == player:
         raise util.DueUtilException(ctx.channel, "Don't beat yourself up!")
+    
+    battle_log = battles.get_battle_log(player_one=player, player_two=top_dog)
 
-    player_one = player
-    player_two = top_dog
-
-    battle_log = battles.get_battle_log(player_one=player_one, player_two=player_two)
-
-    await imagehelper.battle_screen(ctx.channel, player_one, player_two)
+    await imagehelper.battle_screen(ctx.channel, player, top_dog)
     await util.say(ctx.channel, embed=battle_log.embed)
     if battle_log.winner is None:
         # Both players get the draw battle award
-        awards.give_award(ctx.channel, player_one, "InconceivableBattle")
-        awards.give_award(ctx.channel, player_two, "InconceivableBattle")
+        awards.give_award(ctx.channel, player, "InconceivableBattle")
+        awards.give_award(ctx.channel, top_dog, "InconceivableBattle")
     await battles.give_awards_for_battle(ctx.channel, battle_log)
         
 
-@commands.command(args_pattern=None, aliases=("viewtd", "vtd"))
+@commands.command(args_pattern=None, aliases=("vtd"))
 async def viewtopdog(ctx, **_):
     """
     [CMD_KEY]viewtopdog
     See the info page of the "top dog"
     """
     top_dog_stats = awards.get_award_stat("TopDog")
-    if top_dog_stats is not None and "top_dog" in top_dog_stats:
-        top_dog = players.find_player(top_dog_stats["top_dog"])
-        await util.say(ctx.channel, ("Finding the top dog...")
-    else:
+    if top_dog_stats is None or not "top_dog" in top_dog_stats:
         raise util.DueUtilException(ctx.channel, ":bangbang: Sorry there was an error trying to find the topdog!")
-        break
-###
+
+    top_dog = players.find_player(top_dog_stats["top_dog"])
+    if top_dog is None:
+        raise util.DueUtilException(ctx.channel, ":bangbang: Sorry there was an error trying to find the topdog!")
+
     await imagehelper.stats_screen(ctx.channel, top_dog)
 
 

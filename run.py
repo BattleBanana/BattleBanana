@@ -413,9 +413,6 @@ def run_due():
             loaded_clients = len(shard_clients)
             shard_thread = ShardThread(asyncio.new_event_loop(), shard_number)
             shard_thread.start()
-        while not loaded():
-            yield from asyncio.sleep(10)
-        util.logger.info("Bot started after %ds\nShards took %d to load", time.time() - start_time, time.time() - shard_time)
         
         ### Tasks
         loop = asyncio.get_event_loop()
@@ -423,6 +420,7 @@ def run_due():
         for task in tasks.tasks:
             asyncio.ensure_future(task(), loop=loop)
         loop.run_forever()
+        
 
 
 def loaded():
