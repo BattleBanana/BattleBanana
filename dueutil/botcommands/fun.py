@@ -300,7 +300,7 @@ async def topdog(ctx, **_):
         await util.say(ctx.channel, "There is not a top dog yet!")
         
         
-@commands.command(args_pattern=None, aliases=("btd"))
+@commands.command(args_pattern=None, aliases=["btd"])
 async def battletopdog(ctx, **details):
     """
     [CMD_KEY]battletopdog
@@ -329,7 +329,7 @@ async def battletopdog(ctx, **details):
     await battles.give_awards_for_battle(ctx.channel, battle_log)
         
 
-@commands.command(args_pattern=None, aliases=("vtd"))
+@commands.command(args_pattern=None, aliases=["vtd"])
 async def viewtopdog(ctx, **_):
     """
     [CMD_KEY]viewtopdog
