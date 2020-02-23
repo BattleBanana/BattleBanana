@@ -145,7 +145,7 @@ async def blackjack(ctx, price, **details):
     blackjack_embed.add_field(name="Result", value=result, inline=False)
     blackjack_embed.set_footer()
     
-    user.command_rate_limits[command_name] = int(time.time())
+    user.command_rate_limits['blackjack_saved_cooldown'] = int(time.time())
     user.gamble_play = False
     user.last_played = 0
     user.save()
