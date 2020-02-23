@@ -118,7 +118,7 @@ async def blackjack(ctx, price, **details):
             if user_value == 21: # If you have 21 and dealer busted
                 gain += price * 1.5
             else:
-                gain -= price
+                gain += price
             result = "Dealer busted!"
         elif dealer_value == 21:
             gain -= price
