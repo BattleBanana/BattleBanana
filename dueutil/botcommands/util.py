@@ -612,7 +612,7 @@ async def exchange(ctx, amount, currency, **details):
     await util.say(gconf.other_configs['discoinTransactions'], ":grey_exclamation: Discoin transaction with receipt ``%s`` processed.\n" % transaction['id']
                         + "User: %s | Amount: %.2f | To: %s" % (player.id, amount, "%s (%s)" % (transaction['from']['name'], currency)))
 
-@commands.command(args_pattern="S?", permissions=Permission.DUEUTIL_ADMIN)
+@commands.command(args_pattern="S?", permission=Permission.DUEUTIL_ADMIN)
 async def status(ctx, message=None, **details):
     """
     If message is none the status will be reset to the default one.
