@@ -8,6 +8,8 @@ from threading import Thread
 import aiohttp
 import gc
 import time
+start_time = time.time()
+shard_time = 0
 import sys
 from itertools import cycle
 import sentry_sdk
@@ -365,6 +367,7 @@ class DueUtilClient(discord.Client):
                          shard_number, self.name, self.user.name, self.user.id)
         self.loaded = True
         if loaded():
+            util.logger.info("Bot started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - shard_time)
             yield from util.duelogger.bot("DueUtil has *(re)*started\n"
                                           + "Bot version → ``%s``" % gconf.VERSION)
 
@@ -401,7 +404,6 @@ class ShardThread(Thread):
 
 
 def run_due():
-    start_time = time.time()
     if not os.path.exists("assets/imagecache/"):
         os.makedirs("assets/imagecache/")
     loader.load_modules(packages=loader.GAME)
