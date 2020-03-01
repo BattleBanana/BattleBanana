@@ -5,6 +5,7 @@ import math
 import time
 from io import StringIO
 import random
+import asyncio
 
 from pydealer import Deck
 
@@ -152,25 +153,31 @@ async def blackjack(ctx, price, **details):
     
     await util.edit_message(msg, embed=blackjack_embed)
 
-#@commands.command(args_pattern="I", aliases=["rr"])
-#@commands.ratelimit(cooldown=30, error="You can't use Russian Roulette again for **[COOLDOWN]**!", save=True)
-#async def russianroulette(ctx, price, **details):
-    #"""
-   # [CMD_KEY]rusaianroulette ~~(bet)~~
-    #
-    #Play Russian Roulette with your friends.
-    #
-    #Game objective: Survive.
-    #"""
-
-# i do it when I figure it out 
-# aka googleing it and testing it with other bot
-
-#    user = details["author"]
+@commands.command(args_pattern="I", aliases=["rr"])
+@commands.ratelimit(cooldown=5, error="You can't use russian roulette again for **[COOLDOWN]**!", save=True)
+async def russianroulette(ctx, price, **details):
+    """
+   [CMD_KEY]rusaianroulette ~~(bet)~~
     
-    #if user.money < price:
-    #    raise util.DueUtilException(ctx.channel, "You cannot bet that much!")
-    #if price < 1:
-    #    raise util.DueUtilException(ctx.channel, "You cannot bet under ¤1")
-    #if (user.gamble_play and int(time.time() - user.last_played) < 120) or int(time.time() - user.last_played) < 120:
-        #raise util.DueUtilException(ctx.channel, "You are already playing!")
+    Play Russian Roulette with your friends, the gun.
+    
+    Game objective: Survive.
+    """
+
+    user = details["author"]
+    
+    if user.money < price:
+       raise util.DueUtilException(ctx.channel, "You cannot bet that much!")
+    if price < 1:
+       raise util.DueUtilException(ctx.channel, "You cannot bet under ¤1")
+    
+    message = await util.say(ctx.channel, "Click...")
+    rnd = random.randint(1, 6)
+    await asyncio.sleep(random.random() * 2)
+    if rnd == 1:
+        user.money += price * 2
+        await util.edit_message(message, content=message.content + "\nYou survived and won `¤%s`!" % (price * 2))
+    else:
+        user.money -= price
+        await util.edit_message(message, content=message.content + "\nYou died and lost `¤%s`!" % (price))
+    user.save()
