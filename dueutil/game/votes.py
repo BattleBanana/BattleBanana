@@ -9,7 +9,7 @@ from dueutil import util, tasks, dbconn
 
 import traceback
 
-@tasks.task(timeout=120)
+@tasks.task(timeout=300)
 async def process_votes():
     util.logger.info("Processing Votes.")
 

@@ -416,6 +416,8 @@ def run_due():
             shard_thread.start()
             while len(shard_clients) <= loaded_clients:
                 pass
+        while not loaded():
+            pass
         # TODO: Show the time it takes to turn on the bot & time it took to start shards
         # util.logger.info("Bot started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - shard_time)
 
