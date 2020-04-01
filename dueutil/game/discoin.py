@@ -90,29 +90,34 @@ async def process_transactions():
         if type(transaction) == dict:
             transaction_id = transaction.get('id')
             user_id = transaction.get('user')
-            amount = transaction.get('payout')
-            if amount is None:
+            payout = transaction.get('payout')
+            if payout is None:
                 continue
-            amount = int(amount)
+            payout = int(payout)
+            amount = float(transaction.get('amount'))
             
             source = transaction.get('from')
             source_id = source.get('id')
             source_name = source.get('name')
 
             player = players.find_player(user_id)
-            if player is None or amount < 1 :
-                await reverse_transaction(user_id, source_id, amount, transaction_id)
+            if player is None or payout < 1 :
+                await reverse_transaction(user_id, source_id, payout, transaction_id)
                 client.run_task(notify_complete, user_id, transaction, failed=True)
                 continue
 
             client.run_task(notify_complete, user_id, transaction)
-            stats.increment_stat(Stat.DISCOIN_RECEIVED, amount)
-            player.money += amount
+            stats.increment_stat(Stat.DISCOIN_RECEIVED, payout)
+            player.money += payout
             player.save()
 
+            embed = Embed(title="Discion Transaction", description="Receipt ID: [%s](%s)" % (transaction["id"], f"{DISCOINDASH}/{transaction['id']}/show"), 
+                type="rich", colour=gconf.DUE_COLOUR)
+            embed.set_author(name="User: " + user_id)
+            embed.add_field(name="Exchange", value="%.2f %s => %s DUC" % (amount, source_id, payout), inline=False)
+
             util.logger.info("Processed discoin transaction %s", transaction_id)
-            await util.say(gconf.other_configs['discoinTransactions'], ":grey_exclamation: Discoin transaction with receipt ``%s`` processed.\n" % transaction_id
-                                    + "User: %s | Amount: %.2f | Source: %s" % (user_id, amount, "%s (%s)" % (source_name, source_id)))
+            await util.say(gconf.other_configs['transactions'], embed=embed)
 
 
 async def notify_complete(user_id, transaction, failed=False):
