@@ -68,7 +68,18 @@ async def daily(ctx, **details):
         '{user} did an embarrassing dare for {daily}',
         '{user} became an infamous bank robber for {daily}',
         '{user} became a test subject for the Coronavirus and was paid {daily}',
-        '{user} became a test subject for the COVID-19 and was paid {daily}'
+        '{user} became a test subject for the COVID-19 and was paid {daily}',
+        '{user} filled out online surveys for {daily}',
+        '{user} found out how to grow DUTs on trees and got {daily}',
+        '{user} just got rick rolled and got nothing, then found {daily} later',
+        '{user} posted a viral video and it accumulated {daily}. Quick, claim it before you get demonetized!},
+        '{user} used a metal detector at the beach and found a treasure chest! Inside was {daily} and 2 movie tickets! Wonder who they are going to take?',
+        '{user} recieved a strange package. Turns out {daily} was inside it after all',
+        '{user} stole one of the DueUtil admins wallets and got {daily}, along with a ban hammer...',
+        '{user} won the Nobel peace prize, but sold it for {daily}',
+        '{user} funded the Elon Musk\'s Falcon 9 and was rewarded with {daily}',
+        '{user} defended their local village for {daily}',
+        '{user} defeated some slime for {daily}'
     ]
 
     player = details["author"]
