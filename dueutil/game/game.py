@@ -6,6 +6,8 @@ import time
 # import ssdeep
 # from guess_language import guess_language
 
+import json
+
 import generalconfig as gconf
 from .. import events
 from .. import util, dbconn
@@ -23,6 +25,8 @@ old_players = open('oldplayers.txt').read()  # For comeback award
 testers = open('testers.txt').read()  # For testers award
 # spelling_lock = Lock()
 
+def getResponses():
+    return json.load(open("dueutil/game/configs/daily.json", "r"))
 
 def get_spam_level(player, message_content):
     """

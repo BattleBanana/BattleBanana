@@ -127,8 +127,7 @@ class Player(DueUtilObject, SlotPickleMixin):
         self.gamble_play = self.gamble_play
         self.last_played = self.last_played
 
-        if not hasattr(self, "command_rate_limits"):
-            self.command_rate_limits = {}
+        self.command_rate_limits = {}
 
         ##### THINGS #####
         self.quests = []
@@ -204,8 +203,7 @@ class Player(DueUtilObject, SlotPickleMixin):
         self.gamble_play = False if not hasattr(self, "gamble_play") else self.gamble_play
         self.last_played = 0
 
-        if not hasattr(self, "command_rate_limits"):
-            self.command_rate_limits = {}
+        self.command_rate_limits = {}
 
         ##### THINGS #####
         self.quests = []
