@@ -55,9 +55,9 @@ async def process_votes():
 
 async def notify_complete(user_id, vote, reward):
     client = util.shard_clients[0]
-    user = await client.get_user_info(user_id)
 
     try:
+        user = await client.get_user_info(user_id)
         await client.start_private_message(user)
 
         embed = Embed(title="Vote notification", type="rich", colour=gconf.DUE_COLOUR)

@@ -9,12 +9,13 @@ from io import StringIO
 
 import discord
 import objgraph
+import datetime
 
 import generalconfig as gconf
 import dueutil.permissions
 from ..game.helpers import imagehelper
 from ..permissions import Permission
-from .. import commands, util, events
+from .. import commands, util, events, dbconn
 from ..game import customizations, awards, leaderboards, game
 from ..game import emojis
 
@@ -532,19 +533,27 @@ async def meminfo(ctx, **_):
     objgraph.show_growth(file=mem_info)
     await util.say(ctx.channel, "```%s```" % mem_info.getvalue())
 
-
 @commands.command(args_pattern=None)
 async def ping(ctx,**_):
     """
     [CMD_KEY]ping
     pong! Gives you the response time.
     """
-    channel = ctx.channel
-    t1 = time.perf_counter()
-    await util.typing(channel)
-    t2 = time.perf_counter()
-    ms = round((t2-t1) * 1000)
-    await util.say(ctx.channel, ":ping_pong: Pong! ``%sms``" % ms)
+    message = await util.say(ctx.channel, ":ping_pong:")
+
+    apims = round((message.timestamp - ctx.timestamp).total_seconds() * 1000)
+
+    t1 = time.time()
+    dbconn.conn().command("ping")
+    t2 = time.time()
+    dbms = round((t2 - t1) * 1000)
+    
+    embed = discord.Embed(title=":ping_pong: Pong!", type="rich", colour=gconf.DUE_COLOUR)
+    embed.add_field(name="API Latency:", value="``%sms``" % (apims))
+    embed.add_field(name="Database Latency:", value="``%sms``" % (dbms), inline=False)
+
+    await util.edit_message(message, embed=embed)
+    
 
 
 @commands.command(args_pattern=None)
