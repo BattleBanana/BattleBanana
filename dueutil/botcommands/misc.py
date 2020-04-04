@@ -549,7 +549,7 @@ async def ping(ctx,**_):
     dbms = round((t2 - t1) * 1000)
     
     embed = discord.Embed(title=":ping_pong: Pong!", type="rich", colour=gconf.DUE_COLOUR)
-    embed.add_field(name="API Latency:", value="``%sms``" % (apims))
+    embed.add_field(name="Bot Latency:", value="``%sms``" % (apims))
     embed.add_field(name="Database Latency:", value="``%sms``" % (dbms), inline=False)
 
     await util.edit_message(message, embed=embed)
