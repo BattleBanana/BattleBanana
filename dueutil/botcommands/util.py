@@ -223,51 +223,6 @@ async def duservers(ctx, **_):
     await util.say(ctx.channel, "DueUtil is active on **" + str(server_count) + " server"
                    + ("s" if server_count != 1 else "") + "**")
 
-#@commands.command(permission=Permission.DISCORD_USER, args_pattern=None, aliases=("shards",))
-#async def shardstatus(ctx, **_):
-#    """
-#    [CMD_KEY]shardstatus
-# 
-#    Get all the information about DueUtils various shards!
-#    """
-#
-#    shards = util.shard_clients
-#    current_shard = util.get_client(ctx.server.id)                           
-#    
-#    shardstatus_embed = discord.Embed(title="Current Shard: %s", type="rich", color=gconf.DUE_COLOUR)
-#         % (current_shard.name)
-#    shardstatus_embed.set_thumbnail(url="")
-#
-#    shardstatus_embed.description = ("Information on DueUtils shards\n"
-#                                     + "Total active servers: %s\n"
-#                                     % sum(len(shards.servers) for shards in util.shard_clients)
-#                                     + "Total operational shards: %d/%d"
-#                                     % (???, len(shards))
-#
-#    ### here starts where i dont have a fucking clue how to do it and it is mostly just a description of what im trying to do
-#    let Check = shards.is_logged_in for shards in util.shard_clients
-#    if Check = false
-#        let Shard = offline
-#    if Shard = offline
-#        let ShardEmoji = e.STATUS_OFFLINE
-#    else
-#       let ShardEmoji = e.STATUS_ONLINE
-#    ### end
-#
-#    shardstatus_embed.add_field(name="Current Shard: %s", 
-#         % (current_shard.name)
-#                          value=("Shard: **%d/%d**.\n"
-#                                 % (current_shard.shard_id + 1, len(shards), )
-#                                 + "Guilds: %s.\n"
-#                                 % ()
-#                                 + "Uptime: %s."
-#                                 % util.display_time(time.time() - current_shard.start_time, granularity=4)),
-#                          inline=True)
-#
-#    #Probally some sort of while loop to create new fields until it reaches the total amount of shard or something
-#
-#    await util.say(ctx.channel, embed=shardstatus_embed)
-#
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern="S", aliases=("setprefix",))
 async def setcmdkey(ctx, new_key, **details):
@@ -308,8 +263,8 @@ async def shutupdue(ctx, *args, **details):
                                              "cmd_key"] + "shutupdue all``."))
         else:
             await util.say(ctx.channel, (":mute: I've already been set not to send alerts in this channel!\n"
-                                         + "If you want to disable commands too do ``" + details[
-                                             "cmd_key"] + "shutupdue all``.\n"
+                                         + "If you want to disable commands too do ``" + details["cmd_key"] 
+                                         + "shutupdue all``.\n"
                                          + "To unmute me do ``" + details["cmd_key"] + "unshutupdue``."))
     else:
         mute_level = args[0].lower()
