@@ -545,7 +545,7 @@ async def currencies(ctx, **details):
     Display every currencies currently available on Discoin
     """
     
-    embed = discord.Embed(title=e.DISCOIN + " Exchange complete!", type="rich", color=gconf.DUE_COLOUR)
+    embed = discord.Embed(title=e.DISCOIN + " Current currencies!", type="rich", color=gconf.DUE_COLOUR)
     for id in discoin.CODES:
         currency = discoin.CODES[id]
         embed.add_field(name=id, value=currency['name'], inline=False)
@@ -609,7 +609,7 @@ async def exchange(ctx, amount, currency, **details):
     exchange_embed.set_footer(text="Keep the receipt for if something goes wrong!")
     
     await util.say(ctx.channel, embed=exchange_embed)
-    await util.say(gconf.other_configs['discoinTransactions'], ":grey_exclamation: Discoin transaction with receipt ``%s`` processed.\n" % transaction['id']
+    await util.say(gconf.other_configs['transactions'], ":grey_exclamation: Discoin transaction with receipt ``%s`` processed.\n" % transaction['id']
                         + "User: %s | Amount: %.2f | To: %s" % (player.id, amount, "%s (%s)" % (transaction['from']['name'], currency)))
 
 @commands.command(args_pattern="S?", permission=Permission.DUEUTIL_ADMIN)
