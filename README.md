@@ -1,4 +1,4 @@
-# BattleBanana
+# DueUtil
 ### The questing and fun discord bot!
 
 #### Running the bot
@@ -18,7 +18,7 @@ Requirements:
 ```
 db.createUser(
   {
-    user: "battlebanana",
+    user: "dueutil",
     pwd: "123",
     roles: [ { role: "root", db: "admin" } ]
   }
@@ -29,21 +29,21 @@ db.createUser(
 ```json
 {
     "host":"localhost",
-    "user": "battlebanana",
+    "user": "dueutil",
     "pwd": "123"
 }
 ```
 (the host will probably be localhost)
 
-##### Configure BattleBanana
-Create a file `battlebanana.json` in the same folder as `run.py` (the root).
+##### Configure DueUtil
+Create a file `dueutil.json` in the same folder as `run.py` (the root).
 ```json
 {
    "botToken":"[DISCORD BOT TOKEN]",
    "owner":"[OWNER DISCORD ID]",
    "shardCount":1,
    "shardNames":[
-      "Clone BattleBanana: shard 1"
+      "Clone DueUtil: shard 1"
    ],
    "logChannel": "[SERVER ID]/[CHANNEL ID]",
    "errorChannel": "[SERVER ID]/[CHANNEL ID]",
@@ -65,7 +65,7 @@ The logging channels are currenly needed (the bot may not work properly without 
 2. Extract that zip into folder called `database`
     ```
     database
-    `-- battlebanana
+    `-- dueutil
         |-- award_stats.bson
         |-- award_stats.metadata.json
         |-- _CacheStats.bson
@@ -75,9 +75,9 @@ The logging channels are currenly needed (the bot may not work properly without 
  3. Use mongorestore
     ``mongorestore  --username your_use --password "your_pass" --authenticationDatabase admin ./database``
 
-##### Run BattleBanana!
+##### Run DueUtil!
 
-BattleBanana can be ran with: `python3 run.py` 
+DueUtil can be ran with: `python3 run.py` 
 or from linux:
 * `chmod 777 start_fixed.sh`
 * `nohup ./start_fixed.sh`
@@ -86,4 +86,4 @@ or from linux:
 I expect it will be fiddly to get this bot running, but please don't ask me to set it up for you I'm not going to help.
 
 ### Contribute
-If you want to fix up this repo simply create a pull request (with a detailed commit message of your changes). If your making changes based on a [trello](https://trello.com/b/1ykaASKj/battlebanana) card please link to it.
+If you want to fix up this repo simply create a pull request (with a detailed commit message of your changes). If your making changes based on a [trello](https://trello.com/b/1ykaASKj/dueutil) card please link to it.

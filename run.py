@@ -16,16 +16,16 @@ import sentry_sdk
 sentry_sdk.init("https://5322a6d1b40841d7a6000e45a3c61a03@sentry.io/1406854")
 
 import discord
-from battlebanana.permissions import Permission
+from dueutil.permissions import Permission
 
 import generalconfig as gconf
-from battlebanana import loader, servercounts
-from battlebanana.game import players, stats, emojis
-from battlebanana.game.stats import Stat
-from battlebanana.game.helpers import imagecache
-from battlebanana.game.configs import dueserverconfig
-from battlebanana import permissions
-from battlebanana import util, events, dbconn
+from dueutil import loader, servercounts
+from dueutil.game import players, stats, emojis
+from dueutil.game.stats import Stat
+from dueutil.game.helpers import imagecache
+from dueutil.game.configs import dueserverconfig
+from dueutil import permissions
+from dueutil import util, events, dbconn
 
 MAX_RECOVERY_ATTEMPTS = 1000
 
@@ -39,15 +39,15 @@ shard_names = []
 ERROR_OF_DEATH = "Timeout context manager should be used inside a task"
 
 """ 
-BattleBanana: The most 1337 (worst) discord bot ever.     
+DueUtil: The most 1337 (worst) discord bot ever.     
 This bot is not well structured...
 (c) MacDue & DeveloperAnonymous - All rights reserved
 (Sections of this bot are MIT and GPL)
 """
 
-class BattleBananaClient(discord.Client):
+class DueUtilClient(discord.Client):
     """
-    BattleBanana shard client
+    DueUtil shard client
     """
 
     def __init__(self, **details):
@@ -57,7 +57,7 @@ class BattleBananaClient(discord.Client):
         self.loaded = False
         self.session = aiohttp.ClientSession()
         self.start_time = time.time()
-        super(BattleBananaClient, self).__init__(**details)
+        super(DueUtilClient, self).__init__(**details)
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
 
     @asyncio.coroutine
@@ -94,7 +94,7 @@ class BattleBananaClient(discord.Client):
         util.logger.info("Joined server name: %s id: %s", server.name, server.id)
         yield from util.set_up_roles(server)
         server_stats = self.server_stats(server)
-        yield from util.duelogger.info(("BattleBanana has joined the server **"
+        yield from util.duelogger.info(("DueUtil has joined the server **"
                                         + util.ultra_escape_string(server.name) + "**!\n"
                                         + "``Member count →`` " + str(server_stats["member_count"]) + "\n"
                                         + "``Bot members →``" + str(server_stats["bot_count"]) + "\n"
@@ -107,7 +107,7 @@ class BattleBananaClient(discord.Client):
                     yield from self.send_message(channel, ":wave: __Thanks for adding me!__\n"
                                      + "If you would like to customize me to fit your "
                                      + "server take a quick look at the admins "
-                                     + "guide at <https://battlebanana.xyz/howto/#adming>.\n"
+                                     + "guide at <https://dueutil.xyz/howto/#adming>.\n"
                                      + "It shows how to change the command prefix here, and set which "
                                      + "channels I or my commands can be used in (along with a bunch of other stuff).")
                     break
@@ -132,11 +132,11 @@ class BattleBananaClient(discord.Client):
         ctx_is_message = isinstance(ctx, discord.Message)
         error = sys.exc_info()[1]
         if ctx is None:
-            yield from util.duelogger.error(("**BattleBanana experienced an error!**\n"
+            yield from util.duelogger.error(("**DueUtil experienced an error!**\n"
                                              + "__Stack trace:__ ```" + traceback.format_exc() + "```"))
             util.logger.error("None message/command error: %s", error)
-        elif isinstance(error, util.BattleBananaException):
-            # A normal battlebanana user error
+        elif isinstance(error, util.DueUtilException):
+            # A normal dueutil user error
             try:
                 if error.channel is not None:
                     yield from self.send_message(error.channel, error.get_message())
@@ -226,7 +226,7 @@ class BattleBananaClient(discord.Client):
 
         #         elif message.content.lower().startswith("!close"):
         #             embed = discord.Embed(type="rich", colour=gconf.DUE_COLOUR)
-        #             embed.add_field(name="Support Closed", value="Thank you for using **BattleBanana live support**!\n"
+        #             embed.add_field(name="Support Closed", value="Thank you for using **DueUtil live support**!\n"
         #                                                         + "*Please note that we delete any archive of our previous messages.*")
         #             embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/363777039813050368/618213084795895823/due3Logo.png")
         #             embed.set_footer(text="If your question was not fully answered or if you still have a question, please answer `!requestsupport` to this message with your question!")
@@ -271,8 +271,8 @@ class BattleBananaClient(discord.Client):
         #         channel = message.channel
 
         #         if message.content.lower().startswith("!close"):
-        #             embed = discord.Embed(title="BattleBanana live support", type="rich", colour=gconf.DUE_COLOUR)
-        #             embed.add_field(name="Support Closed", value="Thank you for using **BattleBanana live support**!\n"
+        #             embed = discord.Embed(title="DueUtil live support", type="rich", colour=gconf.DUE_COLOUR)
+        #             embed.add_field(name="Support Closed", value="Thank you for using **DueUtil live support**!\n"
         #                                                         + "*Please note that we delete any archive of our previous messages.*")
         #             embed.add_field(name="Closed by:", value=f"{message.author.name}#{message.author.discriminator}")
         #             embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/363777039813050368/618213084795895823/due3Logo.png")
@@ -288,7 +288,7 @@ class BattleBananaClient(discord.Client):
         #             msg = message.content if message.content else "No content"
         #             attachments = message.attachments
 
-        #             embed = discord.Embed(title="BattleBanana live support", type="rich", colour=gconf.DUE_COLOUR)
+        #             embed = discord.Embed(title="DueUtil live support", type="rich", colour=gconf.DUE_COLOUR)
         #             embed.add_field(name=f"{message.author.name}#{message.author.discriminator}", value=msg)
         #             embed.set_footer(text="Make sure to report to @DeveloperAnonymous#9830 for any abuse from the live squad!",
         #                             icon_url="https://cdn.discordapp.com/attachments/363777039813050368/618213084795895823/due3Logo.png")
@@ -311,8 +311,8 @@ class BattleBananaClient(discord.Client):
 
 
         owner = discord.Member(user={"id": config["owner"]})
-        if not permissions.has_permission(owner, Permission.OWNER):
-            permissions.give_permission(owner, Permission.OWNER)
+        if not permissions.has_permission(owner, Permission.DUEUTIL_OWNER):
+            permissions.give_permission(owner, Permission.DUEUTIL_OWNER)
         mentions_self_regex = "<@.?"+self.user.id+">"
         if re.match("^"+mentions_self_regex, message.content):
             message.content = re.sub(mentions_self_regex + "\s*",
@@ -340,7 +340,7 @@ class BattleBananaClient(discord.Client):
             if collection != "Player":
                 dbconn.db[collection].delete_many({'_id': {'$regex': '%s.*' % server.id}})
                 dbconn.db[collection].delete_many({'_id': server.id})
-        yield from util.duelogger.info("BattleBanana been removed from the server **%s**"
+        yield from util.duelogger.info("DueUtil been removed from the server **%s**"
                                        % util.ultra_escape_string(server.name))
         # Update stats
         yield from servercounts.update_server_count(self)
@@ -358,7 +358,7 @@ class BattleBananaClient(discord.Client):
     @asyncio.coroutine
     def on_ready(self):
         shard_number = shard_clients.index(self) + 1
-        game = discord.Game(name="battlebanana.xyz | shard %d/%d" % (shard_number, shard_count))
+        game = discord.Game(name="was DueUtil 3.0" % (shard_number, shard_count))
         try:
             yield from self.change_presence(game=game, afk=False)
         except Exception as e:
@@ -368,7 +368,7 @@ class BattleBananaClient(discord.Client):
         self.loaded = True
         if loaded():
             util.logger.info("Bot started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - shard_clients[0].start_time)
-            yield from util.duelogger.bot("BattleBanana has *(re)*started\n"
+            yield from util.duelogger.bot("DueUtil has *(re)*started\n"
                                           + "Bot version → ``%s``" % gconf.VERSION)
 
 
@@ -384,7 +384,7 @@ class ShardThread(Thread):
 
     def run(self, level=1):
         asyncio.set_event_loop(self.event_loop)
-        client = BattleBananaClient(shard_id=self.shard_number, shard_count=shard_count)
+        client = DueUtilClient(shard_id=self.shard_number, shard_count=shard_count)
         shard_clients.append(client)
         try:
             asyncio.run_coroutine_threadsafe(client.run(bot_key), client.loop)
@@ -423,7 +423,7 @@ def run_due():
 
         ### Tasks
         loop = asyncio.get_event_loop()
-        from battlebanana import tasks
+        from dueutil import tasks
         for task in tasks.tasks:
             asyncio.ensure_future(task(), loop=loop)
         loop.run_forever()
@@ -441,7 +441,7 @@ if __name__ == "__main__":
     shard_count = config["shardCount"]
     shard_names = config["shardNames"]
     owner = discord.Member(user={"id": config["owner"]})
-    if not permissions.has_permission(owner, Permission.OWNER):
-        permissions.give_permission(owner, Permission.OWNER)
+    if not permissions.has_permission(owner, Permission.DUEUTIL_OWNER):
+        permissions.give_permission(owner, Permission.DUEUTIL_OWNER)
     util.load(shard_clients)
     run_due()
