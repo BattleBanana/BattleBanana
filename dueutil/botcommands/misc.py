@@ -485,7 +485,7 @@ async def updatebot(ctx, **_):
     """
     [CMD_KEY]updatebot
     
-    Updates DueUtil
+    Updates BattleBanana
     
     """
 
@@ -496,20 +496,20 @@ async def updatebot(ctx, **_):
     update_result = update_result.decode("utf-8")
     if len(update_result.strip()) == 0:
         update_result = "No output."
-    update_embed = discord.Embed(title=":gear: Updating DueUtil!", type="rich", color=gconf.DUE_COLOUR)
+    update_embed = discord.Embed(title=":gear: Updating BattleBanana!", type="rich", color=gconf.DUE_COLOUR)
     update_embed.description = "Pulling lastest version from **github**!"
     update_embed.add_field(name='Changes', value='```' + update_result + '```', inline=False)
     await util.say(ctx.channel, embed=update_embed)
     update_result = update_result.strip()
     if not (update_result.endswith("is up to date.") or update_result.endswith("up-to-date.")):
-        await util.duelogger.concern("DueUtil updating!")
+        await util.duelogger.concern("BattleBanana updating!")
         os._exit(1)
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None)
 async def stopbot(ctx, **_):
-    await util.say(ctx.channel, ":wave: Stopping DueUtil!")
-    await util.duelogger.concern("DueUtil shutting down!")
+    await util.say(ctx.channel, ":wave: Stopping BattleBanana!")
+    await util.duelogger.concern("BattleBanana shutting down!")
     for client in util.shard_clients:
         await client.change_presence(game=discord.Game(name="restarting"), status=discord.Status.idle, afk=True)
     os._exit(0)
@@ -517,8 +517,8 @@ async def stopbot(ctx, **_):
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None)
 async def restartbot(ctx, **_):
-    await util.say(ctx.channel, ":ferris_wheel: Restarting DueUtil!")
-    await util.duelogger.concern("DueUtil restarting!!")
+    await util.say(ctx.channel, ":ferris_wheel: Restarting BattleBanana!")
+    await util.duelogger.concern("BattleBanana restarting!!")
     for client in util.shard_clients:
         await client.change_presence(game=discord.Game(name="restarting"), status=discord.Status.idle, afk=True)
     os._exit(1)

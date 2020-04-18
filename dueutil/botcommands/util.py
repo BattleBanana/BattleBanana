@@ -25,7 +25,7 @@ async def help(ctx, *args, **details):
 
     help_logo = 'https://cdn.discordapp.com/attachments/173443449863929856/275299953528537088/helo_458x458.jpg'
 
-    help_embed = discord.Embed(title="DueUtil's Help", type="rich", color=gconf.DUE_COLOUR)
+    help_embed = discord.Embed(title="BattleBanana's Help", type="rich", color=gconf.DUE_COLOUR)
     server_key = details["cmd_key"]
     categories = events.command_event.category_list()
 
