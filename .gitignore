@@ -8,7 +8,7 @@ botstuff/__pycache__/
 update_script.sh
 assets/backgrounds/backgrounds.json
 imagecache/
-dueutil.json
+battlebanana.json
 dbconfig.json
 generalconfig.py
 dueutil/game/configs/teams.json
