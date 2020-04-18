@@ -210,7 +210,7 @@ async def deletebg(ctx, background_to_delete, **details):
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="S")
-async def dueeval(ctx, statement, **details):
+async def eval(ctx, statement, **details):
     """
     For 1337 haxors only! Go away!
     """
@@ -418,8 +418,8 @@ async def toggledonor(ctx, player, **_):
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None)
 async def duereload(ctx, **_):
-    await util.say(ctx.channel, ":ferris_wheel: Reloading DueUtil modules!")
-    await util.duelogger.concern("DueUtil Reloading!")
+    await util.say(ctx.channel, ":ferris_wheel: Reloading BattleBanana modules!")
+    await util.duelogger.concern("BattleBanana Reloading!")
     raise util.DueReloadException(ctx.channel)
 
 
@@ -562,7 +562,7 @@ async def vote(ctx, **details):
     Obtain ¤50'000 for voting on Discord Bot List
     """
     
-    Embed = discord.Embed(title="Vote for your favorite Discord Bot", type="rich", description="Thanks for voting for me!", colour=gconf.DUE_COLOUR)
+    Embed = discord.Embed(title="Vote for your favorite Discord Bot", type="rich", colour=gconf.DUE_COLOUR)
     Embed.add_field(name="Vote:", value="[Discord Bot list](https://discordbots.org/bot/464601463440801792/vote)\n"
                                         "[Bot On Discord](https://bots.ondiscord.xyz/bots/464601463440801792)")
     Embed.set_footer(text="You will receive your reward shortly after voting!")

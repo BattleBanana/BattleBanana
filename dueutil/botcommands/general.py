@@ -84,7 +84,7 @@ def shop_weapons_list(page, **details):
     shop_weapons = list(weapons.get_weapons_for_server(details["server_id"]).values())
     shop_weapons.remove(weapons.NO_WEAPON)
     shop_weapons.sort(key=lambda weapon: weapon.price)
-    shop_list = weap_cmds.weapons_page(shop_weapons, page, "DueUtil's Weapon Shop!",
+    shop_list = weap_cmds.weapons_page(shop_weapons, page, "BattleBanana's Weapon Shop!",
                                        footer_more=("But wait there's more! Do "
                                                     + details["cmd_key"] + "shop weapons " + str(page + 2)),
                                        footer_end=('Want more? Ask an admin on '
@@ -95,7 +95,7 @@ def shop_weapons_list(page, **details):
 def shop_theme_list(page, **details):
     themes = list(customizations.get_themes().values())
     themes = filter_customizations(themes)
-    shop_list = player_cmds.theme_page(themes, page, "DueUtil's Theme Shop!",
+    shop_list = player_cmds.theme_page(themes, page, "BattleBanana's Theme Shop!",
                                        footer_more=("But wait there's more! Do "
                                                     + details["cmd_key"] + "shop themes " + str(page + 2)),
                                        footer_end='More themes coming soon!')
@@ -106,7 +106,7 @@ def shop_background_list(page, **details):
     backgrounds = list(customizations.backgrounds.values())
     backgrounds = filter_customizations(backgrounds)
     # Allow for hidden backgrounds (only used for certain themes - probably won't need for other things)
-    shop_list = player_cmds.background_page(backgrounds, page, "DueUtil's Background Shop!",
+    shop_list = player_cmds.background_page(backgrounds, page, "BattleBanana's Background Shop!",
                                             footer_more="But wait there's more! Do "
                                                         + details["cmd_key"] + "shop bgs " + str(page + 2),
                                             footer_end='More backgrounds coming soon!')
@@ -117,7 +117,7 @@ def shop_banner_list(page, **details):
     banners = list(customizations.banners.values())
     banners = [banner for banner in banners if banner.can_use_banner(details["author"]) and banner.id != "discord blue"]
     banners.sort(key=_shop_sort)
-    shop_list = player_cmds.banner_page(banners, page, "DueUtil's Banner Shop!",
+    shop_list = player_cmds.banner_page(banners, page, "BattleBanana's Banner Shop!",
                                         footer_more="But wait there's more! Do " + details[
                                             "cmd_key"] + "shop banners " + str(page + 2),
                                         footer_end='More banners coming soon!')
@@ -307,7 +307,7 @@ async def shop(ctx, *args, **details):
 
     if len(args) == 0:
         # Greet
-        greet = ":wave: **Welcome to the DueUtil general store!**\n"
+        greet = ":wave: **Welcome to the BattleBanana general store!**\n"
         department_available = "Please have a look in some of our splendiferous departments!\n"
         for department_info in departments.values():
             department_available += "``" + details["cmd_key"] + "shop " + department_info["alias"][0] + "``\n"

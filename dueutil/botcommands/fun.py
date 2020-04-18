@@ -69,7 +69,7 @@ async def globalranks(ctx, page=1, **details):
     """
     [CMD_KEY]globalranks (page)
 
-    Global DueUtil leaderboard
+    Global BattleBanana leaderboard
     """
 
     await leaderboard.__wrapped__(ctx, mixed="global", page_alt=page, **details)
@@ -83,7 +83,7 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
     [CMD_KEY]leaderboard global (page)
     [CMD_KEY]globalranks (page)
     
-    The global leaderboard of DueUtil!
+    The global leaderboard of BattleBanana!
     
     The leaderboard updated every hour*.
     
@@ -107,13 +107,13 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
 
     # Local/Global
     if local:
-        title = "DueUtil Leaderboard on %s" % details["server_name_clean"]
+        title = "BattleBanana Leaderboard on %s" % details["server_name_clean"]
         # Cached.
         local_leaderboard = leaderboards.get_local_leaderboard(ctx.server, "levels")
         leaderboard_data = local_leaderboard.data
         last_updated = local_leaderboard.updated
     else:
-        title = "DueUtil Global Leaderboard"
+        title = "BattleBanana Global Leaderboard"
         leaderboard_data = leaderboards.get_leaderboard("levels")
         last_updated = leaderboards.last_leaderboard_update
 
@@ -360,7 +360,7 @@ async def pandemic(ctx, **_):
     """
     [CMD_KEY]pandemic
 
-    Tracked the passed DueUtil pandemic.
+    Tracked the passed BattleBanana pandemic.
     """
     virus_stats = awards.get_award_stat("Duerus")
 
@@ -378,7 +378,7 @@ async def pandemic(ctx, **_):
     total_uninfected = total_players - total_infected
     percent_infected = (total_infected / total_players) * 100
     pandemic_level = percent_infected // 33
-    pandemic_embed = discord.Embed(title=":biohazard: DueUtil Pandemic :biohazard:", type="rich",
+    pandemic_embed = discord.Embed(title=":biohazard: BattleBanana Pandemic :biohazard:", type="rich",
                                    color=gconf.DUE_COLOUR)
     # pandemic_embed.description = ("Oh my god! In the last news, infected people are invading our world!\n"
     #                               + "This is the current infection rate!")

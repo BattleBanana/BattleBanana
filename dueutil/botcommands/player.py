@@ -111,7 +111,7 @@ async def battlename(ctx, name="", **details):
     """
     [CMD_KEY]battlename (name)
     
-    Sets your name in DueUtil.
+    Sets your name in BattleBanana.
     To reset your name to your discord name run the
     command with no arguments
     """

@@ -131,18 +131,18 @@ async def botinfo(ctx, **_):
     """
     [CMD_KEY]botinfo
 
-    General information about DueUtil.
+    General information about BattleBanana.
     """
 
-    info_embed = discord.Embed(title="DueUtil's Information", type="rich", color=gconf.DUE_COLOUR)
-    info_embed.description = "DueUtil is customizable bot to add fun commands, quests and battles to your server."
+    info_embed = discord.Embed(title="BattleBanana's Information", type="rich", color=gconf.DUE_COLOUR)
+    info_embed.description = "BattleBanana is customizable bot to add fun commands, quests and battles to your server."
     info_embed.add_field(name="Created by", value="[MacDue#4453](https://dueutil.tech/)")
     info_embed.add_field(name="Continued by", value="[DeveloperAnonymous#9830](https://dueutil.xyz/)")
     info_embed.add_field(name="Framework",
                          value="[discord.py %s :two_hearts:](http://discordpy.readthedocs.io/en/latest/)"
                                % discord.__version__)
     info_embed.add_field(name="Version", value=gconf.VERSION),
-    info_embed.add_field(name="Invite Due!", value="%s" % gconf.BOT_INVITE, inline=False)
+    info_embed.add_field(name="Invite BB!", value="%s" % gconf.BOT_INVITE, inline=False)
     info_embed.add_field(name="Support server",
                          value="For help with the bot or a laugh join **https://discord.gg/P7DBDEC**!")
     await util.say(ctx.channel, embed=info_embed)
@@ -151,7 +151,7 @@ async def botinfo(ctx, **_):
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def prefix(ctx, **details):
     """
-    ``@DueUtil``prefix
+    ``@BattleBanana``prefix
 
     Tells you what the prefix is on a server.
     """
@@ -165,13 +165,13 @@ async def dustats(ctx, **_):
     """
     [CMD_KEY]dustats
     
-    DueUtil's stats since the dawn of time!
+    BattleBanana's stats since the dawn of time!
     """
 
     game_stats = stats.get_stats()
-    stats_embed = discord.Embed(title="DueUtil's Statistics!", type="rich", color=gconf.DUE_COLOUR)
+    stats_embed = discord.Embed(title="BattleBanana's Statistics!", type="rich", color=gconf.DUE_COLOUR)
 
-    stats_embed.description = ("The numbers and stuff of DueUtil right now!\n"
+    stats_embed.description = ("The numbers and stuff of BattleBanana right now!\n"
                                + "The **worst** Discord bot since %s, %s!"
                                % (gconf.DUE_START_DATE.strftime("%d/%m/%Y"),
                                   repoze.timeago.get_elapsed(gconf.DUE_START_DATE)))
@@ -211,16 +211,16 @@ async def dustats(ctx, **_):
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
-async def duservers(ctx, **_):
+async def servers(ctx, **_):
     """
-    [CMD_KEY]duservers
+    [CMD_KEY]servers
     
-    Shows the number of servers DueUtil is chillin on.
+    Shows the number of servers BattleBanana is chillin on.
     
     """
 
     server_count = util.get_server_count()
-    await util.say(ctx.channel, "DueUtil is active on **" + str(server_count) + " server"
+    await util.say(ctx.channel, "BattleBanana is active on **" + str(server_count) + " server"
                    + ("s" if server_count != 1 else "") + "**")
 
 
@@ -244,13 +244,13 @@ async def setcmdkey(ctx, new_key, **details):
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern="S?")
-async def shutupdue(ctx, *args, **details):
+async def shutup(ctx, *args, **details):
     """
-    [CMD_KEY]shutupdue 
+    [CMD_KEY]shutup
     
-    Mutes DueUtil in the channel the command is used in.
-    By default the ``[CMD_KEY]shutupdue`` will stop alerts (level ups, ect)
-    using ``[CMD_KEY]shutupdue all`` will make DueUtil ignore all commands
+    Mutes BattleBanana in the channel the command is used in.
+    By default the ``[CMD_KEY]shutup`` will stop alerts (level ups, ect)
+    using ``[CMD_KEY]shutup all`` will make BattleBanana ignore all commands
     from non-admins.
   
     """
@@ -287,7 +287,7 @@ async def leave(ctx, **_):
     """
     [CMD_KEY]leave
     
-    Makes DueUtil leave your server cleanly.
+    Makes BattleBanana leave your server cleanly.
     This will delete all quests & weapons created
     on your server.
     
@@ -306,12 +306,12 @@ async def leave(ctx, **_):
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern=None)
-async def unshutupdue(ctx, **_):
+async def unshutup(ctx, **_):
     """
-    [CMD_KEY]unshutupdue
+    [CMD_KEY]unshutup
 
-    Reverts ``[CMD_KEY]shutupdue`` or ``[CMD_KEY]shutupdue all``
-    (allowing DueUtil to give alerts and be used again).
+    Reverts ``[CMD_KEY]shutup`` or ``[CMD_KEY]shutup all``
+    (allowing BattleBanana to give alerts and be used again).
 
     """
     if dueserverconfig.unmute_channel(ctx.channel):
@@ -326,7 +326,7 @@ async def whitelist(ctx, *args, **_):
     """
     [CMD_KEY]whitelist
     
-    Choose what DueUtil commands you want to allow in a channel.
+    Choose what BattleBanana commands you want to allow in a channel.
     E.g. ``[CMD_KEY]whitelist help battle shop myinfo info``
     
     Normal users will not be able to use any other commands than the ones you
@@ -360,7 +360,7 @@ async def blacklist(ctx, *args, **_):
     """
     [CMD_KEY]blacklist
     
-    Choose what DueUtil commands you want to ban in a channel.
+    Choose what BattleBanana commands you want to ban in a channel.
     E.g. ``[CMD_KEY]blacklist acceptquest battleme sell``
     
     Normal users will only be able to use commands not in the blacklist.
@@ -397,8 +397,8 @@ async def setuproles(ctx, **_):
     """
     [CMD_KEY]setuproles
     
-    Creates any discord roles DueUtil needs. These will have been made when
-    DueUtil joined your server but if you deleted any & need them you'll 
+    Creates any discord roles BattleBanana needs. These will have been made when
+    BattleBanana joined your server but if you deleted any & need them you'll 
     want to run this command.
     
     """
@@ -426,7 +426,7 @@ async def optout(ctx, **details):
     """
     [CMD_KEY]optout
 
-    Optout of DueUtil.
+    Optout of BattleBanana.
 
     When you opt out:
         You don't get quests or exp.
@@ -435,7 +435,7 @@ async def optout(ctx, **details):
 
     Server admins (that opt out) still have access to admin commands.
 
-    (This applies to all servers with DueUtil)
+    (This applies to all servers with BattleBanana)
     """
 
     player = details["author"]
@@ -444,9 +444,9 @@ async def optout(ctx, **details):
         if await optout_is_topdog_check(ctx.channel, player):
             return
         if current_permission >= Permission.DUEUTIL_MOD:
-            raise util.DueUtilException(ctx.channel, "You cannot optout everywhere and stay a dueutil mod or admin!")
+            raise util.DueUtilException(ctx.channel, "You cannot optout everywhere and stay a BattleBanana mod or admin!")
         permissions.give_permission(ctx.author, Permission.DISCORD_USER)
-        await util.say(ctx.channel, (":ok_hand: You've opted out of DueUtil everywhere.\n"
+        await util.say(ctx.channel, (":ok_hand: You've opted out of BattleBanana everywhere.\n"
                                      + "You won't get exp, quests, and other players can't use you in commands."))
     else:
         await util.say(ctx.channel, ("You've already opted out everywhere!\n"
@@ -458,9 +458,9 @@ async def optin(ctx, **details):
     """
     [CMD_KEY]optin
 
-    Optin to DueUtil.
+    Optin to BattleBanana.
 
-    (This applies to all servers with DueUtil)
+    (This applies to all servers with BattleBanana)
     """
 
     player = details["author"]
@@ -484,7 +484,7 @@ async def optouthere(ctx, **details):
     """
     [CMD_KEY]optouthere
 
-    Optout of DueUtil on the server you run the command.
+    Optout of BattleBanana on the server you run the command.
     This has the same effect as [CMD_KEY]optout but is local.
     """
 
@@ -504,7 +504,7 @@ async def optouthere(ctx, **details):
                 return
             client = util.get_client(ctx.server.id)
             await client.add_roles(ctx.author, optout_role)
-            await util.say(ctx.channel, (":ok_hand: You've opted out of DueUtil on this server!\n"
+            await util.say(ctx.channel, (":ok_hand: You've opted out of BattleBanana on this server!\n"
                                          + "You won't get exp, quests or be able to use commands here."))
     else:
         await util.say(ctx.channel, ("You've already opted out on this sever!\n"
@@ -516,7 +516,7 @@ async def optinhere(ctx, **details):
     """
     [CMD_KEY]optinhere
 
-    Optin to DueUtil on a server.
+    Optin to BattleBanana on a server.
     """
 
     player = details["author"]
@@ -532,8 +532,8 @@ async def optinhere(ctx, **details):
                                      * globally_opted_out))
     else:
         if globally_opted_out:
-            await util.say(ctx.channel, ("You've opted out of DueUtil everywhere!\n"
-                                         + "To use DueUtil do ``%soptin``" % details["cmd_key"]))
+            await util.say(ctx.channel, ("You've opted out of BattleBanana everywhere!\n"
+                                         + "To use BattleBanana do ``%soptin``" % details["cmd_key"]))
         else:
             await util.say(ctx.channel, "You've not opted out on this server.")
 
@@ -561,7 +561,7 @@ async def currencies(ctx, **details):
 async def exchange(ctx, amount, currency, **details):
     """
     [CMD_KEY]exchange (amount) (currency)
-    Exchange your DUC (DueUtil 3.0 Credits) for other bot currencies!
+    Exchange your DUC (BattleBanana 3.0 Credits) for other bot currencies!
     For more information go to: https://dash.discoin.zws.im/#/
     Note: Exchanges can take a few minutes to process!
     """

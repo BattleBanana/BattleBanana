@@ -21,7 +21,7 @@ class FeedbackHandler:
 
         trello_link = await util.trello_client.add_card(board_url=gconf.trello_board,
                                                         name=message,
-                                                        desc=("Automated %s added by DueUtil\n" % self.type
+                                                        desc=("Automated %s added by BattleBanana\n" % self.type
                                                               + "Author: %s (id %s)" % (author_name, author.id)),
                                                         list_name=self.trello_list,
                                                         labels=["automated", "Bug" if self.type == "bug report" else "Suggestion"])
@@ -49,7 +49,7 @@ async def bugreport(ctx, report, **_):
     """
     [CMD_KEY]bugreport (report)
     
-    Leaves a bug report on the official DueUtil server and trello.
+    Leaves a bug report on the official BattleBanana server and trello.
     
     """
 
