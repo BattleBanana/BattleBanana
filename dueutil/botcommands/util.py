@@ -88,11 +88,11 @@ async def help(ctx, *args, **details):
         help_embed.description = 'Welcome to the help!\n Simply do ' + server_key + 'help (category) or (command name).'
         help_embed.add_field(name=':file_folder: Command categories', value=', '.join(categories))
         help_embed.add_field(name=e.THINKY_FONK + " Tips",
-                             value=("If DueUtil reacts to your command it means something is wrong!\n"
+                             value=("If BattleBanana reacts to your command it means something is wrong!\n"
                                     + ":question: - Something is wrong with the command's syntax.\n"
                                     + ":x: - You don't have the required permissions to use the command."))
         help_embed.add_field(name=":link: Links", value=("**Invite me: %s**\n" % gconf.BOT_INVITE
-                                                         + "DueUtil guide: https://dueutil.xyz/howto\n"
+                                                         + "BattleBanana guide: https://dueutil.xyz/howto\n"
                                                          + "Support server: https://discord.gg/P7DBDEC\n"
                                                          + "Support me: https://patreon.com/developeranonymous"))
         help_embed.set_footer(text="To use admin commands you must have the manage server permission or the 'Due Commander' role.")
@@ -104,10 +104,10 @@ async def invite(ctx, **_):
     """
     [CMD_KEY]invite
 
-    Display DueUtil invite link & Support server.
+    Display BattleBanana invite link & Support server.
     """
     
-    invite_embed = discord.Embed(title="DueUtil's invites", type="rich", color=gconf.DUE_COLOUR)
+    invite_embed = discord.Embed(title="BattleBanana's invites", type="rich", color=gconf.DUE_COLOUR)
     invite_embed.description = "Here are 2 important links about me! :smiley:"
     invite_embed.add_field(name="Invite me:", value=("[Here](%s)" % gconf.BOT_INVITE), inline=True)
     invite_embed.add_field(name="Support server:", value="[Here](https://discord.gg/P7DBDEC)", inline=True)
