@@ -88,11 +88,11 @@ async def help(ctx, *args, **details):
         help_embed.description = 'Welcome to the help!\n Simply do ' + server_key + 'help (category) or (command name).'
         help_embed.add_field(name=':file_folder: Command categories', value=', '.join(categories))
         help_embed.add_field(name=e.THINKY_FONK + " Tips",
-                             value=("If DueUtil reacts to your command it means something is wrong!\n"
+                             value=("If BattleBanana reacts to your command it means something is wrong!\n"
                                     + ":question: - Something is wrong with the command's syntax.\n"
                                     + ":x: - You don't have the required permissions to use the command."))
         help_embed.add_field(name=":link: Links", value=("**Invite me: %s**\n" % gconf.BOT_INVITE
-                                                         + "DueUtil guide: https://dueutil.xyz/howto\n"
+                                                         + "BattleBanana guide: https://dueutil.xyz/howto\n"
                                                          + "Support server: https://discord.gg/P7DBDEC\n"
                                                          + "Support me: https://patreon.com/developeranonymous"))
         help_embed.set_footer(text="To use admin commands you must have the manage server permission or the 'Due Commander' role.")
@@ -104,10 +104,10 @@ async def invite(ctx, **_):
     """
     [CMD_KEY]invite
 
-    Display DueUtil invite link & Support server.
+    Display BattleBanana invite link & Support server.
     """
     
-    invite_embed = discord.Embed(title="DueUtil's invites", type="rich", color=gconf.DUE_COLOUR)
+    invite_embed = discord.Embed(title="BattleBanana's invites", type="rich", color=gconf.DUE_COLOUR)
     invite_embed.description = "Here are 2 important links about me! :smiley:"
     invite_embed.add_field(name="Invite me:", value=("[Here](%s)" % gconf.BOT_INVITE), inline=True)
     invite_embed.add_field(name="Support server:", value="[Here](https://discord.gg/P7DBDEC)", inline=True)
@@ -136,7 +136,7 @@ async def botinfo(ctx, **_):
 
     info_embed = discord.Embed(title="BattleBanana's Information", type="rich", color=gconf.DUE_COLOUR)
     info_embed.description = "BattleBanana is customizable bot to add fun commands, quests and battles to your server."
-    info_embed.add_field(name="Created by", value="[MacDue#4453](https://dueutil.tech/)")
+    info_embed.add_field(name="Originally DueUtil by", value="[MacDue#4453](https://dueutil.tech/)")
     info_embed.add_field(name="Continued by", value="[DeveloperAnonymous#9830](https://dueutil.xyz/)")
     info_embed.add_field(name="Framework",
                          value="[discord.py %s :two_hearts:](http://discordpy.readthedocs.io/en/latest/)"
@@ -192,9 +192,9 @@ async def stats(ctx, **_):
                                  % util.format_number_precise(game_stats[Stat.QUESTS_ATTEMPTED])
                                  + e.LEVEL_UP + " **%s** level ups.\n"
                                  % util.format_number_precise(game_stats[Stat.PLAYERS_LEVELED])
-                                 + e.DUT + " **%s** awarded.\n"
+                                 + e.BBT + " **%s** awarded.\n"
                                  % util.format_money(game_stats[Stat.MONEY_CREATED])
-                                 + e.DUT_WITH_WINGS + " **%s** transferred between players."
+                                 + e.BBT_WITH_WINGS + " **%s** transferred between players."
                                  % util.format_money(game_stats[Stat.MONEY_TRANSFERRED])),
                           inline=False)
     # Sharding
@@ -260,12 +260,12 @@ async def shutup(ctx, *args, **details):
         if mute_success:
             await util.say(ctx.channel, (":mute: I won't send any alerts in this channel!\n"
                                          + "If you meant to disable commands too do ``" + details[
-                                             "cmd_key"] + "shutupdue all``."))
+                                             "cmd_key"] + "shutup all``."))
         else:
             await util.say(ctx.channel, (":mute: I've already been set not to send alerts in this channel!\n"
                                          + "If you want to disable commands too do ``" + details["cmd_key"] 
-                                         + "shutupdue all``.\n"
-                                         + "To unmute me do ``" + details["cmd_key"] + "unshutupdue``."))
+                                         + "shutup all``.\n"
+                                         + "To unmute me do ``" + details["cmd_key"] + "unshutup``."))
     else:
         mute_level = args[0].lower()
         if mute_level == "all":
@@ -275,10 +275,10 @@ async def shutup(ctx, *args, **details):
             else:
                 await util.say(ctx.channel, (":mute: Already mute af in this channel!.\n"
                                              + "To allow commands & alerts again do ``" + details[
-                                                 "cmd_key"] + "unshutupdue``."))
+                                                 "cmd_key"] + "unshutup``."))
         else:
             await util.say(ctx.channel, ":thinking: If you wanted to mute all the command is ``" + details[
-                "cmd_key"] + "shutupdue all``.")
+                "cmd_key"] + "shutup all``.")
 
 
 @commands.command(permission=Permission.REAL_SERVER_ADMIN, args_pattern="S?")
@@ -561,7 +561,7 @@ async def currencies(ctx, **details):
 async def exchange(ctx, amount, currency, **details):
     """
     [CMD_KEY]exchange (amount) (currency)
-    Exchange your DUC (BattleBanana 3.0 Credits) for other bot currencies!
+    Exchange your BBT (BattleBanana Tokens) for other bot currencies!
     For more information go to: https://dash.discoin.zws.im/#/
     Note: Exchanges can take a few minutes to process!
     """
@@ -569,12 +569,13 @@ async def exchange(ctx, amount, currency, **details):
     player = details["author"]
     currency = currency.upper()
 
-    if currency == "DUC":
-        raise util.DueUtilException(ctx.channel, "There is no reason to exchange DUC for DUC!")
+    if currency == discoin.CURRENCY_CODE:
+        raise util.DueUtilException(ctx.channel, "There is no reason to exchange %s for %s!" % (discoin.CURRENCY_CODE, discoin.CURRENCY_CODE))
     if not currency in discoin.CODES:
         raise util.DueUtilException(ctx.channel, "Not a valid currency! Use `%scurrencies` to know which currency is available." % details['cmd_key'])
     if amount > discoin.MAX_TRANSACTION:
-        raise util.DueUtilException(ctx.channel, "The amount you try to exchange exceeds the maximum DUC transfer limit of %s." % discoin.MAX_TRANSACTION)
+        raise util.DueUtilException(ctx.channel, "The amount you try to exchange exceeds the maximum %s transfer limit of %s." 
+                                                                                                % (discoin.CURRENCY_CODE, discoin.MAX_TRANSACTION))
 
     if player.money - amount < 0:
         await util.say(ctx.channel, "You do not have **%s**!\n"
@@ -603,14 +604,14 @@ async def exchange(ctx, amount, currency, **details):
     receipt = discoin.DISCOINDASH + "/" + transaction['id'] + "/show"
     
     exchange_embed = discord.Embed(title=e.DISCOIN + " Exchange complete!", type="rich", color=gconf.DUE_COLOUR)
-    exchange_embed.add_field(name="Exchange amount (DUC):", value=util.format_number(amount, money=True, full_precision=True))
+    exchange_embed.add_field(name=f"Exchange amount ({discoin.CURRENCY_CODE}):", value=util.format_number(amount, money=True, full_precision=True))
     exchange_embed.add_field(name="Result amount (%s):" % currency, value="$" + util.format_number_precise(transaction['payout']))
     exchange_embed.add_field(name="Receipt:", value=receipt, inline=False)
     exchange_embed.set_footer(text="Keep the receipt for if something goes wrong!")
     
     await util.say(ctx.channel, embed=exchange_embed)
     await util.say(gconf.other_configs['transactions'], ":grey_exclamation: Discoin transaction with receipt ``%s`` processed.\n" % transaction['id']
-                        + "User: %s | Amount: %.2f | To: %s" % (player.id, amount, "%s (%s)" % (transaction['from']['name'], currency)))
+                        + "User: %s | Amount: %.2f | To: %s" % (player.id, amount, "%s (%s)" % (transaction['to']['name'], currency)))
 
 @commands.command(args_pattern="S?", permission=Permission.DUEUTIL_ADMIN)
 async def status(ctx, message=None, **details):

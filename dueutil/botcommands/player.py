@@ -30,7 +30,7 @@ async def daily(ctx, **details):
     BALANCED_AMOUNT = DAILY_AMOUNT * player.level * (player.prestige_level + 1)
     player.money += BALANCED_AMOUNT
     player.save()
-    await util.say(ctx.channel, e.DUT + f' {random.choice(responses).format(user=f"**{player}**", daily=f"¤{BALANCED_AMOUNT}")}')
+    await util.say(ctx.channel, e.BBT + f' {random.choice(responses).format(user=f"**{player}**", daily=f"¤{BALANCED_AMOUNT}")}')
 
 @commands.command(args_pattern=None)
 @commands.ratelimit(cooldown=21600, error="You've done all the training you can for now! You can train again in **[COOLDOWN]**!", save=True)
@@ -387,11 +387,11 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
     if transaction_amount >= 50:
         await game_awards.give_award(ctx.channel, sender, "SugarDaddy", "Sugar daddy!")
 
-    transaction_log = discord.Embed(title=e.DUT_WITH_WINGS + " Transaction complete!", type="rich",
+    transaction_log = discord.Embed(title=e.BBT_WITH_WINGS + " Transaction complete!", type="rich",
                                     color=gconf.DUE_COLOUR)
     transaction_log.add_field(name="Sender:", value=sender.name_clean)
     transaction_log.add_field(name="Recipient:", value=receiver.name_clean)
-    transaction_log.add_field(name="Transaction amount (DUT):", value=amount_string, inline=False)
+    transaction_log.add_field(name="Transaction amount (BBT):", value=amount_string, inline=False)
     if message != "":
         transaction_log.add_field(name=":pencil: Attached note:", value=message, inline=False)
     transaction_log.set_footer(text="Please keep this receipt for your records.")
@@ -417,7 +417,7 @@ async def prestige(ctx, cnf="", **details):
     if user.level < prestige_level:
         raise util.DueUtilException(ctx.channel, "You need to be level %s or higher to go to the next prestige!" % prestige_level)
     if user.money < req_money:
-        raise util.DueUtilException(ctx.channel, "You need atleast %s %s to afford the next prestige!" % (util.format_number_precise(req_money), e.DUT))
+        raise util.DueUtilException(ctx.channel, "You need atleast %s %s to afford the next prestige!" % (util.format_number_precise(req_money), e.BBT))
 
     user.money -= req_money
     user.prestige()
@@ -431,7 +431,7 @@ async def myprestige(ctx, player=None, **details):
     """
     [CMD_KEY]myprestige (player)
 
-    Display what prestige the player is, if no argument is given, it will display your prestige and how many DUTs & level you need for the next prestige!
+    Display what prestige the player is, if no argument is given, it will display your prestige and how many BBTs & level you need for the next prestige!
     """
 
     if player is None:
@@ -442,7 +442,7 @@ async def myprestige(ctx, player=None, **details):
     message = "%s prestige **%s**! " % ("**You** are" if player == details["author"] else "**" + player.name + "** is", player.prestige_level)
     message += "**%s** %s & %s" % ("You" if player == details["author"] else player.name, ("satisfy the level requirement" if prestige_level <= player.level else "need **%s** additional level(s)" % (prestige_level - player.level)),
                                     ("satisfy the money requirement" if req_money <= player.money else "need **%s%s** to afford the next prestige." 
-                                    % (util.format_number_precise(req_money - player.money), e.DUT)))
+                                    % (util.format_number_precise(req_money - player.money), e.BBT)))
     
     await util.say(ctx.channel, message)
 

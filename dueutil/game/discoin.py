@@ -13,10 +13,11 @@ import traceback
 
 DISCOIN = "https://discoin.zws.im"
 DISCOINDASH = "https://dash.discoin.zws.im/#/transactions"
+CURRENCY_CODE = "DUC"
 # Endpoints
 TRANSACTIONS = DISCOIN + "/transactions"
 CURRENCIES = DISCOIN + "/currencies"
-FILTER = "?filter=to.id||eq||DUC&filter=handled||eq||false"
+FILTER = f"?filter=to.id||eq||{CURRENCY_CODE}&filter=handled||eq||false"
 headers = {"Authorization": gconf.other_configs["discoinKey"], "Content-Type": "application/json"}
 handled = {"handled": True}
 CODES = {}
@@ -114,7 +115,7 @@ async def process_transactions():
             embed = Embed(title="Discion Transaction", description="Receipt ID: [%s](%s)" % (transaction["id"], f"{DISCOINDASH}/{transaction['id']}/show"), 
                 type="rich", colour=gconf.DUE_COLOUR)
             embed.set_author(name="User: " + user_id)
-            embed.add_field(name="Exchange", value="%.2f %s => %s DUC" % (amount, source_id, payout), inline=False)
+            embed.add_field(name="Exchange", value="%.2f %s => %s %s" % (amount, source_id, payout, CURRENCY_CODE), inline=False)
 
             util.logger.info("Processed discoin transaction %s", transaction_id)
             await util.say(gconf.other_configs['transactions'], embed=embed)
@@ -139,7 +140,7 @@ async def notify_complete(user_id, transaction, failed=False):
             
             embed.add_field(name="Exchange amount (%s):" % source_id,
                             value="$" + util.format_number_precise(amount))
-            embed.add_field(name="Result amount (DUC):",
+            embed.add_field(name=f"Result amount ({CURRENCY_CODE}):",
                             value=util.format_number(payout, money=True, full_precision=True))
             embed.add_field(name="Receipt:", 
                             value="%s/%s/show" % (DISCOINDASH, transaction['id']), 
@@ -150,7 +151,7 @@ async def notify_complete(user_id, transaction, failed=False):
                 util.logger.error("Could not notify the successful transaction to the user: %s", error)
         elif failed:
             embed.add_field(name=":warning: Your Discoin exchange has been reversed", value="To exchange to DueUtil you must be a player "
-                                                                                        + "and the amount has to be worth at least 1 DUT.")
+                                                                                        + "and the amount has to be worth at least 1 BBT.")
             try:
                 await util.say(user, embed=embed, client=client)
             except Exception as error:
