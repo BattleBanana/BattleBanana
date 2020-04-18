@@ -94,7 +94,7 @@ class DueUtilClient(discord.Client):
         util.logger.info("Joined server name: %s id: %s", server.name, server.id)
         yield from util.set_up_roles(server)
         server_stats = self.server_stats(server)
-        yield from util.duelogger.info(("DueUtil has joined the server **"
+        yield from util.duelogger.info(("BattleBanana has joined the server **"
                                         + util.ultra_escape_string(server.name) + "**!\n"
                                         + "``Member count →`` " + str(server_stats["member_count"]) + "\n"
                                         + "``Bot members →``" + str(server_stats["bot_count"]) + "\n"
@@ -132,7 +132,7 @@ class DueUtilClient(discord.Client):
         ctx_is_message = isinstance(ctx, discord.Message)
         error = sys.exc_info()[1]
         if ctx is None:
-            yield from util.duelogger.error(("**DueUtil experienced an error!**\n"
+            yield from util.duelogger.error(("**BattleBanana experienced an error!**\n"
                                              + "__Stack trace:__ ```" + traceback.format_exc() + "```"))
             util.logger.error("None message/command error: %s", error)
         elif isinstance(error, util.DueUtilException):
@@ -340,7 +340,7 @@ class DueUtilClient(discord.Client):
             if collection != "Player":
                 dbconn.db[collection].delete_many({'_id': {'$regex': '%s.*' % server.id}})
                 dbconn.db[collection].delete_many({'_id': server.id})
-        yield from util.duelogger.info("DueUtil been removed from the server **%s**"
+        yield from util.duelogger.info("BattleBanana has been removed from the server **%s**"
                                        % util.ultra_escape_string(server.name))
         # Update stats
         yield from servercounts.update_server_count(self)
@@ -368,7 +368,7 @@ class DueUtilClient(discord.Client):
         self.loaded = True
         if loaded():
             util.logger.info("Bot started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - shard_clients[0].start_time)
-            yield from util.duelogger.bot("DueUtil has *(re)*started\n"
+            yield from util.duelogger.bot("BattleBanana has *(re)*started\n"
                                           + "Bot version → ``%s``" % gconf.VERSION)
 
 
