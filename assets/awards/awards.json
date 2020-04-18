@@ -3,7 +3,7 @@
       "Duseless":{
          "icon":"Duseless.png",
          "name":"Duseless",
-         "message":"Ignore DueUtil"
+         "message":"Ignore BattleBanana"
       },
       "QuestDone":{
          "icon":"questDone.png",
@@ -14,7 +14,7 @@
          "icon":"cameback.png",
          "name":"You're Back!",
          "special":true,
-         "message":"Return to DueUtil"
+         "message":"Return to BattleBanana"
       },
       "Rank1":{
          "icon":"rank1.png",
@@ -110,15 +110,15 @@
       },
       "Admin":{
          "icon":"admin.png",
-         "name":"DueUtil Admin",
+         "name":"BattleBanana Admin",
          "special":true,
-         "message":"Only DueUtil admins can have this."
+         "message":"Only BattleBanana admins can have this."
       },
       "Mod":{
          "icon":"mod.png",
-         "name":"DueUtil Mod",
+         "name":"BattleBanana Mod",
          "special":true,
-         "message":"Only DueUtil mods can have this."
+         "message":"Only BattleBanana mods can have this."
       },
       "Spender":{
          "icon":"spender.png",
@@ -141,7 +141,7 @@
          "icon":"donor_award.png",
          "name":"All Anonymous Ever Wanted!",
          "special":true,
-         "message":"Donate to DueUtil"
+         "message":"Donate to BattleBanana"
       },
       "Emoji":{
          "icon":"emoji.png",
@@ -212,12 +212,12 @@
      "Duerus":{
          "icon":"duerus.png",
          "name":"Not dead (yet)!",
-         "message":"Infected in the first DueUtil pandemic!"
+         "message":"Infected in the first BattleBanana pandemic!"
      },
-     "DueUtilTech":{
-         "icon":"dueutiltech.png",
-         "name":"dueutil.xyz",
-         "message":"Login to dueutil.xyz!"
+     "BattleBananaTech":{
+         "icon":"battlebananatech.png",
+         "name":"battlebanana.xyz",
+         "message":"Login to battlebanana.xyz!"
      },
       "Discoin":{
          "icon":"discoin.png",

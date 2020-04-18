@@ -19,7 +19,7 @@
         "image": "classic.png",
         "name": "Classic",
         "deletable": false,
-        "description": "The background of prerelease DueUtil",
+        "description": "The background of prerelease BattleBanana",
         "icon": ":spider_web:",
         "price": 50
     },
@@ -43,7 +43,7 @@
         "image": "default.png",
         "name": "Default",
         "deletable": false,
-        "description": "The clean default DueUtil background",
+        "description": "The clean default BattleBanana background",
         "icon": ":cd:",
         "price": 0
     },
@@ -55,8 +55,8 @@
         "icon": ":full_moon:",
         "price": 525
     },
-    "dueutiltech": {
-        "image": "dueutiltech.png",
+    "battlebananatech": {
+        "image": "battlebananatech.png",
         "name": "",
         "deletable": false,
         "description": "",
