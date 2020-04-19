@@ -1,7 +1,7 @@
 [
     "{user} worked in a pizza shop and earned {daily}",
     "{user} sold some newspapers and made {daily}",
-    "{user} managed to hack into DueUtils code and generate {daily}",
+    "{user} managed to hack into BattleBanana's code and generate {daily}",
     "{user} found a wallet with {daily}",
     "{user} pickpocketed and stole {daily}",
     "{user} did a chore and earned {daily}",
@@ -48,7 +48,7 @@
     "{user} posted a viral video and it accumulated {daily}. Quick, claim it before you get demonetized!",
     "{user} used a metal detector at the beach and found a treasure chest! Inside was {daily} and 2 movie tickets! Wonder who they are going to take?",
     "{user} recieved a strange package. Turns out {daily} was inside it after all",
-    "{user} stole one of the DueUtil admins wallets and got {daily}... along with their ban hammer...",
+    "{user} stole one of the BattleBanana's admins wallets and got {daily}... along with their ban hammer...",
     "{user} won the Nobel peace prize, but sold it for {daily}",
     "{user} funded the Elon Musk's Falcon 9 and was rewarded with {daily}"
 ]
