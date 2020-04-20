@@ -210,11 +210,10 @@ async def deletebg(ctx, background_to_delete, **details):
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="S")
-async def eval(ctx, statement, **details):
+async def bbeval(ctx, statement, **details):
     """
     For 1337 haxors only! Go away!
     """
-
     if not (ctx.author.id == "115269304705875969" or ctx.author.id == "261799488719552513"):
         util.logger.info(ctx.author.id + " tried to use the command: dueeval")
         util.logger.info("Arguments used with dueeval: \n%s" % statement)
