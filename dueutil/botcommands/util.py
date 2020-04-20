@@ -161,7 +161,7 @@ async def prefix(ctx, **details):
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
-async def stats(ctx, **_):
+async def botstats(ctx, **_):
     """
     [CMD_KEY]stats
     
