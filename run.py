@@ -340,8 +340,8 @@ class DueUtilClient(discord.Client):
             if collection != "Player":
                 dbconn.db[collection].delete_many({'_id': {'$regex': '%s.*' % server.id}})
                 dbconn.db[collection].delete_many({'_id': server.id})
-        yield from util.duelogger.info("BattleBanana has been removed from the server **%s**"
-                                       % util.ultra_escape_string(server.name))
+        yield from util.duelogger.info("BattleBanana has been removed from the server **%s** (%s)"
+                                       % util.ultra_escape_string(server.name), server.member_count)
         # Update stats
         yield from servercounts.update_server_count(self)
 
@@ -358,7 +358,7 @@ class DueUtilClient(discord.Client):
     @asyncio.coroutine
     def on_ready(self):
         shard_number = shard_clients.index(self) + 1
-        game = discord.Game(name="was DueUtil 3.0")
+        game = discord.Game(name="dueutil.xyz ­shard %s/%s")
         try:
             yield from self.change_presence(game=game, afk=False)
         except Exception as e:
@@ -414,10 +414,7 @@ def run_due():
             loaded_clients = len(shard_clients)
             shard_thread = ShardThread(asyncio.new_event_loop(), shard_number)
             shard_thread.start()
-            while len(shard_clients) <= loaded_clients:
-                pass
-        while not loaded():
-            pass
+
         # TODO: Show the time it takes to turn on the bot & time it took to start shards
         # util.logger.info("Bot started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - shard_time)
 

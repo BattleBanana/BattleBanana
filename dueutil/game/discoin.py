@@ -84,6 +84,8 @@ async def process_transactions():
 
     if unprocessed is None:
         return
+    if len(util.shard_clients) == 0:
+        return
     
     client = util.shard_clients[0]
 
