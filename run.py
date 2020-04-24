@@ -358,7 +358,7 @@ class DueUtilClient(discord.Client):
     @asyncio.coroutine
     def on_ready(self):
         shard_number = shard_clients.index(self) + 1
-        game = discord.Game(name="dueutil.xyz ­shard %s/%s")
+        game = discord.Game(name="dueutil.xyz | shard %d/%d" % (shard_number, shard_count))
         try:
             yield from self.change_presence(game=game, afk=False)
         except Exception as e:
