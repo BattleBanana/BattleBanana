@@ -37,11 +37,6 @@ class FeedbackHandler:
         await util.say(ctx.channel,
                        ":mailbox_with_mail: Sent! You can view your %s here: <%s>" % (self.type, trello_link))
         await util.say(ctx.channel, embed=report)
-        
-        await util.say(gconf.suggestion_bugreport_channel, embed=report) 
-        ### R E A D T H I S
-        ###You need to add the SeverID/703429545713467442 under "suggestion_bugreport_channel" in the config file
-        ### R E A D T H I S
 
 
 bug_reporter = FeedbackHandler(channel=gconf.bug_channel, type="bug report", trello_list="bugs")
@@ -49,7 +44,7 @@ suggestion_sender = FeedbackHandler(channel=gconf.feedback_channel, type="sugges
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern="S")
-@commands.ratelimit(cooldown=300, error=":cold_sweat: Please don't submit anymore reports for a few minutes!")
+@commands.ratelimit(cooldown=300, error=":cold_sweat: Please don't submit anymore reports (for a few minutes)!")
 async def bugreport(ctx, report, **_):
     """
     [CMD_KEY]bugreport (report)
