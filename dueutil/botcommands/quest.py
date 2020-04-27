@@ -207,7 +207,27 @@ async def declinequest(ctx, quest_index, **details):
                                      + " [Level " + str(math.trunc(quest.level)) + "]**!"))
     else:
         raise util.DueUtilException(ctx.channel, "Quest not found!")
+        
+@commands.command(args_pattern=None, aliases=["daq"])
+async def declineallquests(ctx, **_):
+    """
+    [CMD_KEY]declineallquest
 
+    Declines all of your quests because you're too wimpy to do any of them.
+    """
+
+    player = details["author"]
+    quest_index -= 1
+    while quest_index < len(player.quest:
+        quests = player.quests[quest_index]
+        del player.quests[quest_index]
+        player.save()
+        quest_index = quest_index + 1
+    
+        await util.say(ctx.channel, ("**" + player.name_clean + "** declined to **"
+                                     + quest_index + "** quests!"
+    else:
+        raise util.DueUtilException(ctx.channel, "You have no quests in the first place!")
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SRRRRS?S?S?%?')
 async def createquest(ctx, name, attack, strg, accy, hp,
