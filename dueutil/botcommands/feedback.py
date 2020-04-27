@@ -37,6 +37,11 @@ class FeedbackHandler:
         await util.say(ctx.channel,
                        ":mailbox_with_mail: Sent! You can view your %s here: <%s>" % (self.type, trello_link))
         await util.say(ctx.channel, embed=report)
+        
+        await util.say(gconf.suggestion_bugreport_channel, embed=report) 
+        ### R E A D T H I S
+        ###You need to add the SeverID/703429545713467442 under "suggestion_bugreport_channel" in the config file
+        ### R E A D T H I S
 
 
 bug_reporter = FeedbackHandler(channel=gconf.bug_channel, type="bug report", trello_list="bugs")
@@ -62,7 +67,7 @@ async def suggest(ctx, suggestion, **_):
     """
     [CMD_KEY]suggest (suggestion)
     
-    Leaves a suggestion on the official server and trello.
+    Leaves a suggestion on the official BattleBanana server and trello.
     
     """
 
