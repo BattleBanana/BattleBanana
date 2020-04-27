@@ -74,6 +74,8 @@ async def mark_as_completed(transaction):
 
 @tasks.task(timeout=120)
 async def process_transactions():
+    while not all(client.loaded for client in util.shard_clients):
+        pass
     await get_currencies()
     util.logger.info("Processing Discoin transactions.")
     try:
@@ -83,8 +85,6 @@ async def process_transactions():
         return
 
     if unprocessed is None:
-        return
-    if len(util.shard_clients) == 0:
         return
     
     client = util.shard_clients[0]

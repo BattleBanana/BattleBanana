@@ -11,6 +11,8 @@ import traceback
 
 @tasks.task(timeout=300)
 async def process_votes():
+    while not all(client.loaded for client in util.shard_clients):
+        pass
     util.logger.info("Processing Votes.")
 
     try:
@@ -20,9 +22,6 @@ async def process_votes():
         return
 
     if votes is None:
-        return
-        
-    if len(util.shard_clients) == 0:
         return
 
     client = util.shard_clients[0]
@@ -54,6 +53,7 @@ async def process_votes():
 
             util.logger.info("Processed vote for %s", user_id)
             await util.say(gconf.other_configs['transactions'], embed=embed)
+            print("Sent")
 
 
 async def notify_complete(user_id, vote, reward):
