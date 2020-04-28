@@ -340,8 +340,8 @@ class DueUtilClient(discord.Client):
             if collection != "Player":
                 dbconn.db[collection].delete_many({'_id': {'$regex': '%s.*' % server.id}})
                 dbconn.db[collection].delete_many({'_id': server.id})
-        yield from util.duelogger.info("BattleBanana has been removed from the server **%s** (%s)"
-                                       % util.ultra_escape_string(server.name), server.member_count)
+        yield from util.duelogger.info("BattleBanana has been removed from the server **%s** (%s members)"
+                                       % (util.ultra_escape_string(server.name), server.member_count))
         # Update stats
         yield from servercounts.update_server_count(self)
 
