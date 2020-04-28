@@ -9,7 +9,7 @@ cachetools==2.0.1
 numpy
 repoze.timeago==0.5
 jsonpickle==0.9.5
-emoji==0.4.5
+emoji
 Pillow
 beautifulsoup4==4.6.0
 typing==3.6.2
