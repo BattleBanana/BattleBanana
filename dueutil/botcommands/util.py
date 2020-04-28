@@ -576,7 +576,8 @@ async def exchange(ctx, amount, currency, **details):
     if amount > discoin.MAX_TRANSACTION:
         raise util.DueUtilException(ctx.channel, "The amount you try to exchange exceeds the maximum %s transfer limit of %s." 
                                                                                                 % (discoin.CURRENCY_CODE, discoin.MAX_TRANSACTION))
-
+    
+    amount = int(amount)
     if player.money - amount < 0:
         await util.say(ctx.channel, "You do not have **%s**!\n"
                         % util.format_number(amount, full_precision=True, money=True)
@@ -610,8 +611,17 @@ async def exchange(ctx, amount, currency, **details):
     exchange_embed.set_footer(text="Keep the receipt for if something goes wrong!")
     
     await util.say(ctx.channel, embed=exchange_embed)
-    await util.say(gconf.other_configs['transactions'], ":grey_exclamation: Discoin transaction with receipt ``%s`` processed.\n" % transaction['id']
-                        + "User: %s | Amount: %.2f | To: %s" % (player.id, amount, "%s (%s)" % (transaction['to']['name'], currency)))
+
+    to = transaction.get("to")
+    toID = to.get("id")
+    payout = float(transaction.get('payout'))
+
+    logs_embed = discord.Embed(title="Discion Transaction", description="Receipt ID: [%s](%s)" % (transaction["id"], receipt), 
+        type="rich", colour=gconf.DUE_COLOUR)
+    logs_embed.add_field(name="User:", value=f"{player.user_id}")
+    logs_embed.add_field(name="Exchange", value="%s %s => %.2f %s" % (amount, discoin.CURRENCY_CODE, payout, toID), inline=False)
+
+    await util.say(gconf.other_configs['transactions'], logs_embed)
 
 @commands.command(args_pattern="S?", permission=Permission.DUEUTIL_ADMIN)
 async def status(ctx, message=None, **details):

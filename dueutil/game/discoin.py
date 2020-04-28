@@ -116,7 +116,7 @@ async def process_transactions():
 
             embed = Embed(title="Discion Transaction", description="Receipt ID: [%s](%s)" % (transaction["id"], f"{DISCOINDASH}/{transaction['id']}/show"), 
                 type="rich", colour=gconf.DUE_COLOUR)
-            embed.set_author(name="User: " + user_id)
+            embed.add_field(name="User:", value=f"{user_id}")
             embed.add_field(name="Exchange", value="%.2f %s => %s %s" % (amount, source_id, payout, CURRENCY_CODE), inline=False)
 
             util.logger.info("Processed discoin transaction %s", transaction_id)
