@@ -414,9 +414,10 @@ def run_due():
             loaded_clients = len(shard_clients)
             shard_thread = ShardThread(asyncio.new_event_loop(), shard_number)
             shard_thread.start()
-        
+            while len(shard_clients) <= loaded_clients:
+                pass
         while not loaded():
-            continue
+            pass
 
         # TODO: Show the time it takes to turn on the bot & time it took to start shards
         # util.logger.info("Bot started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - shard_time)
