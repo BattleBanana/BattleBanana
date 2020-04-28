@@ -367,7 +367,6 @@ class DueUtilClient(discord.Client):
                          shard_number, self.name, self.user.name, self.user.id)
         self.loaded = True
         if loaded():
-            util.logger.info("Bot started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - shard_clients[0].start_time)
             yield from util.duelogger.bot("BattleBanana has *(re)*started\n"
                                           + "Bot version → ``%s``" % gconf.VERSION)
 
@@ -410,6 +409,7 @@ def run_due():
     if not stopped:
         loader.load_modules(packages=loader.COMMANDS)
         util.logger.info("Modules loaded after %.2fs", time.time() - start_time)
+        shard_time = time.time()
         for shard_number in range(0, shard_count):
             loaded_clients = len(shard_clients)
             shard_thread = ShardThread(asyncio.new_event_loop(), shard_number)
@@ -420,7 +420,7 @@ def run_due():
             pass
 
         # TODO: Show the time it takes to turn on the bot & time it took to start shards
-        # util.logger.info("Bot started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - shard_time)
+        util.logger.info("Bot started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - shard_time)
 
         ### Tasks
         loop = asyncio.get_event_loop()
