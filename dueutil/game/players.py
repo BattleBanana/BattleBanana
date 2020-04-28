@@ -340,7 +340,7 @@ class Player(DueUtilObject, SlotPickleMixin):
             member = self.to_member()
         if not extras.get("local", False):
             return permissions.has_permission(member, Permission.PLAYER)
-        return not util.has_role_name(member, gconf.DUE_OPTOUT_ROLE)
+        return not util.has_role_name(member, gconf.OPTOUT_ROLE)
 
     @property
     def item_value_limit(self):

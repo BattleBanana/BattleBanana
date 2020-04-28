@@ -495,7 +495,7 @@ async def optouthere(ctx, **details):
         return
 
     if player.is_playing(ctx.server, local=True):
-        optout_role = util.get_role_by_name(ctx.server, gconf.DUE_OPTOUT_ROLE)
+        optout_role = util.get_role_by_name(ctx.server, gconf.OPTOUT_ROLE)
         if optout_role is None:
             await util.say(ctx.channel, ("There is no optout role on this server!\n"
                                          + "Ask an admin to run ``%ssetuproles``" % details["cmd_key"]))
@@ -522,7 +522,7 @@ async def optinhere(ctx, **details):
     player = details["author"]
     globally_opted_out = not player.is_playing()
 
-    optout_role = util.get_role_by_name(ctx.server, gconf.DUE_OPTOUT_ROLE)
+    optout_role = util.get_role_by_name(ctx.server, gconf.OPTOUT_ROLE)
     if optout_role is not None and not player.is_playing(ctx.server, local=True):
         client = util.get_client(ctx.server.id)
         await client.remove_roles(ctx.author, optout_role)
