@@ -15,7 +15,7 @@ import generalconfig as gconf
 import dueutil.permissions
 from ..game.helpers import imagehelper
 from ..permissions import Permission
-from .. import commands, util, events, dbconn
+from .. import commands, util, events, dbconn, loader
 from ..game import customizations, awards, leaderboards, game
 from ..game import emojis
 
@@ -415,10 +415,11 @@ async def toggledonor(ctx, player, **_):
         await util.say(ctx.channel, "**%s** is no longer donor" % player.name_clean)
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None)
-async def duereload(ctx, **_):
+@commands.command(permission=Permission.DUEUTIL_OWNER, args_pattern=None)
+async def relaodbot(ctx, **_):
     await util.say(ctx.channel, ":ferris_wheel: Reloading BattleBanana modules!")
     await util.duelogger.concern("BattleBanana Reloading!")
+    loader.reload_modules(packages=loader.COMMANDS)
     raise util.DueReloadException(ctx.channel)
 
 
@@ -553,6 +554,26 @@ async def ping(ctx,**_):
 
     await util.edit_message(message, embed=embed)
     
+@commands.command(args_pattern=None, hidden=True)
+async def pong(ctx,**_):
+    """
+    [CMD_KEY]pong
+    pong! Gives you the response time.
+    """
+    message = await util.say(ctx.channel, ":ping_pong:")
+
+    apims = round((message.timestamp - ctx.timestamp).total_seconds() * 1000)
+
+    t1 = time.time()
+    dbconn.conn().command("ping")
+    t2 = time.time()
+    dbms = round((t2 - t1) * 1000)
+    
+    embed = discord.Embed(title=":ping_pong: Ping!", type="rich", colour=gconf.DUE_COLOUR)
+    embed.add_field(name="Database Latency:", value="``%sms``" % (dbms))
+    embed.add_field(name="Bot Latency:", value="``%sms``" % (apims), inline=False)
+
+    await util.edit_message(message, embed=embed)
 
 
 @commands.command(args_pattern=None)
@@ -578,3 +599,8 @@ async def cleartopdogs(ctx, **details):
             v.save()
     
     await util.say(ctx.channel, "Scan is done! ")
+
+
+@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None, hidden=True)
+async def hello(ctx, **_):
+    await util.say(ctx.channel, "hello world!")
