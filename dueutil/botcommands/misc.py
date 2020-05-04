@@ -416,7 +416,7 @@ async def toggledonor(ctx, player, **_):
 
 
 @commands.command(permission=Permission.DUEUTIL_OWNER, args_pattern=None)
-async def relaodbot(ctx, **_):
+async def reloadbot(ctx, **_):
     await util.say(ctx.channel, ":ferris_wheel: Reloading BattleBanana modules!")
     await util.duelogger.concern("BattleBanana Reloading!")
     loader.reload_modules(packages=loader.COMMANDS)
@@ -599,8 +599,3 @@ async def cleartopdogs(ctx, **details):
             v.save()
     
     await util.say(ctx.channel, "Scan is done! ")
-
-
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None, hidden=True)
-async def hello(ctx, **_):
-    await util.say(ctx.channel, "hello world!")
