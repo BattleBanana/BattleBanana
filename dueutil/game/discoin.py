@@ -13,7 +13,7 @@ import traceback
 
 DISCOIN = "https://discoin.zws.im"
 DISCOINDASH = "https://dash.discoin.zws.im/#/transactions"
-CURRENCY_CODE = "DUC"
+CURRENCY_CODE = "BBT"
 # Endpoints
 TRANSACTIONS = DISCOIN + "/transactions"
 CURRENCIES = DISCOIN + "/currencies"
