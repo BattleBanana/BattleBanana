@@ -198,7 +198,7 @@ class DueUtilClient(discord.Client):
     @asyncio.coroutine
     def on_message(self, message):
         if (message.author == self.user
-            or message.author.bot.id !== "587720170244407299"
+            or message.author.bot
             or not loaded()
             or message.channel.is_private):
             return
