@@ -621,7 +621,7 @@ async def exchange(ctx, amount, currency, **details):
     logs_embed.add_field(name="User:", value=f"{player.user_id}")
     logs_embed.add_field(name="Exchange", value="%s %s => %.2f %s" % (amount, discoin.CURRENCY_CODE, payout, toID), inline=False)
 
-    await util.say(gconf.other_configs['transactions'], logs_embed)
+    await util.say(gconf.other_configs['transactions'], embed=logs_embed)
 
 @commands.command(args_pattern="S?", permission=Permission.DUEUTIL_ADMIN)
 async def status(ctx, message=None, **details):
