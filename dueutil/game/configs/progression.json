@@ -17,15 +17,15 @@
     }
   },
   "rank-awards": {
-    "10": "Duseless",
-    "20": "Duseless",
-    "30": "Duseless",
-    "40": "Duseless",
-    "50": "Duseless",
-    "60": "Duseless",
-    "70": "Duseless",
-    "80": "Duseless",
-    "90": "Duseless",
-    "100":"Duseless"
+    "10": "Rank1",
+    "20": "Rank2",
+    "30": "Rank3",
+    "40": "Rank4",
+    "50": "Rank5",
+    "60": "Rank6",
+    "70": "Rank7",
+    "80": "Rank8",
+    "90": "Rank9",
+    "100":"Rank10"
   }
 }
