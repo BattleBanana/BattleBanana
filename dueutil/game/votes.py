@@ -9,6 +9,9 @@ from dueutil import util, tasks, dbconn
 
 import traceback
 
+VOTE_REWARD = 25000
+WE_VOTE_REWARD = 40000
+
 @tasks.task(timeout=300)
 async def process_votes():
     while not all(client.loaded for client in util.shard_clients):
@@ -38,7 +41,7 @@ async def process_votes():
                 dbconn.conn()["Votes"].delete_one({'_id': vote_id})
                 continue
             
-            reward = 100000 if isWeekend else 50000
+            reward = WE_VOTE_REWARD if isWeekend else VOTE_REWARD
             player.money += reward
             player.save()
 
