@@ -28,6 +28,9 @@ async def daily(ctx, **details):
     responses = game.getResponses()
 
     BALANCED_AMOUNT = DAILY_AMOUNT * player.level * (player.prestige_level + 1)
+    if player.donor:
+        BALANCED_AMOUNT *= 1.5
+    
     player.money += BALANCED_AMOUNT
     player.save()
     await util.say(ctx.channel, e.BBT + f' {random.choice(responses).format(user=f"**{player}**", daily=f"¤{BALANCED_AMOUNT}")}')

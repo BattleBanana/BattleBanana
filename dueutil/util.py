@@ -22,7 +22,7 @@ Other than that no two things in this module have much in common
 
 shard_clients = []
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('dueutil')
+logger = logging.getLogger('battlebanana')
 
 sentry_client = Client(gconf.other_configs["sentryAuth"],
                        ignore_exceptions=["KeyboardInterrupt"],

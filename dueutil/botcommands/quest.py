@@ -145,6 +145,9 @@ async def acceptquest(ctx, quest_index, **details):
 
         # Put some random in the prestige gain so its not a raw 20 * prestige
         max_stats_gain = 100 * (player.prestige_level + 1)
+        if player.donor:
+            max_stats_gain *= 1.5
+
         add_strg = min(attr_gain(quest.strg), max_stats_gain)
         # Limit these with add_strg. Since if the quest is super strong. It would not be beatable.
         # Add a little random so the limit is not super visible
