@@ -544,7 +544,7 @@ async def ping(ctx,**_):
     apims = round((message.timestamp - ctx.timestamp).total_seconds() * 1000)
 
     t1 = time.time()
-    dbconn.conn().command("ping")
+    game.players.find_player(ctx.author.id)
     t2 = time.time()
     dbms = round((t2 - t1) * 1000)
     
@@ -565,7 +565,7 @@ async def pong(ctx,**_):
     apims = round((message.timestamp - ctx.timestamp).total_seconds() * 1000)
 
     t1 = time.time()
-    dbconn.conn().command("ping")
+    game.players.find_player(ctx.author.id)
     t2 = time.time()
     dbms = round((t2 - t1) * 1000)
     
@@ -590,12 +590,12 @@ async def vote(ctx, **details):
     await util.say(ctx.channel, embed=Embed)
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None, hidden=True)
-async def cleartopdogs(ctx, **details):
-    await util.say(ctx.channel, ":arrows_counterclockwise: Removing every active topdog!")
-    for id, v in sorted(game.players.players.items()):
-        if 'TopDog' in v.awards:
-            v.awards.remove("TopDog")
-            v.save()
+# @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None, hidden=True)
+# async def cleartopdogs(ctx, **details):
+#     await util.say(ctx.channel, ":arrows_counterclockwise: Removing every active topdog!")
+#     for id, v in sorted(game.players.players.items()):
+#         if 'TopDog' in v.awards:
+#             v.awards.remove("TopDog")
+#             v.save()
     
-    await util.say(ctx.channel, "Scan is done! ")
+#     await util.say(ctx.channel, "Scan is done! ")

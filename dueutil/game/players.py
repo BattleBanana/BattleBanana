@@ -478,7 +478,7 @@ def find_player(user_id: str) -> Player:
     if user_id in players:
         return players[user_id]
     elif load_player(user_id):
-        return players[user_id]
+        return players.pop(user_id)
 
 
 REFERENCE_PLAYER = Player(no_save=True)
