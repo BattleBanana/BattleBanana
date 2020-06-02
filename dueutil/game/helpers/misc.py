@@ -115,8 +115,8 @@ class DueMap(collections.MutableMapping):
     
     A 2D Mapping for things & items
     E.g. Key "ServerID/Name"
-    or Server & Item
-    where the key is Server.id/Item.name
+    or Guild & Item
+    where the key is Guild.id/Item.name
     
     or key with addtional data:
       some.id+data/item.name
@@ -124,7 +124,7 @@ class DueMap(collections.MutableMapping):
       and the data can't contain any '/'s
    
     This mapping will return an empty dict or None
-    if the server or item does not exist!
+    if the guild or item does not exist!
     
     Happens to be quite useful
     
@@ -181,7 +181,7 @@ class DueMap(collections.MutableMapping):
 
     @staticmethod
     def _parse_key(key, value=None):
-        if isinstance(key, discord.Server):
+        if isinstance(key, discord.Guild):
             if value is not None:
                 return [key.id, value.name]
             return key.id

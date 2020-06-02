@@ -174,8 +174,8 @@ async def manage_quests(message, player, spam_level):
         util.logger.info("%s (%s) daily completed quests reset", player.name_assii, player.id)
 
     # Testing   
-    if len(quests.get_server_quest_list(channel.server)) == 0:
-        quests.add_default_quest_to_server(message.server)
+    if len(quests.get_server_quest_list(channel.guild)) == 0:
+        quests.add_default_quest_to_server(message.guild)
     if quest_time(player) and spam_level < SPAM_TOLERANCE:
         if quests.has_quests(channel) and len(
                 player.quests) < quests.MAX_ACTIVE_QUESTS and player.quests_completed_today < quests.MAX_DAILY_QUESTS:
@@ -251,7 +251,7 @@ async def on_message(message):
     player = players.find_player(message.author.id)
     spam_level = 100
     if player is not None:
-        if not player.is_playing(message.server):
+        if not player.is_playing(message.guild):
             return
         if quest_time(player) or progress_time(player):
             spam_level = get_spam_level(player, message.content)

@@ -36,8 +36,8 @@ class Weapon(DueUtilObject, SlotPickleMixin):
         message = extras.get('ctx', None)
 
         if message is not None:
-            if does_weapon_exist(message.server.id, name):
-                raise util.DueUtilException(message.channel, "A weapon with that name already exists on this server!")
+            if does_weapon_exist(message.guild.id, name):
+                raise util.DueUtilException(message.channel, "A weapon with that name already exists on this guild!")
 
             if not Weapon.acceptable_string(name, 30):
                 raise util.DueUtilException(message.channel, "Weapon names must be between 1 and 30 characters!")
@@ -52,11 +52,11 @@ class Weapon(DueUtilObject, SlotPickleMixin):
                 raise util.DueUtilException(message.channel, "Accuracy must be between 1% and 86%!")
 
             icon = extras.get('icon', emojis.DAGGER)
-            if not (util.char_is_emoji(icon) or util.is_server_emoji(message.server, icon)):
+            if not (util.char_is_emoji(icon) or util.is_server_emoji(message.guild, icon)):
                 raise util.DueUtilException(message.channel, (":eyes: Weapon icons must be emojis! :ok_hand:**"
-                                                              + "(custom emojis must be on this server)**​"))
+                                                              + "(custom emojis must be on this guild)**​"))
 
-            self.server_id = message.server.id
+            self.server_id = message.guild.id
 
         else:
             self.server_id = "STOCK"
@@ -104,8 +104,8 @@ class Weapon(DueUtilObject, SlotPickleMixin):
         # Handles custom emojis for weapons being removed.
         # Not the best place for it but it has to go somewhere.
         if self.server_id != "STOCK" and not util.char_is_emoji(self._icon):
-            server = util.get_server(self.server_id)
-            if not util.is_server_emoji(server, self._icon):
+            guild = util.get_guild(self.server_id)
+            if not util.is_server_emoji(guild, self._icon):
                 self.icon = emojis.MISSING_ICON
                 self.save()
         return self._icon
@@ -142,7 +142,7 @@ def get_weapon_from_id(weapon_id: str) -> Weapon:
     if weapon_id in weapons:
         weapon = weapons[weapon_id]
         # Getting from the store WILL not ensure an exact match.
-        # It will only use the name and server id.
+        # It will only use the name and guild id.
         # We must compare here to ensure the meta data is the same.
         if weapon.id == weapon_id:
             return weapon
@@ -168,8 +168,8 @@ def get_weapon_summary_from_id(weapon_id: str) -> Summary:
                    accy=float(summary[2]))
 
 
-def remove_weapon_from_shop(server: discord.Server, weapon_name: str) -> bool:
-    weapon = get_weapon_for_server(server.id, weapon_name)
+def remove_weapon_from_shop(guild: discord.Guild, weapon_name: str) -> bool:
+    weapon = get_weapon_for_server(guild.id, weapon_name)
     if weapon is not None:
         del weapons[weapon.id]
         dbconn.get_collection_for_object(Weapon).remove({'_id': weapon.id})
@@ -177,12 +177,12 @@ def remove_weapon_from_shop(server: discord.Server, weapon_name: str) -> bool:
     return False
 
 
-def get_weapons_for_server(server: discord.Server) -> Dict[str, Weapon]:
-    return dict(weapons[server], **weapons["STOCK"])
+def get_weapons_for_server(guild: discord.Guild) -> Dict[str, Weapon]:
+    return dict(weapons[guild], **weapons["STOCK"])
 
 
-def find_weapon(server: discord.Server, weapon_name_or_id: str) -> Union[Weapon, None]:
-    weapon = get_weapon_for_server(server.id, weapon_name_or_id)
+def find_weapon(guild: discord.Guild, weapon_name_or_id: str) -> Union[Weapon, None]:
+    weapon = get_weapon_for_server(guild.id, weapon_name_or_id)
     if weapon is None:
         weapon_id = weapon_name_or_id.lower()
         weapon = get_weapon_from_id(weapon_id)
@@ -197,10 +197,10 @@ def stock_weapon(weapon_name: str) -> str:
     return NO_WEAPON_ID
 
 
-def remove_all_weapons(server):
-    if server in weapons:
-        result = dbconn.delete_objects(Weapon, '%s\+.*' % server.id)
-        del weapons[server]
+def remove_all_weapons(guild):
+    if guild in weapons:
+        result = dbconn.delete_objects(Weapon, '%s\+.*' % guild.id)
+        del weapons[guild]
         return result.deleted_count
     return 0
 

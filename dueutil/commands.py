@@ -34,11 +34,11 @@ def command(**command_rules):
         return False
 
     def get_command_details(ctx, **details):
-        details["timestamp"] = ctx.timestamp
+        details["timestamp"] = ctx.created_at 
         details["author"] = players.find_player(ctx.author.id)
-        details["server_id"] = ctx.server.id
-        details["server_name"] = ctx.server.name
-        details["server_name_clean"] = util.ultra_escape_string(ctx.server.name)
+        details["server_id"] = ctx.guild.id
+        details["server_name"] = ctx.guild.name
+        details["server_name_clean"] = util.ultra_escape_string(ctx.guild.name)
         details["author_name"] = ctx.author.name
         details["author_name_clean"] = util.ultra_escape_string(ctx.author.name)
         details["channel"] = ctx.channel
@@ -75,7 +75,7 @@ def command(**command_rules):
                     # React ?
                     if not has_my_variant(name) or len(ctx.raw_mentions) > 0:
                         # Could not be a mistype for a personal my command
-                        await util.get_client(ctx.server.id).add_reaction(ctx, emojis.QUESTION_REACT)
+                        await ctx.message.add_reaction(emojis.QUESTION_REACT)
                     else:
                         # May have meant to call a personal command
                         personal_command_name = "my" + name
@@ -92,13 +92,13 @@ def command(**command_rules):
                 # React X
                 if not (permissions.has_permission(ctx.author, Permission.PLAYER) or permissions.has_special_permission(ctx.author, Permission.BANNED)):
                     player = players.find_player(ctx.author.id)
-                    local_optout = not player.is_playing(ctx.server, local=True)
+                    local_optout = not player.is_playing(ctx.guild, local=True)
                     if local_optout:
                         await util.say(ctx.channel, "You are opted out. Use ``%soptinhere``!" % prefix)
                     else:
                         await util.say(ctx.channel, "You are opted out. Use ``%soptin``!" % prefix)
                 else:
-                    await util.get_client(ctx.server.id).add_reaction(ctx, emojis.CROSS_REACT)
+                    await ctx.message.add_reaction(emojis.CROSS_REACT)
             return True
 
         wrapped_command.is_hidden = command_rules.get('hidden', False)
@@ -142,7 +142,7 @@ def imagecommand():
         @ratelimit(slow_command=True, cooldown=IMAGE_REQUEST_COOLDOWN, error=":cold_sweat: Please don't break me!")
         @wraps(command_func)
         async def wrapped_command(ctx, *args, **kwargs):
-            await util.get_client(ctx).send_typing(ctx.channel)
+            await ctx.channel.typing()
             await asyncio.ensure_future(command_func(ctx, *args, **kwargs))
 
         return wrapped_command
@@ -208,7 +208,7 @@ def parse(command_message):
     that can guess where quotes should be most times.
     """
 
-    key = dueserverconfig.server_cmd_key(command_message.server)
+    key = dueserverconfig.server_cmd_key(command_message.guild)
     command_string = command_message.content.replace(key, '', 1)
     user_mentions = command_message.raw_mentions
     escaped = False

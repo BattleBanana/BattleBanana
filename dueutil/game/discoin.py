@@ -125,10 +125,10 @@ async def process_transactions():
 
 async def notify_complete(user_id, transaction, failed=False):
     client = util.shard_clients[0]
-    user = await client.get_user_info(user_id)
+    user = await client.fetch_user(user_id)
     await mark_as_completed(transaction)
     try:
-        await client.start_private_message(user)
+        await user.create_dm()
         embed = Embed(title="Discion Transaction", description="Receipt ID: %s" % (transaction["id"]), type="rich", colour=gconf.DUE_COLOUR)
         embed.set_footer(text="Keep the receipt for if something goes wrong!")
         

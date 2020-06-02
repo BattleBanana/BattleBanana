@@ -33,17 +33,17 @@ def get_leaderboard(rank_name):
 
 
 @ttl_cache(maxsize=32, ttl=3600)
-def get_local_leaderboard(server, rank_name):
+def get_local_leaderboard(guild, rank_name):
     rankings = get_leaderboard(rank_name)
     if rankings is not None:
-        rankings = list(filter(lambda player_id: server.get_member(player_id) is not None, rankings))
+        rankings = list(filter(lambda player_id: guild.get_member(player_id) is not None, rankings))
         return _LocalLeaderboard(updated=last_leaderboard_update, data=rankings)
 
 
-def get_rank(player, rank_name, server=None):
-    if server is not None:
+def get_rank(player, rank_name, guild=None):
+    if guild is not None:
         # Local
-        rankings = get_local_leaderboard(server, rank_name).data
+        rankings = get_local_leaderboard(guild, rank_name).data
     else:
         rankings = get_leaderboard(rank_name)
     try:

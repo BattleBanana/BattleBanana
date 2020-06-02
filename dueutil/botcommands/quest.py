@@ -44,7 +44,7 @@ async def spawnquest(ctx, *args, **details):
         if len(args) >= 2:
             player = args[1]
         quest_name = args[0].lower()
-        quest = quests.get_quest_from_id(ctx.server.id + "/" + quest_name)
+        quest = quests.get_quest_from_id(ctx.guild.id + "/" + quest_name)
     try:
         active_quest = await quests.ActiveQuest.create(quest.q_id, player)
         if len(args) == 3:
@@ -178,7 +178,7 @@ async def acceptquest(ctx, quest_index, **details):
     await util.say(ctx.channel, embed=battle_embed)
     # Put this here to avoid 'spoiling' results before battle log
     if winner == player:
-        await awards.give_award(ctx.channel, player, "QuestDone", "*Saved* the server!")
+        await awards.give_award(ctx.channel, player, "QuestDone", "*Saved* the guild!")
     elif winner == quest:
         await awards.give_award(ctx.channel, player, "RedMist", "Red mist...")
     else:
@@ -257,8 +257,8 @@ async def createquest(ctx, name, attack, strg, accy, hp,
         This creates a quest with the same base values as before but with the message "Kill the"
         when the quest pops up, a dagger, a quest icon image and a spawn chance of 21%
     """
-    if len(quests.get_server_quest_list(ctx.server)) >= gconf.THING_AMOUNT_CAP:
-        raise util.DueUtilException(ctx.server, "Whoa, you've reached the limit of %d quests!"
+    if len(quests.get_server_quest_list(ctx.guild)) >= gconf.THING_AMOUNT_CAP:
+        raise util.DueUtilException(ctx.guild, "Whoa, you've reached the limit of %d quests!"
                                     % gconf.THING_AMOUNT_CAP)
 
     extras = {"spawn_chance": spawn_chane}
@@ -266,7 +266,7 @@ async def createquest(ctx, name, attack, strg, accy, hp,
         extras['task'] = task
     if weapon is not None:
         weapon_name_or_id = weapon
-        weapon = weapons.find_weapon(ctx.server, weapon_name_or_id)
+        weapon = weapons.find_weapon(ctx.guild, weapon_name_or_id)
         if weapon is None:
             raise util.DueUtilException(ctx.channel, "Weapon for the quest not found!")
         extras['weapon_id'] = weapon.w_id
@@ -302,7 +302,7 @@ async def editquest(ctx, quest_name, updates, **_):
         [CMD_KEY]editquest slime channel ``#slime_fields``
     """
 
-    quest = quests.get_quest_on_server(ctx.server, quest_name)
+    quest = quests.get_quest_on_server(ctx.guild, quest_name)
     if quest is None:
         raise util.DueUtilException(ctx.channel, "Quest not found!")
 
@@ -331,7 +331,7 @@ async def editquest(ctx, quest_name, updates, **_):
             else:
                 updates[quest_property] = "Must be at least 30!"
         elif quest_property in ("weap", "weapon"):
-            weapon = weapons.get_weapon_for_server(ctx.server.id, value)
+            weapon = weapons.get_weapon_for_server(ctx.guild.id, value)
             if weapon is not None:
                 quest.w_id = weapon.w_id
                 updates[quest_property] = weapon
@@ -343,7 +343,7 @@ async def editquest(ctx, quest_name, updates, **_):
                 updates[quest_property] = value.title()
             else:
                 channel_id = value.replace("<#", "").replace(">", "")
-                channel = util.get_client(ctx.server.id).get_channel(channel_id)
+                channel = util.get_client(ctx.guild.id).get_channel(channel_id)
                 if channel is not None:
                     quest.channel = channel.id
                 else:
@@ -380,11 +380,11 @@ async def removequest(ctx, quest_name, **_):
     """
 
     quest_name = quest_name.lower()
-    quest = quests.get_quest_on_server(ctx.server, quest_name)
+    quest = quests.get_quest_on_server(ctx.guild, quest_name)
     if quest is None:
         raise util.DueUtilException(ctx.channel, "Quest not found!")
 
-    quests.remove_quest_from_server(ctx.server, quest_name)
+    quests.remove_quest_from_server(ctx.guild, quest_name)
     await util.say(ctx.channel, ":white_check_mark: **" + quest.name_clean + "** is no more!")
 
 
@@ -395,10 +395,10 @@ async def resetquests(ctx, **_):
     [CMD_KEY]resetquests
 
     Genocide in a command!
-    This command will **delete all quests** on your server.
+    This command will **delete all quests** on your guild.
     """
 
-    quests_deleted = quests.remove_all_quests(ctx.server)
+    quests_deleted = quests.remove_all_quests(ctx.guild)
     if quests_deleted > 0:
         await util.say(ctx.channel, ":wastebasket: Your quests have been reset—**%d %s** deleted."
                                     % (quests_deleted, util.s_suffix("quest", quests_deleted)))
@@ -411,11 +411,11 @@ async def serverquests(ctx, page=1, **details):
     """
     [CMD_KEY]serverquests (page or quest name)
 
-    Lists the quests active on your server.
+    Lists the quests active on your guild.
 
     If you would like to see the base stats of a quest do [CMD_KEY]serverquests (quest name)
 
-    Remember you can edit any of the quests on your server with [CMD_KEY]editquest
+    Remember you can edit any of the quests on your guild with [CMD_KEY]editquest
     """
 
     @misc.paginator
@@ -424,25 +424,25 @@ async def serverquests(ctx, page=1, **details):
                                value="Completed %s time" % current_quest.times_beaten
                                      + ("s" if current_quest.times_beaten != 1 else "") + "\n"
                                      + "Active channel: %s"
-                                       % current_quest.get_channel_mention(ctx.server))
+                                       % current_quest.get_channel_mention(ctx.guild))
 
     if type(page) is int:
         page -= 1
 
-        quests_list = list(quests.get_server_quest_list(ctx.server).values())
+        quests_list = list(quests.get_server_quest_list(ctx.guild).values())
         quests_list.sort(key=lambda server_quest: server_quest.times_beaten, reverse=True)
 
         # misc.paginator handles all the messy checks.
         quest_list_embed = quest_list(quests_list, page, e.QUEST+" Quests on " + details["server_name_clean"],
                                       footer_more="But wait there more! Do %sserverquests %d" % (details["cmd_key"], page+2),
-                                      empty_list="There are no quests on this server!\nHow sad.")
+                                      empty_list="There are no quests on this guild!\nHow sad.")
 
         await util.say(ctx.channel, embed=quest_list_embed)
     else:
         # TODO: Improve
         quest_info_embed = discord.Embed(type="rich", color=gconf.DUE_COLOUR)
         quest_name = page
-        quest = quests.get_quest_on_server(ctx.server, quest_name)
+        quest = quests.get_quest_on_server(ctx.guild, quest_name)
         if quest is None:
             raise util.DueUtilException(ctx.channel, "Quest not found!")
         quest_info_embed.title = "Quest information for the %s " % quest.name_clean
@@ -464,7 +464,7 @@ async def serverquests(ctx, page=1, **details):
                                                                    % util.ultra_escape_string(quest.task)
                                                                    + e.WPN + " **Weapon** - %s\n" % quest_weapon
                                                                    + e.CHANNEL + " **Channel** - %s\n"
-                                                                   % quest.get_channel_mention(ctx.server)),
+                                                                   % quest.get_channel_mention(ctx.guild)),
                                    inline=False)
         quest_info_embed.set_thumbnail(url=quest.image_url)
         await util.say(ctx.channel, embed=quest_info_embed)

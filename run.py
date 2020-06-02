@@ -85,28 +85,28 @@ class DueUtilClient(discord.Client):
         self.queue_tasks.put({"task": task, "args": args, "kwargs": kwargs})
 
     @asyncio.coroutine
-    def on_server_join(self, server):
+    def on_guild_join(self, guild):
         server_count = util.get_server_count()
         if server_count % 100 == 0:
             yield from util.say(gconf.announcement_channel,
                                 ":confetti_ball: I'm on __**%d SERVERS**__ now!1!111!\n@everyone" % server_count)
 
-        util.logger.info("Joined server name: %s id: %s", server.name, server.id)
-        yield from util.set_up_roles(server)
-        server_stats = self.server_stats(server)
-        yield from util.duelogger.info(("BattleBanana has joined the server **"
-                                        + util.ultra_escape_string(server.name) + "**!\n"
+        util.logger.info("Joined guild name: %s id: %s", guild.name, guild.id)
+        yield from util.set_up_roles(guild)
+        server_stats = self.server_stats(guild)
+        yield from util.duelogger.info(("BattleBanana has joined the guild **"
+                                        + util.ultra_escape_string(guild.name) + "**!\n"
                                         + "``Member count →`` " + str(server_stats["member_count"]) + "\n"
                                         + "``Bot members →``" + str(server_stats["bot_count"]) + "\n"
                                         + ("**BOT SERVER**" if server_stats["bot_server"] else "")))
 
-        # Message to help out new server admins.
-        for channel in server.channels:
+        # Message to help out new guild admins.
+        for channel in guild.channels:
             if channel.type == discord.ChannelType.text:
                 try:
-                    yield from self.send_message(channel, ":wave: __Thanks for adding me!__\n"
+                    yield from channel.send(":wave: __Thanks for adding me!__\n"
                                      + "If you would like to customize me to fit your "
-                                     + "server take a quick look at the admins "
+                                     + "guild take a quick look at the admins "
                                      + "guide at <https://dueutil.xyz/howto/#adming>.\n"
                                      + "It shows how to change the command prefix here, and set which "
                                      + "channels I or my commands can be used in (along with a bunch of other stuff).")
@@ -118,9 +118,9 @@ class DueUtilClient(discord.Client):
         yield from servercounts.update_server_count(self)
 
     @staticmethod
-    def server_stats(server):
-        member_count = len(server.members)
-        bot_count = sum(member.bot for member in server.members)
+    def server_stats(guild):
+        member_count = len(guild.members)
+        bot_count = sum(member.bot for member in guild.members)
         bot_percent = int((bot_count / member_count) * 100)
         bot_server = bot_percent > 70
         return {"member_count": member_count, "bot_percent": bot_percent,
@@ -139,9 +139,9 @@ class DueUtilClient(discord.Client):
             # A normal dueutil user error
             try:
                 if error.channel is not None:
-                    yield from self.send_message(error.channel, error.get_message())
+                    yield from util.say(error.channel, error.get_message())
                 else:
-                    yield from self.send_message(ctx.channel, error.get_message())
+                    yield from util.say(ctx.channel, error.get_message())
             except:
                 util.logger.warning("Unable to send Exception message")
             return
@@ -157,7 +157,7 @@ class DueUtilClient(discord.Client):
                 else:
                     try:
                         # Attempt to warn user
-                        perms = ctx.server.me.permissions_in(ctx.channel)
+                        perms = ctx.guild.me.permissions_in(ctx.channel)
                         yield from util.say(ctx.channel,
                                             "The action could not be performed as I'm **missing permissions**! Make sure I have the following permissions:\n"
                                             + "- Manage Roles %s;\n" % (":white_check_mark:" if perms.manage_roles else ":x:")
@@ -184,7 +184,7 @@ class DueUtilClient(discord.Client):
             util.logger.critical("Something went very wrong and the error of death came for us: %s", error)
             os._exit(1)
         elif ctx_is_message:
-            yield from self.send_message(ctx.channel, (":bangbang: **Something went wrong...**"))
+            yield from util.say(ctx.channel, (":bangbang: **Something went wrong...**"))
             trigger_message = discord.Embed(title="Trigger", type="rich", color=gconf.DUE_COLOUR)
             trigger_message.add_field(name="Message", value=ctx.author.mention + ":\n" + ctx.content)
             yield from util.duelogger.error(("**Message/command triggred error!**\n"
@@ -200,12 +200,12 @@ class DueUtilClient(discord.Client):
         if (message.author == self.user
             or message.author.bot
             or not loaded()
-            or message.channel.is_private):
+            or isinstance(message.channel, discord.abc.PrivateChannel)):
             return
         
         # Live support
-        # if message.channel.is_private or (message.server == util.get_server('617912143303671810') and players.find_player(message.channel.name)):
-        #     support_server = util.get_server('617912143303671810')
+        # if message.channel.is_private or (message.guild == util.get_guild('617912143303671810') and players.find_player(message.channel.name)):
+        #     support_server = util.get_guild('617912143303671810')
             
         #     # User writes us
         #     if message.channel.is_private:
@@ -215,7 +215,7 @@ class DueUtilClient(discord.Client):
         #         if message.content.lower().startswith("!requestsupport"):
         #             try:
         #                 if not util.find_channel(user_id):
-        #                     yield from self.create_channel(server=support_server, name=user_id, type=0)
+        #                     yield from message.guild.create_channel(guild=support_server, name=user_id, type=0)
         #                     yield from self.add_reaction(message, emojis.CHECK_REACT)
         #                 else:
         #                     yield from self.add_reaction(message, emojis.CROSS_REACT)
@@ -266,7 +266,7 @@ class DueUtilClient(discord.Client):
         #                 yield from self.add_reaction(message, emojis.CROSS_REACT)
             
         #     # We reply 
-        #     elif (message.server == util.get_server('617912143303671810') and players.find_player(message.channel.name)):
+        #     elif (message.guild == util.get_guild('617912143303671810') and players.find_player(message.channel.name)):
         #         user = yield from self.get_user_info(message.channel.name)
         #         channel = message.channel
 
@@ -310,13 +310,13 @@ class DueUtilClient(discord.Client):
         #     return
 
 
-        owner = discord.Member(user={"id": config["owner"]})
-        if not permissions.has_permission(owner, Permission.DUEUTIL_OWNER):
-            permissions.give_permission(owner, Permission.DUEUTIL_OWNER)
+        #owner = discord.Member(user={"id": config["owner"]})
+        #if not permissions.has_permission(owner, Permission.DUEUTIL_OWNER):
+        #    permissions.give_permission(owner, Permission.DUEUTIL_OWNER)
         mentions_self_regex = "<@.?"+self.user.id+">"
         if re.match("^"+mentions_self_regex, message.content):
             message.content = re.sub(mentions_self_regex + "\s*",
-                                    dueserverconfig.server_cmd_key(message.server),
+                                    dueserverconfig.server_cmd_key(message.guild),
                                     message.content)
             
         yield from events.on_message_event(message)
@@ -330,18 +330,18 @@ class DueUtilClient(discord.Client):
             if old_image != new_image:
                 imagecache.uncache(old_image)
             member = after
-            if (member.server.id == gconf.THE_DEN and any(role.id == gconf.DONOR_ROLE_ID for role in member.roles)):
+            if (member.guild.id == gconf.THE_DEN and any(role.id == gconf.DONOR_ROLE_ID for role in member.roles)):
                 player.donor = True
                 player.save()
 
     @asyncio.coroutine
-    def on_server_remove(self, server):
+    def on_guild_remove(self, guild):
         for collection in dbconn.db.collection_names():
             if collection != "Player":
-                dbconn.db[collection].delete_many({'_id': {'$regex': '%s.*' % server.id}})
-                dbconn.db[collection].delete_many({'_id': server.id})
-        yield from util.duelogger.info("BattleBanana has been removed from the server **%s** (%s members)"
-                                       % (util.ultra_escape_string(server.name), server.member_count))
+                dbconn.db[collection].delete_many({'_id': {'$regex': '%s.*' % guild.id}})
+                dbconn.db[collection].delete_many({'_id': guild.id})
+        yield from util.duelogger.info("BattleBanana has been removed from the guild **%s** (%s members)"
+                                       % (util.ultra_escape_string(guild.name), guild.member_count))
         # Update stats
         yield from servercounts.update_server_count(self)
 
@@ -350,10 +350,10 @@ class DueUtilClient(discord.Client):
         try:
             avatar = open("avatars/" + avatar_name.strip(), "rb")
             avatar_object = avatar.read()
-            yield from self.edit_profile(avatar=avatar_object)
-            yield from self.send_message(channel, ":white_check_mark: Avatar now **" + avatar_name + "**!")
+            yield from self.edit(avatar=avatar_object)
+            yield from util.say(channel, ":white_check_mark: Avatar now **" + avatar_name + "**!")
         except FileNotFoundError:
-            yield from self.send_message(channel, ":bangbang: **Avatar change failed!**")
+            yield from util.say(channel, ":bangbang: **Avatar change failed!**")
 
     @asyncio.coroutine
     def on_ready(self):
@@ -441,8 +441,8 @@ if __name__ == "__main__":
     bot_key = config["botToken"]
     shard_count = config["shardCount"]
     shard_names = config["shardNames"]
-    owner = discord.Member(user={"id": config["owner"]})
-    if not permissions.has_permission(owner, Permission.DUEUTIL_OWNER):
-        permissions.give_permission(owner, Permission.DUEUTIL_OWNER)
+    #owner = discord.Member(user={"id": config["owner"]})
+    #if not permissions.has_permission(owner, Permission.DUEUTIL_OWNER):
+    #    permissions.give_permission(owner, Permission.DUEUTIL_OWNER)
     util.load(shard_clients)
     run_due()

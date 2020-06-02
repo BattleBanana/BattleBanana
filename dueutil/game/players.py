@@ -308,16 +308,14 @@ class Player(DueUtilObject, SlotPickleMixin):
     def weapon_hit(self):
         return random.random() < self.weapon_accy
 
-    def get_avatar_url(self, server=None, **extras):
-        if server is None:
+    def get_avatar_url(self, guild=None, **extras):
+        if guild is None:
             member = extras.get("member")
-        elif server is not None:
-            member = server.get_member(self.id)
+        elif guild is not None:
+            member = guild.get_member(self.id)
         else:
             raise ValueError("Invalid arguments")
-        if member.avatar_url != "":
-            return member.avatar_url
-        return member.default_avatar_url
+        return member.avatar_url
 
     def get_avg_stat(self):
         return sum((self.attack, self.strg, self.accy)) / 4
@@ -325,18 +323,18 @@ class Player(DueUtilObject, SlotPickleMixin):
     def is_top_dog(self):
         return "TopDog" in self.awards
 
-    def is_playing(self, server=None, **extras):
+    def is_playing(self, guild=None, **extras):
         # Having the perm DISCORD_USER specially set to override PLAYER
         # means you have opted out.
         if self.is_top_dog():
             return True  # Topdog is ALWAYS playing.
-        if server is not None:
-            member = server.get_member(self.id)
+        if guild is not None:
+            member = guild.get_member(self.id)
             if member is None:
-                # Member not on server.
+                # Member not on guild.
                 member = self.to_member()
         else:
-            # Server not passed.
+            # Guild not passed.
             member = self.to_member()
         if not extras.get("local", False):
             return permissions.has_permission(member, Permission.PLAYER)

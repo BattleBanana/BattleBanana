@@ -320,7 +320,7 @@ async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon=
     """
     [CMD_KEY]createweapon "weapon name" "hit message" damage accy
     
-    Creates a weapon for the server shop!
+    Creates a weapon for the guild shop!
     
     For extra customization you add the following:
     
@@ -337,7 +337,7 @@ async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon=
         as it fires projectiles, a icon (for the shop) ':banana:' and image of the weapon from the url.
     """
 
-    if len(weapons.get_weapons_for_server(ctx.server)) >= gconf.THING_AMOUNT_CAP:
+    if len(weapons.get_weapons_for_server(ctx.guild)) >= gconf.THING_AMOUNT_CAP:
         raise util.DueUtilException(ctx.channel, "Sorry you've used all %s slots in your shop!"
                                                  % gconf.THING_AMOUNT_CAP)
 
@@ -372,7 +372,7 @@ async def editweapon(ctx, weapon_name, updates, **_):
         [CMD_KEY]editweapon "a gun" image http://i.imgur.com/QuZQm4D.png
     """
 
-    weapon = weapons.get_weapon_for_server(ctx.server.id, weapon_name)
+    weapon = weapons.get_weapon_for_server(ctx.guild.id, weapon_name)
     if weapon is None:
         raise util.DueUtilException(ctx.channel, "Weapon not found!")
     if weapon.is_stock():
@@ -381,10 +381,10 @@ async def editweapon(ctx, weapon_name, updates, **_):
     new_image_url = None
     for weapon_property, value in updates.items():
         if weapon_property == "icon":
-            if util.is_discord_emoji(ctx.server, value):
+            if util.is_discord_emoji(ctx.guild, value):
                 weapon.icon = value
             else:
-                updates[weapon_property] = "Must be an emoji! (custom emojis must be on this server)"
+                updates[weapon_property] = "Must be an emoji! (custom emojis must be on this guild)"
         elif weapon_property == "ranged":
             weapon.melee = not value
             updates[weapon_property] = str(value).lower()
@@ -420,12 +420,12 @@ async def removeweapon(ctx, weapon_name, **_):
     """
 
     weapon_name = weapon_name.lower()
-    weapon = weapons.get_weapon_for_server(ctx.server.id, weapon_name)
+    weapon = weapons.get_weapon_for_server(ctx.guild.id, weapon_name)
     if weapon is None or weapon.id == weapons.NO_WEAPON_ID:
         raise util.DueUtilException(ctx.channel, "Weapon not found")
     if weapon.id != weapons.NO_WEAPON_ID and weapons.stock_weapon(weapon_name) != weapons.NO_WEAPON_ID:
         raise util.DueUtilException(ctx.channel, "You can't remove stock weapons!")
-    weapons.remove_weapon_from_shop(ctx.server, weapon_name)
+    weapons.remove_weapon_from_shop(ctx.guild, weapon_name)
     await util.say(ctx.channel, "**" + weapon.name_clean + "** has been removed from the shop!")
 
 
@@ -435,11 +435,11 @@ async def resetweapons(ctx, **_):
     """
     [CMD_KEY]resetweapons
 
-    Screw over everyone on your server!
-    This command **deletes all weapons** on your server.
+    Screw over everyone on your guild!
+    This command **deletes all weapons** on your guild.
     """
 
-    weapons_deleted = weapons.remove_all_weapons(ctx.server)
+    weapons_deleted = weapons.remove_all_weapons(ctx.guild)
     if weapons_deleted > 0:
         await util.say(ctx.channel, ":wastebasket: Your weapon shop has been reset—**%d %s** deleted."
                                     % (weapons_deleted, util.s_suffix("weapon", weapons_deleted)))

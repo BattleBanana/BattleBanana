@@ -59,7 +59,7 @@ async def _post_shard_count_dbl(shard, site, key):
 
     headers = {"content-type": "application/json",
                'authorization': key}
-    payload = {"server_count": len(shard.servers),
+    payload = {"server_count": len(shard.guilds),
                "shard_id": shard.shard_id,
                "shard_count": len(util.shard_clients)}
     async with shard.session.post(site, data=json.dumps(payload), headers=headers) as response:

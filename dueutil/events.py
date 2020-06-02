@@ -66,7 +66,7 @@ class CommandEvent(dict):
     async def __call__(self, ctx):
         # Commands can be triggered by using the command key or 
         # mentioning the bot
-        if not ctx.content.startswith(dueserverconfig.server_cmd_key(ctx.server)):
+        if not ctx.content.startswith(dueserverconfig.server_cmd_key(ctx.guild)):
             return
         args = commands.parse(ctx)
         command = get_command(args[1])

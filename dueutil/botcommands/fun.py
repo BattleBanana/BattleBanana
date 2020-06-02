@@ -14,9 +14,7 @@ from ..game import emojis
 async def glitter_text(channel, text):
     try:
         gif_text = await misc.get_glitter_text(text)
-        await util.get_client(channel).send_file(channel, fp=gif_text,
-                                                 filename="glittertext.gif",
-                                                 content=":sparkles: Your glitter text!")
+        await channel.send(file=discord.File(fp=gif_text, filename="glittertext.gif"), content=":sparkles: Your glitter text!")
     except (ValueError, asyncio.TimeoutError):
         await util.say(channel, ":cry: Could not fetch glitter text!")
 
@@ -109,7 +107,7 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
     if local:
         title = "BattleBanana Leaderboard on %s" % details["server_name_clean"]
         # Cached.
-        local_leaderboard = leaderboards.get_local_leaderboard(ctx.server, "levels")
+        local_leaderboard = leaderboards.get_local_leaderboard(ctx.guild, "levels")
         leaderboard_data = local_leaderboard.data
         last_updated = local_leaderboard.updated
     else:
@@ -142,7 +140,7 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
         elif index == 2:
             bonus = "     :third_place:"
         player = players.find_player(leaderboard_data[index])
-        user_info = ctx.server.get_member(player.id)
+        user_info = ctx.guild.get_member(player.id)
         if user_info is None:
             user_info = player.id
         leaderboard_embed \
@@ -166,7 +164,7 @@ async def rank_command(ctx, player, ranks="", **details):
     local = ranks != "global"
 
     if local:
-        position = leaderboards.get_rank(player, "levels", ctx.server)
+        position = leaderboards.get_rank(player, "levels", ctx.guild)
         ranks = padding = ""
     else:
         position = leaderboards.get_rank(player, "levels")
@@ -230,7 +228,7 @@ async def globalrank(ctx, player=None, **details):
 
 
 async def give_emoji(channel, sender, receiver, emoji):
-    if not util.char_is_emoji(emoji) and not util.is_server_emoji(channel.server, emoji):
+    if not util.char_is_emoji(emoji) and not util.is_server_emoji(channel.guild, emoji):
         raise util.DueUtilException(channel, "You can only send emoji!")
     if sender == receiver:
         raise util.DueUtilException(channel, "You can't send a " + emoji + " to yourself!")

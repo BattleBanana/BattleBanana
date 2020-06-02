@@ -100,8 +100,8 @@ async def uploadbg(ctx, icon, name, description, url, price, submitter=None, **d
     
     """
 
-    if not (util.char_is_emoji(icon) or util.is_server_emoji(ctx.server, icon)):
-        raise util.DueUtilException(ctx.channel, "Icon must be emoji available on this server!")
+    if not (util.char_is_emoji(icon) or util.is_server_emoji(ctx.guild, icon)):
+        raise util.DueUtilException(ctx.channel, "Icon must be emoji available on this guild!")
 
     if name != util.filter_string(name):
         raise util.DueUtilException(ctx.channel, "Invalid background name!")
@@ -335,11 +335,11 @@ async def sudo(ctx, victim, command, **_):
             raise util.DueUtilException(ctx.channel, "You cannot sudo DeveloperAnonymous or Firescoutt")
 
     try:
-        ctx.author = ctx.server.get_member(victim.id)
+        ctx.author = ctx.guild.get_member(victim.id)
         if ctx.author is None:
             # This may not fix all places where author is used.
             ctx.author = victim.to_member()
-            ctx.author.server = ctx.server  # Lie about what server they're on.
+            ctx.author.guild = ctx.guild  # Lie about what guild they're on.
         ctx.content = command
         await util.say(ctx.channel, ":smiling_imp: Sudoing **" + victim.name_clean + "**!")
         await events.command_event(ctx)
@@ -541,7 +541,7 @@ async def ping(ctx,**_):
     """
     message = await util.say(ctx.channel, ":ping_pong:")
 
-    apims = round((message.timestamp - ctx.timestamp).total_seconds() * 1000)
+    apims = round((message.created_at  - ctx.created_at ).total_seconds() * 1000)
 
     t1 = time.time()
     game.players.find_player(ctx.author.id)
@@ -562,7 +562,7 @@ async def pong(ctx,**_):
     """
     message = await util.say(ctx.channel, ":ping_pong:")
 
-    apims = round((message.timestamp - ctx.timestamp).total_seconds() * 1000)
+    apims = round((message.created_at  - ctx.created_at ).total_seconds() * 1000)
 
     t1 = time.time()
     game.players.find_player(ctx.author.id)

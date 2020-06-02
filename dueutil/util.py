@@ -117,46 +117,47 @@ async def download_file(url):
 
 async def say(channel, *args, **kwargs):
     if type(channel) is str:
-        # Server/Channel id
+        # Guild/Channel id
         server_id, channel_id = channel.split("/")
         channel = get_server(server_id).get_channel(channel_id)
     if "client" in kwargs:
         client = kwargs["client"]
         del kwargs["client"]
     else:
-        client = get_client(channel.server.id)
+        client = get_client(channel.guild.id)
     if asyncio.get_event_loop() != client.loop:
         # Allows it to speak across shards
         client.run_task(say, *((channel,) + args), **kwargs)
     else:
         try:
-            return await client.send_message(channel, *args, **kwargs)
+            return await channel.send(*args, **kwargs)
         except discord.Forbidden as send_error:
             raise SendMessagePermMissing(send_error)
 
 
 async def typing(channel):
-    await get_client(channel.server.id).send_typing(channel)
+    await get_client(channel.guild.id).send_typing(channel)
 
-def check(msg):
-    msg = msg.content.lower()
-    return msg.startswith("hit") or msg.startswith("stand")
-    
 async def wait_for_message(ctx, timeout=120):
     channel = ctx.channel
-    return await get_client(channel.server.id).wait_for_message(author=ctx.author, timeout=timeout, channel=channel, check=check)
+    
+    def check(message):
+        msg = message.content.lower()
+        return msg.startswith("hit") or msg.startswith("stand") and message.author == ctx.author and message.channel == channel
+
+    return await get_client(channel.guild.id).wait_for('message', timeout=timeout, check=check)
 
 
 async def edit_message(message, **kwargs):
     content = kwargs.pop("content", " ")
     embed = kwargs.pop("embed", None)
-    client= kwargs.pop("client", get_client(message.channel.server.id))
+    client= kwargs.pop("client", get_client(message.channel.guild.id))
 
-    await client.edit_message(message, new_content=content, embed=embed)
+    await message.edit(content=content, embed=embed)
 
 
 async def delete_message(message):
-    await get_client(message.channel.server.id).delete_message(message)
+    await message.delete()
 
 
 def load_and_update(reference, bot_object):
@@ -175,15 +176,15 @@ def pretty_time():
 
 
 def get_server_count():
-    return sum(len(client.servers) for client in shard_clients)
+    return sum(len(client.guilds) for client in shard_clients)
 
 
 def get_server_id(source):
     if isinstance(source, str):
         return source
-    elif hasattr(source, 'server'):
-        return source.server.id
-    elif isinstance(source, discord.Server):
+    elif hasattr(source, 'guild'):
+        return source.guild.id
+    elif isinstance(source, discord.Guild):
         return source.id
 
 
@@ -195,7 +196,7 @@ def get_client(source):
 
 
 def get_server(server_id):
-    return get_client(server_id).get_server(server_id)
+    return get_client(server_id).get_guild(server_id)
 
 def find_channel(channel_name):
     channels = get_server(gconf.other_configs['supportServer']).channels
@@ -271,22 +272,22 @@ def char_is_emoji(character):
     return emojize != demojize
 
 
-def is_server_emoji(server, possible_emoji):
-    if server is None:
+def is_server_emoji(guild, possible_emoji):
+    if guild is None:
         return False
     if possible_emoji.startswith("<a:"):
         possible_emoji = "<" + possible_emoji[2:]
-    possible_emojis = [str(custom_emoji) for custom_emoji in server.emojis if str(custom_emoji) in possible_emoji]
+    possible_emojis = [str(custom_emoji) for custom_emoji in guild.emojis if str(custom_emoji) in possible_emoji]
     return len(possible_emojis) == 1 and (possible_emojis[0] == possible_emoji)
 
 
-def is_discord_emoji(server, possible_emoji):
-    return char_is_emoji(possible_emoji) or is_server_emoji(server, possible_emoji)
+def is_discord_emoji(guild, possible_emoji):
+    return char_is_emoji(possible_emoji) or is_server_emoji(guild, possible_emoji)
 
 
-def get_server_name(server, user_id):
+def get_server_name(guild, user_id):
     try:
-        return server.get_member(user_id).name
+        return guild.get_member(user_id).name
     except AttributeError:
         return "Unknown User"
 
@@ -299,13 +300,12 @@ def normalize(number, min_val, max_val):
     return (number - min_val) / (max_val - min_val)
 
 
-async def set_up_roles(server):
+async def set_up_roles(guild):
     # Due roles that need making.
     roles = [role_name for role_name in gconf.DUE_ROLES if
-             not any(role.name == role_name["name"] for role in server.roles)]
+             not any(role.name == role_name["name"] for role in guild.roles)]
     for role in roles:
-        await get_client(server.id).create_role(server, name=role["name"],
-                                                color=discord.Color(role.get("colour", gconf.DUE_COLOUR)))
+        await guild.create_role(name=role["name"], color=discord.Color(role.get("colour", gconf.DUE_COLOUR)))
     return roles
 
 
@@ -313,8 +313,8 @@ def has_role_name(member, role_name):
     return next((role for role in member.roles if role.name == role_name), False)
 
 
-def get_role_by_name(server, role_name):
-    return next((role for role in server.roles if role.name == role_name), None)
+def get_role_by_name(guild, role_name):
+    return next((role for role in guild.roles if role.name == role_name), None)
 
 
 def filter_string(string: str) -> str:

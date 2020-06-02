@@ -63,8 +63,8 @@ async def notify_complete(user_id, vote, reward):
     client = util.shard_clients[0]
 
     try:
-        user = await client.get_user_info(user_id)
-        await client.start_private_message(user)
+        user = await client.fetch_user(user_id)
+        await user.create_dm()
 
         embed = Embed(title="Vote notification", type="rich", colour=gconf.DUE_COLOUR)
         embed.set_footer(text="Thank you for voting!")

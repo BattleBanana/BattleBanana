@@ -27,7 +27,7 @@ MAX_ACTIVE_QUESTS = 25
 
 
 class Quest(DueUtilObject, SlotPickleMixin):
-    """A class to hold info about a server quest"""
+    """A class to hold info about a guild quest"""
 
     __slots__ = ["server_id", "created_by",
                  "task", "w_id", "spawn_chance", "image_url",
@@ -43,9 +43,9 @@ class Quest(DueUtilObject, SlotPickleMixin):
         given_spawn_chance = extras.get('spawn_chance', 4)
 
         if message is not None:
-            if message.server in quest_map:
-                if name.lower() in quest_map[message.server]:
-                    raise util.DueUtilException(message.channel, "A foe with that name already exists on this server!")
+            if message.guild in quest_map:
+                if name.lower() in quest_map[message.guild]:
+                    raise util.DueUtilException(message.channel, "A foe with that name already exists on this guild!")
 
             if base_accy < 1 or base_attack < 1 or base_strg < 1:
                 raise util.DueUtilException(message.channel, "No quest stats can be less than 1!")
@@ -59,7 +59,7 @@ class Quest(DueUtilObject, SlotPickleMixin):
             if given_spawn_chance < 1 or given_spawn_chance > 25:
                 raise util.DueUtilException(message.channel, "Spawn chance must be between 1 and 25%!")
 
-            self.server_id = message.server.id
+            self.server_id = message.guild.id
             self.created_by = message.author.id
         else:
             self.server_id = extras.get('server_id', "DEFAULT")
@@ -92,11 +92,11 @@ class Quest(DueUtilObject, SlotPickleMixin):
         return self._BaseStats(self.base_attack, self.base_strg,
                                self.base_accy, self.base_hp, )
 
-    def get_channel_mention(self, server):
+    def get_channel_mention(self, guild):
         if self.channel in ("ALL", "NONE"):
             return self.channel.title()
         else:
-            channel = server.get_channel(self.channel)
+            channel = guild.get_channel(self.channel)
             if channel is None:
                 return "``Deleted``"
             else:
@@ -121,7 +121,7 @@ class Quest(DueUtilObject, SlotPickleMixin):
     @property
     def home(self):
         try:
-            return util.get_client(self.server_id).get_server(self.server_id).name
+            return util.get_client(self.server_id).get_guild(self.server_id).name
         except AttributeError:
             return "Unknown"
 
@@ -248,16 +248,16 @@ class ActiveQuest(Player, util.SlotPickleMixin):
         return object_state
 
 
-def get_server_quest_list(server: discord.Server) -> Dict[str, Quest]:
-    return quest_map[server]
+def get_server_quest_list(guild: discord.Guild) -> Dict[str, Quest]:
+    return quest_map[guild]
 
 
-def get_quest_on_server(server: discord.Server, quest_name: str) -> Quest:
-    return quest_map[server.id + "/" + quest_name.lower()]
+def get_quest_on_server(guild: discord.Guild, quest_name: str) -> Quest:
+    return quest_map[guild.id + "/" + quest_name.lower()]
 
 
-def remove_quest_from_server(server: discord.Server, quest_name: str):
-    quest_id = server.id + "/" + quest_name.lower()
+def remove_quest_from_server(guild: discord.Guild, quest_name: str):
+    quest_id = guild.id + "/" + quest_name.lower()
     del quest_map[quest_id]
     dbconn.get_collection_for_object(Quest).remove({'_id': quest_id})
 
@@ -266,16 +266,16 @@ def get_quest_from_id(quest_id: str) -> Quest:
     return quest_map[quest_id]
 
 
-def get_channel_quests(channel: discord.Channel) -> List[Quest]:
-    return [quest for quest in quest_map[channel.server].values() if quest.channel in ("ALL", channel.id)]
+def get_channel_quests(channel: discord.TextChannel) -> List[Quest]:
+    return [quest for quest in quest_map[channel.guild].values() if quest.channel in ("ALL", channel.id)]
 
 
 def get_random_quest_in_channel(channel):
-    if channel.server in quest_map:
+    if channel.guild in quest_map:
         return random.choice(get_channel_quests(channel))
 
 
-def add_default_quest_to_server(server):
+def add_default_quest_to_server(guild):
     default = random.choice(list(quest_map["DEFAULT"].values()))
     Quest(default.name,
           default.base_attack,
@@ -286,23 +286,23 @@ def add_default_quest_to_server(server):
           weapon_id=default.w_id,
           image_url=default.image_url,
           spawn_chance=default.spawn_chance * 100,
-          server_id=server.id,
+          server_id=guild.id,
           no_save=True)
 
 
-def remove_all_quests(server):
-    if server in quest_map:
-        result = dbconn.delete_objects(Quest, '%s/.*' % server.id)
-        del quest_map[server]
+def remove_all_quests(guild):
+    if guild in quest_map:
+        result = dbconn.delete_objects(Quest, '%s/.*' % guild.id)
+        del quest_map[guild]
         return result.deleted_count
     return 0
 
 
 def has_quests(place):
-    if isinstance(place, discord.Server):
+    if isinstance(place, discord.Guild):
         return place in quest_map and len(quest_map[place]) > 0
-    elif isinstance(place, discord.Channel):
-        if place.server in quest_map:
+    elif isinstance(place, discord.TextChannel):
+        if place.guild in quest_map:
             return len(get_channel_quests(place)) > 0
     return False
 

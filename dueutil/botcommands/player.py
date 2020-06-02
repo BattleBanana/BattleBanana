@@ -461,7 +461,7 @@ async def benfont(ctx, **details):
     player.benfont = not player.benfont
     player.save()
     if player.benfont:
-        await util.get_client(ctx.server.id).send_file(ctx.channel, 'assets/images/nod.gif')
+        await ctx.channel.send(discord.File('assets/images/nod.gif'))
         await game_awards.give_award(ctx.channel, player, "BenFont", "ONE TRUE *type* FONT")
 
 """
