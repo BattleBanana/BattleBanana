@@ -71,9 +71,9 @@ async def mark_as_completed(transaction):
                                 data=json.dumps(handled), headers=headers) as response:
             return await response.json()
 
-@tasks.task(timeout=120)
+@tasks.task(timeout=150)
 async def process_transactions():
-    while not util.clients[0].loaded:
+    while not util.clients[0].is_ready():
         pass
     
     await get_currencies()

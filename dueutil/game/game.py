@@ -220,16 +220,12 @@ async def check_for_missing_new_stats(player):
     """
     if not hasattr(player, "prestige_level"):
         player.__setstate__({'prestige_level': 0})
-
     if not hasattr(player, "team"):
         player.__setstate__({'team': None})
-        
     if not hasattr(player, "team_invites"):
         player.__setstate__({'team_invites': []})
-        
     if not hasattr(player, "weapon_hidden"):
         player.__setstate__({'weapon_hidden': False})
-    
     if not hasattr(player, "gamble_play"):
         player.__setstate__({'gamble_play': False})
     if not hasattr(player, "last_played"):
@@ -249,7 +245,6 @@ async def check_for_removed_stats(player):
 async def on_message(message):
     player = players.find_player(message.author.id)
     spam_level = 100
-    print(player)
     if player is not None:
         if not player.is_playing(message.guild):
             return

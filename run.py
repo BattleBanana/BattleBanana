@@ -54,15 +54,12 @@ class DueUtilClient(discord.AutoShardedClient):
 
     def __init__(self, **details):
         self.queue_tasks = queue.Queue()
-        self.loaded = False
-        self.session = aiohttp.ClientSession()
         self.start_time = time.time()
         super(DueUtilClient, self).__init__(**details)
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
 
     
     async def __check_task_queue(self):
-
         while True:
             try:
                 task_details = self.queue_tasks.get(False)
@@ -78,7 +75,6 @@ class DueUtilClient(discord.AutoShardedClient):
             await asyncio.sleep(0.1)
 
     def run_task(self, task, *args, **kwargs):
-
         """
         Runs a task from within this clients thread
         """
@@ -195,7 +191,6 @@ class DueUtilClient(discord.AutoShardedClient):
         traceback.print_exc()
 
     
-    
     async def on_message(self, message):
         if (message.author == self.user
             or message.author.bot
@@ -272,7 +267,6 @@ class ClientThread(dummy.Process):
     """
     Thread for a client
     """
-
     def __init__(self, event_loop):
         self.event_loop = event_loop
         super().__init__()
@@ -313,7 +307,7 @@ def run_due():
 
         while not len(clients) == 1:
             pass
-        while not client.is_ready() and not client.loaded:
+        while not client.is_ready():
             pass
         
         # TODO: Show the time it takes to turn on the bot & time it took to start shards

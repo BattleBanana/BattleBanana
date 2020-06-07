@@ -99,7 +99,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
     DEFAULT_FACTORIES = {"equipped": lambda: "default", "inventory": lambda: ["default"]}
 
     def __init__(self, *args, **kwargs):
-        if len(args) > 0 and isinstance(args[0], discord.User):
+        if len(args) > 0 and isinstance(args[0], discord.Member):
             super().__init__(args[0].id, args[0].name, **kwargs)
         else:
             super().__init__("NO_ID", "DueUtil Player", **kwargs)
@@ -476,9 +476,9 @@ class Player(BattleBananaObject, SlotPickleMixin):
         return object_state
 
 
-def find_player(user_id: str) -> Player:
+def find_player(user_id: int) -> Player:
     if user_id in players:
-        return players[user_id]
+        return players.pop(user_id)
     elif load_player(user_id):
         player = players.pop(user_id)
         player.id = user_id
