@@ -31,18 +31,18 @@ class Team(BattleBananaObject, SlotPickleMixin):
     __slots__ = ["name", "description", "level", "open", 
                 "owner", "admins", "members", "pendings", "id"]
 
-    def __init__(self, owner, name, description, level, isOpen, **kwargs):
+    def __init__(self, owner, name, description, level, isOpen, **details):
         self.name = name
         self.id = name.lower()
         self.description = description
         self.level = level
         self.open = isOpen
-        self.owner = owner.user_id
-        self.admins = [owner.user_id]
-        self.members = [owner.user_id]
+        self.owner = owner.id
+        self.admins = [owner.id]
+        self.members = [owner.id]
         self.pendings = []
 
-        self.no_save = kwargs.pop("no_save", False)
+        self.no_save = details.pop("no_save", False)
 
         self.save()
         owner.team = self.id
@@ -134,7 +134,7 @@ class Team(BattleBananaObject, SlotPickleMixin):
 
 def find_team(team_id: str) -> Team:
     if team_id in teams:
-        return teams[team_id]
+        return teams.pop(team_id)
     elif load_team(team_id):
         return teams.pop(team_id)
 
