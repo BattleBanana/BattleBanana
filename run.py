@@ -5,6 +5,7 @@ import queue
 import re
 import traceback
 from threading import Thread
+from multiprocessing import Process, dummy
 import aiohttp
 import gc
 import time
@@ -59,8 +60,8 @@ class DueUtilClient(discord.AutoShardedClient):
         super(DueUtilClient, self).__init__(**details)
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
 
-    @asyncio.coroutine
-    def __check_task_queue(self):
+    
+    async def __check_task_queue(self):
 
         while True:
             try:
@@ -69,12 +70,12 @@ class DueUtilClient(discord.AutoShardedClient):
                 args = task_details.get('args', ())
                 kwargs = task_details.get('kwargs', {})
                 if inspect.iscoroutinefunction(task):
-                    yield from task(*args, **kwargs)
+                    await task(*args, **kwargs)
                 else:
                     task(args, kwargs)
             except queue.Empty:
                 pass
-            yield from asyncio.sleep(0.1)
+            await asyncio.sleep(0.1)
 
     def run_task(self, task, *args, **kwargs):
 
@@ -83,7 +84,7 @@ class DueUtilClient(discord.AutoShardedClient):
         """
         self.queue_tasks.put({"task": task, "args": args, "kwargs": kwargs})
 
-    @asyncio.coroutine
+    
     async def on_guild_join(self, guild):
         server_count = util.get_server_count()
         if server_count % 100 == 0:
@@ -125,7 +126,7 @@ class DueUtilClient(discord.AutoShardedClient):
         return {"member_count": member_count, "bot_percent": bot_percent,
                 "bot_count": bot_count, "bot_server": bot_server}
 
-    @asyncio.coroutine
+    
     async def on_error(self, event, *args):
         ctx = args[0] if len(args) == 1 else None
         ctx_is_message = isinstance(ctx, discord.Message)
@@ -194,7 +195,7 @@ class DueUtilClient(discord.AutoShardedClient):
         traceback.print_exc()
 
     
-    @asyncio.coroutine
+    
     async def on_message(self, message):
         if (message.author == self.user
             or message.author.bot
@@ -213,7 +214,7 @@ class DueUtilClient(discord.AutoShardedClient):
             
         await events.on_message_event(message)
 
-    @asyncio.coroutine
+    
     async def on_member_update(self, before, after):
         player = players.find_player(before.id)
         if player is not None:
@@ -226,7 +227,7 @@ class DueUtilClient(discord.AutoShardedClient):
                 player.donor = True
                 player.save()
 
-    @asyncio.coroutine
+    
     async def on_guild_remove(self, guild):
         for collection in dbconn.db.collection_names():
             if collection != "Player":
@@ -237,7 +238,7 @@ class DueUtilClient(discord.AutoShardedClient):
         # Update stats
         await servercounts.update_server_count(self)
 
-    @asyncio.coroutine
+    
     async def change_avatar(self, channel, avatar_name):
         try:
             avatar = open("avatars/" + avatar_name.strip(), "rb")
@@ -247,13 +248,13 @@ class DueUtilClient(discord.AutoShardedClient):
         except FileNotFoundError:
             await util.say(channel, ":bangbang: **Avatar change failed!**")
 
-    @asyncio.coroutine
+    
     async def on_ready(self):
         util.logger.info("Bot started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - client.start_time)
         #await util.duelogger.bot("DueUtil has *(re)*started\n"
         #                                + "Bot version → ``%s``" % gconf.VERSION)
 
-    @asyncio.coroutine
+    
     async def on_shard_ready(self, shard_number):
         game = discord.CustomActivity(name="dueutil.xyz | shard %d/%d" % (shard_number+1, shard_count))
         try:
@@ -267,7 +268,7 @@ class DueUtilClient(discord.AutoShardedClient):
 
 
 
-class ClientThread(Thread):
+class ClientThread(dummy.Process):
     """
     Thread for a client
     """
@@ -306,7 +307,7 @@ def run_due():
 
         util.logger.info("Modules loaded after %.2fs", time.time() - start_time)
         shard_time = time.time()
-        
+
         client_thread = ClientThread(asyncio.new_event_loop())
         client_thread.start()
 
@@ -314,8 +315,7 @@ def run_due():
             pass
         while not client.is_ready() and not client.loaded:
             pass
-        print("PASSED")
-
+        
         # TODO: Show the time it takes to turn on the bot & time it took to start shards
         util.logger.info("Bot started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - shard_time)
 
