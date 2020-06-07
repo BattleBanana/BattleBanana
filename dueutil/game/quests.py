@@ -13,7 +13,7 @@ from .. import dbconn
 from .. import util
 from ..game import players, game
 from ..game import weapons
-from ..game.helpers.misc import DueUtilObject, DueMap
+from ..game.helpers.misc import BattleBananaObject, DueMap
 from .players import Player
 from . import gamerules
 
@@ -26,7 +26,7 @@ MAX_DAILY_QUESTS = 100
 MAX_ACTIVE_QUESTS = 25
 
 
-class Quest(DueUtilObject, SlotPickleMixin):
+class Quest(BattleBananaObject, SlotPickleMixin):
     """A class to hold info about a guild quest"""
 
     __slots__ = ["server_id", "created_by",
@@ -81,7 +81,7 @@ class Quest(DueUtilObject, SlotPickleMixin):
         self.save()
 
     def _quest_id(self):
-        return self.server_id + '/' + self.name.lower()
+        return f"{self.server_id}/{self.name.lower()}"
 
     def _add(self):
         global quest_map
@@ -121,7 +121,7 @@ class Quest(DueUtilObject, SlotPickleMixin):
     @property
     def home(self):
         try:
-            return util.get_client(self.server_id).get_guild(self.server_id).name
+            return util.clients[0].get_guild(self.server_id).name
         except AttributeError:
             return "Unknown"
 

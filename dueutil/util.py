@@ -20,7 +20,8 @@ utilities.
 Other than that no two things in this module have much in common
 """
 
-shard_clients = []
+client = None
+clients = []
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('battlebanana')
 
@@ -101,33 +102,27 @@ class SlotPickleMixin:
 
 
 async def download_file(url):
-    with aiohttp.Timeout(10):
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                file_data = io.BytesIO()
-                while True:
-                    chunk = await response.content.read(128)
-                    if not chunk:
-                        break
-                    file_data.write(chunk)
-                response.release()
-                file_data.seek(0)
-                return file_data
+    async with aiohttp.ClientSession(conn_timeout=10) as session:
+        async with session.get(url) as response:
+            file_data = io.BytesIO()
+            while True:
+                chunk = await response.content.read(128)
+                if not chunk:
+                    break
+                file_data.write(chunk)
+            response.release()
+            file_data.seek(0)
+            return file_data
 
 
 async def say(channel, *args, **kwargs):
     if type(channel) is str:
         # Guild/Channel id
         server_id, channel_id = channel.split("/")
-        channel = get_server(server_id).get_channel(channel_id)
-    if "client" in kwargs:
-        client = kwargs["client"]
-        del kwargs["client"]
-    else:
-        client = get_client(channel.guild.id)
-    if asyncio.get_event_loop() != client.loop:
+        channel = get_server(int(server_id)).get_channel(int(channel_id))
+    if asyncio.get_event_loop() != clients[0].loop:
         # Allows it to speak across shards
-        client.run_task(say, *((channel,) + args), **kwargs)
+        clients[0].run_task(say, *((channel,) + args), **kwargs)
     else:
         try:
             return await channel.send(*args, **kwargs)
@@ -136,7 +131,7 @@ async def say(channel, *args, **kwargs):
 
 
 async def typing(channel):
-    await get_client(channel.guild.id).send_typing(channel)
+    await channel.trigger_typing()
 
 async def wait_for_message(ctx, timeout=120):
     channel = ctx.channel
@@ -145,13 +140,12 @@ async def wait_for_message(ctx, timeout=120):
         msg = message.content.lower()
         return msg.startswith("hit") or msg.startswith("stand") and message.author == ctx.author and message.channel == channel
 
-    return await get_client(channel.guild.id).wait_for('message', timeout=timeout, check=check)
+    return await clients[0].wait_for('message', timeout=timeout, check=check)
 
 
 async def edit_message(message, **kwargs):
     content = kwargs.pop("content", " ")
     embed = kwargs.pop("embed", None)
-    client= kwargs.pop("client", get_client(message.channel.guild.id))
 
     await message.edit(content=content, embed=embed)
 
@@ -167,8 +161,10 @@ def load_and_update(reference, bot_object):
     return bot_object
 
 
-def get_shard_index(server_id):
-    return (int(server_id) >> 22) % len(shard_clients)
+def get_shard_index(server):
+    if isinstance(server, discord.Guild):
+        return server.shard_id
+    return clients[0].get_guild(server).shard_id
 
 
 def pretty_time():
@@ -176,7 +172,7 @@ def pretty_time():
 
 
 def get_server_count():
-    return sum(len(client.guilds) for client in shard_clients)
+    return len(clients[0].guilds)
 
 
 def get_server_id(source):
@@ -188,15 +184,9 @@ def get_server_id(source):
         return source.id
 
 
-def get_client(source):
-    try:
-        return shard_clients[get_shard_index(get_server_id(source))]
-    except IndexError:
-        return None
+def get_server(server_id: int):
+    return clients[0].get_guild(server_id)
 
-
-def get_server(server_id):
-    return get_client(server_id).get_guild(server_id)
 
 def find_channel(channel_name):
     channels = get_server(gconf.other_configs['supportServer']).channels
@@ -365,6 +355,6 @@ def s_suffix(word, count):
     return word if count == 1 else word + "s"
 
 
-def load(shards):
-    global shard_clients
-    shard_clients = shards
+def load(c):
+    global clients
+    clients = c

@@ -32,7 +32,8 @@ MAX_RECOVERY_ATTEMPTS = 1000
 stopped = False
 bot_key = ""
 shard_count = 0
-shard_clients = []
+client = None
+clients = []
 shard_names = []
 
 # I'm not sure of the root cause of this error & it only happens once in months.
@@ -45,15 +46,13 @@ This bot is not well structured...
 (Sections of this bot are MIT and GPL)
 """
 
-class DueUtilClient(discord.Client):
+class DueUtilClient(discord.AutoShardedClient):
     """
     DueUtil shard client
     """
 
     def __init__(self, **details):
-        self.shard_id = details["shard_id"]
         self.queue_tasks = queue.Queue()
-        self.name = shard_names[self.shard_id]
         self.loaded = False
         self.session = aiohttp.ClientSession()
         self.start_time = time.time()
@@ -85,16 +84,16 @@ class DueUtilClient(discord.Client):
         self.queue_tasks.put({"task": task, "args": args, "kwargs": kwargs})
 
     @asyncio.coroutine
-    def on_guild_join(self, guild):
+    async def on_guild_join(self, guild):
         server_count = util.get_server_count()
         if server_count % 100 == 0:
-            yield from util.say(gconf.announcement_channel,
+            await util.say(gconf.announcement_channel,
                                 ":confetti_ball: I'm on __**%d SERVERS**__ now!1!111!\n@everyone" % server_count)
 
         util.logger.info("Joined guild name: %s id: %s", guild.name, guild.id)
-        yield from util.set_up_roles(guild)
+        await util.set_up_roles(guild)
         server_stats = self.server_stats(guild)
-        yield from util.duelogger.info(("BattleBanana has joined the guild **"
+        await util.duelogger.info(("BattleBanana has joined the guild **"
                                         + util.ultra_escape_string(guild.name) + "**!\n"
                                         + "``Member count →`` " + str(server_stats["member_count"]) + "\n"
                                         + "``Bot members →``" + str(server_stats["bot_count"]) + "\n"
@@ -104,7 +103,7 @@ class DueUtilClient(discord.Client):
         for channel in guild.channels:
             if channel.type == discord.ChannelType.text:
                 try:
-                    yield from channel.send(":wave: __Thanks for adding me!__\n"
+                    await channel.send(":wave: __Thanks for adding me!__\n"
                                      + "If you would like to customize me to fit your "
                                      + "guild take a quick look at the admins "
                                      + "guide at <https://dueutil.xyz/howto/#adming>.\n"
@@ -115,7 +114,7 @@ class DueUtilClient(discord.Client):
                     continue
         
         # Update stats
-        yield from servercounts.update_server_count(self)
+        await servercounts.update_server_count(self)
 
     @staticmethod
     def server_stats(guild):
@@ -127,27 +126,27 @@ class DueUtilClient(discord.Client):
                 "bot_count": bot_count, "bot_server": bot_server}
 
     @asyncio.coroutine
-    def on_error(self, event, *args):
+    async def on_error(self, event, *args):
         ctx = args[0] if len(args) == 1 else None
         ctx_is_message = isinstance(ctx, discord.Message)
         error = sys.exc_info()[1]
         if ctx is None:
-            yield from util.duelogger.error(("**BattleBanana experienced an error!**\n"
+            await util.duelogger.error(("**BattleBanana experienced an error!**\n"
                                              + "__Stack trace:__ ```" + traceback.format_exc() + "```"))
             util.logger.error("None message/command error: %s", error)
         elif isinstance(error, util.DueUtilException):
             # A normal dueutil user error
             try:
                 if error.channel is not None:
-                    yield from util.say(error.channel, error.get_message())
+                    await util.say(error.channel, error.get_message())
                 else:
-                    yield from util.say(ctx.channel, error.get_message())
+                    await util.say(ctx.channel, error.get_message())
             except:
                 util.logger.warning("Unable to send Exception message")
             return
         elif isinstance(error, util.DueReloadException):
             loader.reload_modules()
-            yield from util.say(error.channel, loader.get_loaded_modules())
+            await util.say(error.channel, loader.get_loaded_modules())
             return
         elif isinstance(error, discord.errors.Forbidden):
             if ctx_is_message:
@@ -158,7 +157,7 @@ class DueUtilClient(discord.Client):
                     try:
                         # Attempt to warn user
                         perms = ctx.guild.me.permissions_in(ctx.channel)
-                        yield from util.say(ctx.channel,
+                        await util.say(ctx.channel,
                                             "The action could not be performed as I'm **missing permissions**! Make sure I have the following permissions:\n"
                                             + "- Manage Roles %s;\n" % (":white_check_mark:" if perms.manage_roles else ":x:")
                                             + "- Manage messages %s;\n" % (":white_check_mark:" if perms.manage_messages else ":x:")
@@ -175,7 +174,7 @@ class DueUtilClient(discord.Client):
                 return
         elif isinstance(error, discord.HTTPException):
             util.logger.error("Discord HTTP error: %s", error)
-        elif isinstance(error, aiohttp.errors.ClientResponseError):
+        elif isinstance(error, aiohttp.ClientResponseError):
             if ctx_is_message:
                 util.logger.error("%s: ctx from %s: %s", error, ctx.author.id, ctx.content)
             else:
@@ -184,10 +183,10 @@ class DueUtilClient(discord.Client):
             util.logger.critical("Something went very wrong and the error of death came for us: %s", error)
             os._exit(1)
         elif ctx_is_message:
-            yield from util.say(ctx.channel, (":bangbang: **Something went wrong...**"))
+            await util.say(ctx.channel, (":bangbang: **Something went wrong...**"))
             trigger_message = discord.Embed(title="Trigger", type="rich", color=gconf.DUE_COLOUR)
             trigger_message.add_field(name="Message", value=ctx.author.mention + ":\n" + ctx.content)
-            yield from util.duelogger.error(("**Message/command triggred error!**\n"
+            await util.duelogger.error(("**Message/command triggred error!**\n"
                                              + "__Stack trace:__ ```" + traceback.format_exc()[-1500:] + "```"),
                                             embed=trigger_message)
         # Log exception on sentry.
@@ -196,133 +195,26 @@ class DueUtilClient(discord.Client):
 
     
     @asyncio.coroutine
-    def on_message(self, message):
+    async def on_message(self, message):
         if (message.author == self.user
             or message.author.bot
-            or not loaded()
             or isinstance(message.channel, discord.abc.PrivateChannel)):
             return
-        
-        # Live support
-        # if message.channel.is_private or (message.guild == util.get_guild('617912143303671810') and players.find_player(message.channel.name)):
-        #     support_server = util.get_guild('617912143303671810')
-            
-        #     # User writes us
-        #     if message.channel.is_private:
-        #         user_id = message.author.id
-        #         user = message.author
-                
-        #         if message.content.lower().startswith("!requestsupport"):
-        #             try:
-        #                 if not util.find_channel(user_id):
-        #                     yield from message.guild.create_channel(guild=support_server, name=user_id, type=0)
-        #                     yield from self.add_reaction(message, emojis.CHECK_REACT)
-        #                 else:
-        #                     yield from self.add_reaction(message, emojis.CROSS_REACT)
-                            
-        #             except:
-        #                 yield from self.add_reaction(message, emojis.CROSS_REACT)
-        #             return
 
-        #         elif message.content.lower().startswith("!close"):
-        #             embed = discord.Embed(type="rich", colour=gconf.DUE_COLOUR)
-        #             embed.add_field(name="Support Closed", value="Thank you for using **DueUtil live support**!\n"
-        #                                                         + "*Please note that we delete any archive of our previous messages.*")
-        #             embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/363777039813050368/618213084795895823/due3Logo.png")
-        #             embed.set_footer(text="If your question was not fully answered or if you still have a question, please answer `!requestsupport` to this message with your question!")
-        #             try:
-        #                 channel = util.find_channel(user_id)
-        #                 if channel:
-        #                     msg = yield from util.say(user, "Closing support... Please wait.", client=self)
-        #                 yield from self.delete_channel(channel)
-        #                 yield from util.edit_message(msg, embed=embed, client=self)
-        #                 yield from self.add_reaction(message, emojis.CHECK_REACT)
-        #             except:
-        #                 yield from self.add_reaction(message, emojis.CROSS_REACT)
-        #             return
+        owner = message.author
+        if owner.id == config["owner"] and not permissions.has_permission(owner, Permission.DUEUTIL_OWNER):
+            permissions.give_permission(owner, Permission.DUEUTIL_OWNER)
 
-        #         channel = util.find_channel(user_id)
-        #         if channel:
-        #             try:
-        #                 msg = message.content if message.content else "No content"
-        #                 attachments = message.attachments
-
-        #                 embed = discord.Embed(title=(message.author.name + "#" + message.author.discriminator), type="rich", colour=gconf.DUE_COLOUR)
-        #                 embed.add_field(name="Message:", value=msg)
-
-        #                 if len(attachments) > 0:
-        #                     attachment = attachments[0]
-        #                     filename = attachment['filename']
-        #                     extension = filename.split('.')
-        #                     extension = extension[len(extension) - 1]
-        #                     if extension in gconf.SUPPORTED_FILES:
-        #                         embed.set_image(url=attachment.get('url'))
-        #                     else:
-        #                         yield from util.say(user, "Supported files are: " + ', '.join(gconf.SUPPORTED_FILES), client=self)
-        #                 yield from self.move_channel(channel, 4)
-        #                 yield from util.say(channel, embed=embed)
-        #                 yield from self.add_reaction(message, emojis.CHECK_REACT)
-        #             except:
-        #                 yield from self.add_reaction(message, emojis.CROSS_REACT)
-            
-        #     # We reply 
-        #     elif (message.guild == util.get_guild('617912143303671810') and players.find_player(message.channel.name)):
-        #         user = yield from self.get_user_info(message.channel.name)
-        #         channel = message.channel
-
-        #         if message.content.lower().startswith("!close"):
-        #             embed = discord.Embed(title="DueUtil live support", type="rich", colour=gconf.DUE_COLOUR)
-        #             embed.add_field(name="Support Closed", value="Thank you for using **DueUtil live support**!\n"
-        #                                                         + "*Please note that we delete any archive of our previous messages.*")
-        #             embed.add_field(name="Closed by:", value=f"{message.author.name}#{message.author.discriminator}")
-        #             embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/363777039813050368/618213084795895823/due3Logo.png")
-        #             embed.set_footer(text="If your question was not answered, please answer `!requestsupport` to re-open a ticket!")
-        #             try:
-        #                 yield from self.delete_channel(channel)
-        #                 yield from util.say(user, embed=embed, client=self)
-        #             except:
-        #                 yield from self.add_reaction(message, emojis.CROSS_REACT)
-        #             return
-
-        #         try:
-        #             msg = message.content if message.content else "No content"
-        #             attachments = message.attachments
-
-        #             embed = discord.Embed(title="DueUtil live support", type="rich", colour=gconf.DUE_COLOUR)
-        #             embed.add_field(name=f"{message.author.name}#{message.author.discriminator}", value=msg)
-        #             embed.set_footer(text="Make sure to report to @DeveloperAnonymous#9830 for any abuse from the live squad!",
-        #                             icon_url="https://cdn.discordapp.com/attachments/363777039813050368/618213084795895823/due3Logo.png")
-
-        #             if len(attachments) > 0:
-        #                 attachment = attachments[0]
-        #                 filename = attachment['filename']
-        #                 extension = filename.split('.')
-        #                 extension = extension[len(extension) - 1]
-        #                 if extension in gconf.SUPPORTED_FILES:
-        #                     embed.set_image(url=attachment.get('url'))
-        #                 else:
-        #                     yield from util.say(channel, "Supported files are: " + ', '.join(gconf.SUPPORTED_FILES))
-                        
-        #             yield from util.say(user, embed=embed, client=self)
-        #             yield from self.add_reaction(message, emojis.CHECK_REACT)
-        #         except:
-        #             yield from self.add_reaction(message, emojis.CROSS_REACT)
-        #     return
-
-
-        #owner = discord.Member(user={"id": config["owner"]})
-        #if not permissions.has_permission(owner, Permission.DUEUTIL_OWNER):
-        #    permissions.give_permission(owner, Permission.DUEUTIL_OWNER)
-        mentions_self_regex = "<@.?"+self.user.id+">"
+        mentions_self_regex = f"<@.?{self.user.id}>"
         if re.match("^"+mentions_self_regex, message.content):
             message.content = re.sub(mentions_self_regex + "\s*",
                                     dueserverconfig.server_cmd_key(message.guild),
                                     message.content)
             
-        yield from events.on_message_event(message)
+        await events.on_message_event(message)
 
     @asyncio.coroutine
-    def on_member_update(self, before, after):
+    async def on_member_update(self, before, after):
         player = players.find_player(before.id)
         if player is not None:
             old_image = player.get_avatar_url(member=before)
@@ -335,69 +227,72 @@ class DueUtilClient(discord.Client):
                 player.save()
 
     @asyncio.coroutine
-    def on_guild_remove(self, guild):
+    async def on_guild_remove(self, guild):
         for collection in dbconn.db.collection_names():
             if collection != "Player":
                 dbconn.db[collection].delete_many({'_id': {'$regex': '%s.*' % guild.id}})
                 dbconn.db[collection].delete_many({'_id': guild.id})
-        yield from util.duelogger.info("BattleBanana has been removed from the guild **%s** (%s members)"
+        await util.duelogger.info("BattleBanana has been removed from the guild **%s** (%s members)"
                                        % (util.ultra_escape_string(guild.name), guild.member_count))
         # Update stats
-        yield from servercounts.update_server_count(self)
+        await servercounts.update_server_count(self)
 
     @asyncio.coroutine
-    def change_avatar(self, channel, avatar_name):
+    async def change_avatar(self, channel, avatar_name):
         try:
             avatar = open("avatars/" + avatar_name.strip(), "rb")
             avatar_object = avatar.read()
-            yield from self.edit(avatar=avatar_object)
-            yield from util.say(channel, ":white_check_mark: Avatar now **" + avatar_name + "**!")
+            await self.edit(avatar=avatar_object)
+            await util.say(channel, ":white_check_mark: Avatar now **" + avatar_name + "**!")
         except FileNotFoundError:
-            yield from util.say(channel, ":bangbang: **Avatar change failed!**")
+            await util.say(channel, ":bangbang: **Avatar change failed!**")
 
     @asyncio.coroutine
-    def on_ready(self):
-        shard_number = shard_clients.index(self) + 1
-        game = discord.Game(name="dueutil.xyz | shard %d/%d" % (shard_number, shard_count))
+    async def on_ready(self):
+        util.logger.info("Bot started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - client.start_time)
+        #await util.duelogger.bot("DueUtil has *(re)*started\n"
+        #                                + "Bot version → ``%s``" % gconf.VERSION)
+
+    @asyncio.coroutine
+    async def on_shard_ready(self, shard_number):
+        game = discord.CustomActivity(name="dueutil.xyz | shard %d/%d" % (shard_number+1, shard_count))
         try:
-            yield from self.change_presence(game=game, afk=False)
+            await self.change_presence(activity=game)
+            print("Changed status")
         except Exception as e:
             util.logger.error("Failed to change presence")
+
         util.logger.info("\nLogged in shard %d as\n%s\nWith account @%s ID:%s \n-------",
-                         shard_number, self.name, self.user.name, self.user.id)
-        self.loaded = True
-        if loaded():
-            yield from util.duelogger.bot("BattleBanana has *(re)*started\n"
-                                          + "Bot version → ``%s``" % gconf.VERSION)
+                         shard_number + 1, shard_names[shard_number], self.user.name, self.user.id)
 
 
-class ShardThread(Thread):
+
+class ClientThread(Thread):
     """
-    Thread for a shard client
+    Thread for a client
     """
 
-    def __init__(self, event_loop, shard_number):
+    def __init__(self, event_loop):
         self.event_loop = event_loop
-        self.shard_number = shard_number
         super().__init__()
 
     def run(self, level=1):
         asyncio.set_event_loop(self.event_loop)
-        client = DueUtilClient(shard_id=self.shard_number, shard_count=shard_count)
-        shard_clients.append(client)
+        global client
+        client = DueUtilClient(shard_count=shard_count, fetch_offline_members=False)
+        clients.append(client)
         try:
             asyncio.run_coroutine_threadsafe(client.run(bot_key), client.loop)
         except Exception as client_exception:
             util.logger.exception(client_exception, exc_info=True)
             if level < MAX_RECOVERY_ATTEMPTS:
-                util.logger.warning("Bot recovery attempted for shard %d" % self.shard_number)
-                shard_clients.remove(client)
+                util.logger.warning("Bot recovery attempted")
                 self.event_loop = asyncio.new_event_loop()
                 self.run(level + 1)
             else:
-                util.logger.critical("FATAL ERROR: Shard down! Recovery failed")
+                util.logger.critical("FATAL ERROR: Recovery failed")
         finally:
-            util.logger.critical("Shard is down! Bot needs restarting!")
+            util.logger.critical("Bot is down & needs restarting!")
             # Should restart bot
             os._exit(1)
 
@@ -408,16 +303,18 @@ def run_due():
     loader.load_modules(packages=loader.GAME)
     if not stopped:
         loader.load_modules(packages=loader.COMMANDS)
+
         util.logger.info("Modules loaded after %.2fs", time.time() - start_time)
         shard_time = time.time()
-        for shard_number in range(0, shard_count):
-            loaded_clients = len(shard_clients)
-            shard_thread = ShardThread(asyncio.new_event_loop(), shard_number)
-            shard_thread.start()
-            while len(shard_clients) <= loaded_clients:
-                pass
-        while not loaded():
+        
+        client_thread = ClientThread(asyncio.new_event_loop())
+        client_thread.start()
+
+        while not len(clients) == 1:
             pass
+        while not client.is_ready() and not client.loaded:
+            pass
+        print("PASSED")
 
         # TODO: Show the time it takes to turn on the bot & time it took to start shards
         util.logger.info("Bot started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - shard_time)
@@ -428,12 +325,6 @@ def run_due():
         for task in tasks.tasks:
             asyncio.ensure_future(task(), loop=loop)
         loop.run_forever()
-        
-
-
-def loaded():
-    return len(shard_clients) == shard_count and all(client.loaded for client in shard_clients)
-
 
 if __name__ == "__main__":
     util.logger.info("Starting BattleBanana!")
@@ -441,8 +332,5 @@ if __name__ == "__main__":
     bot_key = config["botToken"]
     shard_count = config["shardCount"]
     shard_names = config["shardNames"]
-    #owner = discord.Member(user={"id": config["owner"]})
-    #if not permissions.has_permission(owner, Permission.DUEUTIL_OWNER):
-    #    permissions.give_permission(owner, Permission.DUEUTIL_OWNER)
-    util.load(shard_clients)
+    util.load(clients)
     run_due()

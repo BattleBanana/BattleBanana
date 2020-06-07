@@ -16,7 +16,7 @@ from ..permissions import Permission
 from ..game import awards
 from ..game import weapons
 from ..game import gamerules
-from ..game.helpers.misc import DueUtilObject, Ring
+from ..game.helpers.misc import BattleBananaObject, Ring
 from . import customizations
 from .customizations import Theme
 from . import emojis as e
@@ -25,6 +25,12 @@ from . import emojis as e
 
 STAT_GAIN_FORMAT = (e.ATK + ": +%.2f " + e.STRG + ": +%.2f " + e.ACCY + ": +%.2f")
 
+class FakeMember:
+    def __init__(self, user_id: int, name:str, roles=[]):
+        self.id = user_id
+        self.mention = f"<@{user_id}>"
+        self.name = "<Dummy>"
+        self.roles = roles
 
 class Players(dict):
     # Amount of time before the bot will prune a player.
@@ -58,9 +64,9 @@ def prune_task():
         util.logger.warning("Failed to prune players: %s" % exception)
 
 
-class Player(DueUtilObject, SlotPickleMixin):
+class Player(BattleBananaObject, SlotPickleMixin):
     """
-    The DueUtil player!
+    The BattleBanana player!
     This (and a few other classes) are very higgledy-piggledy due to
     being make very early on in development & have been changed so many
     times while trying not to break older versions & code.
@@ -95,7 +101,6 @@ class Player(DueUtilObject, SlotPickleMixin):
     def __init__(self, *args, **kwargs):
         if len(args) > 0 and isinstance(args[0], discord.User):
             super().__init__(args[0].id, args[0].name, **kwargs)
-            players[self.id] = self
         else:
             super().__init__("NO_ID", "DueUtil Player", **kwargs)
         self.reset()
@@ -187,8 +192,7 @@ class Player(DueUtilObject, SlotPickleMixin):
         self.strg = 1
         self.accy = 1
         self.hp = 10
-        self.money = 0
-        # lol nah
+        self.money = 100
         self.prestige_level = 0
 
         ##### USAGE STATS #####
@@ -332,7 +336,7 @@ class Player(DueUtilObject, SlotPickleMixin):
             member = guild.get_member(self.id)
             if member is None:
                 # Member not on guild.
-                member = self.to_member()
+                member = self.to_member(guild)
         else:
             # Guild not passed.
             member = self.to_member()
@@ -426,18 +430,18 @@ class Player(DueUtilObject, SlotPickleMixin):
         self.equipped["banner"] = theme["banner"]
         self.equipped["background"] = theme["background"]
 
-    def to_member(self):
+    def to_member(self, guild=None):
         """
         Returns a fake discord member.
         This is to cheat the perms system.
         Will not work with perms that check for roles.
         """
-        return discord.Member(user={'id': self.id,
-                                    'username': self.name,
-                                    'discriminator': 0000})
+        if guild is not None:
+            return guild.get_member(int(self.id))
+        return FakeMember(self.user_id, self.name)
 
     def _setter(self, thing, value):
-        if isinstance(value, DueUtilObject):
+        if isinstance(value, BattleBananaObject):
             self.equipped[thing] = value.id
         elif isinstance(value, str):
             self.equipped[thing] = value
@@ -476,7 +480,9 @@ def find_player(user_id: str) -> Player:
     if user_id in players:
         return players[user_id]
     elif load_player(user_id):
-        return players.pop(user_id)
+        player = players.pop(user_id)
+        player.id = user_id
+        return player
 
 
 REFERENCE_PLAYER = Player(no_save=True)
@@ -487,5 +493,5 @@ def load_player(player_id):
     if response is not None and 'data' in response:
         player_data = response['data']
         loaded_player = jsonpickle.decode(player_data)
-        players[loaded_player.id] = util.load_and_update(REFERENCE_PLAYER, loaded_player)
+        players[player_id] = util.load_and_update(REFERENCE_PLAYER, loaded_player)
         return True

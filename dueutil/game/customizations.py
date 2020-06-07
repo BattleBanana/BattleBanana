@@ -5,7 +5,7 @@ import discord
 from PIL import Image
 
 from .. import permissions, util
-from ..game.helpers.misc import DueUtilObject
+from ..game.helpers.misc import BattleBananaObject
 from ..permissions import Permission
 
 from typing import Dict
@@ -20,7 +20,7 @@ Basic classes to store themes, backgrounds and banners.
 # Both Theme & Background used to be an extension of dict and DUObj
 # but had to be changed due to __slots__
 
-class Customization(DueUtilObject):
+class Customization(BattleBananaObject):
     __slots__ = ["_customization_info"]
 
     # Use kwargs so maybe I could neatly define customizations in code.

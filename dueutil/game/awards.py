@@ -1,4 +1,5 @@
 import json
+import discord
 
 from PIL import Image
 
@@ -47,7 +48,7 @@ async def give_award(channel, player, award_id, text=None):
     if get_award(award_id) is not None and award_id not in player.awards:
         player.awards.append(award_id)
         player.save()
-        if not channel.is_private and dueserverconfig.mute_level(channel) < 0:
+        if isinstance(channel, discord.abc.GuildChannel) and dueserverconfig.mute_level(channel) < 0:
             if text is None:
                 text = get_award(award_id).name
             await util.say(channel, "**" + player.name_clean + "** :trophy: **Award!** " + text)

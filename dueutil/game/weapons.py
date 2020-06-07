@@ -8,7 +8,7 @@ import jsonpickle
 from ..util import SlotPickleMixin
 from .. import dbconn
 from .. import util
-from ..game.helpers.misc import DueUtilObject, DueMap
+from ..game.helpers.misc import BattleBananaObject, DueMap
 
 from . import emojis
 
@@ -22,7 +22,7 @@ MAX_STORED_WEAPONS = 6
 Summary = namedtuple("Summary", ["price", "damage", "accy"])
 
 
-class Weapon(DueUtilObject, SlotPickleMixin):
+class Weapon(BattleBananaObject, SlotPickleMixin):
     """A simple weapon that can be used by a monster or player in DueUtil"""
 
     PRICE_CONSTANT = 0.04375

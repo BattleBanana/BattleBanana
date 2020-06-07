@@ -16,14 +16,14 @@ def update_server_config(guild, **update):
 
 
 def mute_level(channel):
-    key = channel.guild.id + '/' + channel.id
+    key = f"{channel.guild.id}/{channel.id}"
     if key in muted_channels:
         return muted_channels[key]
     return -1
 
 
 def whitelisted_commands(channel):
-    key = channel.guild.id + '/' + channel.id
+    key = f"{channel.guild.id}/{channel.id}"
     if key in command_whitelist:
         return command_whitelist[key]
 
@@ -31,7 +31,7 @@ def whitelisted_commands(channel):
 def set_command_whitelist(channel, command_list):
     # Todo fix blacklist
     global command_whitelist
-    key = channel.guild.id + '/' + channel.id
+    key = f"{channel.guild.id}/{channel.id}"
     if len(command_list) != 0:
         command_whitelist[key] = command_list
     elif key in command_whitelist:
@@ -40,7 +40,7 @@ def set_command_whitelist(channel, command_list):
 
 
 def mute_channel(channel, **options):
-    key = channel.guild.id + '/' + channel.id
+    key = f"{channel.guild.id}/{channel.id}"
     prior_mute_level = mute_level(channel)
     new_level = options.get('mute_all', False)
     if prior_mute_level != new_level:
@@ -51,7 +51,7 @@ def mute_channel(channel, **options):
 
 
 def unmute_channel(channel):
-    key = channel.guild.id + '/' + channel.id
+    key = f"{channel.guild.id}/{channel.id}"
     if key in muted_channels:
         del muted_channels[key]
         update_server_config(channel.guild, **{"muted_channels": muted_channels[channel.guild]})

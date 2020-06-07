@@ -8,6 +8,7 @@ from PIL import Image, ImageDraw, ImageFont
 from colour import Color
 import aiohttp
 import asyncio
+from discord import File
 
 from dueutil import util
 from .. import awards, gamerules, stats, weapons, customizations
@@ -104,11 +105,10 @@ def paste_alpha(background, image, position):
 async def url_image(url):
     # Checks headers only
     try:
-        with aiohttp.Timeout(3):
-            async with aiohttp.ClientSession() as session:
-                async with session.head(url=url, allow_redirects=True) as response:
-                    return "Content-Type" in response.headers and \
-                           response.headers["Content-Type"].lower().startswith("image")
+        async with aiohttp.ClientSession(conn_timeout=3) as session:
+            async with session.head(url=url, allow_redirects=True) as response:
+                return "Content-Type" in response.headers and \
+                       response.headers["Content-Type"].lower().startswith("image")
     except Exception as exception:
         util.logger.error("Got %s while checking image url.", exception)
         # Do not care about any of the network errors that could occur.
@@ -171,11 +171,11 @@ def has_dimensions(image, dimensions):
 
 async def send_image(channel, image, **kwargs):
     stats.increment_stat(stats.Stat.IMAGES_SERVED)
-    kwargs["filename"] = kwargs.pop('file_name', "")
+    #kwargs["filename"] = kwargs.pop('file_name', "")
     output = BytesIO()
     image.save(output, format="PNG")
     output.seek(0)
-    await channel.send(file=output, **kwargs)
+    await channel.send(file=File(output, filename=kwargs.pop('file_name')), **kwargs)
     output.close()
 
 

@@ -75,7 +75,7 @@ def command(**command_rules):
                     # React ?
                     if not has_my_variant(name) or len(ctx.raw_mentions) > 0:
                         # Could not be a mistype for a personal my command
-                        await ctx.message.add_reaction(emojis.QUESTION_REACT)
+                        await ctx.add_reaction(emojis.QUESTION_REACT)
                     else:
                         # May have meant to call a personal command
                         personal_command_name = "my" + name
@@ -98,7 +98,7 @@ def command(**command_rules):
                     else:
                         await util.say(ctx.channel, "You are opted out. Use ``%soptin``!" % prefix)
                 else:
-                    await ctx.message.add_reaction(emojis.CROSS_REACT)
+                    await ctx.add_reaction(emojis.CROSS_REACT)
             return True
 
         wrapped_command.is_hidden = command_rules.get('hidden', False)
@@ -142,7 +142,7 @@ def imagecommand():
         @ratelimit(slow_command=True, cooldown=IMAGE_REQUEST_COOLDOWN, error=":cold_sweat: Please don't break me!")
         @wraps(command_func)
         async def wrapped_command(ctx, *args, **kwargs):
-            await ctx.channel.typing()
+            await ctx.channel.trigger_typing()
             await asyncio.ensure_future(command_func(ctx, *args, **kwargs))
 
         return wrapped_command
@@ -219,9 +219,10 @@ def parse(command_message):
     def replace_mentions():
         nonlocal user_mentions, current_arg
         for mention in user_mentions:  # Replace mentions
+            mention = str(mention)
             if mention in current_arg and len(current_arg) - len(mention) < 6:
                 current_arg = mention
-                del user_mentions[user_mentions.index(mention)]
+                del user_mentions[user_mentions.index(int(mention))]
 
     def add_arg():
         nonlocal current_arg, args

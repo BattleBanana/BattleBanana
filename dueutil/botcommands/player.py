@@ -216,10 +216,8 @@ async def hidemyweapon(ctx, **details):
     """
     player = details["author"]
 
-    if player.weapon_hidden:
-        player.weapon_hidden = False
-    else:
-        player.weapon_hidden = True
+    player.weapon_hidden = not player.weapon_hidden
+    player.save()
 
     await util.say(ctx.channel, "Your weapon is now hidden!" if player.weapon_hidden else "Your weapon is not hidden anymore!")
 

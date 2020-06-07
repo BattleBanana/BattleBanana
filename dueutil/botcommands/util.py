@@ -83,7 +83,7 @@ async def help(ctx, *args, **details):
                 help_embed.add_field(name='Guild managers only', value=', '.join(server_op_commands), inline=False)
     else:
 
-        help_embed.set_thumbnail(url=util.get_client(ctx.guild.id).user.avatar_url)
+        help_embed.set_thumbnail(url=util.clients[0].user.avatar_url)
 
         help_embed.description = 'Welcome to the help!\n Simply do ' + server_key + 'help (category) or (command name).'
         help_embed.add_field(name=':file_folder: Command categories', value=', '.join(categories))
@@ -198,11 +198,11 @@ async def botstats(ctx, **_):
                                  % util.format_money(game_stats[Stat.MONEY_TRANSFERRED])),
                           inline=False)
     # Sharding
-    shards = util.shard_clients
-    current_shard = util.get_client(ctx.guild.id)
+    client = util.clients[0]
+    current_shard = util.get_shard_index(ctx.guild.id)
     stats_embed.add_field(name="Shard",
                           value=("You're connected to shard **%d/%d** (that is named %s).\n"
-                                 % (current_shard.shard_id + 1, len(shards), current_shard.name)
+                                 % (current_shard.shard_id + 1, client.shard_count, current_shard.name)
                                  + "Current uptime (shard) is %s."
                                  % util.display_time(time.time() - current_shard.start_time, granularity=4)),
                           inline=False)
@@ -502,7 +502,6 @@ async def optouthere(ctx, **details):
         else:
             if await optout_is_topdog_check(ctx.channel, player):
                 return
-            client = util.get_client(ctx.guild.id)
             await ctx.author.add_roles(optout_role)
             await util.say(ctx.channel, (":ok_hand: You've opted out of BattleBanana on this guild!\n"
                                          + "You won't get exp, quests or be able to use commands here."))
@@ -524,7 +523,6 @@ async def optinhere(ctx, **details):
 
     optout_role = util.get_role_by_name(ctx.guild, gconf.OPTOUT_ROLE)
     if optout_role is not None and not player.is_playing(ctx.guild, local=True):
-        client = util.get_client(ctx.guild.id)
         await ctx.author.remove_roles(optout_role)
         await util.say(ctx.channel, ("You've opted in on this guild!\n"
                                      + ("However this is overridden by your global optout.\n"
@@ -631,14 +629,13 @@ async def status(ctx, message=None, **details):
     This sets the status of all the shards to the one specified.
     """
 
+    client = util.clients[0]
     if message is None:
-        count = len(util.shard_clients)
-        for shard in util.shard_clients:
-            shardID = shard.shard_id + 1
-            game = discord.Game(name="dueutil.xyz | shard %d/%d" % (shardID, count))
-            await shard.change_presence(game=game, afk=False)
+        count = client.shard_count
+        for shardID in client.shard_ids:
+            game = discord.Activity(name="dueutil.xyz | shard %d/%d" % (shardID, count))
+            await client.change_presence(game=game, afk=False, shard_id=shardID)
     else:
-        for shard in util.shard_clients:
-            await shard.change_presence(game=discord.Game(name=message), afk=False)
+        await client.change_presence(game=discord.Activity(name=message), afk=False)
 
     await util.say(ctx.channel, "All done!")

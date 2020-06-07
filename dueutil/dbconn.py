@@ -23,7 +23,7 @@ def conn():
 
 
 def insert_object(id, pickleable_object):
-    if id.strip() == "":
+    if isinstance(id, str) and id.strip() == "":
         return
     #todo
     # jsonpickle_data = json.loads(jsonpickle.encode(pickleable_object))

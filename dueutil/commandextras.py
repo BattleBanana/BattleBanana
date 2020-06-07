@@ -29,7 +29,7 @@ def dict_command(**spec):
 
             if dict_args is False:
                 # Invalid
-                await ctx.message.add_reaction(emojis.QUESTION_REACT)
+                await ctx.add_reaction(emojis.QUESTION_REACT)
             else:
                 # Run command.
                 kwargs = details

@@ -37,7 +37,7 @@ async def _carbon_server(shard):
 #               'authorization': key}
 #    payload = {"server_count": util.get_server_count(),
 #               "shard_id": shard.shard_id,
-#               "shard_count": len(util.shard_clients)}
+#               "shard_count": util.clients[0].shard_count}
 #    async with shard.session.post(site, data=json.dumps(payload), headers=headers) as response:
 #        util.logger.info(site+" returned %s for the payload %s" % (response.status, payload))
 
@@ -49,7 +49,7 @@ async def _post_shard_count_bod(shard, site, key):
                'Authorization': key}
     payload = {"server_count": util.get_server_count(),
                "shard_id": shard.shard_id,
-               "shard_count": len(util.shard_clients)}
+               "shard_count": util.clients[0].shard_count}
     async with shard.session.post(site, data=json.dumps(payload), headers=headers) as response:
         util.logger.info(site+" returned %s for the payload %s" % (response.status, payload))
 
@@ -61,6 +61,6 @@ async def _post_shard_count_dbl(shard, site, key):
                'authorization': key}
     payload = {"server_count": len(shard.guilds),
                "shard_id": shard.shard_id,
-               "shard_count": len(util.shard_clients)}
+               "shard_count": util.clients[0].shard_count}
     async with shard.session.post(site, data=json.dumps(payload), headers=headers) as response:
         util.logger.info(site+" returned %s for the payload %s" % (response.status, payload))

@@ -338,7 +338,7 @@ async def sudo(ctx, victim, command, **_):
         ctx.author = ctx.guild.get_member(victim.id)
         if ctx.author is None:
             # This may not fix all places where author is used.
-            ctx.author = victim.to_member()
+            ctx.author = victim.to_member(ctx.guild)
             ctx.author.guild = ctx.guild  # Lie about what guild they're on.
         ctx.content = command
         await util.say(ctx.channel, ":smiling_imp: Sudoing **" + victim.name_clean + "**!")
@@ -379,14 +379,14 @@ async def setpermlevel(ctx, player, level, **_):
 async def ban(ctx, player, **_):
     if (player.id == "115269304705875969" or (player.id == "261799488719552513")):
         raise util.DueUtilException(ctx.channel, "You cannot ban DeveloperAnonymous or Firescoutt")
-    dueutil.permissions.give_permission(player.to_member(), Permission.BANNED)
+    dueutil.permissions.give_permission(player.to_member(ctx.guild), Permission.BANNED)
     await util.say(ctx.channel, emojis.MACBAN+" **" + player.name_clean + "** banned!")
     await util.duelogger.concern("**%s** has been banned!" % player.name_clean)
 
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="P", aliases=["pardon"])
 async def unban(ctx, player, **_):
-    member = player.to_member()
+    member = player.to_member(ctx.guild)
     if not dueutil.permissions.has_special_permission(member, Permission.BANNED):
         await util.say(ctx.channel, "**%s** is not banned..." % player.name_clean)
         return
@@ -510,8 +510,7 @@ async def updatebot(ctx, **_):
 async def stopbot(ctx, **_):
     await util.say(ctx.channel, ":wave: Stopping BattleBanana!")
     await util.duelogger.concern("BattleBanana shutting down!")
-    for client in util.shard_clients:
-        await client.change_presence(game=discord.Game(name="restarting"), status=discord.Status.idle, afk=True)
+    await util.clients[0].change_presence(game=discord.Activity(name="restarting"), status=discord.Status.idle, afk=True)
     os._exit(0)
 
 
@@ -519,8 +518,7 @@ async def stopbot(ctx, **_):
 async def restartbot(ctx, **_):
     await util.say(ctx.channel, ":ferris_wheel: Restarting BattleBanana!")
     await util.duelogger.concern("BattleBanana restarting!!")
-    for client in util.shard_clients:
-        await client.change_presence(game=discord.Game(name="restarting"), status=discord.Status.idle, afk=True)
+    await util.clients[0].change_presence(game=discord.Activity(name="restarting"), status=discord.Status.idle, afk=True)
     os._exit(1)
 
 
@@ -534,7 +532,7 @@ async def meminfo(ctx, **_):
     await util.say(ctx.channel, "```%s```" % mem_info.getvalue())
 
 @commands.command(args_pattern=None)
-async def ping(ctx,**_):
+async def ping(ctx, **_):
     """
     [CMD_KEY]ping
     pong! Gives you the response time.
@@ -542,14 +540,16 @@ async def ping(ctx,**_):
     message = await util.say(ctx.channel, ":ping_pong:")
 
     apims = round((message.created_at  - ctx.created_at ).total_seconds() * 1000)
+    latency = round(util.clients[0].latencies[util.get_shard_index(ctx.guild.id)][1] * 1000)
 
     t1 = time.time()
-    game.players.find_player(ctx.author.id)
+    dbconn.db.command('ping')
     t2 = time.time()
     dbms = round((t2 - t1) * 1000)
     
     embed = discord.Embed(title=":ping_pong: Pong!", type="rich", colour=gconf.DUE_COLOUR)
     embed.add_field(name="Bot Latency:", value="``%sms``" % (apims))
+    embed.add_field(name="API Latency:", value="``%sms``" % (latency))
     embed.add_field(name="Database Latency:", value="``%sms``" % (dbms), inline=False)
 
     await util.edit_message(message, embed=embed)

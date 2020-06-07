@@ -57,7 +57,6 @@ async def player_message(message, player, spam_level):
         return re.compile('\w+').findall(message.content)
 
     if player is not None:
-
         # Mention the old bot award
         if gconf.DEAD_BOT_ID in message.raw_mentions:
             await awards.give_award(message.channel, player, "SoCold", "They're not coming back.")
@@ -74,10 +73,10 @@ async def player_message(message, player, spam_level):
 
             # Special Awards
             # Comeback award
-            if player.id in old_players:
+            if str(player.id) in old_players:
                 await awards.give_award(message.channel, player, "CameBack", "Return to DueUtil")
             # Tester award
-            if player.id in testers:
+            if str(player.id) in testers:
                 await awards.give_award(message.channel, player, "Tester", ":bangbang: **Something went wrong...**")
             # Donor award
             if player.donor:
@@ -250,6 +249,7 @@ async def check_for_removed_stats(player):
 async def on_message(message):
     player = players.find_player(message.author.id)
     spam_level = 100
+    print(player)
     if player is not None:
         if not player.is_playing(message.guild):
             return

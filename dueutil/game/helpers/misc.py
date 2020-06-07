@@ -33,7 +33,7 @@ class AutoReply:
         kwargs.get('channel_id', "all")
 
 
-class DueUtilObject:
+class BattleBananaObject:
     """
     Base object for DueUtil items
     """
@@ -185,7 +185,7 @@ class DueMap(collections.MutableMapping):
             if value is not None:
                 return [key.id, value.name]
             return key.id
-        elif "/" not in key:
+        elif "/" not in str(key):
             return key
         key = key.split('/', 1)
         if '+' in key[0]:
@@ -292,15 +292,14 @@ async def get_glitter_text(gif_text):
     Screen scrape glitter text
     """
 
-    with aiohttp.Timeout(10):
-        async with aiohttp.ClientSession() as session:
-            async with session.get(GLITTER_TEXT_URL % urllib.parse.quote(gif_text.replace("'", ""))) as page_response:
-                html = await page_response.text()
-                soup = BeautifulSoup(html, "html.parser")
-                box = soup.find("textarea", {"id": "dLink"})
-                gif_text_area = str(box)
-                gif_url = gif_text_area.replace(
-                    '<textarea class="field" cols="12" id="dLink" onclick="this.focus();this.select()" readonly="">',
-                    "",
-                    1).replace('</textarea>', "", 1)
-                return await util.download_file(gif_url)
+    async with aiohttp.ClientSession(conn_timeout=10) as session:
+        async with session.get(GLITTER_TEXT_URL % urllib.parse.quote(gif_text.replace("'", ""))) as page_response:
+            html = await page_response.text()
+            soup = BeautifulSoup(html, "html.parser")
+            box = soup.find("textarea", {"id": "dLink"})
+            gif_text_area = str(box)
+            gif_url = gif_text_area.replace(
+                '<textarea class="field" cols="12" id="dLink" onclick="this.focus();this.select()" readonly="">',
+                "",
+                1).replace('</textarea>', "", 1)
+            return await util.download_file(gif_url)

@@ -48,11 +48,10 @@ async def make_transaction(sender_id, amount, to):
         "user": sender_id
     }
 
-    with aiohttp.Timeout(10):
-        async with aiohttp.ClientSession() as session:
-            async with session.post(TRANSACTIONS,
-                                    data=json.dumps(transaction_data), headers=headers) as response:
-                return await response.json()
+    async with aiohttp.ClientSession(conn_timeout=10) as session:
+        async with session.post(TRANSACTIONS,
+                                data=json.dumps(transaction_data), headers=headers) as response:
+            return await response.json()
 
 
 async def reverse_transaction(user, From, amount, id):
@@ -74,8 +73,9 @@ async def mark_as_completed(transaction):
 
 @tasks.task(timeout=120)
 async def process_transactions():
-    while not all(client.loaded for client in util.shard_clients):
+    while not util.clients[0].loaded:
         pass
+    
     await get_currencies()
     util.logger.info("Processing Discoin transactions.")
     try:
@@ -87,7 +87,7 @@ async def process_transactions():
     if unprocessed is None:
         return
     
-    client = util.shard_clients[0]
+    client = util.clients[0]
 
     for transaction in unprocessed:
         if type(transaction) == dict:
@@ -124,7 +124,7 @@ async def process_transactions():
 
 
 async def notify_complete(user_id, transaction, failed=False):
-    client = util.shard_clients[0]
+    client = util.clients[0]
     user = await client.fetch_user(user_id)
     await mark_as_completed(transaction)
     try:

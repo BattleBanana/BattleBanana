@@ -16,7 +16,7 @@ from ..permissions import Permission
 from ..game import awards
 from ..game import weapons
 from ..game import gamerules, players
-from ..game.helpers.misc import DueUtilObject, Ring
+from ..game.helpers.misc import BattleBananaObject, Ring
 from . import customizations
 from .customizations import Theme
 from . import emojis as e
@@ -24,7 +24,7 @@ from . import emojis as e
 
 teams = {}
 
-class Team(DueUtilObject, SlotPickleMixin):
+class Team(BattleBananaObject, SlotPickleMixin):
     """
     Class about teams.. Update to make it save
     in the database instead of a JSON file
