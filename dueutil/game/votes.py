@@ -56,7 +56,7 @@ async def process_votes():
             embed.add_field(name="Date: ", value=date)
 
             util.logger.info("Processed vote for %s", user_id)
-            await util.say(gconf.other_configs['transactions'], embed=embed)
+            await util.say(gconf.votes_channel, embed=embed)
             print("Sent")
 
 

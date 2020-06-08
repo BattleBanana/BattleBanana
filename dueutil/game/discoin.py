@@ -120,7 +120,7 @@ async def process_transactions():
             embed.add_field(name="Exchange", value="%.2f %s => %s %s" % (amount, source_id, payout, CURRENCY_CODE), inline=False)
 
             util.logger.info("Processed discoin transaction %s", transaction_id)
-            await util.say(gconf.other_configs['transactions'], embed=embed)
+            await util.say(gconf.discoin_channel, embed=embed)
 
 
 async def notify_complete(user_id, transaction, failed=False):
