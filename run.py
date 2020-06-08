@@ -213,8 +213,8 @@ class DueUtilClient(discord.AutoShardedClient):
     async def on_member_update(self, before, after):
         player = players.find_player(before.id)
         if player is not None:
-            old_image = player.get_avatar_url(member=before)
-            new_image = player.get_avatar_url(member=after)
+            old_image = str(player.get_avatar_url(member=before))
+            new_image = str(player.get_avatar_url(member=after))
             if old_image != new_image:
                 imagecache.uncache(old_image)
             member = after

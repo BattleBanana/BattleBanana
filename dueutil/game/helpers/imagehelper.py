@@ -150,7 +150,7 @@ def resize(image, width, height):
 
 
 async def resize_avatar(player, guild, width, height):
-    return await resize_image_url(player.get_avatar_url(guild), width, height)
+    return await resize_image_url(str(player.get_avatar_url(guild)), width, height)
 
 
 async def resize_image_url(url, width, height):
