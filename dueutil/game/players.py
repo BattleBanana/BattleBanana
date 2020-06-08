@@ -319,7 +319,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
             member = guild.get_member(self.id)
         else:
             raise ValueError("Invalid arguments")
-        return member.avatar_url
+        return str(member.avatar_url)
 
     def get_avg_stat(self):
         return sum((self.attack, self.strg, self.accy)) / 4
