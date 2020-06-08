@@ -228,10 +228,10 @@ class Player(BattleBananaObject, SlotPickleMixin):
 
         # lol no
         self.donor = False
-        try:
+        if hasattr(self, "team"):
             self.team = self.team
-        except:
-            self.Team = None
+        else:
+            self.team = None
         self.team_invites = []
 
         ##### Dumb misc stats (easy to add & remove)
