@@ -57,11 +57,14 @@ async def deleteteam(ctx, **details):
     Deletes your team
     """
     member = details["author"]
+    
+    if member.team is None:
+        raise util.DueUtilException(ctx.channel, "You're not in a team!")
+
     team = teams.find_team(member.team)
     if team is None:
         member.team = None
-    if member.team is None:
-        raise util.DueUtilException(ctx.channel, "You're not in a team!")
+    
     if member.id != team.owner:
         raise util.DueUtilException(ctx.channel, "You need to be the owner to delete the team!")
     
@@ -80,18 +83,24 @@ async def teaminvite(ctx, member, **details):
     """
 
     inviter = details["author"]
-    team = teams.find_team(inviter.team)
     
     if inviter == member:
         raise util.DueUtilException(ctx.channel, "You cannot invite yourself!")
-    if not team:
-        inviter.team = None
+
     if inviter.team is None:
         raise util.DueUtilException(ctx.channel, "You are not a part of a team!")
+
     if member.team != None:
         raise util.DueUtilException(ctx.channel, "This player is already in a team!")
+
+    team = teams.find_team(inviter.team)
+    if team is None:
+        inviter.team = None
+        raise util.DueUtilException(ctx.channel, "You are not a part of a team!")
+
     if not team.isAdmin(inviter):
         raise util.DueUtilException(ctx.channel, "You do not have permissions to send invites!")
+
     if inviter.team in member.team_invites:
         raise util.DueUtilException(ctx.channel, "This player has already been invited to join your team!")
     
@@ -111,8 +120,6 @@ async def showinvites(ctx, **details):
     member = details["author"]
 
     Embed = discord.Embed(title="Displaying your team invites!", description="You were invited to join these teams!", type="rich", colour=gconf.DUE_COLOUR)
-    if member.team_invites is None:
-        member.team_invites = []
     if len(member.team_invites) == 0:
         Embed.add_field(name="No invites!", value="You do not have invites!")
     else:
@@ -122,7 +129,7 @@ async def showinvites(ctx, **details):
                 owner = players.find_player(team.owner)
                 Embed.add_field(name=team.name, 
                                 value="**Owner:** %s (%s)\n**Average level:** %s\n**Members:** %s\n**Required Level:** %s\n**Recruiting:** %s" 
-                                % (owner.name, owner.id, team.avgLevel, len(team.members), team.level, ("Yes" if team.open else "No")), 
+                                        % (owner.name, owner.id, team.avgLevel, len(team.members), team.level, ("Yes" if team.open else "No")), 
                                 inline=False)
             else:
                 member.team_invites.remove(id)
@@ -146,7 +153,7 @@ async def acceptinvite(ctx, team, **details):
     if team.id not in member.team_invites:
         raise util.DueUtilException(ctx.channel, "Invite not found!")
 
-    team.AddMember(ctx, member)
+    team.addMember(ctx, member)
             
     await util.say(ctx.channel, "Successfully joined **%s**!" % team)
 
@@ -161,8 +168,6 @@ async def declineinvite(ctx, team, **details):
 
     member = details["author"]
 
-    if member.team_invites is None:
-        member.team_invites = []
     if team.id not in member.team_invites:
         raise util.DueUtilException(ctx.channel, "Team not found!")
 
@@ -199,15 +204,15 @@ async def myteam(ctx, **details):
     admins = ""
     for id in team.admins:
         if id != team.owner:
-            admins += "%s (%s)\n" % (players.find_player(id).name_clean, str(id))
+            admins += "%s (%s)\n" % (players.find_player(id).name, str(id))
     for id in team.members:
         if id not in team.admins and id != team.owner:
-            members += "%s (%s)\n" % (players.find_player(id).name_clean, str(id))
+            members += "%s (%s)\n" % (players.find_player(id).name, str(id))
     for id in team.pendings:
         if id in team.members:
             team.pendings.remove(id)
         else:
-            pendings += "%s (%s)\n" % (players.find_player(id).name_clean, str(id))
+            pendings += "%s (%s)\n" % (players.find_player(id).name, str(id))
         
     team_embed.add_field(name="Name", value=team.name, inline=False)
     team_embed.add_field(name="Description", value=team.description, inline=False)
@@ -223,6 +228,7 @@ async def myteam(ctx, **details):
         members = "There is no member to display!"
     if len(admins) == 0:
         admins = "There is no admin to display!"
+    
     team_embed.add_field(name="Admins:", value=admins)
     team_embed.add_field(name="Members:", value=members)
     team_embed.add_field(name="Pendings:", value=pendings)
@@ -235,28 +241,34 @@ async def promoteuser(ctx, user, **details):
     [CMD_KEY]promoteuser (player)
 
     Promote a member of your team to admin.
-    Being an admin allows you to manage the team: Invite players, kick players, etc.
+    An admin can manage the team: Invite players, kick players, etc.
 
     NOTE: Only the owner can promote members!
     """
 
     member = details["author"]
 
+    if member == user:
+        raise util.DueUtilException(ctx.channel, "You are not allowed to promote yourself!")
+
+    if member.team is None:
+        raise util.DueUtilException(ctx.channel, "You are not in a team!")
+
+    if user.team is None:
+        raise util.DueUtilException(ctx.channel, "This player is not in your team!")
+
+    if member.team != user.team:
+        raise util.DueUtilException(ctx.channel, "This player is not in your team!")
+
     team = teams.find_team(member.team)
     if team is None:
         member.team = None
-    if member == user:
-        raise util.DueUtilException(ctx.channel, "You are not allowed to promote yourself!")
-    if member.team is None:
         raise util.DueUtilException(ctx.channel, "You are not in a team!")
-    if user.team is None:
-        raise util.DueUtilException(ctx.channel, "This player is not in a team!")
+    
     if member.id != team.owner:
         raise util.DueUtilException(ctx.channel, "You are not allowed to promote users! (You must be owner!)")
-    if member.team != user.team:
-        raise util.DueUtilException(ctx.channel, "This player is not in your team!")
     
-    team.AddAdmin(ctx, user)
+    team.addAdmin(ctx, user)
     await util.say(ctx.channel, "Successfully **promoted %s** as an **admin** in **%s**!" % (user.get_name_possession_clean(), team.name))
 
 
@@ -272,23 +284,28 @@ async def demoteuser(ctx, user, **details):
 
     member = details["author"]
 
+    if member.team != user.team:
+        raise util.DueUtilException(ctx.channel, "This player is not in your team!")
+
+    if member == user:
+        raise util.DueUtilException(ctx.channel, "There is no reason to demote yourself!")
+        
+    if member.team is None:
+        raise util.DueUtilException(ctx.channel, "You are not in a team!")
+    
     team = teams.find_team(member.team)
     if team is None:
         member.team = None
-    if member.team is None:
         raise util.DueUtilException(ctx.channel, "You are not in a team!")
-    if member.team != user.team:
-        raise util.DueUtilException(ctx.channel, "This player is not in your team!")
     
-    if member != team.owner:
+    if member.id != team.owner:
         raise util.DueUtilException(ctx.channel, "You are not allowed to demote users! (You must be the owner!)")
+    
     if user.id not in team.admins:
         raise util.DueUtilException(ctx.channel, "This player is already a member!")
-    if member == user:
-        raise util.DueUtilException(ctx.channel, "There is no reason to demote yourself!")
     
-    team.RemoveAdmin(ctx, user)
-    await util.say(ctx.channel, "**%s** has been demoted to **Member**" % (user.get_name_possession_clean()))
+    team.removeAdmin(ctx, user)
+    await util.say(ctx.channel, "**%s** has been demoted to **Member**" % (user.name))
         
 
 @commands.command(args_pattern="P", aliases=["tk"])
@@ -306,18 +323,24 @@ async def teamkick(ctx, user, **details):
 
     member = details["author"]
 
+    if member == user:
+        raise util.DueUtilException(ctx.channel, "There is no reason to kick yourself!")
+
+    if member.team is None:
+        raise util.DueUtilException(ctx.channel, "You are not in a team!")
+    
+    if member.team != user.team:
+        raise util.DueUtilException(ctx.channel, "This player is not in your team!")
+
     team = teams.find_team(member.team)
     if team is None:
         member.team = None
-    if member == user:
-        raise util.DueUtilException(ctx.channel, "There is no reason to kick yourself!")
-    if member.team is None:
         raise util.DueUtilException(ctx.channel, "You are not in a team!")
-    if member.team != user.team:
-        raise util.DueUtilException(ctx.channel, "This player is not in your team!")
-    if member.id not in team.admins:
+
+    if not team.isAdmin(member):
         raise util.DueUtilException(ctx.channel, "You must be an admin to use this command!")
-    if user.id in team.admins and member != team.owner:
+
+    if team.isAdmin(user) and member.id != team.owner:
         raise util.DueUtilException(ctx.channel, "You must be the owner to kick this player from the team!")
     
     team.Kick(ctx, user)
@@ -335,7 +358,6 @@ async def leaveteam(ctx, **details):
 
     :D
     """
-
     member = details["author"]
 
     team = teams.find_team(member.team)
@@ -343,6 +365,7 @@ async def leaveteam(ctx, **details):
         member.team = None
     if member.team is None:
         raise util.DueUtilException(ctx.channel, "You are not in any team.. You can't leave the void.. *My void!* :smiling_imp:")
+
     if team.owner == member.id:
         raise util.DueUtilException(ctx.channel, "You cannot leave this team! If you want to disband it, use `%sdeleteteam`" % (details["cmd_key"]))
     
@@ -407,19 +430,19 @@ async def showteaminfo(ctx, team, **details):
     admins = ""
     for id in team.admins:
         if id != team.owner:
-            admins += "%s (%s)\n" % (players.find_player(id).name_clean, str(id))
+            admins += "%s (%s)\n" % (players.find_player(id).name, str(id))
     for id in team.members:
         if id not in team.admins and id != team.owner:
-            members += "%s (%s)\n" % (players.find_player(id).name_clean, str(id))
+            members += "%s (%s)\n" % (players.find_player(id).name, str(id))
     for id in team.pendings:
         if id in team.members:
             team.pendings.remove(id)
         else:
-            pendings += "%s (%s)\n" % (players.find_player(id).name_clean, str(id))
+            pendings += "%s (%s)\n" % (players.find_player(id).name, str(id))
         
     team_embed.add_field(name="Name", value=team.name, inline=False)
     team_embed.add_field(name="Description", value=team.description, inline=False)
-    team_embed.add_field(name="Owner", value="%s (%s)" % (players.find_player(team.owner), team.owner), inline=False)
+    team_embed.add_field(name="Owner", value="%s (%s)" % (players.find_player(team.owner).name, team.owner), inline=False)
     team_embed.add_field(name="Member Count", value=len(team.members), inline=False)
     team_embed.add_field(name="Average level", value=team.avgLevel, inline=False)
     team_embed.add_field(name="Required level", value=team.level, inline=False)
@@ -431,6 +454,7 @@ async def showteaminfo(ctx, team, **details):
         members = "There is no member to display!"
     if len(admins) == 0:
         admins = "There is no admin to display!"
+    
     team_embed.add_field(name="Admins:", value=admins)
     team_embed.add_field(name="Members:", value=members)
     team_embed.add_field(name="Pendings:", value=pendings)
@@ -450,22 +474,24 @@ async def jointeam(ctx, team, **details):
 
     if member.team != None:
         raise util.DueUtilException(ctx.channel, "You are already in a team.")
-    if team.open and member.level >= team.level:
-        team.AddMember(ctx, member)
-        member.team = team.id
+
+    if (team.open or team.id in member.team_invites) and member.level >= team.level:
+        team.addMember(ctx, member)
         await util.say(ctx.channel, "You successfully joined **%s**!" % (team.name))
+
     elif member.level < team.level:
         raise util.DueUtilException(ctx.channel, "You must be level %s or higher to join this team!" % (team.level))
+
     else:
-        team.AddPending(ctx, member)
+        team.addPending(ctx, member)
         await util.say(ctx.channel, "You have been added to **%s** pending list!" % (team.get_name_possession()))
 
 
 @commands.command(args_pattern='S*', aliases=["ts"])
 @commands.extras.dict_command(optional={"min level/minimum level/level": "I", "open/recruiting": "B", "description/desc": "S"})
-async def teamsettings(ctx, updates, **details):
+async def editteam(ctx, updates, **details):
     """
-    [CMD_KEY]teamsettings param (value)+
+    [CMD_KEY]editteam param (value)+
 
     You can change as many properties as you want at the same time
 
@@ -474,19 +500,19 @@ async def teamsettings(ctx, updates, **details):
 
     Example usage:
 
-        [CMD_KEY]teamsettings "minimum level" 10
+        [CMD_KEY]editteam "minimum level" 10
 
-        [CMD_KEY]teamsettings recruiting true
+        [CMD_KEY]editteam recruiting true
     """
 
     member = details["author"]
 
-    if member.team is None:
-        raise util.DueUtilException(ctx.channel, "You are not in a team!")
-
     team = teams.find_team(member.team)
     if team is None:
         member.team = None
+    if member.team is None:
+        raise util.DueUtilException(ctx.channel, "You are not in a team!")
+
     if not team.isAdmin(member):
         raise util.DueUtilException(ctx.channel, "You need to be an admin to change settings!")
     
@@ -524,23 +550,22 @@ async def showteampendings(ctx, page=1, **details):
     Display a list of pending users for your team!
     """
 
-    user = details["author"]
+    member = details["author"]
     page_size = 10
     page = page - 1
-    team = teams.find_team(user.team)
+    team = teams.find_team(member.team)
     if page < 0:
         raise util.DueUtilException(ctx.channel, "Page not found!")
     if team is None:
-        user.Team = None
-    if user.team is None:
+        member.Team = None
+    if member.team is None:
         raise util.DueUtilException(ctx.channel, "You're not part of any team!")
-    
-    pendings_embed = discord.Embed(title="**%s** pendings list" % (team.name), description="Displaying user pending to your team", type="rich", colour=gconf.DUE_COLOUR)
     
     top = ((page_size * page) + page_size) if ((page_size * page) + page_size < len(team.pendings)) else len(team.pendings)
     if page != 0 and page * page_size >= len(team.pendings):
         raise util.DueUtilException(ctx.channel, "Page not found")
     
+    pendings_embed = discord.Embed(title="**%s** pendings list" % (team.name), description="Displaying user pending to your team", type="rich", colour=gconf.DUE_COLOUR)
     for index in range((page_size * page), top, 1):
         id = team.pendings[index]
         member = players.find_player(id)
@@ -569,13 +594,13 @@ async def acceptpending(ctx, user, **details):
         member.team = None
     if member.team is None:
         raise util.DueUtilException(ctx.channel, "You're not in a team!")
-    if user.id not in team.pendings:
-        raise util.DueUtilException(ctx.channel, "Pending user not found!")
     if user.team != None:
         raise util.DueUtilException(ctx.channel, "This player found his favorite team already!")
+    if not team.isPending(user):
+        raise util.DueUtilException(ctx.channel, "Pending user not found!")
     
-    team.AddMember(ctx, user)
-    await util.say(ctx.channel, "Accepted **%s** in your team!" % (user.name_clean))
+    team.addMember(ctx, user)
+    await util.say(ctx.channel, "Accepted **%s** in your team!" % (user.name))
 
 
 @commands.command(args_pattern="P", aliases=["dp"])
@@ -594,12 +619,12 @@ async def declinepending(ctx, user, **details):
     if member.team is None:
         raise util.DueUtilException(ctx.channel, "You're not in a team!")
     
-    if user.id not in team.pendings:
+    if not team.isPending(user):
         raise util.DueUtilException(ctx.channel, "Pending user not found!")
     
-    team.pendings.remove(user.id)
+    team.removePending(ctx, user)
     
-    await util.say(ctx.channel, "Removed **%s** from pendings!" % (user.name_clean))
+    await util.say(ctx.channel, "Removed **%s** from pendings!" % (user.name))
     
 # import json
 # @commands.command(args_pattern=None, hidden=True, permission=Permission.DUEUTIL_ADMIN)
