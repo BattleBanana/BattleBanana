@@ -202,9 +202,9 @@ async def botstats(ctx, **_):
     current_shard = util.get_shard_index(ctx.guild.id)
     stats_embed.add_field(name="Shard",
                           value=("You're connected to shard **%d/%d** (that is named %s).\n"
-                                 % (current_shard.shard_id + 1, client.shard_count, current_shard.name)
-                                 + "Current uptime (shard) is %s."
-                                 % util.display_time(time.time() - current_shard.start_time, granularity=4)),
+                                 % (current_shard + 1, client.shard_count, gconf.shard_names[current_shard])
+                                 + "Current uptime is %s."
+                                 % util.display_time(time.time() - client.start_time, granularity=4)),
                           inline=False)
 
     await util.say(ctx.channel, embed=stats_embed)
