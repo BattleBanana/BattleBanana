@@ -253,11 +253,11 @@ def get_server_quest_list(guild: discord.Guild) -> Dict[str, Quest]:
 
 
 def get_quest_on_server(guild: discord.Guild, quest_name: str) -> Quest:
-    return quest_map[guild.id + "/" + quest_name.lower()]
+    return quest_map[f"{guild.id}/{quest_name.lower()}"]
 
 
 def remove_quest_from_server(guild: discord.Guild, quest_name: str):
-    quest_id = guild.id + "/" + quest_name.lower()
+    quest_id = f"{guild.id}/{quest_name.lower()}"
     del quest_map[quest_id]
     dbconn.get_collection_for_object(Quest).remove({'_id': quest_id})
 
@@ -266,11 +266,11 @@ def get_quest_from_id(quest_id: str) -> Quest:
     return quest_map[quest_id]
 
 
-def get_channel_quests(channel: discord.TextChannel) -> List[Quest]:
+def get_channel_quests(channel: discord.abc.GuildChannel) -> List[Quest]:
     return [quest for quest in quest_map[channel.guild].values() if quest.channel in ("ALL", channel.id)]
 
 
-def get_random_quest_in_channel(channel):
+def get_random_quest_in_channel(channel: discord.abc.GuildChannel):
     if channel.guild in quest_map:
         return random.choice(get_channel_quests(channel))
 
@@ -287,7 +287,7 @@ def add_default_quest_to_server(guild):
           image_url=default.image_url,
           spawn_chance=default.spawn_chance * 100,
           server_id=guild.id,
-          no_save=True)
+          no_save=False)
 
 
 def remove_all_quests(guild):
@@ -301,7 +301,7 @@ def remove_all_quests(guild):
 def has_quests(place):
     if isinstance(place, discord.Guild):
         return place in quest_map and len(quest_map[place]) > 0
-    elif isinstance(place, discord.TextChannel):
+    elif isinstance(place, discord.abc.GuildChannel):
         if place.guild in quest_map:
             return len(get_channel_quests(place)) > 0
     return False
