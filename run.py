@@ -282,7 +282,7 @@ class ClientThread(dummy.Process):
         client = DueUtilClient(shard_count=shard_count, fetch_offline_members=False)
         clients.append(client)
         try:
-            asyncio.run_coroutine_threadsafe(client.run(bot_key), client.loop)
+            client.loop.run_until_complete(client.start(bot_key))
         except Exception as client_exception:
             util.logger.exception(client_exception, exc_info=True)
             if level < MAX_RECOVERY_ATTEMPTS:
