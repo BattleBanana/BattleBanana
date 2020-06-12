@@ -432,9 +432,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
 
     def to_member(self, guild=None):
         """
-        Returns a fake discord member.
-        This is to cheat the perms system.
-        Will not work with perms that check for roles.
+        Returns a discord member or a fake member.
         """
         if guild is not None:
             return guild.get_member(int(self.id))
