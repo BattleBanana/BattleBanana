@@ -149,11 +149,11 @@ def get_weapon_from_id(weapon_id: str) -> Weapon:
     return weapons[NO_WEAPON_ID]
 
 
-def does_weapon_exist(server_id: str, weapon_name: str) -> bool:
+def does_weapon_exist(server_id: int, weapon_name: str) -> bool:
     return get_weapon_for_server(server_id, weapon_name) is not None
 
 
-def get_weapon_for_server(server_id: str, weapon_name: str) -> Weapon:
+def get_weapon_for_server(server_id: int, weapon_name: str) -> Weapon:
     if weapon_name.lower() in stock_weapons:
         return weapons["STOCK/" + weapon_name.lower()]
     weapon_id = f"{server_id}/{weapon_name.lower()}"
