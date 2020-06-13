@@ -148,14 +148,14 @@ async def notify_complete(user_id, transaction, failed=False):
                             value="%s/%s/show" % (DISCOINDASH, transaction['id']), 
                             inline=False)
             try:
-                await util.say(user, embed=embed, client=client)
+                await util.say(user, embed=embed)
             except Exception as error:
                 util.logger.error("Could not notify the successful transaction to the user: %s", error)
         elif failed:
             embed.add_field(name=":warning: Your Discoin exchange has been reversed", value="To exchange to DueUtil you must be a player "
                                                                                         + "and the amount has to be worth at least 1 BBT.")
             try:
-                await util.say(user, embed=embed, client=client)
+                await util.say(user, embed=embed)
             except Exception as error:
                 util.logger.error("Could not notify the failed transaction to the user: %s", error)
             

@@ -73,7 +73,7 @@ async def notify_complete(user_id, vote, reward):
         embed.add_field(name="Date: ", value=vote.get("date"))
 
         try:
-            await util.say(user, embed=embed, client=client)
+            await util.say(user, embed=embed)
         except Exception as error:
             util.logger.error("Could not notify the successful transaction to the user: %s", error)
 
