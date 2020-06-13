@@ -279,7 +279,7 @@ class ClientThread(dummy.Process):
     def run(self, level=1):
         asyncio.set_event_loop(self.event_loop)
         global client
-        client = DueUtilClient(shard_count=shard_count, fetch_offline_members=False)
+        client = DueUtilClient(fetch_offline_members=False)
         clients.append(client)
         try:
             client.loop.run_until_complete(client.start(bot_key))

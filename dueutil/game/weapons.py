@@ -156,7 +156,7 @@ def does_weapon_exist(server_id: str, weapon_name: str) -> bool:
 def get_weapon_for_server(server_id: str, weapon_name: str) -> Weapon:
     if weapon_name.lower() in stock_weapons:
         return weapons["STOCK/" + weapon_name.lower()]
-    weapon_id = server_id + "/" + weapon_name.lower()
+    weapon_id = f"{server_id}/{weapon_name.lower()}"
     if weapon_id in weapons:
         return weapons[weapon_id]
 
