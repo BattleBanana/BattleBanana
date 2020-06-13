@@ -279,7 +279,8 @@ class ClientThread(dummy.Process):
     def run(self, level=1):
         asyncio.set_event_loop(self.event_loop)
         global client
-        client = DueUtilClient(fetch_offline_members=False)
+        #client = DueUtilClient(fetch_offline_members=False)
+        client = DueUtilClient()
         clients.append(client)
         try:
             client.loop.run_until_complete(client.start(bot_key))
@@ -310,11 +311,6 @@ def run_due():
         client_thread = ClientThread(asyncio.new_event_loop())
         client_thread.start()
 
-        while not len(clients) == 1:
-            pass
-        while not client.is_ready():
-            pass
-        
         # TODO: Show the time it takes to turn on the bot & time it took to start shards
         util.logger.info("Bot started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - shard_time)
 
