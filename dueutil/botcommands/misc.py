@@ -209,14 +209,15 @@ async def deletebg(ctx, background_to_delete, **details):
         "**%s** deleted the background **%s**" % (details["author"].name_clean, background.name_clean))
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="S")
+@commands.command(permission=Permission.DUEUTIL_OWNER, args_pattern="S")
 async def bbeval(ctx, statement, **details):
     """
     For 1337 haxors only! Go away!
     """
     if not (ctx.author.id in (115269304705875969, 261799488719552513)):
-        util.logger.info(ctx.author.id + " tried to use the command: dueeval")
-        util.logger.info("Arguments used with dueeval: \n%s" % statement)
+        util.logger.info(f"{ctx.author.id} tried to use the command: bbeval")
+        util.logger.info("Arguments used with bbeval: \n%s" % statement)
+        return
     
     try:
         if statement.startswith("await"):
