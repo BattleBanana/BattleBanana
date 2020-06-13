@@ -228,6 +228,7 @@ class DueUtilClient(discord.AutoShardedClient):
             if collection != "Player":
                 dbconn.db[collection].delete_many({'_id': {'$regex': '%s.*' % guild.id}})
                 dbconn.db[collection].delete_many({'_id': guild.id})
+                dbconn.db[collection].delete_many({'_id': str(guild.id)})
         await util.duelogger.info("BattleBanana has been removed from the guild **%s** (%s members)"
                                        % (util.ultra_escape_string(guild.name), guild.member_count))
         # Update stats
