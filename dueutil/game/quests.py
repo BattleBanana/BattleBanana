@@ -331,7 +331,7 @@ def _load():
     for quest in dbconn.get_collection_for_object(Quest).find():
         loaded_quest = jsonpickle.decode(quest['data'])
 
-        if isinstance(loaded_quest.channel, str) and loaded_quest.channel != "ALL":
+        if isinstance(loaded_quest.channel, str) and loaded_quest.channel not in ("ALL", None, "NONE"):
             loaded_quest.channel = int(loaded_quest.channel)
         if isinstance(loaded_quest.server_id, str):
             loaded_quest.server_id = int(loaded_quest.server_id)
