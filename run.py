@@ -224,7 +224,7 @@ class DueUtilClient(discord.AutoShardedClient):
 
     
     async def on_guild_remove(self, guild):
-        for collection in dbconn.db.collection_names():
+        for collection in dbconn.db.list_collection_names():
             if collection != "Player":
                 dbconn.db[collection].delete_many({'_id': {'$regex': '%s.*' % guild.id}})
                 dbconn.db[collection].delete_many({'_id': guild.id})
