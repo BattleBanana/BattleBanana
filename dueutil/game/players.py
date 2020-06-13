@@ -476,9 +476,9 @@ class Player(BattleBananaObject, SlotPickleMixin):
 
 def find_player(user_id: int) -> Player:
     if user_id in players:
-        return players.pop(user_id)
+        return players[user_id]
     elif load_player(user_id):
-        player = players.pop(user_id)
+        player = players[user_id]
         player.id = user_id
         return player
 
