@@ -119,7 +119,7 @@ async def say(channel, *args, **kwargs):
     if type(channel) is str:
         # Guild/Channel id
         server_id, channel_id = channel.split("/")
-        channel = get_server(int(server_id)).get_channel(int(channel_id))
+        channel = get_guild(int(server_id)).get_channel(int(channel_id))
     if asyncio.get_event_loop() != clients[0].loop:
         # Allows it to speak across shards
         clients[0].run_task(say, *((channel,) + args), **kwargs)
@@ -175,8 +175,8 @@ def get_server_count():
     return len(clients[0].guilds)
 
 
-def get_server_id(source):
-    if isinstance(source, str):
+def get_guild_id(source):
+    if isinstance(source, int):
         return source
     elif hasattr(source, 'guild'):
         return source.guild.id
@@ -184,12 +184,12 @@ def get_server_id(source):
         return source.id
 
 
-def get_server(server_id: int):
+def get_guild(server_id: int):
     return clients[0].get_guild(server_id)
 
 
 def find_channel(channel_name):
-    channels = get_server(gconf.other_configs['supportServer']).channels
+    channels = get_guild(gconf.other_configs['supportServer']).channels
     for channel in channels:
         if channel.name == channel_name:
             return channel

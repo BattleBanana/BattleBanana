@@ -181,11 +181,13 @@ class DueMap(collections.MutableMapping):
 
     @staticmethod
     def _parse_key(key, value=None):
+        if isinstance(key, int):
+            key = str(key)
         if isinstance(key, discord.Guild):
             if value is not None:
-                return [key.id, value.name]
-            return key.id
-        elif "/" not in str(key):
+                return [str(key.id), value.name]
+            return str(key.id)
+        elif "/" not in key:
             return key
         key = key.split('/', 1)
         if '+' in key[0]:

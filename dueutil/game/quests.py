@@ -330,6 +330,11 @@ def _load():
 
     for quest in dbconn.get_collection_for_object(Quest).find():
         loaded_quest = jsonpickle.decode(quest['data'])
+
+        if (isinstance(loaded_quest.channel, str) and loaded_quest.channel != "ALL") or isinstance(loaded_quest.server_id, str):
+            loaded_quest.channel = int(loaded_quest.channel)
+            loaded_quest.server_id = int(loaded_quest.server_id)
+            
         quest_map[loaded_quest.id] = util.load_and_update(REFERENCE_QUEST, loaded_quest)
     util.logger.info("Loaded %s quests", len(quest_map))
 
