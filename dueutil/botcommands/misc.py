@@ -214,7 +214,7 @@ async def bbeval(ctx, statement, **details):
     """
     For 1337 haxors only! Go away!
     """
-    if not (ctx.author.id == "115269304705875969" or ctx.author.id == "261799488719552513"):
+    if not (ctx.author.id in (115269304705875969, 261799488719552513)):
         util.logger.info(ctx.author.id + " tried to use the command: dueeval")
         util.logger.info("Arguments used with dueeval: \n%s" % statement)
     
@@ -329,9 +329,9 @@ async def sudo(ctx, victim, command, **_):
     
     Infect a victims mind to make them run any command you like!
     """
-    if not (ctx.author.id == "115269304705875969" or ctx.author.id == "261799488719552513"):
+    if not (ctx.author.id in (115269304705875969, 261799488719552513)):
         util.logger.info(ctx.author.id + " used the command: sudo\nUsing command: %s" % command)
-        if (victim.id == "115269304705875969" or victim.id == "261799488719552513"):
+        if (victim.id in (115269304705875969, 261799488719552513)):
             raise util.DueUtilException(ctx.channel, "You cannot sudo DeveloperAnonymous or Firescoutt")
 
     try:
@@ -349,11 +349,12 @@ async def sudo(ctx, victim, command, **_):
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PC")
 async def setpermlevel(ctx, player, level, **_):
-    if not (ctx.author.id == "115269304705875969" or ctx.author.id == "261799488719552513"):
+    if not (ctx.author.id in (115269304705875969, 261799488719552513)):
         util.logger.info(ctx.author.id + " used the command: setpermlevel\n")
-        if (player.id == "115269304705875969" or player.id == "261799488719552513"):
+        if (player.id in (115269304705875969, 261799488719552513)):
             raise util.DueUtilException(ctx.channel, "You cannot change the permissions for DeveloperAnonymous or Firescoutt")
-    member = discord.Member(user={"id": player.id})
+
+    member = player.to_member(ctx.guild)
     permission_index = level - 1
     permission_list = dueutil.permissions.permissions
     if permission_index < len(permission_list):
@@ -377,7 +378,7 @@ async def setpermlevel(ctx, player, level, **_):
 
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="P", aliases=["giveban"])
 async def ban(ctx, player, **_):
-    if (player.id == "115269304705875969" or (player.id == "261799488719552513")):
+    if (ctx.author.id in (115269304705875969, 261799488719552513)):
         raise util.DueUtilException(ctx.channel, "You cannot ban DeveloperAnonymous or Firescoutt")
     dueutil.permissions.give_permission(player.to_member(ctx.guild), Permission.BANNED)
     await util.say(ctx.channel, emojis.MACBAN+" **" + player.name_clean + "** banned!")
@@ -397,11 +398,11 @@ async def unban(ctx, player, **_):
 @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None, hidden=True)
 async def bans(ctx, **_):
     bans_embed = discord.Embed(title="Ban list", type="rich", color=gconf.DUE_COLOUR)
-    stringe = ""
+    string = ""
     for k, v in dueutil.permissions.special_permissions.items():
         if v == "banned":
-            stringe += "<@%s> (%s)\n" % (k,k)
-    bans_embed.add_field(name="There is what I collected about bad people:", value=stringe or "Nobody is banned!")
+            string += "<@%s> (%s)\n" % (k,k)
+    bans_embed.add_field(name="There is what I collected about bad people:", value=string or "Nobody is banned!")
 
     await util.say(ctx.channel, embed=bans_embed)
 
