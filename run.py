@@ -253,19 +253,18 @@ class DueUtilClient(discord.AutoShardedClient):
         #    util.logger.error("Failed to change presence")
             
         util.logger.info("Bot started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - client.start_time)
-        await util.duelogger.bot("DueUtil has *(re)*started\n"
-                                        + "Bot version → ``%s``" % gconf.VERSION)
+        await util.duelogger.bot("DueUtil has *(re)*started\nBot version → ``%s``" % gconf.VERSION)
 
     
-    async def on_shard_ready(self, shard_number):
-        game = discord.Activity(name="dueutil.xyz | shard %d/%d" % (shard_number+1, shard_count))
+    async def on_shard_ready(self, shard_id):
+        game = discord.Activity(name="dueutil.xyz | shard %d/%d" % (shard_id+1, shard_count))
         try:
-            await self.change_presence(activity=game)
+            await self.change_presence(activity=game, shard_id=shard_id)
         except Exception as e:
             util.logger.error("Failed to change presence")
 
         util.logger.info("\nLogged in shard %d as\n%s\nWith account @%s ID:%s \n-------",
-                         shard_number + 1, shard_names[shard_number], self.user.name, self.user.id)
+                         shard_id + 1, shard_names[shard_id], self.user.name, self.user.id)
 
 
 

@@ -629,13 +629,13 @@ async def status(ctx, message=None, **details):
     This sets the status of all the shards to the one specified.
     """
 
-    client = util.clients[0]
+    client:discord.AutoShardedClient = util.clients[0]
     if message is None:
         count = client.shard_count
-        for shardID in client.shard_ids:
+        for shardID in range(count):
             game = discord.Activity(name="dueutil.xyz | shard %d/%d" % (shardID, count))
-            await client.change_presence(game=game, afk=False, shard_id=shardID)
+            await client.change_presence(activity=game, afk=False, shard_id=shardID)
     else:
-        await client.change_presence(game=discord.Activity(name=message), afk=False)
+        await client.change_presence(activity=discord.Activity(name=message), afk=False)
 
     await util.say(ctx.channel, "All done!")
