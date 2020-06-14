@@ -48,7 +48,7 @@ def has_permission(member: discord.Member, permission):
     return False
 
 
-def has_special_permission(member: discord.Member, permission):
+def has_special_permission(member, permission):
     return member.id in special_permissions and special_permissions[member.id] == permission.value[1]
 
 

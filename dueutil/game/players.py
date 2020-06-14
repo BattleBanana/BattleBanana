@@ -491,5 +491,6 @@ def load_player(player_id):
     if response is not None and 'data' in response:
         player_data = response['data']
         loaded_player = jsonpickle.decode(player_data)
+        loaded_player.money = int(loaded_player.money)
         players[player_id] = util.load_and_update(REFERENCE_PLAYER, loaded_player)
         return True

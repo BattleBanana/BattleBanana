@@ -175,7 +175,7 @@ class Banner(Customization):
         super().__init__(id, **banner_data)
 
     def banner_restricted(self, player):
-        member = discord.Member(user={"id": player.id})
+        member = player.to_member()
         return ((not self.admin_only or self.admin_only
                  and permissions.has_permission(member, Permission.DUEUTIL_ADMIN))
                 and (not self.mod_only or self.mod_only
