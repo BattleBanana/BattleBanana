@@ -246,11 +246,11 @@ class DueUtilClient(discord.AutoShardedClient):
 
     
     async def on_ready(self):
-        game = discord.Activity(name="!help | dueutil.xyz", type=discord.ActivityType.watching)
-        try:
-            await self.change_presence(activity=game)
-        except Exception as e:
-            util.logger.error("Failed to change presence")
+        #game = discord.Activity(name="!help | dueutil.xyz", type=discord.ActivityType.watching)
+        #try:
+        #    await self.change_presence(activity=game)
+        #except Exception as e:
+        #    util.logger.error("Failed to change presence")
             
         util.logger.info("Bot started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - client.start_time)
         await util.duelogger.bot("DueUtil has *(re)*started\n"
@@ -258,11 +258,11 @@ class DueUtilClient(discord.AutoShardedClient):
 
     
     async def on_shard_ready(self, shard_number):
-        # game = discord.Activity(name="dueutil.xyz | shard %d/%d" % (shard_number+1, shard_count))
-        # try:
-        #     await self.change_presence(activity=game)
-        # except Exception as e:
-        #     util.logger.error("Failed to change presence")
+        game = discord.Activity(name="dueutil.xyz | shard %d/%d" % (shard_number+1, shard_count))
+        try:
+            await self.change_presence(activity=game)
+        except Exception as e:
+            util.logger.error("Failed to change presence")
 
         util.logger.info("\nLogged in shard %d as\n%s\nWith account @%s ID:%s \n-------",
                          shard_number + 1, shard_names[shard_number], self.user.name, self.user.id)
