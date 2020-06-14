@@ -28,7 +28,6 @@ class TrelloClient:
          async with aiohttp.ClientSession() as session:
             async with session.get(self.base_request + url, params=self.key_and_token) as response:
                 json = await response.json()
-                response.close()
                 return json
             session.close()
 
@@ -75,7 +74,6 @@ class TrelloClient:
                             async with session.post(self.base_request + card_url, params=self.key_and_token,
                                                                 data=args) as response:
                                 result = await response.json()
-                                response.close()
                                 if "shortUrl" in result:
                                     return result["shortUrl"]
                                 raise Exception("Failed to add card!")

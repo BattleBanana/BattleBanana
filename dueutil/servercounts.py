@@ -27,8 +27,11 @@ async def _carbon_server(shard):
     headers = {"content-type": "application/json"}
     total_server_count = util.get_server_count()
     carbon_payload = {"key": config["carbonKey"], "servercount": total_server_count}
-    async with aiohttp.ClientSession().post(CARBON_BOT_DATA, data=json.dumps(carbon_payload), headers=headers) as response:
-        util.logger.info("Carbon returned %s status for the payload %s" % (response.status, carbon_payload))
+    async with aiohttp.ClientSession() as session:
+        async with session.post(CARBON_BOT_DATA, data=json.dumps(carbon_payload), headers=headers) as response:
+            util.logger.info("Carbon returned %s status for the payload %s" % (response.status, carbon_payload))
+            response.close()
+        session.close()
 
 
 #async def _post_shard_count_dbgg(shard, site, key):
@@ -51,8 +54,11 @@ async def _post_shard_count_bod(shard, site, key):
     payload = {"server_count": util.get_server_count(),
                "shard_id": shard.shard_id,
                "shard_count": util.clients[0].shard_count}
-    async with aiohttp.ClientSession().post(site, data=json.dumps(payload), headers=headers) as response:
-        util.logger.info(site+" returned %s for the payload %s" % (response.status, payload))
+    async with aiohttp.ClientSession() as session:
+        async with session.post(site, data=json.dumps(payload), headers=headers) as response:
+            util.logger.info(site+" returned %s for the payload %s" % (response.status, payload))
+            response.close()
+        session.close()
 
 
 async def _post_shard_count_dbl(shard, site, key):
@@ -63,5 +69,8 @@ async def _post_shard_count_dbl(shard, site, key):
     payload = {"server_count": len(shard.guilds),
                "shard_id": shard.shard_id,
                "shard_count": util.clients[0].shard_count}
-    async with aiohttp.ClientSession().post(site, data=json.dumps(payload), headers=headers) as response:
-        util.logger.info(site+" returned %s for the payload %s" % (response.status, payload))
+    async with aiohttp.ClientSession() as session:
+        async with session.post(site, data=json.dumps(payload), headers=headers) as response:
+            util.logger.info(site+" returned %s for the payload %s" % (response.status, payload))
+            response.close()
+        session.close()

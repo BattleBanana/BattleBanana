@@ -305,3 +305,4 @@ async def get_glitter_text(gif_text):
                 "",
                 1).replace('</textarea>', "", 1)
             return await util.download_file(gif_url)
+        session.close()
