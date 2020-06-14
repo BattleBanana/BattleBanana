@@ -257,7 +257,7 @@ class DueUtilClient(discord.AutoShardedClient):
 
     
     async def on_shard_ready(self, shard_id):
-        game = discord.Activity(name="dueutil.xyz | shard %d/%d" % (shard_id+1, shard_count))
+        game = discord.Activity(name="dueutil.xyz | shard %d/%d" % (shard_id+1, shard_count), type=discord.ActivityType.watching)
         try:
             await self.change_presence(activity=game, shard_id=shard_id)
         except Exception as e:
