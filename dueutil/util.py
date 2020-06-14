@@ -113,6 +113,7 @@ async def download_file(url):
             response.release()
             file_data.seek(0)
             return file_data
+        session.close()
 
 
 async def say(channel, *args, **kwargs):
@@ -139,8 +140,10 @@ async def wait_for_message(ctx, timeout=120):
     def check(message):
         msg = message.content.lower()
         return msg.startswith("hit") or msg.startswith("stand") and message.author == ctx.author and message.channel == channel
-
-    return await clients[0].wait_for('message', timeout=timeout, check=check)
+    try:
+        return await clients[0].wait_for('message', timeout=timeout, check=check)
+    except asyncio.exceptions.TimeoutError:
+        return None
 
 
 async def edit_message(message, **kwargs):
