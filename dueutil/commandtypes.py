@@ -70,11 +70,14 @@ def parse_float(value):
 
 def parse_player(player_id, called, ctx):
     # A DueUtil Player
-    player = players.find_player(int(player_id))
-    if player is None or not player.is_playing(ctx.guild) \
-            and called.permission < Permission.DUEUTIL_MOD:
+    try:
+        player = players.find_player(int(player_id))
+        if player is None or not player.is_playing(ctx.guild) \
+                and called.permission < Permission.DUEUTIL_MOD:
+            return False
+        return player
+    except ValueError:
         return False
-    return player
 
 
 def parse_type(arg_type, value, **extras):
