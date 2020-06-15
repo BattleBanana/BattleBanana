@@ -68,7 +68,7 @@ class DueUtilClient(discord.AutoShardedClient):
                 if inspect.iscoroutinefunction(task):
                     await task(*args, **kwargs)
                 else:
-                    task(args, kwargs)
+                    task(*args, **kwargs)
             except queue.Empty:
                 pass
             await asyncio.sleep(0.1)
@@ -256,8 +256,7 @@ class DueUtilClient(discord.AutoShardedClient):
 
     
     async def on_shard_ready(self, shard_id):
-        shard_count = len(self.shard_ids)
-        game = discord.Activity(name="dueutil.xyz | shard %d/%d" % (shard_id+1, shard_count), type=discord.ActivityType.watching)
+        game = discord.Activity(name="dueutil.xyz | shard %d/%d" % (shard_id+1, self.shard_count), type=discord.ActivityType.watching)
         try:
             await self.change_presence(activity=game, shard_id=shard_id)
         except Exception as e:
