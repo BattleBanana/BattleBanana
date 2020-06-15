@@ -24,6 +24,7 @@ client = None
 clients = []
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('battlebanana')
+logging.getLogger('discord.state').setLevel(logging.ERROR)
 
 sentry_client = Client(gconf.other_configs["sentryAuth"],
                        ignore_exceptions=["KeyboardInterrupt"],
