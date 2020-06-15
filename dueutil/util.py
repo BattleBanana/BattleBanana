@@ -24,7 +24,10 @@ client = None
 clients = []
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('battlebanana')
-logging.getLogger('discord.state').setLevel(logging.ERROR)
+class noGuildUpdateMemberFilter(logging.Filter):
+    def filter(self, record):
+        return not "GUILD_MEMBER_UPDATE referencing an unknown member ID" in record.getMessage()
+logger.addFilter(noGuildUpdateMemberFilter(name="discord.state"))
 
 sentry_client = Client(gconf.other_configs["sentryAuth"],
                        ignore_exceptions=["KeyboardInterrupt"],
