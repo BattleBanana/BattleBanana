@@ -16,8 +16,8 @@ BOTS_GG = "https://discord.bots.gg/api/v1/bots/464601463440801792/stats"
 async def update_server_count(shard):
 
     # await _carbon_server(shard)
-    await _post_shard_count_bod(shard, DISCORD_LIST, config["discordBotsKey"])
-    await _post_shard_count_dbl(shard, BOTS_ORG, config["discordBotsOrgKey"])
+    await _post_shard_count_bod(DISCORD_LIST, config["discordBotsKey"])
+    await _post_shard_count_dbl(BOTS_ORG, config["discordBotsOrgKey"])
     #await _post_shard_count_dbgg(shard, BOTS_GG, config["discordBotsGGKey"])
 
 
@@ -46,14 +46,12 @@ async def _carbon_server(shard):
 #        util.logger.info(site+" returned %s for the payload %s" % (response.status, payload))
 
 
-async def _post_shard_count_bod(shard, site, key):
+async def _post_shard_count_bod(site, key):
     # Seems like there is some form of standard?
 
     headers = {"Content-Type": "application/json",
                'Authorization': key}
-    payload = {"server_count": util.get_server_count(),
-               "shard_id": shard.shard_id,
-               "shard_count": util.clients[0].shard_count}
+    payload = {"guildCount": util.get_server_count()}
     async with aiohttp.ClientSession() as session:
         async with session.post(site, data=json.dumps(payload), headers=headers) as response:
             util.logger.info(site+" returned %s for the payload %s" % (response.status, payload))
@@ -61,13 +59,12 @@ async def _post_shard_count_bod(shard, site, key):
         session.close()
 
 
-async def _post_shard_count_dbl(shard, site, key):
+async def _post_shard_count_dbl(site, key):
     # Seems like there is some form of standard?
 
     headers = {"content-type": "application/json",
                'authorization': key}
-    payload = {"server_count": len(shard.guilds),
-               "shard_id": shard.shard_id,
+    payload = {"server_count": util.get_server_count(),
                "shard_count": util.clients[0].shard_count}
     async with aiohttp.ClientSession() as session:
         async with session.post(site, data=json.dumps(payload), headers=headers) as response:
