@@ -27,7 +27,7 @@ async def get_raw_currencies():
     async with aiohttp.ClientSession() as session:
         async with session.get(CURRENCIES, headers=headers) as response:
             return await response.json()
-        session.close()
+        await session.close()
 
 async def get_currencies():
     try:
@@ -53,7 +53,7 @@ async def make_transaction(sender_id, amount, to):
         async with session.post(TRANSACTIONS,
                                 data=json.dumps(transaction_data), headers=headers) as response:
             return await response.json()
-        session.close()
+        await session.close()
 
 
 async def reverse_transaction(user, From, amount, id):
@@ -65,7 +65,7 @@ async def unprocessed_transactions():
     async with aiohttp.ClientSession() as session:
         async with session.get(TRANSACTIONS + FILTER, headers=headers) as response:
             return await response.json()
-        session.close()
+        await session.close()
 
 
 async def mark_as_completed(transaction):
@@ -73,7 +73,7 @@ async def mark_as_completed(transaction):
         async with session.patch(url=TRANSACTIONS + "/" + transaction['id'],
                                 data=json.dumps(handled), headers=headers) as response:
             return await response.json()
-        session.close()
+        await session.close()
 
 @tasks.task(timeout=150)
 async def process_transactions():

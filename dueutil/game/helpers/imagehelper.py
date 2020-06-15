@@ -109,7 +109,7 @@ async def url_image(url):
             async with session.head(url=url, allow_redirects=True) as response:
                 return "Content-Type" in response.headers and \
                        response.headers["Content-Type"].lower().startswith("image")
-            session.close()
+            await session.close()
     except Exception as exception:
         util.logger.error("Got %s while checking image url.", exception)
         # Do not care about any of the network errors that could occur.

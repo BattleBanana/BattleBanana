@@ -31,7 +31,7 @@ async def _carbon_server(shard):
         async with session.post(CARBON_BOT_DATA, data=json.dumps(carbon_payload), headers=headers) as response:
             util.logger.info("Carbon returned %s status for the payload %s" % (response.status, carbon_payload))
             response.close()
-        session.close()
+        await session.close()
 
 
 #async def _post_shard_count_dbgg(shard, site, key):
@@ -56,7 +56,7 @@ async def _post_shard_count_bod(site, key):
         async with session.post(site, data=json.dumps(payload), headers=headers) as response:
             util.logger.info(site+" returned %s for the payload %s" % (response.status, payload))
             response.close()
-        session.close()
+        await session.close()
 
 
 async def _post_shard_count_dbl(site, key):
@@ -70,4 +70,4 @@ async def _post_shard_count_dbl(site, key):
         async with session.post(site, data=json.dumps(payload), headers=headers) as response:
             util.logger.info(site+" returned %s for the payload %s" % (response.status, payload))
             response.close()
-        session.close()
+        await session.close()
