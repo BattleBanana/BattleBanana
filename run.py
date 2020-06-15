@@ -245,13 +245,6 @@ class DueUtilClient(discord.AutoShardedClient):
 
     
     async def on_ready(self):
-        #game = discord.Activity(name="!help | dueutil.xyz", type=discord.ActivityType.watching)
-        #try:
-        #    await self.change_presence(activity=game)
-        #except Exception as e:
-        #    util.logger.error("Failed to change presence")
-            
-        util.logger.info("Bot started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - client.start_time)
         await util.duelogger.bot("DueUtil has *(re)*started\nBot version → ``%s``" % gconf.VERSION)
 
     
@@ -308,6 +301,11 @@ def run_due():
 
         client_thread = ClientThread(asyncio.new_event_loop())
         client_thread.start()
+
+        while client is None:
+            pass
+        while not client.is_ready():
+            pass
 
         # TODO: Show the time it takes to turn on the bot & time it took to start shards
         util.logger.info("Bot started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - shard_time)
