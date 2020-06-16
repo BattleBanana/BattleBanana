@@ -308,7 +308,7 @@ async def battletopdog(ctx, **details):
     if top_dog_stats is None or not "top_dog" in top_dog_stats:
         raise util.DueUtilException(ctx.channel, "Sorry there was an error trying to find the topdog!")
 
-    top_dog = players.find_player(top_dog_stats["top_dog"])
+    top_dog = players.find_player(int(top_dog_stats["top_dog"]))
     if top_dog is None:
         raise util.DueUtilException(ctx.channel, "Sorry there was an error trying to find the topdog!")
 
