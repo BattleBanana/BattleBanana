@@ -46,7 +46,7 @@ async def make_transaction(sender_id, amount, to):
     transaction_data = {
         "amount": amount,
         "toId": to,
-        "user": sender_id
+        "user": str(sender_id)
     }
 
     async with aiohttp.ClientSession(conn_timeout=10) as session:
@@ -77,9 +77,6 @@ async def mark_as_completed(transaction):
 
 @tasks.task(timeout=150)
 async def process_transactions():
-    while not util.clients[0].is_ready():
-        pass
-    
     await get_currencies()
     util.logger.info("Processing Discoin transactions.")
     try:
