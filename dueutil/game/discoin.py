@@ -110,10 +110,10 @@ async def process_transactions():
                 client.run_task(notify_complete, user_id, transaction, failed=True)
                 continue
 
-            client.run_task(notify_complete, user_id, transaction)
             stats.increment_stat(Stat.DISCOIN_RECEIVED, payout)
             player.money += payout
             player.save()
+            client.run_task(notify_complete, user_id, transaction)
 
             embed = Embed(title="Discion Transaction", description="Receipt ID: [%s](%s)" % (transaction["id"], f"{DISCOINDASH}/{transaction['id']}/show"), 
                 type="rich", colour=gconf.DUE_COLOUR)
@@ -125,18 +125,19 @@ async def process_transactions():
 
 
 async def notify_complete(user_id, transaction, failed=False):
+    print("Hello notify!")
+    await mark_as_completed(transaction)
     user_id = int(user_id)
     client = util.clients[0]
     user = await client.fetch_user(user_id)
-    await mark_as_completed(transaction)
     try:
         await user.create_dm()
         embed = Embed(title="Discion Transaction", description="Receipt ID: %s" % (transaction["id"]), type="rich", colour=gconf.DUE_COLOUR)
         embed.set_footer(text="Keep the receipt for if something goes wrong!")
         
         if not failed:
-            payout = transaction.get('payout')
-            amount = transaction.get('amount')
+            payout = int(transaction.get('payout'))
+            amount = float(transaction.get('amount'))
             
             source = transaction.get('from')
             source_id = source.get('id')
@@ -150,14 +151,14 @@ async def notify_complete(user_id, transaction, failed=False):
                             value="%s/%s/show" % (DISCOINDASH, transaction['id']), 
                             inline=False)
             try:
-                await util.say(user, embed=embed)
+                await user.send(embed=embed)
             except Exception as error:
                 util.logger.error("Could not notify the successful transaction to the user: %s", error)
         elif failed:
             embed.add_field(name=":warning: Your Discoin exchange has been reversed", value="To exchange to DueUtil you must be a player "
                                                                                         + "and the amount has to be worth at least 1 BBT.")
             try:
-                await util.say(user, embed=embed)
+                await user.send(embed=embed)
             except Exception as error:
                 util.logger.error("Could not notify the failed transaction to the user: %s", error)
             
