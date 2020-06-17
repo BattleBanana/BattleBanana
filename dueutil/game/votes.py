@@ -28,8 +28,8 @@ async def process_votes():
 
     for vote in votes:
         if type(vote) == dict:
-            vote_id = int(vote.get("_id"))
-            user_id = vote.get("user")
+            vote_id = vote.get("_id")
+            user_id = int(vote.get("user"))
             isWeekend = vote.get("weekend")
             date = vote.get("date")
 
