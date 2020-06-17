@@ -93,7 +93,7 @@ async def process_transactions():
     for transaction in unprocessed:
         if type(transaction) == dict:
             transaction_id = transaction.get('id')
-            user_id = transaction.get('user')
+            user_id = int(transaction.get('user'))
             payout = transaction.get('payout')
             if payout is None:
                 continue
