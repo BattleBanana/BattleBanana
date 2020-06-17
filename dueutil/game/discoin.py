@@ -135,8 +135,8 @@ async def notify_complete(user_id, transaction, failed=False):
         embed.set_footer(text="Keep the receipt for if something goes wrong!")
         
         if not failed:
-            payout = int(transaction.get('payout'))
-            amount = int(transaction.get('amount'))
+            payout = transaction.get('payout')
+            amount = transaction.get('amount')
             
             source = transaction.get('from')
             source_id = source.get('id')
