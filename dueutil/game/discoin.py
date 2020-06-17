@@ -125,6 +125,7 @@ async def process_transactions():
 
 
 async def notify_complete(user_id, transaction, failed=False):
+    user_id = int(user_id)
     client = util.clients[0]
     user = await client.fetch_user(user_id)
     await mark_as_completed(transaction)
