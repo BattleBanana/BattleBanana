@@ -161,7 +161,7 @@ async def russianroulette(ctx, price, **details):
     
     Play Russian Roulette with your friends, the gun.
     
-    Game objective: Survive.
+    Game objective: Pray to survive.
     """
 
     user = details["author"]
