@@ -14,8 +14,8 @@ _LocalLeaderboard = namedtuple("LocalLeaderboard", ["updated", "data"])
 
 
 def calculate_player_rankings(rank_name, sort_function, reverse=True):
-    # ranked_players = sorted(players.players.values(), key=sort_function, reverse=reverse)
-    ranked_players = []
+    ranked_players = sorted(players.players.values(), key=sort_function, reverse=reverse)
+    # ranked_players = []
     leaderboards[rank_name] = (tuple(player.id for player in ranked_players), sort_function, reverse)
     db = dbconn.conn()
     db.drop_collection(rank_name)
