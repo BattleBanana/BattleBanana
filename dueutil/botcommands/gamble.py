@@ -175,8 +175,9 @@ async def russianroulette(ctx, price, **details):
     rnd = random.randint(1, 6)
     await asyncio.sleep(random.random() * 2)
     if rnd == 1:
-        user.money += price * 2
-        await util.edit_message(message, content=message.content + "\nYou survived and won `¤%s`!" % (price * 2))
+        reward = price * 10
+        user.money += reward
+        await util.edit_message(message, content=message.content + "\nYou survived and won `¤%s`!" % (reward))
     else:
         user.money -= price
         await util.edit_message(message, content=message.content + "\nYou died and lost `¤%s`!" % (price))
