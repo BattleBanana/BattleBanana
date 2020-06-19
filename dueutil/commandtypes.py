@@ -19,7 +19,7 @@ def strip_thousands_separators(value):
     return re.sub(THOUSANDS_REGEX, r'\2', value)
 
 def parse_team(value):
-    team = teams.find_team(value)
+    team = teams.find_team(value.lower())
     if team is None:
         return False
     return team
