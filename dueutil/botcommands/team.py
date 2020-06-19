@@ -536,6 +536,7 @@ async def editteam(ctx, updates, **details):
     if len(updates) == 0:
         await util.say(ctx.channel, "You need to provide a valid property for the team!")
     else:
+        team.save()
         result = "**Settings changed:**\n"
         for prop, value in updates.items():
             result += ("``%s`` → %s\n" % (prop, value))
