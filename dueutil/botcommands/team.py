@@ -269,7 +269,7 @@ async def promoteuser(ctx, user, **details):
         raise util.DueUtilException(ctx.channel, "You are not allowed to promote users! (You must be owner!)")
     
     team.addAdmin(ctx, user)
-    await util.say(ctx.channel, "Successfully **promoted %s** as an **admin** in **%s**!" % (user.get_name_possession_clean(), team.name))
+    await util.say(ctx.channel, "Successfully promoted **%s** as an **admin**!" % (user.get_name_possession_clean(), team.name))
 
 
 @commands.command(args_pattern="P", aliases=["du"])
