@@ -35,7 +35,7 @@ async def blackjack(ctx, price, **details):
     Play blackjack with BattleBanana.
     
     Game objective: Obtain 21 or the closest to win!
-    [Card Values](https://dueutil.xyz/img/21Values.png)
+    [Card Values](https://battlebanana.xyz/img/21Values.png)
     """
     user = details["author"]
     

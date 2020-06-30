@@ -92,7 +92,7 @@ async def help(ctx, *args, **details):
                                     + ":question: - Something is wrong with the command's syntax.\n"
                                     + ":x: - You don't have the required permissions to use the command."))
         help_embed.add_field(name=":link: Links", value=("**Invite me: %s**\n" % gconf.BOT_INVITE
-                                                         + "BattleBanana guide: https://dueutil.xyz/howto\n"
+                                                         + "BattleBanana guide: https://battlebanana.xyz/howto\n"
                                                          + "Support guild: https://discord.gg/P7DBDEC\n"
                                                          + "Support me: https://patreon.com/developeranonymous"))
         help_embed.set_footer(text="To use admin commands you must have the manage guild permission or the 'Due Commander' role.")
@@ -137,7 +137,7 @@ async def botinfo(ctx, **_):
     info_embed = discord.Embed(title="BattleBanana's Information", type="rich", color=gconf.DUE_COLOUR)
     info_embed.description = "BattleBanana is customizable bot to add fun commands, quests and battles to your guild."
     info_embed.add_field(name="Originally DueUtil by", value="[MacDue#4453](https://dueutil.tech/)")
-    info_embed.add_field(name="Continued by", value="[DeveloperAnonymous#9830](https://dueutil.xyz/)")
+    info_embed.add_field(name="Continued by", value="[DeveloperAnonymous#9830](https://battlebanana.xyz/)")
     info_embed.add_field(name="Framework",
                          value="[discord.py %s :two_hearts:](http://discordpy.readthedocs.io/en/latest/)"
                                % discord.__version__)
@@ -634,7 +634,7 @@ async def status(ctx, message=None, **details):
     if message is None:
         count = client.shard_count
         for shardID in range(count):
-            game = discord.Activity(name="dueutil.xyz | shard %d/%d" % (shardID, count))
+            game = discord.Activity(name="battlebanana.xyz | shard %d/%d" % (shardID, count))
             await client.change_presence(activity=game, afk=False, shard_id=shardID)
     else:
         await client.change_presence(activity=discord.Activity(name=message), afk=False)
