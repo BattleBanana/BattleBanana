@@ -209,6 +209,14 @@ async def new_quest_screen(channel, quest, player):
     width = draw.textsize(level_text, font=font_big)[0]
     draw.text((71, 39), get_text_limit_len(draw, quest.name,
                                            font_big, 168 - width) + level_text, "white", font=font_big)
+    quest_index = len(player.quests)
+    quest_bubble_position = (6, 6)
+    quest_index_text = str(quest_index)
+    quest_index_width = draw.textsize(quest_index_text, font=font_small)[0]
+    draw.rectangle(
+        (quest_bubble_position, (quest_bubble_position[0] + quest_index_width + 5, quest_bubble_position[1] + 11)),
+        fill="#2a52be", outline="#a1caf1")
+    draw.text((9, quest_bubble_position[1]), quest_index_text, "white", font=font_small)
     await send_image(channel, image, file_name="new_quest.png",
                      content=e.QUEST+" **" + player.name_clean + "** New Quest!")
 

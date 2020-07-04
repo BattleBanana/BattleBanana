@@ -102,7 +102,7 @@ class DueUtilClient(discord.AutoShardedClient):
                     await channel.send(":wave: __Thanks for adding me!__\n"
                                      + "If you would like to customize me to fit your "
                                      + "guild take a quick look at the admins "
-                                     + "guide at <https://dueutil.xyz/howto/#adming>.\n"
+                                     + "guide at <https://battlebanana.xyz/howto/#adming>.\n"
                                      + "It shows how to change the command prefix here, and set which "
                                      + "channels I or my commands can be used in (along with a bunch of other stuff).")
                     break
@@ -247,11 +247,11 @@ class DueUtilClient(discord.AutoShardedClient):
 
     
     async def on_ready(self):
-        await util.duelogger.bot("DueUtil has *(re)*started\nBot version → ``%s``" % gconf.VERSION)
+        await util.duelogger.bot("BattleBanana has *(re)*started\nBot version → ``%s``" % gconf.VERSION)
 
     
     async def on_shard_ready(self, shard_id):
-        game = discord.Activity(name="dueutil.xyz | shard %d/%d" % (shard_id+1, self.shard_count), type=discord.ActivityType.watching)
+        game = discord.Activity(name="battlebanana.xyz | shard %d/%d" % (shard_id+1, self.shard_count), type=discord.ActivityType.watching)
         try:
             await self.change_presence(activity=game, shard_id=shard_id)
         except Exception as e:

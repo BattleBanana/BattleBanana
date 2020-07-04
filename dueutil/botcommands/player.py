@@ -149,7 +149,7 @@ def player_profile_url(player_id):
 
     if private_record is None or private_record["private"]:
         return None
-    return "https://dueutil.xyz/player/id/%s" % player_id
+    return "https://battlebanana.xyz/player/id/%s" % player_id
 
 
 @commands.command(args_pattern=None)
@@ -157,14 +157,14 @@ async def myprofile(ctx, **details):
     """
     [CMD_KEY]myprofile
 
-    Gives the link to your dueutil.xyz profile
+    Gives the link to your battlebanana.xyz profile
     """
 
     profile_url = player_profile_url(details["author"].id)
 
     if profile_url is None:
         await util.say(ctx.channel, (":lock: Your profile is currently set to private!\n"
-                                     + "If you want a public profile login to <https://dueutil.xyz/>"
+                                     + "If you want a public profile login to <https://battlebanana.xyz/>"
                                      + " and make your profile public in the settings."))
     else:
         await util.say(ctx.channel, "Your profile is at %s" % profile_url)
@@ -605,7 +605,7 @@ def background_info(background_name, **details):
     price_divisor = details.get('price_divisor', 1)
     background = customizations.get_background(background_name)
     embed.title = str(background)
-    embed.set_image(url="https://dueutil.xyz/duefiles/backgrounds/" + background["image"])
+    embed.set_image(url="https://battlebanana.xyz/duefiles/backgrounds/" + background["image"])
     embed.set_footer(
         text="Buy this background for " + util.format_number(background["price"] // price_divisor, money=True,
                                                              full_precision=True))
@@ -619,7 +619,7 @@ def banner_info(banner_name, **details):
     embed.title = str(banner)
     if banner.donor:
         embed.description = ":star2: This is a __donor__ banner!"
-    embed.set_image(url="https://dueutil.xyz/duefiles/banners/" + banner.image_name)
+    embed.set_image(url="https://battlebanana.xyz/duefiles/banners/" + banner.image_name)
     embed.set_footer(text="Buy this banner for " + util.format_number(banner.price // price_divisor, money=True,
                                                                       full_precision=True))
     return embed
