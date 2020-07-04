@@ -565,15 +565,17 @@ async def pong(ctx,**_):
     message = await util.say(ctx.channel, ":ping_pong:")
 
     apims = round((message.created_at  - ctx.created_at ).total_seconds() * 1000)
+    latency = round(util.clients[0].latencies[util.get_shard_index(ctx.guild.id)][1] * 1000)
 
     t1 = time.time()
-    game.players.find_player(ctx.author.id)
+    dbconn.db.command('ping')
     t2 = time.time()
     dbms = round((t2 - t1) * 1000)
     
-    embed = discord.Embed(title=":ping_pong: Ping!", type="rich", colour=gconf.DUE_COLOUR)
-    embed.add_field(name="Database Latency:", value="``%sms``" % (dbms))
-    embed.add_field(name="Bot Latency:", value="``%sms``" % (apims), inline=False)
+    embed = discord.Embed(title=":ping_pong: Pong!", type="rich", colour=gconf.DUE_COLOUR)
+    embed.add_field(name="API Latency:", value="``%sms``" % (latency))
+    embed.add_field(name="Bot Latency:", value="``%sms``" % (apims))
+    embed.add_field(name="Database Latency:", value="``%sms``" % (dbms), inline=False)
 
     await util.edit_message(message, embed=embed)
 
@@ -581,13 +583,14 @@ async def pong(ctx,**_):
 @commands.command(args_pattern=None)
 async def vote(ctx, **details):
     """
-    Obtain ¤50'000 for voting on Discord Bot List
+    Obtain up to ¤40'000 for voting
     """
     
     Embed = discord.Embed(title="Vote for your favorite Discord Bot", type="rich", colour=gconf.DUE_COLOUR)
-    Embed.add_field(name="Vote:", value="[Discord Bot list](https://discordbots.org/bot/464601463440801792/vote)\n"
-                                        "[Bot On Discord](https://bots.ondiscord.xyz/bots/464601463440801792)")
-    Embed.set_footer(text="You will receive your reward shortly after voting!")
+    Embed.add_field(name="Vote:", value="[top.gg](https://top.gg/bot/464601463440801792/vote)\n"
+                                        "[discordbotlist.com](https://discordbotlist.com/bots/battlebanana/upvote)\n"
+                                        "[bots.ondiscord.xyz](https://bots.ondiscord.xyz/bots/464601463440801792)")
+    Embed.set_footer(text="You will receive your reward shortly after voting! (Up to 5 minutes)")
 
     await util.say(ctx.channel, embed=Embed)
 
