@@ -44,7 +44,7 @@ async def spawnquest(ctx, *args, **details):
         if len(args) >= 2:
             player = args[1]
         quest_name = args[0].lower()
-        quest = quests.get_quest_from_id(ctx.guild.id + "/" + quest_name)
+        quest = quests.get_quest_from_id(f"{ctx.guild.id}/{quest_name}")
     try:
         active_quest = await quests.ActiveQuest.create(quest.q_id, player)
         if len(args) == 3:
