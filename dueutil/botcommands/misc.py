@@ -245,9 +245,9 @@ async def generatecode(ctx, value, count=1, show=True, **details):
         codes = json.load(code_file)
 
         for i in range(count):
-            code = "DUEUTILPROMO_%i" % (random.uniform(1000000000, 9999999999))
+            code = "BATTLEBANANAPROMO_%i" % (random.uniform(1000000000, 9999999999))
             while codes.get(code):
-                code = "DUEUTILPROMO_%i" % (random.uniform(1000000000, 9999999999))
+                code = "BATTLEBANANAPROMO_%i" % (random.uniform(1000000000, 9999999999))
             codes[code] = value
             if show:
                 newcodes += "%s\n" % (code)
