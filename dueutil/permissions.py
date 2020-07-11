@@ -34,7 +34,7 @@ class Permission(Enum):
 permissions = [permission for permission in Permission]
 
 
-def has_permission(member: discord.Member, permission):
+def has_permission(member, permission):
     if permission != Permission.BANNED and not has_special_permission(member, Permission.BANNED):
         if permission == Permission.PLAYER and Permission.DISCORD_USER.value[0](member):
             # If a user has the perm DISCORD_USER specially set to overwrite PLAYER they have opted out.
@@ -52,7 +52,7 @@ def has_special_permission(member, permission):
     return member.id in special_permissions and special_permissions[member.id] == permission.value[1]
 
 
-def give_permission(member: discord.Member, permission):
+def give_permission(member, permission):
     if permission != Permission.PLAYER:
         dbconn.conn()["permissions"].update({'_id': member.id}, {"$set": {'permission': permission.value[1]}},
                                             upsert=True)
@@ -61,7 +61,7 @@ def give_permission(member: discord.Member, permission):
         strip_permissions(member)
 
 
-def strip_permissions(member: discord.Member):
+def strip_permissions(member):
     dbconn.conn()["permissions"].remove({'_id': member.id})
     if member.id in special_permissions:
         del special_permissions[member.id]
@@ -73,7 +73,7 @@ def load_dueutil_roles():
         special_permissions[permission["_id"]] = permission["permission"]
 
 
-def get_special_permission(member: discord.Member) ->Permission:
+def get_special_permission(member) ->Permission:
     if member.id not in special_permissions:
         return Permission.PLAYER
     return get_permission_from_name(special_permissions[member.id])
