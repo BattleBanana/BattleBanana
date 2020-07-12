@@ -38,6 +38,12 @@ class FeedbackHandler:
                        ":mailbox_with_mail: Sent! You can view your %s here: <%s>" % (self.type, trello_link))
         await util.say(ctx.channel, embed=report)
 
+        logReport = discord.Embed(color=gconf.DUE_COLOUR)
+        logReport.set_author(name=author_name, icon_url=author_icon_url)
+        logReport.add_field(name=self.type.title(), value="%s\n\n[Trello card](%s)" % (message, trello_link), inline=False)
+        logReport.add_field(name=ctx.guild.name, value=ctx.guild.id)
+        logReport.set_footer(text="Received at " + util.pretty_time())
+        await util.say(gconf.bug_channel if self.type == "bug report" else gconf.feedback_channel, embed=logReport)
 
 bug_reporter = FeedbackHandler(channel=gconf.bug_channel, type="bug report", trello_list="bugs")
 suggestion_sender = FeedbackHandler(channel=gconf.feedback_channel, type="suggestion", trello_list="suggestions")
@@ -49,7 +55,7 @@ async def bugreport(ctx, report, **_):
     """
     [CMD_KEY]bugreport (report)
     
-    Leaves a bug report on the official BattleBanana guild and trello.
+    Leaves a bug report on the official BattleBanana server and trello.
     
     """
 
@@ -62,7 +68,7 @@ async def suggest(ctx, suggestion, **_):
     """
     [CMD_KEY]suggest (suggestion)
     
-    Leaves a suggestion on the official BattleBanana guild and trello.
+    Leaves a suggestion on the official BattleBanana server and trello.
     
     """
 

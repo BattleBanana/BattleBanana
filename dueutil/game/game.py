@@ -74,19 +74,19 @@ async def player_message(message, player, spam_level):
             # Special Awards
             # Comeback award
             if str(player.id) in old_players:
-                await awards.give_award(message.channel, player, "CameBack", "Return to DueUtil")
+                await awards.give_award(message.channel, player, "CameBack", "Return to BattleBanana")
             # Tester award
             if str(player.id) in testers:
                 await awards.give_award(message.channel, player, "Tester", ":bangbang: **Something went wrong...**")
             # Donor award
             if player.donor:
                 await awards.give_award(message.channel, player, "Donor",
-                                        "Donate to DueUtil!!! :money_with_wings: :money_with_wings: :money_with_wings:")
+                                        "Donate to BattleBanana!!! :money_with_wings: :money_with_wings: :money_with_wings:")
             # DueUtil tech award
             if dbconn.conn()["dueutiltechusers"].find({"_id": player.id}).count() > 0:
                 if "DueUtilTech" not in player.awards:
                     player.inventory["themes"].append("dueutil.tech")
-                await awards.give_award(message.channel, player, "DueUtilTech", "<https://dueutil.xyz/>")
+                await awards.give_award(message.channel, player, "DueUtilTech", "<https://battlebanana.xyz/>")
 
             ### DueUtil - the hidden spelling game!
             # The non-thread safe Apsell calls
