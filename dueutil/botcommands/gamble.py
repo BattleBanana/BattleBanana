@@ -52,7 +52,6 @@ async def blackjack(ctx, price, **details):
     deck.shuffle()
     user.gamble_play = True
     user.last_played = time.time()
-    gain = 0
     
     # Hands out 2 cards to each & calculate the count
     dealer_hand = deck.deal(2)
