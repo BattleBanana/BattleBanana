@@ -365,14 +365,16 @@ async def setpermlevel(ctx, player, level, **_):
                         "**" + player.name_clean + "** permission level set to ``" + permission.value[1] + "``.")
             if permission == Permission.DUEUTIL_MOD:
                 await awards.give_award(ctx.channel, player, "Mod", "Become an mod!")
-                await util.duelogger.info("**%s** is now a DueUtil mod!" % player.name_clean)
+                await util.duelogger.info("**%s** is now a BattleBanana mod!" % player.name_clean)
             elif "Mod" in player.awards:
                 player.awards.remove("Mod")
             if permission == Permission.DUEUTIL_ADMIN:
                 await awards.give_award(ctx.channel, player, "Admin", "Become an admin!")
-                await util.duelogger.info("**%s** is now a DueUtil admin!" % player.name_clean)
+                await util.duelogger.info("**%s** is now a BattleBanana admin!" % player.name_clean)
             elif "Admin" in player.awards:
                 player.awards.remove("Admin")
+            if permission == Permission.DUEUTIL_OWNER:
+                await util.duelogger.info("**%s** is now a BattleBanana Owner!" % player.name_clean)
     else:
         raise util.DueUtilException(ctx.channel, "Permission not found")
 
