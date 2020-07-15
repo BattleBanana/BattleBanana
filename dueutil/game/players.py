@@ -105,11 +105,8 @@ class Player(BattleBananaObject, SlotPickleMixin):
         else:
             super().__init__("NO_ID", "DueUtil Player", **kwargs)
         self.reset()
-        self.money = 100
 
     def prestige(self, discord_user=None):
-        self.benfont = False
-
         ##### STATS #####
         self.prestige_level += 1
         self.level = 1
@@ -119,46 +116,19 @@ class Player(BattleBananaObject, SlotPickleMixin):
         self.strg = 1 + self.prestige_level
         self.accy = 1 + self.prestige_level
         self.hp = 10
-        self.money = self.money
 
         ##### USAGE STATS #####
         self.last_progress = 0
         self.last_quest = 0
-        self.wagers_won = self.wagers_won
-        self.quests_won = self.quests_won
         self.quest_day_start = 0
         self.quests_completed_today = 0
         self.last_message_hashes = Ring(10)
-        self.weapon_hidden = False
-        self.gamble_play = self.gamble_play
-        self.last_played = self.last_played
 
         self.command_rate_limits = {}
 
         ##### THINGS #####
         self.quests = []
         self.received_wagers = []
-
-        if not hasattr(self, "awards"):
-            self.awards = []
-        else:
-            # Keep special awards even after reset
-            kept_awards = [award_id for award_id in self.awards if awards.get_award(award_id).special]
-            # To ensure stats don't get weird
-            for award_id in set(self.awards) - set(kept_awards):
-                awards.update_award_stat(award_id, "times_given", -1)
-            self.awards = kept_awards
-
-        # To help the noobz
-        self.quest_spawn_build_up = 1
-
-        # lol no
-        self.donor = self.donor
-        self.team = self.team
-        self.team_invites = self.team_invites
-
-        ##### Dumb misc stats (easy to add & remove)
-        self.misc_stats = self.misc_stats
 
         ##### Equiped items
         self.equipped = defaultdict(Player.DEFAULT_FACTORIES["equipped"],
@@ -205,7 +175,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
         self.quests_completed_today = 0
         self.last_message_hashes = Ring(10)
         self.weapon_hidden = False
-        self.gamble_play = False if not hasattr(self, "gamble_play") else self.gamble_play
+        self.gamble_play = False
         self.last_played = 0
 
         self.command_rate_limits = {}
@@ -229,10 +199,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
 
         # lol no
         self.donor = False
-        if hasattr(self, "team"):
-            self.team = self.team
-        else:
-            self.team = None
+        self.team = self.team if hasattr(self, "team") and self.team is not None else None
         self.team_invites = []
 
         ##### Dumb misc stats (easy to add & remove)
