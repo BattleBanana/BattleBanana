@@ -72,7 +72,7 @@ async def blackjack(ctx, price, **details):
         user_value, dealer_value = blackjackGame.compare_decks(user_hand, dealer_hand)
         if user_value >= 21 or dealer_value >= 21:
             break
-        user_msg = await util.wait_for_message(ctx)
+        user_msg = await util.wait_for_message(ctx, ctx.author)
         
         if user_msg != None and user_msg.content.lower() == "hit":
             user_hand += deck.deal(1)
@@ -113,7 +113,7 @@ async def blackjack(ctx, price, **details):
             result = "You win with a blackjack!"
         else:
             gain += price
-            result = "You win with an hand of %s against %s" % (user_value, dealer_value)
+            result = "You win with an hand of %s against %s." % (user_value, dealer_value)
     elif user_value < dealer_value:
         if dealer_value > 21:
             if user_value == 21: # If you have 21 and dealer busted
@@ -126,7 +126,7 @@ async def blackjack(ctx, price, **details):
             result = "Dealer win with a blackjack!"
         else:
             gain -= price
-            result = "Dealer win with an hand of %s against %s" % (dealer_value, user_value)
+            result = "Dealer win with an hand of %s against %s." % (dealer_value, user_value)
     else:
         result = "This is a tie! %s-%s" % (user_value, dealer_value)
     
@@ -134,7 +134,7 @@ async def blackjack(ctx, price, **details):
     gain = math.floor(gain)
     user.money += gain
     if gain > 0:
-        result += " You were rewarded with `¤%s`" % (gain)
+        result += " You were rewarded with `¤%s`" % (price+gain)
     elif gain < 0:
         result += " You lost `¤%s`." % (price)
     else:
@@ -175,7 +175,7 @@ async def russianroulette(ctx, price, **details):
     rnd = random.randint(1, 6)
     await asyncio.sleep(random.random() * 2)
     if rnd == 1:
-        reward = price * 10
+        reward = price * 5
         user.money += reward
         await util.edit_message(message, content=message.content + "\nYou survived and won `¤%s`!" % (reward))
     else:
