@@ -193,8 +193,7 @@ class DueUtilClient(discord.AutoShardedClient):
     async def on_message(self, message):
         if (message.author == self.user
             or message.author.bot
-            or isinstance(message.channel, discord.abc.PrivateChannel)
-            or not self.is_ready()):
+            or isinstance(message.channel, discord.abc.PrivateChannel)):
             return
 
         owner = message.author
