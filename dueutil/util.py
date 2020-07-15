@@ -135,12 +135,13 @@ async def say(channel, *args, **kwargs):
 async def typing(channel):
     await channel.trigger_typing()
 
-async def wait_for_message(ctx, timeout=120):
+async def wait_for_message(ctx, author, timeout=120):
     channel = ctx.channel
     
     def check(message):
         msg = message.content.lower()
-        return msg.startswith("hit") or msg.startswith("stand") and message.author == ctx.author and message.channel == channel
+        return (msg.startswith("hit") or msg.startswith("stand")) and message.author == author and message.channel == channel
+    
     try:
         return await clients[0].wait_for('message', timeout=timeout, check=check)
     except asyncio.exceptions.TimeoutError:
