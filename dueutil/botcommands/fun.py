@@ -396,6 +396,18 @@ async def pandemic(ctx, **_):
 
     await util.say(ctx.channel, embed=pandemic_embed)
 
+@commands.command(args_pattern=None)
+async def minecraft(ctx, **_):
+    """
+    Give you the official BattleBanana minecraft server
+    """
+
+    embed = discord.Embed(title="BananaCraft", type="rich", color=gconf.DUE_COLOUR)
+    embed.add_field(name="Minecraft version:", value="1.16.1")
+    embed.add_field(name="Server address:", value="mc.battlebanana.xyz")
+
+    await util.say(ctx.channel, f"{emojis.QUESTER} Official BananaCraft server!", embed=embed)
+
 # import aiohttp
 # @commands.command(args_pattern=None)
 # async def darkjoke(ctx, **details):
