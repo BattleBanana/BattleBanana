@@ -633,10 +633,10 @@ async def status(ctx, message=None, **details):
     client:discord.AutoShardedClient = util.clients[0]
     if message is None:
         count = client.shard_count
-        for shardID in range(count):
-            game = discord.Activity(name="battlebanana.xyz | shard %d/%d" % (shardID, count))
+        for shardID in range(0, count):
+            game = discord.Activity(name="battlebanana.xyz | shard %d/%d" % (shardID, count), type=discord.ActivityType.watching)
             await client.change_presence(activity=game, afk=False, shard_id=shardID)
     else:
-        await client.change_presence(activity=discord.Activity(name=message), afk=False)
+        await client.change_presence(activity=discord.Activity(name=message, type=discord.ActivityType.watching), afk=False)
 
     await util.say(ctx.channel, "All done!")
