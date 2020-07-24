@@ -3,6 +3,7 @@ import io
 import logging
 import math
 import time
+import datetime
 from itertools import chain
 
 import aiohttp
@@ -12,6 +13,8 @@ from raven import Client
 
 import generalconfig as gconf
 from .trello import TrelloClient
+
+from dueutil import dbconn
 
 """
 A random jumble of classes & functions that are some how
@@ -131,6 +134,10 @@ async def say(channel, *args, **kwargs):
         except discord.Forbidden as send_error:
             raise SendMessagePermMissing(send_error)
 
+
+async def save_old_topdog(player):
+    topdogs = dbconn.conn()["Topdogs"]
+    topdogs.insert_one({'user_id': player.id, 'date': datetime.datetime.utcnow()})
 
 async def typing(channel):
     await channel.trigger_typing()

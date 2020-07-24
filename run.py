@@ -323,7 +323,6 @@ if __name__ == "__main__":
     util.logger.info("Starting BattleBanana!")
     config = gconf.other_configs
     bot_key = config["botToken"]
-    shard_count = config["shardCount"]
     shard_names = config["shardNames"]
     util.load(clients)
     run_due()
