@@ -87,5 +87,11 @@
     "{user} opened a lootbox and found {daily}",
     "{user} ate some tide pods.. They got {daily} and a trip to the hospital",
     "{user} won a space war on mars and was rewarded with {daily}",
-    "{user} filled a lawsuit against another user and won {daily}"
+    "{user} filled a lawsuit against another user and won {daily}",
+    "{user} did well in the stock market and made {daily}",
+    "{user} managed to get away with tax evasion and made a total of {daily}",
+    "An old lady though {user} was homeless and gave them {daily}",
+    "{user} sold all of their personal possessions for {daily}",
+    "{user} prevented a deadly terrorist attack and was awarded with {daily}",
+    "{user} was fired from their job and given {daily} as their final pay check"
 ]
