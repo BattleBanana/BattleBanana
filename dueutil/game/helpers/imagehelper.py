@@ -382,7 +382,7 @@ async def stats_screen(channel, player):
     draw.rectangle(((97, 71), (239, 81)), fill=theme["expBarColour"][0])
     draw.rectangle(((98, 72), (98 + exp_bar_width, 80)), theme["expBarColour"][1])
     exp = "EXP: " + str(math.trunc(player.exp)) + " / " + str(next_level_exp)
-    draw.text((144, 70), exp, DUE_BLACK, font=font_tiny, align="center", stroke_width=1, stroke_fill=exp_colour)
+    draw.text((144, 70), exp, DUE_BLACK, font=font_tiny, stroke_width=1, stroke_fill=exp_colour)
 
     level = str(math.trunc(player.level))
     attk = str(round(player.attack, 2))
