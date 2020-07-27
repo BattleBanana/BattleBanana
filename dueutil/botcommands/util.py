@@ -95,7 +95,7 @@ async def help(ctx, *args, **details):
                                                          + "BattleBanana guide: https://battlebanana.xyz/howto\n"
                                                          + "Support guild: https://discord.gg/P7DBDEC\n"
                                                          + "Support me: https://patreon.com/developeranonymous"))
-        help_embed.set_footer(text="To use admin commands you must have the manage guild permission or the 'Due Commander' role.")
+        help_embed.set_footer(text="To use admin commands you must have the manage guild permission or the 'Banana Commander' role.")
 
     await util.say(ctx.channel, embed=help_embed)
 
