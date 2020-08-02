@@ -14,7 +14,8 @@ from ..game import (
     weapons,
     stats,
     awards,
-    players)
+    players,
+    emojis)
 from .. import commands, util
 from ..game.helpers import misc
 
@@ -183,6 +184,124 @@ async def acceptquest(ctx, quest_index, **details):
         await awards.give_award(ctx.channel, player, "RedMist", "Red mist...")
     else:
         await awards.give_award(ctx.channel, player, "InconceivableQuest")
+    player.save()
+
+@commands.command(args_pattern=None, aliases=['aaq'])
+@commands.imagecommand()
+async def acceptallquests(ctx, **details):
+    """
+    [CMD_KEY]acceptallquests
+
+    acceptquest, but without the spamming!
+    """
+
+#    if not player.donor:
+#        raise util.DueUtilException(ctx.channel, "This command is for donors only!")
+
+    player = details["author"]
+
+    if 0 >= len(player.quests):
+        raise util.DueUtilException(ctx.channel, "You have no quests!")
+    a = 0
+    #while a < len(player.quests):
+    #    if player.money - player.quests[a].money // 2 < 0:
+    #        raise util.DueUtilException(ctx.channel, "You can't afford the risk of doing all of your quests!")
+    #    a +=1
+    #if player.quests_completed_today >= quests.MAX_DAILY_QUESTS:
+    #    raise util.DueUtilException(ctx.channel,
+    #                                "You can't do more than " + str(quests.MAX_DAILY_QUESTS) + " quests a day!")
+    
+    totalCash = 0
+    totalXp = 0
+    totalAttack = 0
+    totalStrength = 0
+    totalAccuracy = 0
+    totalTurns = 0
+    wins = 0
+    lose = 0
+    draw = 0
+    b = 0
+    quests = len(player.quests)
+    while b < quests:
+        quest = player.quests.pop(b)
+        battle_log = battles.get_battle_log(player_one=player, player_two=quest, p2_prefix="the ")
+        turns = battle_log.turn_count
+        winner = battle_log.winner
+        stats.increment_stat(stats.Stat.QUESTS_ATTEMPTED)
+        # Not really an average (but w/e)
+        average_quest_battle_turns = player.misc_stats["average_quest_battle_turns"] = (player.misc_stats[
+                                                                                            "average_quest_battle_turns"] + turns) / 2
+        if winner == quest:
+            lose += 1
+            player.money -= quest.money // 2
+            totalCash -= quest.money // 2
+            player.quest_spawn_build_up += 0.1
+            player.misc_stats["quest_losing_streak"] += 1
+            if player.misc_stats["quest_losing_streak"] == 10:
+                await awards.give_award(ctx.channel, player, "QuestLoser")
+        elif winner == player:
+            wins += 1
+            if player.quest_day_start == 0:
+                player.quest_day_start = time.time()
+            player.quests_completed_today += 1
+            player.quests_won += 1
+            totalCash += quest.money
+            quest_scale = quest.get_quest_scale()
+            avg_player_stat = player.get_avg_stat()
+
+            def attr_gain(stat):
+                return (max(0.01, (stat / avg_player_stat)
+                            * quest.level * (turns / average_quest_battle_turns) / 2 * (quest_scale + 0.5) * 3))
+
+            # Put some random in the prestige gain so its not a raw 20 * prestige
+            max_stats_gain = 100 * (player.prestige_level + 1)
+            if player.donor:
+                max_stats_gain *= 1.5
+
+            add_strg = min(attr_gain(quest.strg), max_stats_gain)
+            add_attack = min(attr_gain(quest.attack), min(add_strg * 3 * random.uniform(0.6, 1.5), max_stats_gain))
+            add_accy = min(attr_gain(quest.accy), min(add_strg * 3 * random.uniform(0.6, 1.5), max_stats_gain))
+
+            prevExp = player.total_exp 
+            player.progress(add_attack, add_strg, add_accy, max_attr=max_stats_gain, max_exp=10000 * (player.prestige_level + 1))
+            expGain = player.total_exp - prevExp
+
+            totalXp += expGain
+            totalAccuracy += add_accy
+            totalAttack += add_attack
+            totalStrength += add_strg
+            totalTurns += average_quest_battle_turns
+
+            stats.increment_stat(stats.Stat.MONEY_CREATED, quest.money)
+
+            quest_info = quest.info
+            if quest_info is not None:
+                quest_info.times_beaten += 1
+                quest_info.save()
+            await game.check_for_level_up(ctx, player)
+            player.misc_stats["quest_losing_streak"] = 0
+        else:
+            draw += 1
+        quests -=1
+
+    if draw > 0:
+        drawQuest = ("\nDraw: " + draw)
+    else:
+        drawQuest = ""
+    
+    battle_embed = discord.Embed(title=("Battle Results"), type="rich", color=gconf.DUE_COLOUR)
+    battle_embed.add_field(name="Quests Fought", value=("Total quests: "+str(int(wins+lose))+"\nWon: " +str(wins)+"\nLost "+str(lose)+drawQuest))
+    battle_embed.add_field(name="Stat gains", value=("Added Cash: `¤"+str(totalCash)+"`\nAdded EXP: `"+str(round(totalXp))+"`\n"+emojis.ATK+": "+str(totalAttack)+"\n"+emojis.ACCY+": "+str(totalAccuracy)+"\n"+emojis.STRG+": "+str(totalStrength)))
+    battle_embed.add_field(name="Total turns", value=(str(round(totalTurns))))
+    await util.say(ctx.channel, embed=battle_embed)
+
+    if wins > 0:
+        await awards.give_award(ctx.channel, player, "QuestDone", "*Saved* the guild!")
+    elif lose > 0:
+        await awards.give_award(ctx.channel, player, "RedMist", "Red mist...")
+    elif draw > 0:
+        await awards.give_award(ctx.channel, player, "InconceivableQuest")
+
     player.save()
 
 
