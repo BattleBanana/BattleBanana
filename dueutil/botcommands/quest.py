@@ -430,7 +430,7 @@ async def editquest(ctx, quest_name, updates, **_):
         # Validate and set updates.
         if quest_property in ("attack", "atk", "accy", "accuracy", "strg", "strength"):
             if value >= 1:
-                value = commands.commandtypes.parse_int(value)
+                value = commands.commandtypes.parse_float(value)
                 if quest_property in ("attack", "atk"):
                     quest.base_attack = value
                 elif quest_property in ("accy", "accuracy"):
