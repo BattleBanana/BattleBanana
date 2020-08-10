@@ -8,7 +8,7 @@ from . import util
 
 
 # The max number the bot will accept. To avoid issues with crazy big numbers.
-MAX_NUMBER = 99999999999999999999999999999999999999999999
+MAX_NUMBER = 9223372036854775808
 MIN_NUMBER = -MAX_NUMBER
 STRING_TYPES = ('S', 'M')
 THOUSANDS_REGEX = re.compile(r'(\,)([0-9][0-9][0-9])')

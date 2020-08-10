@@ -200,6 +200,15 @@ def get_guild(server_id: int):
     return clients[0].get_guild(server_id)
 
 
+def get_channel(channel_id):
+    if isinstance(channel_id, int):
+        return clients[0].get_channel(channel_id)
+    try: 
+        return clients[0].get_channel(int(channel_id))
+    except ValueError:
+        return None
+
+
 def find_channel(channel_name):
     channels = get_guild(gconf.other_configs['supportServer']).channels
     for channel in channels:
