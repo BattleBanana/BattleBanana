@@ -428,6 +428,7 @@ async def topdoghistory(ctx, page=1, **details):
     topdogs = dbconn.conn()["Topdogs"].find({}, {'_id': 0}).sort([('date', -1)]).skip(topdogs_per_page*page).limit(topdogs_per_page)
     
     embed = discord.Embed(title="Topdog History", type="rich", color=gconf.DUE_COLOUR)
+    embed.set_footer(text="Times are in UTC.")
     
     topdog = awards.get_award_stat("TopDog")
     if topdog is None or not "top_dog" in topdog:
@@ -440,15 +441,14 @@ async def topdoghistory(ctx, page=1, **details):
     for topdog in topdogs:
         player = players.find_player(topdog.get('user_id'))
         if player is not None:
-            #fdate = topdog.get('date').strftime("%b %d %Y %H:%M:%S")
             date:datetime = topdog.get('date')
 
             if util.is_today(date):
-                tdstring += f"- {player.name}, today at {date.strftime('%H:%M')}\n"
+                tdstring += f"- **{player.name}**, today at {date.strftime('%H:%M')}\n"
             elif util.is_yesterday(date):
-                tdstring += f"- {player.name}, yesterday at {date.strftime('%H:%M')}\n"
+                tdstring += f"- **{player.name}**, yesterday at {date.strftime('%H:%M')}\n"
             else:
-                tdstring += f"- {player.name}, at {date.strftime('%d/%m/%Y')}\n"
+                tdstring += f"- **{player.name}**, at {date.strftime('%d/%m/%Y')}\n"
     
     embed.add_field(name="Previous topdogs:", value=tdstring, inline=False)
 
