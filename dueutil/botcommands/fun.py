@@ -259,8 +259,9 @@ async def giveemoji(ctx, receiver, emoji, **details):
     await awards.give_award(ctx.channel, sender, "Emoji", ":fire: __Breakdown Of Society__ :city_dusk:")
     if emoji == "🍆":
         await awards.give_award(ctx.channel, sender, "Sauce", "*Saucy*")
-    if sender.misc_stats["emojis_given"] == 100:
-        await awards.give_award(ctx.channel, sender, "EmojiKing", ":biohazard: **__WIPEOUT HUMANITY__** :radioactive:")
+    if sender.misc_stats["emojis_given"] >= 100:
+        if not "EmojiKing" in sender.awards:
+            await awards.give_award(ctx.channel, sender, "EmojiKing", ":biohazard: **__WIPEOUT HUMANITY__** :radioactive:")
 
 
 @commands.command(args_pattern='P', aliases=("potato",))
@@ -279,8 +280,9 @@ async def givepotato(ctx, receiver, **details):
     except util.DueUtilException as command_error:
         raise command_error
     await awards.give_award(ctx.channel, sender, "Potato", ":potato: Bringer Of Potatoes :potato:")
-    if sender.misc_stats["potatoes_given"] == 100:
-        await awards.give_award(ctx.channel, sender, "KingTat", ":crown: :potato: **Potato King!** :potato: :crown:")
+    if sender.misc_stats["potatoes_given"] >= 100:
+        if not "KingTat" in sender.awards:
+            await awards.give_award(ctx.channel, sender, "KingTat", ":crown: :potato: **Potato King!** :potato: :crown:")
 
 
 @commands.command(args_pattern=None)
