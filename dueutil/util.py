@@ -3,7 +3,7 @@ import io
 import logging
 import math
 import time
-import datetime
+from datetime import datetime
 from itertools import chain
 
 import aiohttp
@@ -137,7 +137,7 @@ async def say(channel, *args, **kwargs):
 
 async def save_old_topdog(player):
     topdogs = dbconn.conn()["Topdogs"]
-    topdogs.insert_one({'user_id': player.id, 'date': datetime.datetime.utcnow()})
+    topdogs.insert_one({'user_id': player.id, 'date': datetime.utcnow()})
 
 async def typing(channel):
     await channel.trigger_typing()
@@ -198,6 +198,15 @@ def get_guild_id(source):
 
 def get_guild(server_id: int):
     return clients[0].get_guild(server_id)
+
+
+def is_today(date: datetime):
+    today = datetime.today()
+    return (today.day == date.day and today.month == date.month and today.year == date.year)
+    
+def is_yesterday(date: datetime):
+    today = datetime.today()
+    return ((today.day - 1) == date.day and today.month == date.month and today.year == date.year)
 
 
 def get_channel(channel_id):

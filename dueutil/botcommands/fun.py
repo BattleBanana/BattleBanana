@@ -10,6 +10,8 @@ from ..game import awards, players, leaderboards, battles
 from ..game.helpers import misc, imagehelper
 from ..game import emojis
 
+topdogs_per_page = 10
+
 
 async def glitter_text(channel, text):
     try:
@@ -407,6 +409,38 @@ async def minecraft(ctx, **_):
     embed.add_field(name="Server address:", value="mc.battlebanana.xyz")
 
     await util.say(ctx.channel, f"{emojis.QUESTER} Official BananaCraft server!", embed=embed)
+
+@commands.command(args_pattern="C?", aliases=["tdh"])
+async def topdoghistory(ctx, page=1, **details):
+    page -= 1
+    topdogs = dbconn.conn()["Topdogs"].find({}, {'_id': 0}).sort([('date', -1)]).skip(topdogs_per_page*page).limit(topdogs_per_page)
+    
+    embed = discord.Embed(title="Topdog History", type="rich", color=gconf.DUE_COLOUR)
+    
+    topdog = awards.get_award_stat("TopDog")
+    if topdog is None or not "top_dog" in topdog:
+        embed.add_field(name="Current topdog:", value=":bangbang: Failed to parse current topdog")
+    else:
+        topdog = players.find_player(int(topdog["top_dog"]))
+        embed.add_field(name="Current topdog:", value=topdog.name)
+
+    tdstring = ""
+    for topdog in topdogs:
+        player = players.find_player(topdog.get('user_id'))
+        if player is not None:
+            #fdate = topdog.get('date').strftime("%b %d %Y %H:%M:%S")
+            date:datetime = topdog.get('date')
+
+            if util.is_today(date):
+                tdstring += f"- {player.name}, today at {date.strftime('%H:%M')}\n"
+            elif util.is_yesterday(date):
+                tdstring += f"- {player.name}, yesterday at {date.strftime('%H:%M')}\n"
+            else:
+                tdstring += f"- {player.name}, at {date.strftime('%d/%m/%Y')}\n"
+    
+    embed.add_field(name="Previous topdogs:", value=tdstring, inline=False)
+
+    await util.say(ctx.channel, embed=embed)
 
 # import aiohttp
 # @commands.command(args_pattern=None)
