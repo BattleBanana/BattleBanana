@@ -289,10 +289,14 @@ async def acceptallquests(ctx, **details):
     else:
         drawQuest = ""
     
+    player.money += totalCash
+    
     battle_embed = discord.Embed(title=("Battle Results"), type="rich", color=gconf.DUE_COLOUR)
     battle_embed.add_field(name="Quests Fought", value=("Total quests: "+str(int(wins+lose))+"\nWon: " +str(wins)+"\nLost "+str(lose)+drawQuest))
     battle_embed.add_field(name="Stat gains", value=("Added Cash: `¤"+str(totalCash)+"`\nAdded EXP: `"+str(round(totalXp))+"`\n"+emojis.ATK+": "+str(totalAttack)+"\n"+emojis.ACCY+": "+str(totalAccuracy)+"\n"+emojis.STRG+": "+str(totalStrength)))
     battle_embed.add_field(name="Total turns", value=(str(round(totalTurns))))
+    battle_embed.set_footer(text="If the added money is negative, then you lost more money from losing battles than you gained from winning them.")
+    
     await util.say(ctx.channel, embed=battle_embed)
 
     if wins > 0:
