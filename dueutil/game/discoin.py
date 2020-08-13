@@ -41,11 +41,12 @@ async def get_currencies():
         pass
         
 
-async def make_transaction(sender_id, amount, to):
+async def make_transaction(sender_id, amount, to, cfrom=CURRENCY_CODE):
 
     transaction_data = {
         "amount": amount,
-        "toId": to,
+        "from": cfrom,
+        "to": to,
         "user": str(sender_id)
     }
 
@@ -125,7 +126,6 @@ async def process_transactions():
 
 
 async def notify_complete(user_id, transaction, failed=False):
-    print("Hello notify!")
     await mark_as_completed(transaction)
     user_id = int(user_id)
     client = util.clients[0]
@@ -133,7 +133,7 @@ async def notify_complete(user_id, transaction, failed=False):
     try:
         await user.create_dm()
         embed = Embed(title="Discion Transaction", description="Receipt ID: %s" % (transaction["id"]), type="rich", colour=gconf.DUE_COLOUR)
-        embed.set_footer(text="Keep the receipt for if something goes wrong!")
+        embed.set_footer(text="Keep the receipt in case something goes wrong!")
         
         if not failed:
             payout = int(transaction.get('payout'))
@@ -150,18 +150,14 @@ async def notify_complete(user_id, transaction, failed=False):
             embed.add_field(name="Receipt:", 
                             value="%s/%s/show" % (DISCOINDASH, transaction['id']), 
                             inline=False)
-            try:
-                await user.send(embed=embed)
-            except Exception as error:
-                util.logger.error("Could not notify the successful transaction to the user: %s", error)
         elif failed:
-            embed.add_field(name=":warning: Your Discoin exchange has been reversed", value="To exchange to BattleBanana you must be a player "
-                                                                                        + "and the amount has to be worth at least 1 BBT.")
-            try:
-                await user.send(embed=embed)
-            except Exception as error:
-                util.logger.error("Could not notify the failed transaction to the user: %s", error)
+            embed.add_field(name=":warning: Your Discoin exchange has been reversed", 
+                            value="To exchange to BattleBanana you must be a player and the amount has to be worth at least 1 BBT.")
+
+        try:
+            await user.send(embed=embed)
+        except Exception as error:
+            util.logger.error(f"Could not notify the {'successful' if not failed else 'failed'} transaction to the user: %s", error)
             
     except Exception as error:
         util.logger.error("Could not notify discoin complete %s", error)
-        traceback.print_exc()
