@@ -233,7 +233,6 @@ async def acceptallquests(ctx, **details):
                                                                                             "average_quest_battle_turns"] + turns) / 2
         if winner == quest:
             lose += 1
-            player.money -= quest.money // 2
             totalCash -= quest.money // 2
             player.quest_spawn_build_up += 0.1
             player.misc_stats["quest_losing_streak"] += 1
@@ -270,6 +269,7 @@ async def acceptallquests(ctx, **details):
             totalAccuracy += add_accy
             totalAttack += add_attack
             totalStrength += add_strg
+            # that's the wrong way to calculate total turns
             totalTurns += average_quest_battle_turns
 
             stats.increment_stat(stats.Stat.MONEY_CREATED, quest.money)
@@ -289,10 +289,15 @@ async def acceptallquests(ctx, **details):
     else:
         drawQuest = ""
     
+    player.money += totalCash
+    
     battle_embed = discord.Embed(title=("Battle Results"), type="rich", color=gconf.DUE_COLOUR)
     battle_embed.add_field(name="Quests Fought", value=("Total quests: "+str(int(wins+lose))+"\nWon: " +str(wins)+"\nLost "+str(lose)+drawQuest))
     battle_embed.add_field(name="Stat gains", value=("Added Cash: `¤"+str(totalCash)+"`\nAdded EXP: `"+str(round(totalXp))+"`\n"+emojis.ATK+": "+str(totalAttack)+"\n"+emojis.ACCY+": "+str(totalAccuracy)+"\n"+emojis.STRG+": "+str(totalStrength)))
-    battle_embed.add_field(name="Total turns", value=(str(round(totalTurns))))
+    # totalTurns is wrong with the implementation of adding the averages
+    #    battle_embed.add_field(name="Total turns", value=(str(round(totalTurns))))
+    battle_embed.set_footer(text="If the added money is negative, then you lost more money from losing battles than you gained from winning them.")
+    
     await util.say(ctx.channel, embed=battle_embed)
 
     if wins > 0:
