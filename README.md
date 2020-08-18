@@ -36,7 +36,7 @@ db.createUser(
 (the host will probably be localhost)
 
 ##### Configure DueUtil
-Create a file `dueutil.json` in the same folder as `run.py` (the root).
+Create a file `battlebanana.json` in the same folder as `run.py` (the root).
 ```json
 {
    "botToken":"[DISCORD BOT TOKEN]",
@@ -84,6 +84,3 @@ or from linux:
 
 ### Can't run the bot?!
 I expect it will be fiddly to get this bot running, but please don't ask me to set it up for you I'm not going to help.
-
-### Contribute
-If you want to fix up this repo simply create a pull request (with a detailed commit message of your changes). If your making changes based on a [trello](https://trello.com/b/1ykaASKj/dueutil) card please link to it.
