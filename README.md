@@ -35,7 +35,7 @@
 </p>
 
 ## Overview
-BattleBanana can be a fun addition to your server giving your members the ability to create customizable quests and weapons, giving your players the ability to fight those quests or eachother to gain EXP, stats and cash. It does not promise to provide you anything useful but you may be able to have some fun with it
+BattleBanana can be a fun addition to your server allowing you to create customizable quests and weapons, giving your players the ability to fight those quests or eachother to gain EXP, stats and cash. It does not promise to provide you anything useful but you may be able to have some fun with it
 
 ### Features
 Battlebanana has many feature like
