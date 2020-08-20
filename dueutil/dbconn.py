@@ -46,6 +46,10 @@ def delete_objects(object_class, id_pattern):
     return conn()[object_class.__name__].delete_many({'_id': {'$regex': id_pattern}})
 
 
+def delete_player(player):
+    conn()["Player"].delete_one({'_id': player.id})
+
+
 def _load_config():
     global config
     with open('dbconfig.json') as config_file:
