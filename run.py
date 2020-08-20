@@ -14,7 +14,6 @@ time_shown = False
 import sys
 from itertools import cycle
 import sentry_sdk
-sentry_sdk.init("https://5322a6d1b40841d7a6000e45a3c61a03@sentry.io/1406854")
 
 import discord
 from dueutil.permissions import Permission
@@ -27,6 +26,7 @@ from dueutil.game.helpers import imagecache
 from dueutil.game.configs import dueserverconfig
 from dueutil import permissions
 from dueutil import util, events, dbconn
+sentry_sdk.init(gconf.other_configs.get("sentryAuth"))
 
 MAX_RECOVERY_ATTEMPTS = 1000
 

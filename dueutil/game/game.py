@@ -129,9 +129,9 @@ async def player_message(message, player, spam_level):
             await check_for_level_up(message, player)
             player.save()
 
-    else:
-        players.Player(message.author)
-        stats.increment_stat(stats.Stat.NEW_PLAYERS_JOINED)
+    #else:
+        #players.Player(message.author)
+        #stats.increment_stat(stats.Stat.NEW_PLAYERS_JOINED)
 
 
 async def check_for_level_up(ctx, player):

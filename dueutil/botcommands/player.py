@@ -4,6 +4,7 @@ import time
 
 import dueutil.game.awards as game_awards
 import generalconfig as gconf
+from dueutil import dbconn
 from ..game import players, customizations
 from ..game import stats, game, quests
 from ..game.helpers import misc, playersabstract, imagehelper
@@ -245,20 +246,36 @@ async def awards(ctx, player, page=1, **_):
 
     await show_awards(ctx, player, page - 1)
 
+#@commands.command(args_pattern="S?")
+#@commands.require_cnf(warning="This will **__permanently__** reset your user!")
+#async def resetme(ctx, cnf="", **details):
+#    """
+#    [CMD_KEY]resetme
+#    
+#    Resets all your stats & any customization.
+#    This cannot be reversed!
+#    """
+#
+#    player = details["author"]
+#    player.reset(ctx.author)
+#    await util.say(ctx.channel, "Your user has been reset.")
 
 @commands.command(args_pattern="S?")
-@commands.require_cnf(warning="This will **__permanently__** reset your user!")
-async def resetme(ctx, cnf="", **details):
+@commands.require_cnf(warning="This will **__permanently__** delete your account!")
+async def deleteme(ctx, cnf="", **details):
     """
-    [CMD_KEY]resetme
+    [CMD_KEY]deleteme
     
-    Resets all your stats & any customization.
+    Deletes all your stats & any customization.
     This cannot be reversed!
     """
+    
+    user = details["author"]
 
-    player = details["author"]
-    player.reset(ctx.author)
-    await util.say(ctx.channel, "Your user has been reset.")
+    dbconn.delete_player(user)
+    players.players.pop(ctx.author.id)
+    
+    await util.say(ctx.channel, "Your user has been deleted.")
 
 @commands.command(args_pattern='PCS?', aliases=["sq"])
 async def sendquest(ctx, receiver, quest_index, message="", **details):

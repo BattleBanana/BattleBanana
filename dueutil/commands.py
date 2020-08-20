@@ -51,6 +51,13 @@ def command(**command_rules):
         @wraps(command_func)
         async def wrapped_command(ctx, prefix, _, args, **details):
             name = command_func.__name__
+            player = players.find_player(ctx.author.id)
+            if player is None:
+                print(name)
+                if name != "createaccount":
+                    await util.say(ctx.channel, "You are not registered\nUse `"+prefix+"createaccount` to register")
+                    return
+                
             # Player has admin perms
             is_admin = permissions.has_permission(ctx.author, Permission.SERVER_ADMIN)
             if not is_admin and dueserverconfig.mute_level(ctx.channel) == 1:

@@ -7,13 +7,30 @@ import repoze.timeago
 import generalconfig as gconf
 from ..game.configs import dueserverconfig
 from ..permissions import Permission
-from ..game import stats, awards, discoin
+from ..game import stats, awards, discoin, players
 from ..game.stats import Stat
 from .. import commands, events, util, permissions
 
 # Shorthand for emoji as I use gconf to hold emoji constants
 from ..game import emojis as e
 
+@commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
+async def createaccount(ctx, **details):
+    """
+    [CMD_KEY]createaccount
+
+    Create your account to start your BattleBanana adventure
+    """
+
+    player = details["author"]
+
+    if player:
+        await util.say(ctx.channel, "You are already registered")
+        return
+
+    players.Player(ctx.author)
+    stats.increment_stat(stats.Stat.NEW_PLAYERS_JOINED)
+    await util.say(ctx.channel, "Created your account")
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern="S?", aliases=("helpme",))
 async def help(ctx, *args, **details):
