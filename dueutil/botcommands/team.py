@@ -628,7 +628,7 @@ async def declinepending(ctx, user, **details):
     await util.say(ctx.channel, "Removed **%s** from pendings!" % (user.name))
     
 # import json
-# @commands.command(args_pattern=None, hidden=True, permission=Permission.DUEUTIL_ADMIN)
+# @commands.command(args_pattern=None, hidden=True, permission=Permission.BANANA_ADMIN)
 # async def atfjson(ctx, **details):
 #     """
 #     DONT FUCKING USE IT FIRESCOUTT

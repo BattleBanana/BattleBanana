@@ -82,7 +82,7 @@ async def wish(*_, **details):
     player.quest_spawn_build_up += 0.005
 
 
-@commands.command(permission=Permission.DUEUTIL_MOD, args_pattern="SSSSIP?")
+@commands.command(permission=Permission.BANANA_MOD, args_pattern="SSSSIP?")
 async def uploadbg(ctx, icon, name, description, url, price, submitter=None, **details):
     """
     [CMD_KEY]uploadbg (a bunch of args)
@@ -147,7 +147,7 @@ async def uploadbg(ctx, icon, name, description, url, price, submitter=None, **d
         await awards.give_award(ctx.channel, submitter, "BgAccepted", "Background Accepted!")
 
 
-@commands.command(permission=Permission.DUEUTIL_MOD, args_pattern="S")
+@commands.command(permission=Permission.BANANA_MOD, args_pattern="S")
 async def testbg(ctx, url, **_):
     """
     [CMD_KEY]testbg (image url)
@@ -171,7 +171,7 @@ async def testbg(ctx, url, **_):
                                      + "P.s. I can't check for low quality images!"))
 
 
-@commands.command(permission=Permission.DUEUTIL_MOD, args_pattern="S")
+@commands.command(permission=Permission.BANANA_MOD, args_pattern="S")
 async def deletebg(ctx, background_to_delete, **details):
     """
     [CMD_KEY]deletebg (background name)
@@ -209,7 +209,7 @@ async def deletebg(ctx, background_to_delete, **details):
         "**%s** deleted the background **%s**" % (details["author"].name_clean, background.name_clean))
 
 
-@commands.command(permission=Permission.DUEUTIL_OWNER, args_pattern="S")
+@commands.command(permission=Permission.BANANA_OWNER, args_pattern="S")
 async def bbeval(ctx, statement, **details):
     """
     For 1337 haxors only! Go away!
@@ -232,7 +232,7 @@ async def bbeval(ctx, statement, **details):
                                     + "``%s``" % eval_exception))
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="CC?B?", hidden=True)
+@commands.command(permission=Permission.BANANA_ADMIN, args_pattern="CC?B?", hidden=True)
 async def generatecode(ctx, value, count=1, show=True, **details):
     """
     [CMD_KEY]generatecode ($$$) (amount)
@@ -263,7 +263,7 @@ async def generatecode(ctx, value, count=1, show=True, **details):
         await util.say(ctx.channel, embed=code_Embed)
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="C?")
+@commands.command(permission=Permission.BANANA_ADMIN, args_pattern="C?")
 async def codes(ctx, page=1, **details):
     """
     [CMD_KEY]codes
@@ -323,7 +323,7 @@ async def redeem(ctx, code, **details):
 
         await util.say(ctx.channel, "You successfully reclaimed **%s** !!" % (util.format_money(money)))
 
-@commands.command(permission=Permission.DUEUTIL_OWNER, args_pattern="PS")
+@commands.command(permission=Permission.BANANA_OWNER, args_pattern="PS")
 async def sudo(ctx, victim, command, **_):
     """
     [CMD_KEY]sudo victim command
@@ -348,7 +348,7 @@ async def sudo(ctx, victim, command, **_):
         raise util.DueUtilException(ctx.channel, 'Sudo failed! "%s"' % command_failed.message)
         
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PC")
+@commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PC")
 async def setpermlevel(ctx, player, level, **_):
     if not (ctx.author.id in (115269304705875969, 261799488719552513)):
         util.logger.info(ctx.author.id + " used the command: setpermlevel\n")
@@ -363,32 +363,32 @@ async def setpermlevel(ctx, player, level, **_):
             dueutil.permissions.give_permission(member, permission)
             await util.say(ctx.channel,
                         "**" + player.name_clean + "** permission level set to ``" + permission.value[1] + "``.")
-            if permission == Permission.DUEUTIL_MOD:
+            if permission == Permission.BANANA_MOD:
                 await awards.give_award(ctx.channel, player, "Mod", "Become an mod!")
                 await util.duelogger.info("**%s** is now a BattleBanana mod!" % player.name_clean)
             elif "Mod" in player.awards:
                 player.awards.remove("Mod")
-            if permission == Permission.DUEUTIL_ADMIN:
+            if permission == Permission.BANANA_ADMIN:
                 await awards.give_award(ctx.channel, player, "Admin", "Become an admin!")
                 await util.duelogger.info("**%s** is now a BattleBanana admin!" % player.name_clean)
             elif "Admin" in player.awards:
                 player.awards.remove("Admin")
-            if permission == Permission.DUEUTIL_OWNER:
+            if permission == Permission.BANANA_OWNER:
                 await util.duelogger.info("**%s** is now a BattleBanana Owner!" % player.name_clean)
     else:
         raise util.DueUtilException(ctx.channel, "Permission not found")
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="P", aliases=["giveban"])
+@commands.command(permission=Permission.BANANA_ADMIN, args_pattern="P", aliases=["giveban"])
 async def ban(ctx, player, **_):
-    if (ctx.author.id in (115269304705875969, 261799488719552513)):
+    if (player.id in (115269304705875969, 261799488719552513)):
         raise util.DueUtilException(ctx.channel, "You cannot ban DeveloperAnonymous or Firescoutt")
     dueutil.permissions.give_permission(player.to_member(ctx.guild), Permission.BANNED)
     await util.say(ctx.channel, emojis.MACBAN+" **" + player.name_clean + "** banned!")
     await util.duelogger.concern("**%s** has been banned!" % player.name_clean)
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="P", aliases=["pardon"])
+@commands.command(permission=Permission.BANANA_ADMIN, args_pattern="P", aliases=["pardon"])
 async def unban(ctx, player, **_):
     member = player.to_member(ctx.guild)
     if not dueutil.permissions.has_special_permission(member, Permission.BANNED):
@@ -398,7 +398,7 @@ async def unban(ctx, player, **_):
     await util.say(ctx.channel, ":unicorn: **" + player.name_clean + "** has been unbanned!")
     await util.duelogger.info("**%s** has been unbanned" % player.name_clean)
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None, hidden=True)
+@commands.command(permission=Permission.BANANA_ADMIN, args_pattern=None, hidden=True)
 async def bans(ctx, **_):
     bans_embed = discord.Embed(title="Ban list", type="rich", color=gconf.DUE_COLOUR)
     string = ""
@@ -410,7 +410,7 @@ async def bans(ctx, **_):
     await util.say(ctx.channel, embed=bans_embed)
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="P")
+@commands.command(permission=Permission.BANANA_ADMIN, args_pattern="P")
 async def toggledonor(ctx, player, **_):
     player.donor = not player.donor
     if player.donor:
@@ -419,7 +419,7 @@ async def toggledonor(ctx, player, **_):
         await util.say(ctx.channel, "**%s** is no longer donor" % player.name_clean)
 
 
-@commands.command(permission=Permission.DUEUTIL_OWNER, args_pattern=None)
+@commands.command(permission=Permission.BANANA_OWNER, args_pattern=None)
 async def reloadbot(ctx, **_):
     await util.say(ctx.channel, ":ferris_wheel: Reloading BattleBanana modules!")
     await util.duelogger.concern("BattleBanana Reloading!")
@@ -427,7 +427,7 @@ async def reloadbot(ctx, **_):
     raise util.DueReloadException(ctx.channel)
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="IP*")
+@commands.command(permission=Permission.BANANA_ADMIN, args_pattern="IP*")
 async def givecash(ctx, amount, *players, **_):
     toSend = ""
     for player in players:
@@ -442,20 +442,20 @@ async def givecash(ctx, amount, *players, **_):
     await util.say(ctx.channel, toSend)
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PI")
+@commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PI")
 async def setcash(ctx, player, amount, **_):
     player.money = amount
     amount_str = util.format_number(amount, money=True, full_precision=True)
     await util.say(ctx.channel, "Set **%s** balance to ``%s``" % (player.get_name_possession_clean(), amount_str))
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PI")
+@commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PI")
 async def setprestige(ctx, player, prestige, **details):
     player.prestige_level = prestige
     player.save()
     await util.say(ctx.channel, "Set prestige to **%s** for **%s**" % (prestige, player.get_name_possession_clean()))
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PS")
+@commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PS")
 async def giveaward(ctx, player, award_id, **_):
     if awards.get_award(award_id) is not None:
         await awards.give_award(ctx.channel, player, award_id)
@@ -463,7 +463,7 @@ async def giveaward(ctx, player, award_id, **_):
         raise util.DueUtilException(ctx.channel, "Award not found!")
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern="PR")
+@commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PR")
 async def giveexp(ctx, player, exp, **_):
     # (attack + strg + accy) * 100
     if exp < 0.1:
@@ -477,14 +477,14 @@ async def giveexp(ctx, player, exp, **_):
     player.save()
 
 
-@commands.command(permission=Permission.DUEUTIL_MOD, args_pattern=None)
+@commands.command(permission=Permission.BANANA_MOD, args_pattern=None)
 async def updateleaderboard(ctx, **_):
     leaderboards.last_leaderboard_update = 0
     await leaderboards.update_leaderboards(ctx)
     await util.say(ctx.channel, ":ferris_wheel: Updating leaderboard!")
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None)
+@commands.command(permission=Permission.BANANA_ADMIN, args_pattern=None)
 async def updatebot(ctx, **_):
     """
     [CMD_KEY]updatebot
@@ -510,7 +510,7 @@ async def updatebot(ctx, **_):
         os._exit(1)
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None)
+@commands.command(permission=Permission.BANANA_ADMIN, args_pattern=None)
 async def stopbot(ctx, **_):
     await util.say(ctx.channel, ":wave: Stopping BattleBanana!")
     await util.duelogger.concern("BattleBanana shutting down!")
@@ -518,7 +518,7 @@ async def stopbot(ctx, **_):
     os._exit(0)
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None)
+@commands.command(permission=Permission.BANANA_ADMIN, args_pattern=None)
 async def restartbot(ctx, **_):
     await util.say(ctx.channel, ":ferris_wheel: Restarting BattleBanana!")
     await util.duelogger.concern("BattleBanana restarting!!")
@@ -526,7 +526,7 @@ async def restartbot(ctx, **_):
     os._exit(1)
 
 
-@commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None)
+@commands.command(permission=Permission.BANANA_ADMIN, args_pattern=None)
 async def meminfo(ctx, **_):
     mem_info = StringIO()
     objgraph.show_most_common_types(file=mem_info)
@@ -597,7 +597,7 @@ async def vote(ctx, **details):
     await util.say(ctx.channel, embed=Embed)
 
 
-# @commands.command(permission=Permission.DUEUTIL_ADMIN, args_pattern=None, hidden=True)
+# @commands.command(permission=Permission.BANANA_ADMIN, args_pattern=None, hidden=True)
 # async def cleartopdogs(ctx, **details):
 #     await util.say(ctx.channel, ":arrows_counterclockwise: Removing every active topdog!")
 #     for id, v in sorted(game.players.players.items()):

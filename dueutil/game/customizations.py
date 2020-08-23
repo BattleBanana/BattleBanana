@@ -177,9 +177,9 @@ class Banner(Customization):
     def banner_restricted(self, player):
         member = player.to_member()
         return ((not self.admin_only or self.admin_only
-                 and permissions.has_permission(member, Permission.DUEUTIL_ADMIN))
+                 and permissions.has_permission(member, Permission.BANANA_ADMIN))
                 and (not self.mod_only or self.mod_only
-                     and permissions.has_permission(member, Permission.DUEUTIL_MOD)))
+                     and permissions.has_permission(member, Permission.BANANA_MOD)))
 
     def can_use_banner(self, player):
         return (not self.donor or self.donor and player.donor) and self.banner_restricted(player)
