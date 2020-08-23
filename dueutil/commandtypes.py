@@ -73,7 +73,7 @@ def parse_player(player_id, called, ctx):
     try:
         player = players.find_player(int(player_id))
         if player is None or not player.is_playing(ctx.guild) \
-                and called.permission < Permission.DUEUTIL_MOD:
+                and called.permission < Permission.BANANA_MOD:
             return False
         return player
     except ValueError:

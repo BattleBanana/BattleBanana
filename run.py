@@ -198,8 +198,8 @@ class DueUtilClient(discord.AutoShardedClient):
             return
 
         owner = message.author
-        if owner.id == config["owner"] and not permissions.has_permission(owner, Permission.DUEUTIL_OWNER):
-            permissions.give_permission(owner, Permission.DUEUTIL_OWNER)
+        if owner.id == config["owner"] and not permissions.has_permission(owner, Permission.BANANA_OWNER):
+            permissions.give_permission(owner, Permission.BANANA_OWNER)
 
         mentions_self_regex = f"<@.?{self.user.id}>"
         if re.match("^"+mentions_self_regex, message.content):

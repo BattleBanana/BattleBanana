@@ -460,7 +460,7 @@ async def optout(ctx, **details):
         current_permission = permissions.get_special_permission(ctx.author)
         if await optout_is_topdog_check(ctx.channel, player):
             return
-        if current_permission >= Permission.DUEUTIL_MOD:
+        if current_permission >= Permission.BANANA_MOD:
             raise util.DueUtilException(ctx.channel, "You cannot optout everywhere and stay a BattleBanana mod or admin!")
         permissions.give_permission(ctx.author, Permission.DISCORD_USER)
         await util.say(ctx.channel, (":ok_hand: You've opted out of BattleBanana everywhere.\n"
@@ -639,7 +639,7 @@ async def exchange(ctx, amount, currency, **details):
 
     await util.say(gconf.discoin_channel, embed=logs_embed)
 
-@commands.command(args_pattern="S?", permission=Permission.DUEUTIL_ADMIN)
+@commands.command(args_pattern="S?", permission=Permission.BANANA_ADMIN)
 async def status(ctx, message=None, **details):
     """
     If message is none the status will be reset to the default one.

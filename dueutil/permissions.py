@@ -26,9 +26,9 @@ class Permission(Enum):
     SERVER_ADMIN = (lambda member: (member.guild_permissions.manage_guild
                                     or util.has_role_name(member, gconf.COMMANDER_ROLE)), "server_admin",)
     REAL_SERVER_ADMIN = (lambda member: member.guild_permissions.manage_guild, "real_server_admin")
-    DUEUTIL_MOD = (lambda member: has_special_permission(member, permissions[5]), "dueutil_mod",)
-    DUEUTIL_ADMIN = (lambda member: has_special_permission(member, permissions[6]), "dueutil_admin",)
-    DUEUTIL_OWNER = (lambda member: has_special_permission(member, permissions[7]), "dueutil_owner",)
+    BANANA_MOD = (lambda member: has_special_permission(member, permissions[5]), "BattleBanana_mod",)
+    BANANA_ADMIN = (lambda member: has_special_permission(member, permissions[6]), "BattleBanana_admin",)
+    BANANA_OWNER = (lambda member: has_special_permission(member, permissions[7]), "BattleBanana_owner",)
 
 
 permissions = [permission for permission in Permission]

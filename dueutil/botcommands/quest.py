@@ -25,7 +25,7 @@ quest_Fnames = ["Bob", "Albert", "Rodrigo", "Alfonso", "Ricardo", "Jesus", "Dr."
 quest_Lnames = ["Christ", "Heffely", "Clark", "McDouglas", "Sear", "Dover", "Cena", "Jackson", "Lincoln", ]
 quest_battle = ["Fight", "Defeat", "Battle"]
 
-@commands.command(permission=Permission.DUEUTIL_MOD, args_pattern="S?P?C?", hidden=True)
+@commands.command(permission=Permission.BANANA_MOD, args_pattern="S?P?C?", hidden=True)
 async def spawnquest(ctx, *args, **details):
     """
     [CMD_KEY]spawnquest (name) (@user) (level)

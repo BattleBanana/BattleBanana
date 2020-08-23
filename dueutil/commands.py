@@ -53,7 +53,6 @@ def command(**command_rules):
             name = command_func.__name__
             player = players.find_player(ctx.author.id)
             if player is None:
-                print(name)
                 if name != "createaccount":
                     await util.say(ctx.channel, "You are not registered\nUse `"+prefix+"createaccount` to register")
                     return
