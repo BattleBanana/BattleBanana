@@ -246,19 +246,39 @@ async def awards(ctx, player, page=1, **_):
 
     await show_awards(ctx, player, page - 1)
 
-#@commands.command(args_pattern="S?")
-#@commands.require_cnf(warning="This will **__permanently__** reset your user!")
-#async def resetme(ctx, cnf="", **details):
-#    """
-#    [CMD_KEY]resetme
-#    
-#    Resets all your stats & any customization.
-#    This cannot be reversed!
-#    """
-#
-#    player = details["author"]
-#    player.reset(ctx.author)
-#    await util.say(ctx.channel, "Your user has been reset.")
+@commands.command(args_pattern="S?")
+@commands.require_cnf(warning="This will **__permanently__** reset your user!")
+async def resetme(ctx, cnf="", **details):
+   """
+   [CMD_KEY]resetme
+   
+   Resets all your stats & any customization.
+   This cannot be reversed!
+   """
+
+   player = details["author"]
+   player.reset(ctx.author)
+   await util.say(ctx.channel, "Your user has been reset.")
+
+
+@commands.command(permission=Permission.DISCORD_USER, args_pattern=None, aliases=["start"])
+async def createaccount(ctx, **details):
+    """
+    [CMD_KEY]createaccount
+
+    Create your account to start your BattleBanana adventure
+    """
+
+    player = details["author"]
+
+    if player:
+        await util.say(ctx.channel, "You are already registered")
+        return
+
+    players.Player(ctx.author)
+    stats.increment_stat(stats.Stat.NEW_PLAYERS_JOINED)
+    await util.say(ctx.channel, "Created your account")
+
 
 @commands.command(args_pattern="S?")
 @commands.require_cnf(warning="This will **__permanently__** delete your account!")
