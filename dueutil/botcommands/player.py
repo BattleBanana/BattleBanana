@@ -4,12 +4,12 @@ import time
 
 import dueutil.game.awards as game_awards
 import generalconfig as gconf
-from dueutil import dbconn
 from ..game import players, customizations
 from ..game import stats, game, quests
 from ..game.helpers import misc, playersabstract, imagehelper
 from ..game.configs import dueserverconfig
-from .. import commands, util, dbconn
+from .. import commands, util, dbconn, permissions
+from ..permissions import Permission
 from ..game import emojis as e
 
 DAILY_AMOUNT = 50
