@@ -14,7 +14,7 @@ from .. import commands, events, util, permissions
 # Shorthand for emoji as I use gconf to hold emoji constants
 from ..game import emojis as e
 
-@commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
+@commands.command(permission=Permission.DISCORD_USER, args_pattern=None, aliases=["start"])
 async def createaccount(ctx, **details):
     """
     [CMD_KEY]createaccount
