@@ -40,21 +40,21 @@ shard_names = []
 ERROR_OF_DEATH = "Timeout context manager should be used inside a task"
 
 """ 
-DueUtil: The most 1337 (worst) discord bot ever.     
+BattleBanana: The most 1337 (worst) discord bot ever.     
 This bot is not well structured...
 (c) MacDue & DeveloperAnonymous - All rights reserved
 (Sections of this bot are MIT and GPL)
 """
 
-class DueUtilClient(discord.AutoShardedClient):
+class BattleBananaClient(discord.AutoShardedClient):
     """
-    DueUtil shard client
+    BattleBanana shard client
     """
 
     def __init__(self, **details):
         self.queue_tasks = queue.Queue()
         self.start_time = time.time()
-        super(DueUtilClient, self).__init__(**details)
+        super(BattleBananaClient, self).__init__(**details)
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
 
     
@@ -130,8 +130,8 @@ class DueUtilClient(discord.AutoShardedClient):
             await util.duelogger.error(("**BattleBanana experienced an error!**\n"
                                              + "__Stack trace:__ ```" + traceback.format_exc() + "```"))
             util.logger.error("None message/command error: %s", error)
-        elif isinstance(error, util.DueUtilException):
-            # A normal dueutil user error
+        elif isinstance(error, util.BattleBananaException):
+            # A normal battlebanana user error
             try:
                 if error.channel is not None:
                     await util.say(error.channel, error.get_message())
@@ -273,7 +273,7 @@ class ClientThread(dummy.Process):
     def run(self, level=1):
         asyncio.set_event_loop(self.event_loop)
         global client
-        client = DueUtilClient(fetch_offline_members=False)
+        client = BattleBananaClient(fetch_offline_members=False)
         clients.append(client)
         try:
             client.loop.run_until_complete(client.start(bot_key))
