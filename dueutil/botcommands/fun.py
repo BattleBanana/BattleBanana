@@ -128,7 +128,7 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
     if page > 0:
         leaderboard_embed.title += ": Page %d" % (page + 1)
     if page * page_size >= len(leaderboard_data):
-        raise util.DueUtilException(ctx.channel, "Page not found")
+        raise util.BattleBananaException(ctx.channel, "Page not found")
 
     index = 0
     for index in range(page_size * page, page_size * page + page_size):
@@ -231,9 +231,9 @@ async def globalrank(ctx, player=None, **details):
 
 async def give_emoji(channel, sender, receiver, emoji):
     if not util.char_is_emoji(emoji) and not util.is_server_emoji(channel.guild, emoji):
-        raise util.DueUtilException(channel, "You can only send emoji!")
+        raise util.BattleBananaException(channel, "You can only send emoji!")
     if sender == receiver:
-        raise util.DueUtilException(channel, "You can't send a " + emoji + " to yourself!")
+        raise util.BattleBananaException(channel, "You can't send a " + emoji + " to yourself!")
     await util.say(channel, "**" + receiver.name_clean + "** " + emoji + " :heart: **" + sender.name_clean + "**")
 
 
@@ -254,7 +254,7 @@ async def giveemoji(ctx, receiver, emoji, **details):
         await give_emoji(ctx.channel, sender, receiver, emoji)
         sender.misc_stats["emojis_given"] += 1
         receiver.misc_stats["emojis"] += 1
-    except util.DueUtilException as command_error:
+    except util.BattleBananaException as command_error:
         raise command_error
     await awards.give_award(ctx.channel, sender, "Emoji", ":fire: __Breakdown Of Society__ :city_dusk:")
     if emoji == "🍆":
@@ -277,7 +277,7 @@ async def givepotato(ctx, receiver, **details):
         await give_emoji(ctx.channel, sender, receiver, '🥔')
         sender.misc_stats["potatoes_given"] += 1
         receiver.misc_stats["potatoes"] += 1
-    except util.DueUtilException as command_error:
+    except util.BattleBananaException as command_error:
         raise command_error
     await awards.give_award(ctx.channel, sender, "Potato", ":potato: Bringer Of Potatoes :potato:")
     if sender.misc_stats["potatoes_given"] >= 100:
@@ -310,15 +310,15 @@ async def battletopdog(ctx, **details):
     """
     top_dog_stats = awards.get_award_stat("TopDog")
     if top_dog_stats is None or not "top_dog" in top_dog_stats:
-        raise util.DueUtilException(ctx.channel, "Sorry there was an error trying to find the topdog!")
+        raise util.BattleBananaException(ctx.channel, "Sorry there was an error trying to find the topdog!")
 
     top_dog = players.find_player(int(top_dog_stats["top_dog"]))
     if top_dog is None:
-        raise util.DueUtilException(ctx.channel, "Sorry there was an error trying to find the topdog!")
+        raise util.BattleBananaException(ctx.channel, "Sorry there was an error trying to find the topdog!")
 
     player = details["author"]
     if top_dog == player:
-        raise util.DueUtilException(ctx.channel, "Don't beat yourself up!")
+        raise util.BattleBananaException(ctx.channel, "Don't beat yourself up!")
     
     battle_log = battles.get_battle_log(player_one=player, player_two=top_dog)
 
@@ -339,11 +339,11 @@ async def viewtopdog(ctx, **_):
     """
     top_dog_stats = awards.get_award_stat("TopDog")
     if top_dog_stats is None or not "top_dog" in top_dog_stats:
-        raise util.DueUtilException(ctx.channel, "Sorry there was an error trying to find the topdog!")
+        raise util.BattleBananaException(ctx.channel, "Sorry there was an error trying to find the topdog!")
 
     top_dog = players.find_player(int(top_dog_stats["top_dog"]))
     if top_dog is None:
-        raise util.DueUtilException(ctx.channel, "Sorry there was an error trying to find the topdog!")
+        raise util.BattleBananaException(ctx.channel, "Sorry there was an error trying to find the topdog!")
 
     await imagehelper.stats_screen(ctx.channel, top_dog)
 
@@ -351,7 +351,7 @@ async def viewtopdog(ctx, **_):
 async def show_awards(ctx, top_dog, page=0):
     # Always show page 1 (0)
     if page != 0 and page * 5 >= len(top_dog.awards):
-        raise util.DueUtilException(ctx.channel, "Page not found")
+        raise util.BattleBananaException(ctx.channel, "Page not found")
 
     await imagehelper.awards_screen(ctx.channel, top_dog, page,
                                     is_top_dog_sender=ctx.author.id == top_dog.id)
@@ -425,7 +425,7 @@ async def topdoghistory(ctx, page=1, **details):
     count = dbconn.conn()["Topdogs"].find().count()
 
     if topdogs_per_page * page > count:
-        raise util.DueUtilException(ctx.channel, "Page not found!")
+        raise util.BattleBananaException(ctx.channel, "Page not found!")
 
     topdogs = dbconn.conn()["Topdogs"].find({}, {'_id': 0}).sort([('date', -1)]).skip(topdogs_per_page*page).limit(topdogs_per_page)
     

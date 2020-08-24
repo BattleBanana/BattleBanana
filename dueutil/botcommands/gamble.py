@@ -40,11 +40,11 @@ async def blackjack(ctx, price, **details):
     user = details["author"]
     
     if user.money < price:
-        raise util.DueUtilException(ctx.channel, "You cannot bet that much!")
+        raise util.BattleBananaException(ctx.channel, "You cannot bet that much!")
     if price < 1:
-        raise util.DueUtilException(ctx.channel, "You cannot bet under ¤1")
+        raise util.BattleBananaException(ctx.channel, "You cannot bet under ¤1")
     if (user.gamble_play and int(time.time() - user.last_played) < 120) or int(time.time() - user.last_played) < 120:
-        raise util.DueUtilException(ctx.channel, "You are already playing!")
+        raise util.BattleBananaException(ctx.channel, "You are already playing!")
     
     
     # Create new deck, make player playing
@@ -166,9 +166,9 @@ async def russianroulette(ctx, price, **details):
     user = details["author"]
     
     if user.money < price:
-       raise util.DueUtilException(ctx.channel, "You cannot bet that much!")
+       raise util.BattleBananaException(ctx.channel, "You cannot bet that much!")
     if price < 1:
-       raise util.DueUtilException(ctx.channel, "You cannot bet under ¤1")
+       raise util.BattleBananaException(ctx.channel, "You cannot bet under ¤1")
     
     message = await util.say(ctx.channel, "Click...")
     rnd = random.randint(1, 6)

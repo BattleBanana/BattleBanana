@@ -232,14 +232,14 @@ async def setcmdkey(ctx, new_key, **details):
     The default is '!'
     """
     if util.filter_string(new_key) != new_key:
-        raise util.DueUtilException(ctx.channel, "You must set a valid command key!")
+        raise util.BattleBananaException(ctx.channel, "You must set a valid command key!")
 
     if len(new_key) in (1, 2):
         dueserverconfig.server_cmd_key(ctx.guild, new_key)
         await util.say(ctx.channel,
                        "Command prefix on **" + details["server_name_clean"] + "** set to ``" + new_key + "``!")
     else:
-        raise util.DueUtilException(ctx.channel, "Command prefixes can only be one or two characters!")
+        raise util.BattleBananaException(ctx.channel, "Command prefixes can only be one or two characters!")
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern="S?")
@@ -301,7 +301,7 @@ async def leave(ctx, **_):
     try:
         await ctx.guild.leave()
     except:
-        raise util.DueUtilException(ctx.channel, "Could not leave guild!")
+        raise util.BattleBananaException(ctx.channel, "Could not leave guild!")
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern=None)
@@ -443,7 +443,7 @@ async def optout(ctx, **details):
         if await optout_is_topdog_check(ctx.channel, player):
             return
         if current_permission >= Permission.BANANA_MOD:
-            raise util.DueUtilException(ctx.channel, "You cannot optout everywhere and stay a BattleBanana mod or admin!")
+            raise util.BattleBananaException(ctx.channel, "You cannot optout everywhere and stay a BattleBanana mod or admin!")
         permissions.give_permission(ctx.author, Permission.DISCORD_USER)
         await util.say(ctx.channel, (":ok_hand: You've opted out of BattleBanana everywhere.\n"
                                      + "You won't get exp, quests, and other players can't use you in commands."))
@@ -567,11 +567,11 @@ async def exchange(ctx, amount, currency, **details):
     currency = currency.upper()
 
     if currency == discoin.CURRENCY_CODE:
-        raise util.DueUtilException(ctx.channel, "There is no reason to exchange %s for %s!" % (discoin.CURRENCY_CODE, discoin.CURRENCY_CODE))
+        raise util.BattleBananaException(ctx.channel, "There is no reason to exchange %s for %s!" % (discoin.CURRENCY_CODE, discoin.CURRENCY_CODE))
     if not currency in discoin.CODES:
-        raise util.DueUtilException(ctx.channel, "Not a valid currency! Use `%scurrencies` to know which currency is available." % details['cmd_key'])
+        raise util.BattleBananaException(ctx.channel, "Not a valid currency! Use `%scurrencies` to know which currency is available." % details['cmd_key'])
     if amount > discoin.MAX_TRANSACTION:
-        raise util.DueUtilException(ctx.channel, "The amount you try to exchange exceeds the maximum %s transfer limit of %s." 
+        raise util.BattleBananaException(ctx.channel, "The amount you try to exchange exceeds the maximum %s transfer limit of %s." 
                                                                                                 % (discoin.CURRENCY_CODE, discoin.MAX_TRANSACTION))
     
     amount = int(amount)
@@ -586,14 +586,14 @@ async def exchange(ctx, amount, currency, **details):
         response = await discoin.make_transaction(player.id, amount, currency)
     except Exception as discoin_error:
         util.logger.error("Discoin exchange failed %s", discoin_error)
-        raise util.DueUtilException(ctx.channel, "Something went wrong at Discoin!")
+        raise util.BattleBananaException(ctx.channel, "Something went wrong at Discoin!")
 
     if response.get('statusCode'):
         code = response.get("statusCode")
         if code >= 500:
-            raise util.DueUtilException(ctx.channel, "Something went wrong at Discoin! %s: %s" % (code, response['error']))
+            raise util.BattleBananaException(ctx.channel, "Something went wrong at Discoin! %s: %s" % (code, response['error']))
         elif 400 <= code < 500:
-            raise util.DueUtilException(ctx.channel, "Something went wrong! %s: %s" % (code, response['error']))
+            raise util.BattleBananaException(ctx.channel, "Something went wrong! %s: %s" % (code, response['error']))
 
     await awards.give_award(ctx.channel, player, "Discoin")
     player.money -= amount

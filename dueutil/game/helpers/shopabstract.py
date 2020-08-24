@@ -33,9 +33,9 @@ class ShopBuySellItem(ABC):
         price_divisor = 4 / 3
 
         if item_name not in player.inventory[self.inventory_slot]:
-            raise util.DueUtilException(channel, self.item_type.title() + " not found!")
+            raise util.BattleBananaException(channel, self.item_type.title() + " not found!")
         if item_name == self.default_item:
-            raise util.DueUtilException(channel, "You can't sell that " + self.item_type + "!")
+            raise util.BattleBananaException(channel, "You can't sell that " + self.item_type + "!")
 
         item = self.get_item(item_name)
         sell_price = item.price // price_divisor
@@ -51,10 +51,10 @@ class ShopBuySellItem(ABC):
         customer = details["author"]
         channel = details["channel"]
         if item_name in customer.inventory[self.inventory_slot]:
-            raise util.DueUtilException(channel, "You already own that " + self.item_type)
+            raise util.BattleBananaException(channel, "You already own that " + self.item_type)
         item = self.get_item(item_name)
         if item is None:
-            raise util.DueUtilException(channel, self.item_type.title() + " not found!")
+            raise util.BattleBananaException(channel, self.item_type.title() + " not found!")
         if not self.can_buy(customer, item):
             return True
         if customer.money - item.price >= 0:

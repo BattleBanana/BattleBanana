@@ -93,7 +93,7 @@ def command(**command_rules):
                     dbconn.conn()["stats"].update({"stat": "commandsused"}, {"$inc": {"count": 1}}, upsert=True)
                     await command_func(ctx, *command_args, **get_command_details(ctx, **details))
                 else:
-                    raise util.DueUtilException(ctx.channel, "Please don't include spam mentions in commands.")
+                    raise util.BattleBananaException(ctx.channel, "Please don't include spam mentions in commands.")
             else:
                 # React X
                 if not (permissions.has_permission(ctx.author, Permission.PLAYER) or permissions.has_special_permission(ctx.author, Permission.BANNED)):
@@ -255,7 +255,7 @@ def parse(command_message):
             add_arg()
 
     if is_string:
-        raise util.DueUtilException(command_message.channel, "Unclosed string in command!")
+        raise util.BattleBananaException(command_message.channel, "Unclosed string in command!")
 
     if len(args) > 0:
         return key, args[0], args[1:]

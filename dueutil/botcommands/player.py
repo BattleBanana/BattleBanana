@@ -124,7 +124,7 @@ async def battlename(ctx, name="", **details):
     if name != "":
         name_len_range = players.Player.NAME_LENGTH_RANGE
         if len(name) not in name_len_range:
-            raise util.DueUtilException(ctx.channel, "Battle name must be between **%d-%d** characters long!"
+            raise util.BattleBananaException(ctx.channel, "Battle name must be between **%d-%d** characters long!"
                                                      % (min(name_len_range), max(name_len_range)))
         player.name = util.filter_string(name)
     else:
@@ -202,7 +202,7 @@ async def info(ctx, player, **_):
 async def show_awards(ctx, player, page=0):
     # Always show page 1 (0)
     if page != 0 and page * 5 >= len(player.awards):
-        raise util.DueUtilException(ctx.channel, "Page not found")
+        raise util.BattleBananaException(ctx.channel, "Page not found")
 
     await imagehelper.awards_screen(ctx.channel, player, page,
                                     is_player_sender=ctx.author.id == player.id)
@@ -310,12 +310,12 @@ async def sendquest(ctx, receiver, quest_index, message="", **details):
     quest_index -= 1
 
     if receiver.id == plr.id:
-        raise util.DueUtilException(ctx.channel, "There is no reason to send a quest to yourself!")
+        raise util.BattleBananaException(ctx.channel, "There is no reason to send a quest to yourself!")
     if quest_index >= len(plr.quests):
-        raise util.DueUtilException(ctx.channel, "Quest not found!")
+        raise util.BattleBananaException(ctx.channel, "Quest not found!")
     plr_quest = plr.quests[quest_index]
     if plr_quest.level > (receiver.level + 10):
-        raise util.DueUtilException(ctx.channel, "The quest is too strong for the player! Highest quest level for this player is " + str(receiver.level + 10) + "!")
+        raise util.BattleBananaException(ctx.channel, "The quest is too strong for the player! Highest quest level for this player is " + str(receiver.level + 10) + "!")
 
     quest_name = plr_quest.name
     quest_level = str(plr_quest.level)
@@ -351,9 +351,9 @@ async def compare(ctx, player1, player2=None, **details):
     
     plr = details["author"]
     if player2 is None and player1 == plr:
-        raise util.DueUtilException(ctx.channel, "There is no reason to compare yourself! You are as good as yourself (:")
+        raise util.BattleBananaException(ctx.channel, "There is no reason to compare yourself! You are as good as yourself (:")
     if player1 == player2:
-        raise util.DueUtilException(ctx.channel, "There is no reason to compare the same player!")
+        raise util.BattleBananaException(ctx.channel, "There is no reason to compare the same player!")
     
     compare_Embed = discord.Embed()
 
@@ -395,7 +395,7 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
     amount_string = util.format_number(transaction_amount, money=True, full_precision=True)
 
     if receiver.id == sender.id:
-        raise util.DueUtilException(ctx.channel, "There is no reason to send money to yourself!")
+        raise util.BattleBananaException(ctx.channel, "There is no reason to send money to yourself!")
 
     if sender.money - transaction_amount < 0:
         if sender.money > 0:
@@ -453,9 +453,9 @@ async def prestige(ctx, cnf="", **details):
     req_money = 5000000 + (1000000 * user.prestige_level)
 
     if user.level < prestige_level:
-        raise util.DueUtilException(ctx.channel, "You need to be level %s or higher to go to the next prestige!" % prestige_level)
+        raise util.BattleBananaException(ctx.channel, "You need to be level %s or higher to go to the next prestige!" % prestige_level)
     if user.money < req_money:
-        raise util.DueUtilException(ctx.channel, "You need atleast %s %s to afford the next prestige!" % (util.format_number_precise(req_money), e.BBT))
+        raise util.BattleBananaException(ctx.channel, "You need atleast %s %s to afford the next prestige!" % (util.format_number_precise(req_money), e.BBT))
 
     user.money -= req_money
     user.prestige()

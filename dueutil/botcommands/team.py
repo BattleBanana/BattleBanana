@@ -32,17 +32,17 @@ async def createteam(ctx, name, description="This is a new and awesome team!", i
     owner = details["author"]
     
     if owner.team != None:
-        raise util.DueUtilException(ctx.channel, "You are already in a team!")
+        raise util.BattleBananaException(ctx.channel, "You are already in a team!")
     if len(name) > 32 or len(name) < 4:
-        raise util.DueUtilException(ctx.channel, "Team Name must be between 4 and 32 characters")
+        raise util.BattleBananaException(ctx.channel, "Team Name must be between 4 and 32 characters")
     if len(description) > 1024:
-        raise util.DueUtilException(ctx.channel, "Description must not exceed 1024 characters!")
+        raise util.BattleBananaException(ctx.channel, "Description must not exceed 1024 characters!")
     if name != util.filter_string(name):
-        raise util.DueUtilException(ctx.channel, "Invalid team name!")
+        raise util.BattleBananaException(ctx.channel, "Invalid team name!")
     if teams.find_team(name.lower()):
-        raise util.DueUtilException(ctx.channel, "That team already exists!")
+        raise util.BattleBananaException(ctx.channel, "That team already exists!")
     if level < 1:
-        raise util.DueUtilException(ctx.channel, "Minimum level cannot be under 1!")
+        raise util.BattleBananaException(ctx.channel, "Minimum level cannot be under 1!")
     
     teams.Team(details["author"], name, description, level, isOpen)
 
@@ -59,14 +59,14 @@ async def deleteteam(ctx, **details):
     member = details["author"]
     
     if member.team is None:
-        raise util.DueUtilException(ctx.channel, "You're not in a team!")
+        raise util.BattleBananaException(ctx.channel, "You're not in a team!")
 
     team = teams.find_team(member.team)
     if team is None:
         member.team = None
     
     if member.id != team.owner:
-        raise util.DueUtilException(ctx.channel, "You need to be the owner to delete the team!")
+        raise util.BattleBananaException(ctx.channel, "You need to be the owner to delete the team!")
     
     name = team.name
     team.Delete()
@@ -85,24 +85,24 @@ async def teaminvite(ctx, member, **details):
     inviter = details["author"]
     
     if inviter == member:
-        raise util.DueUtilException(ctx.channel, "You cannot invite yourself!")
+        raise util.BattleBananaException(ctx.channel, "You cannot invite yourself!")
 
     if inviter.team is None:
-        raise util.DueUtilException(ctx.channel, "You are not a part of a team!")
+        raise util.BattleBananaException(ctx.channel, "You are not a part of a team!")
 
     if member.team != None:
-        raise util.DueUtilException(ctx.channel, "This player is already in a team!")
+        raise util.BattleBananaException(ctx.channel, "This player is already in a team!")
 
     team = teams.find_team(inviter.team)
     if team is None:
         inviter.team = None
-        raise util.DueUtilException(ctx.channel, "You are not a part of a team!")
+        raise util.BattleBananaException(ctx.channel, "You are not a part of a team!")
 
     if not team.isAdmin(inviter):
-        raise util.DueUtilException(ctx.channel, "You do not have permissions to send invites!")
+        raise util.BattleBananaException(ctx.channel, "You do not have permissions to send invites!")
 
     if inviter.team in member.team_invites:
-        raise util.DueUtilException(ctx.channel, "This player has already been invited to join your team!")
+        raise util.BattleBananaException(ctx.channel, "This player has already been invited to join your team!")
     
     member.team_invites.append(inviter.team)
     member.save()
@@ -149,9 +149,9 @@ async def acceptinvite(ctx, team, **details):
     member = details["author"]
     
     if member.team != None:
-        raise util.DueUtilException(ctx.channel, "You are already in a team.")
+        raise util.BattleBananaException(ctx.channel, "You are already in a team.")
     if team.id not in member.team_invites:
-        raise util.DueUtilException(ctx.channel, "Invite not found!")
+        raise util.BattleBananaException(ctx.channel, "Invite not found!")
 
     team.addMember(ctx, member)
             
@@ -169,7 +169,7 @@ async def declineinvite(ctx, team, **details):
     member = details["author"]
 
     if team.id not in member.team_invites:
-        raise util.DueUtilException(ctx.channel, "Team not found!")
+        raise util.BattleBananaException(ctx.channel, "Team not found!")
 
     member.team_invites.remove(team.id)
     member.save()
@@ -196,7 +196,7 @@ async def myteam(ctx, **details):
     if team is None:
         member.team = None
     if member.team is None:
-        raise util.DueUtilException(ctx.channel, "You're not in any team!")
+        raise util.BattleBananaException(ctx.channel, "You're not in any team!")
     
     team_embed = discord.Embed(title="Team Information", description="Displaying team information", type="rich", colour=gconf.DUE_COLOUR)
     pendings = ""
@@ -249,24 +249,24 @@ async def promoteuser(ctx, user, **details):
     member = details["author"]
 
     if member == user:
-        raise util.DueUtilException(ctx.channel, "You are not allowed to promote yourself!")
+        raise util.BattleBananaException(ctx.channel, "You are not allowed to promote yourself!")
 
     if member.team is None:
-        raise util.DueUtilException(ctx.channel, "You are not in a team!")
+        raise util.BattleBananaException(ctx.channel, "You are not in a team!")
 
     if user.team is None:
-        raise util.DueUtilException(ctx.channel, "This player is not in your team!")
+        raise util.BattleBananaException(ctx.channel, "This player is not in your team!")
 
     if member.team != user.team:
-        raise util.DueUtilException(ctx.channel, "This player is not in your team!")
+        raise util.BattleBananaException(ctx.channel, "This player is not in your team!")
 
     team = teams.find_team(member.team)
     if team is None:
         member.team = None
-        raise util.DueUtilException(ctx.channel, "You are not in a team!")
+        raise util.BattleBananaException(ctx.channel, "You are not in a team!")
     
     if member.id != team.owner:
-        raise util.DueUtilException(ctx.channel, "You are not allowed to promote users! (You must be owner!)")
+        raise util.BattleBananaException(ctx.channel, "You are not allowed to promote users! (You must be owner!)")
     
     team.addAdmin(ctx, user)
     await util.say(ctx.channel, "Successfully promoted **%s** as an **admin**!" % (user.get_name_possession_clean()))
@@ -285,24 +285,24 @@ async def demoteuser(ctx, user, **details):
     member = details["author"]
 
     if member.team != user.team:
-        raise util.DueUtilException(ctx.channel, "This player is not in your team!")
+        raise util.BattleBananaException(ctx.channel, "This player is not in your team!")
 
     if member == user:
-        raise util.DueUtilException(ctx.channel, "There is no reason to demote yourself!")
+        raise util.BattleBananaException(ctx.channel, "There is no reason to demote yourself!")
         
     if member.team is None:
-        raise util.DueUtilException(ctx.channel, "You are not in a team!")
+        raise util.BattleBananaException(ctx.channel, "You are not in a team!")
     
     team = teams.find_team(member.team)
     if team is None:
         member.team = None
-        raise util.DueUtilException(ctx.channel, "You are not in a team!")
+        raise util.BattleBananaException(ctx.channel, "You are not in a team!")
     
     if member.id != team.owner:
-        raise util.DueUtilException(ctx.channel, "You are not allowed to demote users! (You must be the owner!)")
+        raise util.BattleBananaException(ctx.channel, "You are not allowed to demote users! (You must be the owner!)")
     
     if user.id not in team.admins:
-        raise util.DueUtilException(ctx.channel, "This player is already a member!")
+        raise util.BattleBananaException(ctx.channel, "This player is already a member!")
     
     team.removeAdmin(ctx, user)
     await util.say(ctx.channel, "**%s** has been demoted to **Member**" % (user.name))
@@ -324,24 +324,24 @@ async def teamkick(ctx, user, **details):
     member = details["author"]
 
     if member == user:
-        raise util.DueUtilException(ctx.channel, "There is no reason to kick yourself!")
+        raise util.BattleBananaException(ctx.channel, "There is no reason to kick yourself!")
 
     if member.team is None:
-        raise util.DueUtilException(ctx.channel, "You are not in a team!")
+        raise util.BattleBananaException(ctx.channel, "You are not in a team!")
     
     if member.team != user.team:
-        raise util.DueUtilException(ctx.channel, "This player is not in your team!")
+        raise util.BattleBananaException(ctx.channel, "This player is not in your team!")
 
     team = teams.find_team(member.team)
     if team is None:
         member.team = None
-        raise util.DueUtilException(ctx.channel, "You are not in a team!")
+        raise util.BattleBananaException(ctx.channel, "You are not in a team!")
 
     if not team.isAdmin(member):
-        raise util.DueUtilException(ctx.channel, "You must be an admin to use this command!")
+        raise util.BattleBananaException(ctx.channel, "You must be an admin to use this command!")
 
     if team.isAdmin(user) and member.id != team.owner:
-        raise util.DueUtilException(ctx.channel, "You must be the owner to kick this player from the team!")
+        raise util.BattleBananaException(ctx.channel, "You must be the owner to kick this player from the team!")
     
     team.Kick(ctx, user)
     await util.say(ctx.channel, "Successfully kicked **%s** from your team, adios amigos!" % user.name)
@@ -364,10 +364,10 @@ async def leaveteam(ctx, **details):
     if team is None:
         member.team = None
     if member.team is None:
-        raise util.DueUtilException(ctx.channel, "You are not in any team.. You can't leave the void.. *My void!* :smiling_imp:")
+        raise util.BattleBananaException(ctx.channel, "You are not in any team.. You can't leave the void.. *My void!* :smiling_imp:")
 
     if team.owner == member.id:
-        raise util.DueUtilException(ctx.channel, "You cannot leave this team! If you want to disband it, use `%sdeleteteam`" % (details["cmd_key"]))
+        raise util.BattleBananaException(ctx.channel, "You cannot leave this team! If you want to disband it, use `%sdeleteteam`" % (details["cmd_key"]))
     
     team.Kick(ctx, member)
     await util.say(ctx.channel, "You successfully left your team!")
@@ -387,14 +387,14 @@ async def showteams(ctx, page=1, **details):
     page_size = 5
     page = page - 1
     if page < 0:
-        raise util.DueUtilException(ctx.channel, "Page not found!")
+        raise util.BattleBananaException(ctx.channel, "Page not found!")
     
     teamsEmbed = discord.Embed(title="There is the teams lists", description="Display all existant teams", type="rich", colour=gconf.DUE_COLOUR)
 
     db_teams = list(dbconn.get_collection_for_object(teams.Team).find())
     top = (page * page_size + page_size)
     if page != 0 and page * 5 >= len(db_teams):
-        raise util.DueUtilException(ctx.channel, "Page not found")
+        raise util.BattleBananaException(ctx.channel, "Page not found")
     
     limit = top if top < len(db_teams) else len(db_teams)
     for index in range(page * page_size, limit, 1):
@@ -473,14 +473,14 @@ async def jointeam(ctx, team, **details):
     member = details["author"]
 
     if member.team != None:
-        raise util.DueUtilException(ctx.channel, "You are already in a team.")
+        raise util.BattleBananaException(ctx.channel, "You are already in a team.")
 
     if (team.open or team.id in member.team_invites) and member.level >= team.level:
         team.addMember(ctx, member)
         await util.say(ctx.channel, "You successfully joined **%s**!" % (team.name))
 
     elif member.level < team.level:
-        raise util.DueUtilException(ctx.channel, "You must be level %s or higher to join this team!" % (team.level))
+        raise util.BattleBananaException(ctx.channel, "You must be level %s or higher to join this team!" % (team.level))
 
     else:
         team.addPending(ctx, member)
@@ -511,10 +511,10 @@ async def editteam(ctx, updates, **details):
     if team is None:
         member.team = None
     if member.team is None:
-        raise util.DueUtilException(ctx.channel, "You are not in a team!")
+        raise util.BattleBananaException(ctx.channel, "You are not in a team!")
 
     if not team.isAdmin(member):
-        raise util.DueUtilException(ctx.channel, "You need to be an admin to change settings!")
+        raise util.BattleBananaException(ctx.channel, "You need to be an admin to change settings!")
     
     for prop, value in updates.items():
         if prop in ("minimum level", "level", "min level"):
@@ -556,15 +556,15 @@ async def showteampendings(ctx, page=1, **details):
     page = page - 1
     team = teams.find_team(member.team)
     if page < 0:
-        raise util.DueUtilException(ctx.channel, "Page not found!")
+        raise util.BattleBananaException(ctx.channel, "Page not found!")
     if team is None:
         member.Team = None
     if member.team is None:
-        raise util.DueUtilException(ctx.channel, "You're not part of any team!")
+        raise util.BattleBananaException(ctx.channel, "You're not part of any team!")
     
     top = ((page_size * page) + page_size) if ((page_size * page) + page_size < len(team.pendings)) else len(team.pendings)
     if page != 0 and page * page_size >= len(team.pendings):
-        raise util.DueUtilException(ctx.channel, "Page not found")
+        raise util.BattleBananaException(ctx.channel, "Page not found")
     
     pendings_embed = discord.Embed(title="**%s** pendings list" % (team.name), description="Displaying user pending to your team", type="rich", colour=gconf.DUE_COLOUR)
     for index in range((page_size * page), top, 1):
@@ -594,11 +594,11 @@ async def acceptpending(ctx, user, **details):
     if team is None:
         member.team = None
     if member.team is None:
-        raise util.DueUtilException(ctx.channel, "You're not in a team!")
+        raise util.BattleBananaException(ctx.channel, "You're not in a team!")
     if user.team != None:
-        raise util.DueUtilException(ctx.channel, "This player found his favorite team already!")
+        raise util.BattleBananaException(ctx.channel, "This player found his favorite team already!")
     if not team.isPending(user):
-        raise util.DueUtilException(ctx.channel, "Pending user not found!")
+        raise util.BattleBananaException(ctx.channel, "Pending user not found!")
     
     team.addMember(ctx, user)
     await util.say(ctx.channel, "Accepted **%s** in your team!" % (user.name))
@@ -618,10 +618,10 @@ async def declinepending(ctx, user, **details):
     if team is None:
         member.team = None
     if member.team is None:
-        raise util.DueUtilException(ctx.channel, "You're not in a team!")
+        raise util.BattleBananaException(ctx.channel, "You're not in a team!")
     
     if not team.isPending(user):
-        raise util.DueUtilException(ctx.channel, "Pending user not found!")
+        raise util.BattleBananaException(ctx.channel, "Pending user not found!")
     
     team.removePending(ctx, user)
     

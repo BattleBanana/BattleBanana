@@ -62,7 +62,7 @@ class BotException(Exception):
     pass
 
 
-class DueUtilException(BotException):
+class BattleBananaException(BotException):
     def __init__(self, channel, message, **kwargs):
         self.message = message
         self.channel = channel

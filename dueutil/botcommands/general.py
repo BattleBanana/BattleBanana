@@ -149,7 +149,7 @@ async def item_action(item_name, action, department=None, **details):
             await util.say(details["channel"], error)
             return  # Too many possible departments
         elif len(possible_departments) == 0:
-            raise util.DueUtilException(details["channel"], ITEM_NOT_FOUND)
+            raise util.BattleBananaException(details["channel"], ITEM_NOT_FOUND)
         department = possible_departments[0]
     # We should know have a department if we get this far
     # First condition we found it so must exist. 2nd We were given the department.
@@ -162,7 +162,7 @@ async def item_action(item_name, action, department=None, **details):
         if isinstance(action_result, discord.Embed):
             await util.say(details["channel"], embed=action_result)
     else:
-        raise util.DueUtilException(details["channel"], ITEM_NOT_FOUND)
+        raise util.BattleBananaException(details["channel"], ITEM_NOT_FOUND)
 
 
 def _placeholder(_, **details):
@@ -269,7 +269,7 @@ def try_again(general_command):
     async def wrapped_command(ctx, *args, **details):
         try:
             await general_command(ctx, *args, **details)
-        except util.DueUtilException as command_error:
+        except util.BattleBananaException as command_error:
             if command_error.message == DEPARTMENT_NOT_FOUND:
                 # Try with just one arg (i.e the args being an item name)
                 probable_item_name = ' '.join((str(arg) for arg in args))
@@ -330,7 +330,7 @@ async def shop(ctx, *args, **details):
         elif len(args) == 1:
             await item_action(args[0].lower(), "info_action", **details)
         else:
-            raise util.DueUtilException(ctx.channel, DEPARTMENT_NOT_FOUND)
+            raise util.BattleBananaException(ctx.channel, DEPARTMENT_NOT_FOUND)
 
 
 @commands.command(args_pattern='SS?')
@@ -347,7 +347,7 @@ async def buy(ctx, *args, **details):
         if department is not None:
             await department["actions"]["buy_action"](args[1].lower(), **details)
         else:
-            raise util.DueUtilException(ctx.channel, DEPARTMENT_NOT_FOUND)
+            raise util.BattleBananaException(ctx.channel, DEPARTMENT_NOT_FOUND)
 
 
 @commands.command(args_pattern='SS?')
@@ -365,4 +365,4 @@ async def sell(ctx, *args, **details):
         if department is not None:
             await department["actions"]["sell_action"](args[1].lower(), **details)
         else:
-            raise util.DueUtilException(ctx.channel, DEPARTMENT_NOT_FOUND)
+            raise util.BattleBananaException(ctx.channel, DEPARTMENT_NOT_FOUND)

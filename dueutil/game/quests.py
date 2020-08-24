@@ -45,19 +45,19 @@ class Quest(BattleBananaObject, SlotPickleMixin):
         if message is not None:
             if message.guild in quest_map:
                 if name.lower() in quest_map[message.guild]:
-                    raise util.DueUtilException(message.channel, "A foe with that name already exists on this guild!")
+                    raise util.BattleBananaException(message.channel, "A foe with that name already exists on this guild!")
 
             if base_accy < 1 or base_attack < 1 or base_strg < 1:
-                raise util.DueUtilException(message.channel, "No quest stats can be less than 1!")
+                raise util.BattleBananaException(message.channel, "No quest stats can be less than 1!")
 
             if base_hp < 30:
-                raise util.DueUtilException(message.channel, "Base HP must be at least 30!")
+                raise util.BattleBananaException(message.channel, "Base HP must be at least 30!")
 
             if len(name) > 30 or len(name) == 0 or name.strip == "":
-                raise util.DueUtilException(message.channel, "Quest names must be between 1 and 30 characters!")
+                raise util.BattleBananaException(message.channel, "Quest names must be between 1 and 30 characters!")
 
             if given_spawn_chance < 1 or given_spawn_chance > 25:
-                raise util.DueUtilException(message.channel, "Spawn chance must be between 1 and 25%!")
+                raise util.BattleBananaException(message.channel, "Spawn chance must be between 1 and 25%!")
 
             self.server_id = message.guild.id
             self.created_by = message.author.id

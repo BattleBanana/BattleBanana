@@ -48,7 +48,7 @@ def item_preview(thing_info_preview):
             thing_name = page.lower()
             thing = things_info["thing_getter"](thing_name)
             if thing is None:
-                raise util.DueUtilException(ctx.channel, thing_type.title() + " not found!")
+                raise util.BattleBananaException(ctx.channel, thing_type.title() + " not found!")
             thing_embed = things_info["thing_info"](thing_name, **details,
                                                     embed=discord.Embed(type="rich", color=gconf.DUE_COLOUR))
             thing_embed.set_footer(text="Do " + details["cmd_key"] + things_info[
@@ -84,6 +84,6 @@ def item_setter(item_info_setter):
             await util.say(ctx.channel,
                            ":white_check_mark: " + thing_type.title() + " set to **" + thing.name_clean + "**")
         else:
-            raise util.DueUtilException(ctx.channel, thing_type.title() + " not found!")
+            raise util.BattleBananaException(ctx.channel, thing_type.title() + " not found!")
 
     return setthing

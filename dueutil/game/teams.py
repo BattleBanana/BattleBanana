@@ -66,7 +66,7 @@ class Team(BattleBananaObject, SlotPickleMixin):
 
     def addMember(self, ctx, member):
         if self.isMember(member):
-            raise util.DueUtilException(ctx.channel, member.name + " is already a member!")
+            raise util.BattleBananaException(ctx.channel, member.name + " is already a member!")
         
         if self.id in member.team_invites:
             member.team_invites.remove(self.id)
@@ -78,7 +78,7 @@ class Team(BattleBananaObject, SlotPickleMixin):
 
     def Kick(self, ctx, member):
         if not self.isMember(member):
-            raise util.DueUtilException(ctx.channel, member.name + " is not in the team!")
+            raise util.BattleBananaException(ctx.channel, member.name + " is not in the team!")
         
         if member.id in self.admins:
             self.removeAdmin(member)
@@ -90,28 +90,28 @@ class Team(BattleBananaObject, SlotPickleMixin):
 
     def addAdmin(self, ctx, member):
         if self.isAdmin(member):
-            raise util.DueUtilException(ctx.channel, member.name + " is already an admin!")
+            raise util.BattleBananaException(ctx.channel, member.name + " is already an admin!")
         
         self.admins.append(member.id)
         self.save()
 
     def removeAdmin(self, ctx, member):
         if not self.isAdmin(member):
-            raise util.DueUtilException(ctx.channel, member.name + " is not an admin!")
+            raise util.BattleBananaException(ctx.channel, member.name + " is not an admin!")
         
         self.admins.remove(member.id)
         self.save()
 
     def addPending(self, ctx, member):
         if self.isPending(member):
-            raise util.DueUtilException(ctx.channel, member.name + " is already pending!")
+            raise util.BattleBananaException(ctx.channel, member.name + " is already pending!")
         
         self.pendings.append(member.id)
         self.save()
 
     def removePending(self, ctx, member):
         if not self.isPending(member):
-            raise util.DueUtilException(ctx.channel, member.name + " is not pending!")
+            raise util.BattleBananaException(ctx.channel, member.name + " is not pending!")
         
         self.pendings.remove(member.id)
         self.save()

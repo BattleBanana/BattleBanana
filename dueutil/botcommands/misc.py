@@ -101,24 +101,24 @@ async def uploadbg(ctx, icon, name, description, url, price, submitter=None, **d
     """
 
     if not (util.char_is_emoji(icon) or util.is_server_emoji(ctx.guild, icon)):
-        raise util.DueUtilException(ctx.channel, "Icon must be emoji available on this guild!")
+        raise util.BattleBananaException(ctx.channel, "Icon must be emoji available on this guild!")
 
     if name != util.filter_string(name):
-        raise util.DueUtilException(ctx.channel, "Invalid background name!")
+        raise util.BattleBananaException(ctx.channel, "Invalid background name!")
     name = re.sub(' +', ' ', name)
 
     if name.lower() in customizations.backgrounds:
-        raise util.DueUtilException(ctx.channel, "That background name has already been used!")
+        raise util.BattleBananaException(ctx.channel, "That background name has already been used!")
 
     if price < 0:
-        raise util.DueUtilException(ctx.channel, "Cannot have a negative background price!")
+        raise util.BattleBananaException(ctx.channel, "Cannot have a negative background price!")
 
     image = await imagehelper.load_image_url(url, raw=True)
     if image is None:
-        raise util.DueUtilException(ctx.channel, "Failed to load image!")
+        raise util.BattleBananaException(ctx.channel, "Failed to load image!")
 
     if not imagehelper.has_dimensions(image, (256, 299)):
-        raise util.DueUtilException(ctx.channel, "Image must be ``256*299``!")
+        raise util.BattleBananaException(ctx.channel, "Image must be ``256*299``!")
 
     image_name = name.lower().replace(' ', '_') + ".png"
     image.save('assets/backgrounds/' + image_name)
@@ -158,7 +158,7 @@ async def testbg(ctx, url, **_):
 
     image = await imagehelper.load_image_url(url)
     if image is None:
-        raise util.DueUtilException(ctx.channel, "Failed to load image!")
+        raise util.BattleBananaException(ctx.channel, "Failed to load image!")
 
     if not imagehelper.has_dimensions(image, (256, 299)):
         width, height = image.size
@@ -183,22 +183,22 @@ async def deletebg(ctx, background_to_delete, **details):
     """
     background_to_delete = background_to_delete.lower()
     if background_to_delete not in customizations.backgrounds:
-        raise util.DueUtilException(ctx.channel, "Background not found!")
+        raise util.BattleBananaException(ctx.channel, "Background not found!")
     if background_to_delete == "default":
-        raise util.DueUtilException(ctx.channel, "Can't delete default background!")
+        raise util.BattleBananaException(ctx.channel, "Can't delete default background!")
     background = customizations.backgrounds[background_to_delete]
 
     try:
         with open('assets/backgrounds/backgrounds.json', 'r+') as backgrounds_file:
             backgrounds = json.load(backgrounds_file)
             if background_to_delete not in backgrounds:
-                raise util.DueUtilException(ctx.channel, "You cannot delete this background!")
+                raise util.BattleBananaException(ctx.channel, "You cannot delete this background!")
             del backgrounds[background_to_delete]
             backgrounds_file.seek(0)
             backgrounds_file.truncate()
             json.dump(backgrounds, backgrounds_file, indent=4)
     except IOError:
-        raise util.DueUtilException(ctx.channel,
+        raise util.BattleBananaException(ctx.channel,
                                     "Only uploaded backgrounds can be deleted and there are no uploaded backgrounds!")
     os.remove("assets/backgrounds/" + background["image"])
 
@@ -277,7 +277,7 @@ async def codes(ctx, page=1, **details):
         codes = json.load(code_file)
         codes = list(codes)
         if page != 0 and page * 30 >= len(codes):
-            raise util.DueUtilException(ctx.channel, "Page not found")
+            raise util.BattleBananaException(ctx.channel, "Page not found")
 
         for index in range(len(codes) - 1 - (30 * page), -1, -1):
             code_name = codes[index]
@@ -307,7 +307,7 @@ async def redeem(ctx, code, **details):
 
         if not codes.get(code):
             code_file.close()
-            raise util.DueUtilException(ctx.channel, "Code does not exist!")
+            raise util.BattleBananaException(ctx.channel, "Code does not exist!")
         
         user = details["author"]
         money = codes[code]
@@ -333,7 +333,7 @@ async def sudo(ctx, victim, command, **_):
     if not (ctx.author.id in (115269304705875969, 261799488719552513)):
         util.logger.info(ctx.author.id + " used the command: sudo\nUsing command: %s" % command)
         if (victim.id in (115269304705875969, 261799488719552513)):
-            raise util.DueUtilException(ctx.channel, "You cannot sudo DeveloperAnonymous or Firescoutt")
+            raise util.BattleBananaException(ctx.channel, "You cannot sudo DeveloperAnonymous or Firescoutt")
 
     try:
         ctx.author = ctx.guild.get_member(victim.id)
@@ -344,8 +344,8 @@ async def sudo(ctx, victim, command, **_):
         ctx.content = command
         await util.say(ctx.channel, ":smiling_imp: Sudoing **" + victim.name_clean + "**!")
         await events.command_event(ctx)
-    except util.DueUtilException as command_failed:
-        raise util.DueUtilException(ctx.channel, 'Sudo failed! "%s"' % command_failed.message)
+    except util.BattleBananaException as command_failed:
+        raise util.BattleBananaException(ctx.channel, 'Sudo failed! "%s"' % command_failed.message)
         
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PC")
@@ -353,7 +353,7 @@ async def setpermlevel(ctx, player, level, **_):
     if not (ctx.author.id in (115269304705875969, 261799488719552513)):
         util.logger.info(ctx.author.id + " used the command: setpermlevel\n")
         if (player.id in (115269304705875969, 261799488719552513)):
-            raise util.DueUtilException(ctx.channel, "You cannot change the permissions for DeveloperAnonymous or Firescoutt")
+            raise util.BattleBananaException(ctx.channel, "You cannot change the permissions for DeveloperAnonymous or Firescoutt")
 
     member = player.to_member(ctx.guild)
     permission_index = level - 1
@@ -376,13 +376,13 @@ async def setpermlevel(ctx, player, level, **_):
             if permission == Permission.BANANA_OWNER:
                 await util.duelogger.info("**%s** is now a BattleBanana Owner!" % player.name_clean)
     else:
-        raise util.DueUtilException(ctx.channel, "Permission not found")
+        raise util.BattleBananaException(ctx.channel, "Permission not found")
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="P", aliases=["giveban"])
 async def ban(ctx, player, **_):
     if (player.id in (115269304705875969, 261799488719552513)):
-        raise util.DueUtilException(ctx.channel, "You cannot ban DeveloperAnonymous or Firescoutt")
+        raise util.BattleBananaException(ctx.channel, "You cannot ban DeveloperAnonymous or Firescoutt")
     dueutil.permissions.give_permission(player.to_member(ctx.guild), Permission.BANNED)
     await util.say(ctx.channel, emojis.MACBAN+" **" + player.name_clean + "** banned!")
     await util.duelogger.concern("**%s** has been banned!" % player.name_clean)
@@ -460,14 +460,14 @@ async def giveaward(ctx, player, award_id, **_):
     if awards.get_award(award_id) is not None:
         await awards.give_award(ctx.channel, player, award_id)
     else:
-        raise util.DueUtilException(ctx.channel, "Award not found!")
+        raise util.BattleBananaException(ctx.channel, "Award not found!")
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PR")
 async def giveexp(ctx, player, exp, **_):
     # (attack + strg + accy) * 100
     if exp < 0.1:
-        raise util.DueUtilException(ctx.channel, "The minimum exp that can be given is 0.1!")
+        raise util.BattleBananaException(ctx.channel, "The minimum exp that can be given is 0.1!")
     increase_stat = exp/300
     player.progress(increase_stat, increase_stat, increase_stat,
                     max_exp=math.inf, max_attr=math.inf)

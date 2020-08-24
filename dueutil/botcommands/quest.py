@@ -40,7 +40,7 @@ async def spawnquest(ctx, *args, **details):
         if quests.has_quests(ctx.channel):
             quest = quests.get_random_quest_in_channel(ctx.channel)
         else:
-            raise util.DueUtilException(ctx.channel, "Could not find a quest in this channel to spawn!")
+            raise util.BattleBananaException(ctx.channel, "Could not find a quest in this channel to spawn!")
     else:
         if len(args) >= 2:
             player = args[1]
@@ -55,7 +55,7 @@ async def spawnquest(ctx, *args, **details):
         await util.say(ctx.channel,
                        ":cloud_lightning: Spawned **" + quest.name_clean + "** [Level " + str(active_quest.level) + "]")
     except:
-        raise util.DueUtilException(ctx.channel, "Failed to spawn quest!")
+        raise util.BattleBananaException(ctx.channel, "Failed to spawn quest!")
 
 
 @commands.command(args_pattern='C', aliases=['qi'])
@@ -72,7 +72,7 @@ async def questinfo(ctx, quest_index, **details):
     if 0 <= quest_index < len(player.quests):
         await imagehelper.quest_screen(ctx.channel, player.quests[quest_index])
     else:
-        raise util.DueUtilException(ctx.channel, "Quest not found!")
+        raise util.BattleBananaException(ctx.channel, "Quest not found!")
 
 
 @commands.command(args_pattern='C?', aliases=['mq'])
@@ -88,7 +88,7 @@ async def myquests(ctx, page=1, **details):
     page -= 1
     # Always show page 1 (0)
     if page != 0 and page * 5 >= len(player.quests):
-        raise util.DueUtilException(ctx.channel, "Page not found")
+        raise util.BattleBananaException(ctx.channel, "Page not found")
     await imagehelper.quests_screen(ctx.channel, player, page)
 
 
@@ -104,11 +104,11 @@ async def acceptquest(ctx, quest_index, **details):
     player = details["author"]
     quest_index -= 1
     if quest_index >= len(player.quests):
-        raise util.DueUtilException(ctx.channel, "Quest not found!")
+        raise util.BattleBananaException(ctx.channel, "Quest not found!")
     if player.money - player.quests[quest_index].money // 2 < 0:
-        raise util.DueUtilException(ctx.channel, "You can't afford the risk!")
+        raise util.BattleBananaException(ctx.channel, "You can't afford the risk!")
     if player.quests_completed_today >= quests.MAX_DAILY_QUESTS:
-        raise util.DueUtilException(ctx.channel,
+        raise util.BattleBananaException(ctx.channel,
                                     "You can't do more than " + str(quests.MAX_DAILY_QUESTS) + " quests a day!")
 
     quest = player.quests.pop(quest_index)
@@ -196,19 +196,19 @@ async def acceptallquests(ctx, **details):
     """
 
 #    if not player.donor:
-#        raise util.DueUtilException(ctx.channel, "This command is for donors only!")
+#        raise util.BattleBananaException(ctx.channel, "This command is for donors only!")
 
     player = details["author"]
 
     if 0 >= len(player.quests):
-        raise util.DueUtilException(ctx.channel, "You have no quests!")
+        raise util.BattleBananaException(ctx.channel, "You have no quests!")
     a = 0
     #while a < len(player.quests):
     #    if player.money - player.quests[a].money // 2 < 0:
-    #        raise util.DueUtilException(ctx.channel, "You can't afford the risk of doing all of your quests!")
+    #        raise util.BattleBananaException(ctx.channel, "You can't afford the risk of doing all of your quests!")
     #    a +=1
     #if player.quests_completed_today >= quests.MAX_DAILY_QUESTS:
-    #    raise util.DueUtilException(ctx.channel,
+    #    raise util.BattleBananaException(ctx.channel,
     #                                "You can't do more than " + str(quests.MAX_DAILY_QUESTS) + " quests a day!")
     
     totalCash = 0
@@ -333,7 +333,7 @@ async def declinequest(ctx, quest_index, **details):
                                      + quest_task + " **" + quest.name_clean
                                      + " [Level " + str(math.trunc(quest.level)) + "]**!"))
     else:
-        raise util.DueUtilException(ctx.channel, "Quest not found!")
+        raise util.BattleBananaException(ctx.channel, "Quest not found!")
 
 @commands.command(aliases=["daq"])
 @commands.require_cnf(warning="This will **__permanently__** delete **__all__** your quests!")
@@ -348,7 +348,7 @@ async def declineallquests(ctx, **details):
     
     quests = len(player.quests)
     if quests == 0:
-        raise util.DueUtilException(ctx.channel, "You have no quests to decline!")
+        raise util.BattleBananaException(ctx.channel, "You have no quests to decline!")
 
     player.quests.clear()
     player.save()
@@ -382,7 +382,7 @@ async def createquest(ctx, name, attack, strg, accy, hp,
         when the quest pops up, a dagger, a quest icon image and a spawn chance of 21%
     """
     if len(quests.get_server_quest_list(ctx.guild)) >= gconf.THING_AMOUNT_CAP:
-        raise util.DueUtilException(ctx.guild, "Whoa, you've reached the limit of %d quests!"
+        raise util.BattleBananaException(ctx.guild, "Whoa, you've reached the limit of %d quests!"
                                     % gconf.THING_AMOUNT_CAP)
 
     extras = {"spawn_chance": spawn_chane}
@@ -392,7 +392,7 @@ async def createquest(ctx, name, attack, strg, accy, hp,
         weapon_name_or_id = weapon
         weapon = weapons.find_weapon(ctx.guild, weapon_name_or_id)
         if weapon is None:
-            raise util.DueUtilException(ctx.channel, "Weapon for the quest not found!")
+            raise util.BattleBananaException(ctx.channel, "Weapon for the quest not found!")
         extras['weapon_id'] = weapon.w_id
     if image_url is not None:
         extras['image_url'] = image_url
@@ -428,7 +428,7 @@ async def editquest(ctx, quest_name, updates, **_):
 
     quest = quests.get_quest_on_server(ctx.guild, quest_name)
     if quest is None:
-        raise util.DueUtilException(ctx.channel, "Quest not found!")
+        raise util.BattleBananaException(ctx.channel, "Quest not found!")
 
     new_image_url = None
     for quest_property, value in updates.items():
@@ -506,7 +506,7 @@ async def removequest(ctx, quest_name, **_):
     quest_name = quest_name.lower()
     quest = quests.get_quest_on_server(ctx.guild, quest_name)
     if quest is None:
-        raise util.DueUtilException(ctx.channel, "Quest not found!")
+        raise util.BattleBananaException(ctx.channel, "Quest not found!")
 
     quests.remove_quest_from_server(ctx.guild, quest_name)
     await util.say(ctx.channel, ":white_check_mark: **" + quest.name_clean + "** is no more!")
@@ -568,7 +568,7 @@ async def serverquests(ctx, page=1, **details):
         quest_name = page
         quest = quests.get_quest_on_server(ctx.guild, quest_name)
         if quest is None:
-            raise util.DueUtilException(ctx.channel, "Quest not found!")
+            raise util.BattleBananaException(ctx.channel, "Quest not found!")
         quest_info_embed.title = "Quest information for the %s " % quest.name_clean
         quest_info_embed.description = "You can edit these values with %seditquest %s (values)" \
                                        % (details["cmd_key"], quest.name_command_clean.lower())

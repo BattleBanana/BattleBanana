@@ -267,7 +267,7 @@ def paginator(item_add):
                                    color=gconf.DUE_COLOUR)
         if len(item_list) > 0 or page != 0:
             if page * page_size >= len(item_list):
-                raise util.DueUtilException(None, "Page not found")
+                raise util.BattleBananaException(None, "Page not found")
             for item_index in range(page_size * page, page_size * page + page_size):
                 if item_index >= len(item_list):
                     break

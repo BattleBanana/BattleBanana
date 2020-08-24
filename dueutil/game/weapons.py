@@ -37,23 +37,23 @@ class Weapon(BattleBananaObject, SlotPickleMixin):
 
         if message is not None:
             if does_weapon_exist(message.guild.id, name):
-                raise util.DueUtilException(message.channel, "A weapon with that name already exists on this guild!")
+                raise util.BattleBananaException(message.channel, "A weapon with that name already exists on this guild!")
 
             if not Weapon.acceptable_string(name, 30):
-                raise util.DueUtilException(message.channel, "Weapon names must be between 1 and 30 characters!")
+                raise util.BattleBananaException(message.channel, "Weapon names must be between 1 and 30 characters!")
 
             if not Weapon.acceptable_string(hit_message, 32):
-                raise util.DueUtilException(message.channel, "Hit message must be between 1 and 32 characters!")
+                raise util.BattleBananaException(message.channel, "Hit message must be between 1 and 32 characters!")
 
             if accy == 0 or damage == 0:
-                raise util.DueUtilException(message.channel, "No weapon stats can be zero!")
+                raise util.BattleBananaException(message.channel, "No weapon stats can be zero!")
 
             if accy < 1 or accy > 86:
-                raise util.DueUtilException(message.channel, "Accuracy must be between 1% and 86%!")
+                raise util.BattleBananaException(message.channel, "Accuracy must be between 1% and 86%!")
 
             icon = extras.get('icon', emojis.DAGGER)
             if not (util.char_is_emoji(icon) or util.is_server_emoji(message.guild, icon)):
-                raise util.DueUtilException(message.channel, (":eyes: Weapon icons must be emojis! :ok_hand:**"
+                raise util.BattleBananaException(message.channel, (":eyes: Weapon icons must be emojis! :ok_hand:**"
                                                               + "(custom emojis must be on this guild)**​"))
 
             self.server_id = message.guild.id

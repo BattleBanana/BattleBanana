@@ -42,7 +42,7 @@ async def myweapons(ctx, *args, **details):
             info = weapon_info(**details, weapon=weapon, price_divisor=4 / 3, embed=embed)
             await util.say(ctx.channel, embed=info)
         else:
-            raise util.DueUtilException(ctx.channel, "You don't have a weapon with that name!")
+            raise util.BattleBananaException(ctx.channel, "You don't have a weapon with that name!")
 
 
 @commands.command(args_pattern="S?", aliases=["uq", "uneq"])
@@ -56,11 +56,11 @@ async def unequip(ctx, _=None, **details):
     player = details["author"]
     weapon = player.weapon
     if weapon.w_id == weapons.NO_WEAPON_ID:
-        raise util.DueUtilException(ctx.channel, "You don't have anything equipped anyway!")
+        raise util.BattleBananaException(ctx.channel, "You don't have anything equipped anyway!")
     if len(player.inventory["weapons"]) >= 6:
-        raise util.DueUtilException(ctx.channel, "No room in your weapon storage!")
+        raise util.BattleBananaException(ctx.channel, "No room in your weapon storage!")
     if player.owns_weapon(weapon.name):
-        raise util.DueUtilException(ctx.channel, "You already have a weapon with that name stored!")
+        raise util.BattleBananaException(ctx.channel, "You already have a weapon with that name stored!")
 
     player.store_weapon(weapon)
     player.weapon = weapons.NO_WEAPON_ID
@@ -83,14 +83,14 @@ async def equip(ctx, weapon_name, **details):
     weapon = player.get_weapon(weapon_name)
     if weapon is None:
         if weapon_name != current_weapon.name.lower():
-            raise util.DueUtilException(ctx.channel, "You do not have that weapon stored!")
+            raise util.BattleBananaException(ctx.channel, "You do not have that weapon stored!")
         await util.say(ctx.channel, "You already have that weapon equipped!")
         return
 
     player.discard_stored_weapon(weapon)
     if player.owns_weapon(current_weapon.name):
         player.store_weapon(weapon)
-        raise util.DueUtilException(ctx.channel, ("Can't put your current weapon into storage!\n"
+        raise util.BattleBananaException(ctx.channel, ("Can't put your current weapon into storage!\n"
                                                   + "There is already a weapon with the same name stored!"))
 
     if current_weapon.w_id != weapons.NO_WEAPON_ID:
@@ -125,7 +125,7 @@ async def battle(ctx, *args, **details):
     player = details["author"]
     if len(args) == 2 and args[0] == args[1] or len(args) == 1 and player == args[0]:
         # TODO Check if args are the author or random player
-        raise util.DueUtilException(ctx.channel, "Don't beat yourself up!")
+        raise util.BattleBananaException(ctx.channel, "Don't beat yourself up!")
     if len(args) == 2:
         player_one = args[0]
         player_two = args[1]
@@ -156,13 +156,13 @@ async def wagerbattle(ctx, receiver, money, **details):
     sender = details["author"]
 
     if sender == receiver:
-        raise util.DueUtilException(ctx.channel, "You can't wager against yourself!")
+        raise util.BattleBananaException(ctx.channel, "You can't wager against yourself!")
 
     if sender.money - money < 0:
-        raise util.DueUtilException(ctx.channel, "You can't afford this wager!")
+        raise util.BattleBananaException(ctx.channel, "You can't afford this wager!")
 
     if len(receiver.received_wagers) >= gconf.THING_AMOUNT_CAP:
-        raise util.DueUtilException(ctx.channel, "**%s** wager inbox is full!" % receiver.get_name_possession_clean())
+        raise util.BattleBananaException(ctx.channel, "**%s** wager inbox is full!" % receiver.get_name_possession_clean())
 
     battles.BattleRequest(sender, receiver, money)
 
@@ -215,9 +215,9 @@ async def acceptwager(ctx, wager_index, **details):
     player = details["author"]
     wager_index -= 1
     if wager_index >= len(player.received_wagers):
-        raise util.DueUtilException(ctx.channel, "Request not found!")
+        raise util.BattleBananaException(ctx.channel, "Request not found!")
     if player.money - player.received_wagers[wager_index].wager_amount < 0:
-        raise util.DueUtilException(ctx.channel, "You can't afford the risk!")
+        raise util.BattleBananaException(ctx.channel, "You can't afford the risk!")
 
     wager = player.received_wagers.pop(wager_index)
     sender = players.find_player(wager.sender_id)
@@ -312,7 +312,7 @@ async def declinewager(ctx, wager_index, **details):
         await util.say(ctx.channel, "**" + player.name_clean + "** declined a wager from **" + sender.name_clean + "**")
 
     else:
-        raise util.DueUtilException(ctx.channel, "Request not found!")
+        raise util.BattleBananaException(ctx.channel, "Request not found!")
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SSC%B?S?S?')
@@ -338,7 +338,7 @@ async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon=
     """
 
     if len(weapons.get_weapons_for_server(ctx.guild)) >= gconf.THING_AMOUNT_CAP:
-        raise util.DueUtilException(ctx.channel, "Sorry you've used all %s slots in your shop!"
+        raise util.BattleBananaException(ctx.channel, "Sorry you've used all %s slots in your shop!"
                                                  % gconf.THING_AMOUNT_CAP)
 
     extras = {"melee": not ranged, "icon": icon}
@@ -374,9 +374,9 @@ async def editweapon(ctx, weapon_name, updates, **_):
 
     weapon = weapons.get_weapon_for_server(ctx.guild.id, weapon_name)
     if weapon is None:
-        raise util.DueUtilException(ctx.channel, "Weapon not found!")
+        raise util.BattleBananaException(ctx.channel, "Weapon not found!")
     if weapon.is_stock():
-        raise util.DueUtilException(ctx.channel, "You cannot edit stock weapons!")
+        raise util.BattleBananaException(ctx.channel, "You cannot edit stock weapons!")
 
     new_image_url = None
     for weapon_property, value in updates.items():
@@ -422,9 +422,9 @@ async def removeweapon(ctx, weapon_name, **_):
     weapon_name = weapon_name.lower()
     weapon = weapons.get_weapon_for_server(ctx.guild.id, weapon_name)
     if weapon is None or weapon.id == weapons.NO_WEAPON_ID:
-        raise util.DueUtilException(ctx.channel, "Weapon not found")
+        raise util.BattleBananaException(ctx.channel, "Weapon not found")
     if weapon.id != weapons.NO_WEAPON_ID and weapons.stock_weapon(weapon_name) != weapons.NO_WEAPON_ID:
-        raise util.DueUtilException(ctx.channel, "You can't remove stock weapons!")
+        raise util.BattleBananaException(ctx.channel, "You can't remove stock weapons!")
     weapons.remove_weapon_from_shop(ctx.guild, weapon_name)
     await util.say(ctx.channel, "**" + weapon.name_clean + "** has been removed from the shop!")
 
@@ -454,7 +454,7 @@ async def buy_weapon(weapon_name, **details):
     channel = details["channel"]
 
     if weapon is None or weapon_name == "none":
-        raise util.DueUtilException(channel, "Weapon not found")
+        raise util.BattleBananaException(channel, "Weapon not found")
     if customer.money - weapon.price < 0:
         await util.say(channel, ":anger: You can't afford that weapon.")
     elif weapon.price > customer.item_value_limit:
@@ -473,10 +473,10 @@ async def buy_weapon(weapon_name, **details):
                                          + details["cmd_key"] + "equip "
                                          + weapon.name_clean.lower() + "** to equip this weapon."))
             else:
-                raise util.DueUtilException(channel,
+                raise util.BattleBananaException(channel,
                                             "Cannot store new weapon! You already have a weapon with the same name!")
         else:
-            raise util.DueUtilException(channel, "No free weapon slots!")
+            raise util.BattleBananaException(channel, "No free weapon slots!")
     else:
         customer.weapon = weapon
         customer.money -= weapon.price
@@ -500,7 +500,7 @@ async def sell_weapon(weapon_name, **details):
         weapon_to_sell = next((weapon for weapon in player.get_owned_weapons() if weapon.name.lower() == weapon_name),
                               None)
         if weapon_to_sell is None:
-            raise util.DueUtilException(channel, "Weapon not found!")
+            raise util.BattleBananaException(channel, "Weapon not found!")
         player.discard_stored_weapon(weapon_to_sell)
 
     sell_price = weapon_to_sell.price // price_divisor
@@ -517,7 +517,7 @@ def weapon_info(weapon_name=None, **details):
     if weapon is None:
         weapon = weapons.get_weapon_for_server(details["server_id"], weapon_name)
         if weapon is None:
-            raise util.DueUtilException(details["channel"], "Weapon not found")
+            raise util.BattleBananaException(details["channel"], "Weapon not found")
     embed.title = weapon.icon + ' | ' + weapon.name_clean
     embed.set_thumbnail(url=weapon.image_url)
     embed.add_field(name='Damage', value=util.format_number(weapon.damage))
