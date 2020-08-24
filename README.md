@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  <a href="https://github.com/DeveloperAnonymous/BattleBanana"><img src="https://github.com/DeveloperAnonymous/BattleBanana/blob/master/botimg/battlebanana_transparent.png" alt="BattleBanana"></a>
+  <a href="https://battlebanana.xyz"><img width="25%" src="https://github.com/DeveloperAnonymous/BattleBanana/blob/master/botimg/battlebanana_transparent.png" alt="BattleBanana"></a>
   <br>
   BattleBanana Discord Bot
   <br>
