@@ -135,7 +135,7 @@ async def botinfo(ctx, **_):
 
     info_embed = discord.Embed(title="BattleBanana's Information", type="rich", color=gconf.DUE_COLOUR)
     info_embed.description = "BattleBanana is customizable bot to add fun commands, quests and battles to your guild."
-    info_embed.add_field(name="Originally DueUtil by", value="[MacDue#4453](https://dueutil.tech/)")
+    info_embed.add_field(name="Originally DueUtil by", value="MacDue#4453")
     info_embed.add_field(name="Continued by", value="[DeveloperAnonymous#9830](https://battlebanana.xyz/)")
     info_embed.add_field(name="Framework",
                          value="[discord.py %s :two_hearts:](http://discordpy.readthedocs.io/en/latest/)"
