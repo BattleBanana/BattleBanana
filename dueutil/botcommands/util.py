@@ -1,18 +1,17 @@
-import discord
-
 import time
 
+import discord
 import repoze.timeago
 
 import generalconfig as gconf
-from ..game.configs import dueserverconfig
-from ..permissions import Permission
-from ..game import stats, awards, discoin
-from ..game.stats import Stat
 from .. import commands, events, util, permissions
-
 # Shorthand for emoji as I use gconf to hold emoji constants
 from ..game import emojis as e
+from ..game import stats, awards, discoin
+from ..game.configs import dueserverconfig
+from ..game.stats import Stat
+from ..permissions import Permission
+
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern="S?", aliases=("helpme",))
 async def help(ctx, *args, **details):
@@ -94,9 +93,11 @@ async def help(ctx, *args, **details):
                                                          + "BattleBanana guide: https://battlebanana.xyz/howto\n"
                                                          + "Support guild: https://discord.gg/P7DBDEC\n"
                                                          + "Support me: https://patreon.com/developeranonymous"))
-        help_embed.set_footer(text="To use admin commands you must have the manage guild permission or the 'Banana Commander' role.")
+        help_embed.set_footer(
+            text="To use admin commands you must have the manage guild permission or the 'Banana Commander' role.")
 
     await util.say(ctx.channel, embed=help_embed)
+
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def invite(ctx, **_):
@@ -105,12 +106,13 @@ async def invite(ctx, **_):
 
     Display BattleBanana invite link & Support guild.
     """
-    
+
     invite_embed = discord.Embed(title="BattleBanana's invites", type="rich", color=gconf.DUE_COLOUR)
     invite_embed.description = "Here are 2 important links about me! :smiley:"
     invite_embed.add_field(name="Invite me:", value=("[Here](%s)" % gconf.BOT_INVITE), inline=True)
     invite_embed.add_field(name="Support guild:", value="[Here](https://discord.gg/P7DBDEC)", inline=True)
     await util.say(ctx.channel, embed=invite_embed)
+
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def donate(ctx, **_):
@@ -122,8 +124,10 @@ async def donate(ctx, **_):
     """
 
     donation_embed = discord.Embed(title="Donate", type="rich", color=gconf.DUE_COLOUR)
-    donation_embed.add_field(name="Patreon (Donation)", value="[Here](https://patreon.com/developeranonymous)", inline=True)
+    donation_embed.add_field(name="Patreon (Donation)", value="[Here](https://patreon.com/developeranonymous)",
+                             inline=True)
     await util.say(ctx.channel, embed=donation_embed)
+
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def botinfo(ctx, **_):
@@ -262,7 +266,7 @@ async def shutup(ctx, *args, **details):
                                              "cmd_key"] + "shutup all``."))
         else:
             await util.say(ctx.channel, (":mute: I've already been set not to send alerts in this channel!\n"
-                                         + "If you want to disable commands too do ``" + details["cmd_key"] 
+                                         + "If you want to disable commands too do ``" + details["cmd_key"]
                                          + "shutup all``.\n"
                                          + "To unmute me do ``" + details["cmd_key"] + "unshutup``."))
     else:
@@ -443,7 +447,8 @@ async def optout(ctx, **details):
         if await optout_is_topdog_check(ctx.channel, player):
             return
         if current_permission >= Permission.BANANA_MOD:
-            raise util.BattleBananaException(ctx.channel, "You cannot optout everywhere and stay a BattleBanana mod or admin!")
+            raise util.BattleBananaException(ctx.channel,
+                                             "You cannot optout everywhere and stay a BattleBanana mod or admin!")
         permissions.give_permission(ctx.author, Permission.DISCORD_USER)
         await util.say(ctx.channel, (":ok_hand: You've opted out of BattleBanana everywhere.\n"
                                      + "You won't get exp, quests, and other players can't use you in commands."))
@@ -534,6 +539,7 @@ async def optinhere(ctx, **details):
         else:
             await util.say(ctx.channel, "You've not opted out on this guild.")
 
+
 @commands.command(args_pattern=None)
 async def currencies(ctx, **details):
     """
@@ -541,17 +547,18 @@ async def currencies(ctx, **details):
     
     Display every currencies currently available on Discoin
     """
-    
+
     embed = discord.Embed(title=e.DISCOIN + " Current currencies!", type="rich", color=gconf.DUE_COLOUR)
     for id in discoin.CODES:
         currency = discoin.CODES[id]
         embed.add_field(name=id, value=currency['name'], inline=False)
-    
+
     if len(embed.fields) == 0:
         embed.add_field(name="An error occured!", value="There was an error retrieving Discoin's currencies.")
     embed.set_footer(text="Visit https://dash.discoin.zws.im/#/currencies for exchange rate.")
-    
+
     await util.say(ctx.channel, embed=embed)
+
 
 @commands.ratelimit(cooldown=300, error="Your next transfer available is in **[COOLDOWN]**!", save=True)
 @commands.command(args_pattern="CS", aliases=["convert"])
@@ -567,17 +574,21 @@ async def exchange(ctx, amount, currency, **details):
     currency = currency.upper()
 
     if currency == discoin.CURRENCY_CODE:
-        raise util.BattleBananaException(ctx.channel, "There is no reason to exchange %s for %s!" % (discoin.CURRENCY_CODE, discoin.CURRENCY_CODE))
+        raise util.BattleBananaException(ctx.channel, "There is no reason to exchange %s for %s!" % (
+            discoin.CURRENCY_CODE, discoin.CURRENCY_CODE))
     if not currency in discoin.CODES:
-        raise util.BattleBananaException(ctx.channel, "Not a valid currency! Use `%scurrencies` to know which currency is available." % details['cmd_key'])
+        raise util.BattleBananaException(ctx.channel,
+                                         "Not a valid currency! Use `%scurrencies` to know which currency is available." %
+                                         details['cmd_key'])
     if amount > discoin.MAX_TRANSACTION:
-        raise util.BattleBananaException(ctx.channel, "The amount you try to exchange exceeds the maximum %s transfer limit of %s." 
-                                                                                                % (discoin.CURRENCY_CODE, discoin.MAX_TRANSACTION))
-    
+        raise util.BattleBananaException(ctx.channel,
+                                         "The amount you try to exchange exceeds the maximum %s transfer limit of %s."
+                                         % (discoin.CURRENCY_CODE, discoin.MAX_TRANSACTION))
+
     amount = int(amount)
     if player.money - amount < 0:
         await util.say(ctx.channel, "You do not have **%s**!\n"
-                        % util.format_number(amount, full_precision=True, money=True)
+                       % util.format_number(amount, full_precision=True, money=True)
                        + "The maximum you can exchange is **%s**"
                        % util.format_number(player.money, full_precision=True, money=True))
         return
@@ -591,35 +602,41 @@ async def exchange(ctx, amount, currency, **details):
     if response.get('statusCode'):
         code = response.get("statusCode")
         if code >= 500:
-            raise util.BattleBananaException(ctx.channel, "Something went wrong at Discoin! %s: %s" % (code, response['error']))
+            raise util.BattleBananaException(ctx.channel,
+                                             "Something went wrong at Discoin! %s: %s" % (code, response['error']))
         elif 400 <= code < 500:
             raise util.BattleBananaException(ctx.channel, "Something went wrong! %s: %s" % (code, response['error']))
 
     await awards.give_award(ctx.channel, player, "Discoin")
     player.money -= amount
     player.save()
-    
+
     transaction = response
     receipt = discoin.DISCOINDASH + "/" + transaction['id'] + "/show"
-    
+
     exchange_embed = discord.Embed(title=e.DISCOIN + " Exchange complete!", type="rich", color=gconf.DUE_COLOUR)
-    exchange_embed.add_field(name=f"Exchange amount ({discoin.CURRENCY_CODE}):", value=util.format_number(amount, money=True, full_precision=True))
-    exchange_embed.add_field(name="Result amount (%s):" % currency, value="$" + util.format_number_precise(transaction['payout']))
+    exchange_embed.add_field(name=f"Exchange amount ({discoin.CURRENCY_CODE}):",
+                             value=util.format_number(amount, money=True, full_precision=True))
+    exchange_embed.add_field(name="Result amount (%s):" % currency,
+                             value="$" + util.format_number_precise(transaction['payout']))
     exchange_embed.add_field(name="Receipt:", value=receipt, inline=False)
     exchange_embed.set_footer(text="Keep the receipt for if something goes wrong!")
-    
+
     await util.say(ctx.channel, embed=exchange_embed)
 
     to = transaction.get("to")
     toID = to.get("id")
     payout = float(transaction.get('payout'))
 
-    logs_embed = discord.Embed(title="Discion Transaction", description="Receipt ID: [%s](%s)" % (transaction["id"], receipt), 
-        type="rich", colour=gconf.DUE_COLOUR)
+    logs_embed = discord.Embed(title="Discion Transaction",
+                               description="Receipt ID: [%s](%s)" % (transaction["id"], receipt),
+                               type="rich", colour=gconf.DUE_COLOUR)
     logs_embed.add_field(name="User:", value=f"{player.user_id}")
-    logs_embed.add_field(name="Exchange", value="%s %s => %.2f %s" % (amount, discoin.CURRENCY_CODE, payout, toID), inline=False)
+    logs_embed.add_field(name="Exchange", value="%s %s => %.2f %s" % (amount, discoin.CURRENCY_CODE, payout, toID),
+                         inline=False)
 
     await util.say(gconf.discoin_channel, embed=logs_embed)
+
 
 @commands.command(args_pattern="S?", permission=Permission.BANANA_ADMIN)
 async def status(ctx, message=None, **details):
@@ -629,13 +646,32 @@ async def status(ctx, message=None, **details):
     This sets the status of all the shards to the one specified.
     """
 
-    client:discord.AutoShardedClient = util.clients[0]
+    client: discord.AutoShardedClient = util.clients[0]
     if message is None:
         count = client.shard_count
         for shardID in range(0, count):
-            game = discord.Activity(name="battlebanana.xyz | shard %d/%d" % (shardID, count), type=discord.ActivityType.watching)
+            game = discord.Activity(name="battlebanana.xyz | shard %d/%d" % (shardID, count),
+                                    type=discord.ActivityType.watching)
             await client.change_presence(activity=game, afk=False, shard_id=shardID)
     else:
-        await client.change_presence(activity=discord.Activity(name=message, type=discord.ActivityType.watching), afk=False)
+        await client.change_presence(activity=discord.Activity(name=message, type=discord.ActivityType.watching),
+                                     afk=False)
 
     await util.say(ctx.channel, "All done!")
+
+
+@commands.command(args_pattern="", permission=Permission.BANANA_OWNER)
+async def purge(ctx, **_):
+    players = util.dbconn.conn()["Player"].find({'data': {'$regex': '"level": 1'}})
+    print(players.count())
+    count = 0
+
+    for player in players:
+        player = discoin.players.find_player(player['_id'])
+
+        if player.level == 1 and player.money in (0, 100) and player.prestige_level == 0 and player.quests_won == 0:
+            util.dbconn.delete_player(player)
+            count += 1
+
+    discoin.players.players.prune()
+    await util.say(ctx.channel, f"Purged {count} non-playing players from the database!")
