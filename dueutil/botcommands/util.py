@@ -658,20 +658,3 @@ async def status(ctx, message=None, **details):
                                      afk=False)
 
     await util.say(ctx.channel, "All done!")
-
-
-@commands.command(args_pattern="", permission=Permission.BANANA_OWNER)
-async def purge(ctx, **_):
-    players = util.dbconn.conn()["Player"].find({'data': {'$regex': '"level": 1'}})
-    print(players.count())
-    count = 0
-
-    for player in players:
-        player = discoin.players.find_player(player['_id'])
-
-        if player.level == 1 and player.money in (0, 100) and player.prestige_level == 0 and player.quests_won == 0:
-            util.dbconn.delete_player(player)
-            count += 1
-
-    discoin.players.players.prune()
-    await util.say(ctx.channel, f"Purged {count} non-playing players from the database!")
