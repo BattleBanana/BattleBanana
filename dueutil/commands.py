@@ -91,7 +91,12 @@ def command(**command_rules):
                     details["cmd_key"] = prefix
                     details["command_name"] = name
                     dbconn.conn()["stats"].update({"stat": "commandsused"}, {"$inc": {"count": 1}}, upsert=True)
-                    await command_func(ctx, *command_args, **get_command_details(ctx, **details))
+                    if name in ("eval", "evaluate"):
+                        key = dueserverconfig.server_cmd_key(ctx.guild)
+                        command_string = ctx.content.replace(key, '', 1).replace(name, '').strip()
+                        await command_func(ctx, command_string, **get_command_details(ctx, **details))
+                    else:
+                        await command_func(ctx, *command_args, **get_command_details(ctx, **details))
                 else:
                     raise util.BattleBananaException(ctx.channel, "Please don't include spam mentions in commands.")
             else:

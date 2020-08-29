@@ -1,23 +1,25 @@
 import json
+import math
 import os
+import random
 import re
 import subprocess
-import math
+import textwrap
 import time
-import random
+import traceback
+from contextlib import redirect_stdout
 from io import StringIO
 
 import discord
-import objgraph
-import datetime
-
-import generalconfig as gconf
 import dueutil.permissions
+import generalconfig as gconf
+import objgraph
+
+from .. import commands, util, events, dbconn, loader
+from ..game import customizations, awards, leaderboards, game, emojis
 from ..game.helpers import imagehelper
 from ..permissions import Permission
-from .. import commands, util, events, dbconn, loader
-from ..game import customizations, awards, leaderboards, game
-from ..game import emojis
+
 
 # Import all game things. This is (bad) but is needed to fully use the eval command
 
@@ -199,7 +201,7 @@ async def deletebg(ctx, background_to_delete, **details):
             json.dump(backgrounds, backgrounds_file, indent=4)
     except IOError:
         raise util.BattleBananaException(ctx.channel,
-                                    "Only uploaded backgrounds can be deleted and there are no uploaded backgrounds!")
+                                         "Only uploaded backgrounds can be deleted and there are no uploaded backgrounds!")
     os.remove("assets/backgrounds/" + background["image"])
 
     customizations.backgrounds._load_backgrounds()
@@ -209,27 +211,83 @@ async def deletebg(ctx, background_to_delete, **details):
         "**%s** deleted the background **%s**" % (details["author"].name_clean, background.name_clean))
 
 
-@commands.command(permission=Permission.BANANA_OWNER, args_pattern="S")
-async def bbeval(ctx, statement, **details):
+def cleanup_code(content):
+    """Automatically removes code blocks from the code."""
+    # remove ```py\n```
+    if content.startswith('```') and content.endswith('```'):
+        return '\n'.join(content.split('\n')[1:-1])
+    else:
+        return content
+
+
+def get_syntax_error(e):
+    if e.text is None:
+        return f'```py\n{e.__class__.__name__}: {e}\n```'
+    return f'```py\n{e.text}{"^":>{e.offset}}\n{e.__class__.__name__}: {e}```'
+
+
+@commands.command(permission=Permission.BANANA_OWNER, args_pattern="S", hidden=True, aliases=['evaluate'])
+async def eval(ctx, body, **details):
     """
-    For 1337 haxors only! Go away!
+    [CMD_KEY]eval (code)
+
+    Evaluates a code
     """
-    if not (ctx.author.id in (115269304705875969, 261799488719552513)):
-        util.logger.info(f"{ctx.author.id} tried to use the command: bbeval")
-        util.logger.info("Arguments used with bbeval: \n%s" % statement)
-        return
-    
-    try:
-        if statement.startswith("await"):
-            result = await eval(statement.replace("await", '', 1))
+
+    env = {
+        'bot': util.clients[0],
+        'ctx': ctx,
+        'channel': ctx.channel,
+        'author': ctx.author,
+        'guild': ctx.guild,
+        'player': details["author"]
+    }
+
+    env.update(globals())
+    body = cleanup_code(body)
+    stdout = StringIO()
+
+    code_in_l = body.split("\n")
+    code_in = ""
+    for item in code_in_l:
+        if item.startswith(" "):
+            code_in += f"... {item}\n"
         else:
-            result = eval(statement)
-        if result is not None:
-            await util.say(ctx.channel, ":ferris_wheel: Eval...\n"
-                                        "**Result** ```" + str(result) + "```")
-    except Exception as eval_exception:
-        await util.say(ctx.channel, (":cry: Could not evalucate!\n"
-                                    + "``%s``" % eval_exception))
+            code_in += f">>> {item}\n"
+
+    to_compile = f'async def func():\n{textwrap.indent(body, "  ")}'
+
+    t1 = time.time()
+    try:
+        exec(to_compile, env)
+    except Exception as e:
+        return await util.say(ctx.channel, f'```py\n{code_in}\n{e.__class__.__name__}: {e}\n```')
+    func = env['func']
+    try:
+        with redirect_stdout(stdout):
+            ret = await func()
+            t2 = time.time()
+            timep = f"#{(round((t2 - t1) * 1000000)) / 1000} ms"
+    except Exception:
+        value = stdout.getvalue()
+        t2 = time.time()
+        timep = f"#{(round((t2 - t1) * 1000000)) / 1000} ms"
+        await util.say(ctx.channel, f'```py\n{code_in}\n{value}{traceback.format_exc()}\n{timep}\n```')
+    else:
+        value = stdout.getvalue()
+        # try:
+        #    successful = await util.say(ctx.channel, "Eval Successful")
+        #    await asyncio.sleep(3)
+        #    await successful.delete()
+        # except:
+        #    pass
+        if ret is None:
+            if value:
+                await util.say(ctx.channel, f'```py\n{code_in}\n{value}\n{timep}\n```')
+            else:
+                await util.say(ctx.channel, f"```py\n{code_in}\n{timep}\n```")
+        else:
+            await util.say(ctx.channel, f'```py\n{code_in}\n{value}{ret}\n{timep}\n```')
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="CC?B?", hidden=True)
@@ -250,16 +308,17 @@ async def generatecode(ctx, value, count=1, show=True, **details):
                 code = "BATTLEBANANAPROMO_%i" % (random.uniform(1000000000, 9999999999))
             codes[code] = value
             if show:
-                newcodes += "%s\n" % (code)
+                newcodes += "%s\n" % code
 
         code_file.seek(0)
         code_file.truncate()
         json.dump(codes, code_file, indent=4)
-    
+
     if show:
         code_Embed = discord.Embed(title="New codes!", type="rich", colour=gconf.DUE_COLOUR)
         code_Embed.add_field(name="Codes:", value=newcodes)
-        code_Embed.set_footer(text="These codes can only be used once! Use %sredeem (code) to redeem the prize!" % (details["cmd_key"]))
+        code_Embed.set_footer(
+            text="These codes can only be used once! Use %sredeem (code) to redeem the prize!" % (details["cmd_key"]))
         await util.say(ctx.channel, embed=code_Embed)
 
 
@@ -272,7 +331,7 @@ async def codes(ctx, page=1, **details):
     """
 
     page = page - 1
-    codelist=""
+    codelist = ""
     with open("dueutil/game/configs/codes.json", "r+") as code_file:
         codes = json.load(code_file)
         codes = list(codes)
@@ -287,7 +346,8 @@ async def codes(ctx, page=1, **details):
 
     code_Embed = discord.Embed(title="New codes!", type="rich", colour=gconf.DUE_COLOUR)
     code_Embed.add_field(name="Codes:", value="%s" % (codelist if len(codelist) != 0 else "No code to display!"))
-    code_Embed.set_footer(text="These codes can only be used once! Use %sredeem (code) to redeem the prize!" % (details["cmd_key"]))
+    code_Embed.set_footer(
+        text="These codes can only be used once! Use %sredeem (code) to redeem the prize!" % (details["cmd_key"]))
     await util.say(ctx.channel, embed=code_Embed)
 
 
@@ -308,20 +368,21 @@ async def redeem(ctx, code, **details):
         if not codes.get(code):
             code_file.close()
             raise util.BattleBananaException(ctx.channel, "Code does not exist!")
-        
+
         user = details["author"]
         money = codes[code]
 
         del codes[code]
         user.money += money
         user.save()
-        
+
         code_file.seek(0)
         code_file.truncate()
         json.dump(codes, code_file, indent=4)
         code_file.close()
 
         await util.say(ctx.channel, "You successfully reclaimed **%s** !!" % (util.format_money(money)))
+
 
 @commands.command(permission=Permission.BANANA_OWNER, args_pattern="PS")
 async def sudo(ctx, victim, command, **_):
@@ -346,35 +407,36 @@ async def sudo(ctx, victim, command, **_):
         await events.command_event(ctx)
     except util.BattleBananaException as command_failed:
         raise util.BattleBananaException(ctx.channel, 'Sudo failed! "%s"' % command_failed.message)
-        
+
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PC")
 async def setpermlevel(ctx, player, level, **_):
     if not (ctx.author.id in (115269304705875969, 261799488719552513)):
         util.logger.info(ctx.author.id + " used the command: setpermlevel\n")
         if (player.id in (115269304705875969, 261799488719552513)):
-            raise util.BattleBananaException(ctx.channel, "You cannot change the permissions for DeveloperAnonymous or Firescoutt")
+            raise util.BattleBananaException(ctx.channel,
+                                             "You cannot change the permissions for DeveloperAnonymous or Firescoutt")
 
     member = player.to_member(ctx.guild)
     permission_index = level - 1
     permission_list = dueutil.permissions.permissions
     if permission_index < len(permission_list):
-            permission = permission_list[permission_index]
-            dueutil.permissions.give_permission(member, permission)
-            await util.say(ctx.channel,
-                        "**" + player.name_clean + "** permission level set to ``" + permission.value[1] + "``.")
-            if permission == Permission.BANANA_MOD:
-                await awards.give_award(ctx.channel, player, "Mod", "Become an mod!")
-                await util.duelogger.info("**%s** is now a BattleBanana mod!" % player.name_clean)
-            elif "Mod" in player.awards:
-                player.awards.remove("Mod")
-            if permission == Permission.BANANA_ADMIN:
-                await awards.give_award(ctx.channel, player, "Admin", "Become an admin!")
-                await util.duelogger.info("**%s** is now a BattleBanana admin!" % player.name_clean)
-            elif "Admin" in player.awards:
-                player.awards.remove("Admin")
-            if permission == Permission.BANANA_OWNER:
-                await util.duelogger.info("**%s** is now a BattleBanana Owner!" % player.name_clean)
+        permission = permission_list[permission_index]
+        dueutil.permissions.give_permission(member, permission)
+        await util.say(ctx.channel,
+                       "**" + player.name_clean + "** permission level set to ``" + permission.value[1] + "``.")
+        if permission == Permission.BANANA_MOD:
+            await awards.give_award(ctx.channel, player, "Mod", "Become an mod!")
+            await util.duelogger.info("**%s** is now a BattleBanana mod!" % player.name_clean)
+        elif "Mod" in player.awards:
+            player.awards.remove("Mod")
+        if permission == Permission.BANANA_ADMIN:
+            await awards.give_award(ctx.channel, player, "Admin", "Become an admin!")
+            await util.duelogger.info("**%s** is now a BattleBanana admin!" % player.name_clean)
+        elif "Admin" in player.awards:
+            player.awards.remove("Admin")
+        if permission == Permission.BANANA_OWNER:
+            await util.duelogger.info("**%s** is now a BattleBanana Owner!" % player.name_clean)
     else:
         raise util.BattleBananaException(ctx.channel, "Permission not found")
 
@@ -384,7 +446,7 @@ async def ban(ctx, player, **_):
     if (player.id in (115269304705875969, 261799488719552513)):
         raise util.BattleBananaException(ctx.channel, "You cannot ban DeveloperAnonymous or Firescoutt")
     dueutil.permissions.give_permission(player.to_member(ctx.guild), Permission.BANNED)
-    await util.say(ctx.channel, emojis.MACBAN+" **" + player.name_clean + "** banned!")
+    await util.say(ctx.channel, emojis.MACBAN + " **" + player.name_clean + "** banned!")
     await util.duelogger.concern("**%s** has been banned!" % player.name_clean)
 
 
@@ -398,13 +460,14 @@ async def unban(ctx, player, **_):
     await util.say(ctx.channel, ":unicorn: **" + player.name_clean + "** has been unbanned!")
     await util.duelogger.info("**%s** has been unbanned" % player.name_clean)
 
+
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern=None, hidden=True)
 async def bans(ctx, **_):
     bans_embed = discord.Embed(title="Ban list", type="rich", color=gconf.DUE_COLOUR)
     string = ""
     for k, v in dueutil.permissions.special_permissions.items():
         if v == "banned":
-            string += "<@%s> (%s)\n" % (k,k)
+            string += "<@%s> (%s)\n" % (k, k)
     bans_embed.add_field(name="There is what I collected about bad people:", value=string or "Nobody is banned!")
 
     await util.say(ctx.channel, embed=bans_embed)
@@ -448,6 +511,7 @@ async def setcash(ctx, player, amount, **_):
     amount_str = util.format_number(amount, money=True, full_precision=True)
     await util.say(ctx.channel, "Set **%s** balance to ``%s``" % (player.get_name_possession_clean(), amount_str))
 
+
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PI")
 async def setprestige(ctx, player, prestige, **details):
     player.prestige_level = prestige
@@ -468,7 +532,7 @@ async def giveexp(ctx, player, exp, **_):
     # (attack + strg + accy) * 100
     if exp < 0.1:
         raise util.BattleBananaException(ctx.channel, "The minimum exp that can be given is 0.1!")
-    increase_stat = exp/300
+    increase_stat = exp / 300
     player.progress(increase_stat, increase_stat, increase_stat,
                     max_exp=math.inf, max_attr=math.inf)
     await util.say(ctx.channel, "**%s** has been given **%s** exp!"
@@ -514,7 +578,8 @@ async def updatebot(ctx, **_):
 async def stopbot(ctx, **_):
     await util.say(ctx.channel, ":wave: Stopping BattleBanana!")
     await util.duelogger.concern("BattleBanana shutting down!")
-    await util.clients[0].change_presence(activity=discord.Activity(name="restarting"), status=discord.Status.idle, afk=True)
+    await util.clients[0].change_presence(activity=discord.Activity(name="restarting"), status=discord.Status.idle,
+                                          afk=True)
     os._exit(0)
 
 
@@ -522,7 +587,8 @@ async def stopbot(ctx, **_):
 async def restartbot(ctx, **_):
     await util.say(ctx.channel, ":ferris_wheel: Restarting BattleBanana!")
     await util.duelogger.concern("BattleBanana restarting!!")
-    await util.clients[0].change_presence(activity=discord.Activity(name="restarting"), status=discord.Status.idle, afk=True)
+    await util.clients[0].change_presence(activity=discord.Activity(name="restarting"), status=discord.Status.idle,
+                                          afk=True)
     os._exit(1)
 
 
@@ -535,6 +601,7 @@ async def meminfo(ctx, **_):
     objgraph.show_growth(file=mem_info)
     await util.say(ctx.channel, "```%s```" % mem_info.getvalue())
 
+
 @commands.command(args_pattern=None)
 async def ping(ctx, **_):
     """
@@ -543,37 +610,38 @@ async def ping(ctx, **_):
     """
     message = await util.say(ctx.channel, ":ping_pong:")
 
-    apims = round((message.created_at  - ctx.created_at ).total_seconds() * 1000)
+    apims = round((message.created_at - ctx.created_at).total_seconds() * 1000)
     latency = round(util.clients[0].latencies[util.get_shard_index(ctx.guild.id)][1] * 1000)
 
     t1 = time.time()
     dbconn.db.command('ping')
     t2 = time.time()
     dbms = round((t2 - t1) * 1000)
-    
+
     embed = discord.Embed(title=":ping_pong: Pong!", type="rich", colour=gconf.DUE_COLOUR)
     embed.add_field(name="Bot Latency:", value="``%sms``" % (apims))
     embed.add_field(name="API Latency:", value="``%sms``" % (latency))
     embed.add_field(name="Database Latency:", value="``%sms``" % (dbms), inline=False)
 
     await util.edit_message(message, embed=embed)
-    
+
+
 @commands.command(args_pattern=None, hidden=True)
-async def pong(ctx,**_):
+async def pong(ctx, **_):
     """
     [CMD_KEY]pong
     pong! Gives you the response time.
     """
     message = await util.say(ctx.channel, ":ping_pong:")
 
-    apims = round((message.created_at  - ctx.created_at ).total_seconds() * 1000)
+    apims = round((message.created_at - ctx.created_at).total_seconds() * 1000)
     latency = round(util.clients[0].latencies[util.get_shard_index(ctx.guild.id)][1] * 1000)
 
     t1 = time.time()
     dbconn.db.command('ping')
     t2 = time.time()
     dbms = round((t2 - t1) * 1000)
-    
+
     embed = discord.Embed(title=":ping_pong: Pong!", type="rich", colour=gconf.DUE_COLOUR)
     embed.add_field(name="API Latency:", value="``%sms``" % (latency))
     embed.add_field(name="Bot Latency:", value="``%sms``" % (apims))
@@ -587,7 +655,7 @@ async def vote(ctx, **details):
     """
     Obtain up to ¤40'000 for voting
     """
-    
+
     Embed = discord.Embed(title="Vote for your favorite Discord Bot", type="rich", colour=gconf.DUE_COLOUR)
     Embed.add_field(name="Vote:", value="[top.gg](https://top.gg/bot/464601463440801792/vote)\n"
                                         "[discordbotlist.com](https://discordbotlist.com/bots/battlebanana/upvote)\n"
@@ -596,7 +664,6 @@ async def vote(ctx, **details):
 
     await util.say(ctx.channel, embed=Embed)
 
-
 # @commands.command(permission=Permission.BANANA_ADMIN, args_pattern=None, hidden=True)
 # async def cleartopdogs(ctx, **details):
 #     await util.say(ctx.channel, ":arrows_counterclockwise: Removing every active topdog!")
@@ -604,5 +671,5 @@ async def vote(ctx, **details):
 #         if 'TopDog' in v.awards:
 #             v.awards.remove("TopDog")
 #             v.save()
-    
+
 #     await util.say(ctx.channel, "Scan is done! ")
