@@ -252,6 +252,9 @@ async def eval(ctx, body, **details):
     code_in_l = body.split("\n")
     code_in = ""
     for item in code_in_l:
+        if "other_configs" in item.lower():
+            body = body.replace(item, "print('[REDACTED]')")
+            item = "[REDACTED]"
         if item.startswith(" "):
             code_in += f"... {item}\n"
         else:
