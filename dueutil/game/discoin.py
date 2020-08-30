@@ -105,7 +105,7 @@ async def process_transactions():
             source_id = source.get('id')
             source_name = source.get('name')
 
-            player = await players.find_player(user_id)
+            player = players.find_player(user_id)
             if player is None or payout < 1 :
                 await reverse_transaction(user_id, source_id, payout, transaction_id)
                 client.run_task(notify_complete, user_id, transaction, failed=True)

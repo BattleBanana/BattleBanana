@@ -107,8 +107,8 @@ class Quest(BattleBananaObject, SlotPickleMixin):
         return self.server_id
 
     @property
-    async def creator(self):
-        creator = await players.find_player(self.created_by)
+    def creator(self):
+        creator = players.find_player(self.created_by)
         if creator is not None:
             return creator.name
         else:

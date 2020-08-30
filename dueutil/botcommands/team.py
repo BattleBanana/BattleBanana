@@ -126,7 +126,7 @@ async def showinvites(ctx, **details):
         for id in member.team_invites:
             team = teams.find_team(id)
             if team:
-                owner = await players.find_player(team.owner)
+                owner = players.find_player(team.owner)
                 Embed.add_field(name=team.name, 
                                 value="**Owner:** %s (%s)\n**Average level:** %s\n**Members:** %s\n**Required Level:** %s\n**Recruiting:** %s" 
                                         % (owner.name, owner.id, team.avgLevel, len(team.members), team.level, ("Yes" if team.open else "No")), 
@@ -204,19 +204,19 @@ async def myteam(ctx, **details):
     admins = ""
     for id in team.admins:
         if id != team.owner:
-            admins += "%s (%s)\n" % (await players.find_player(id).name, str(id))
+            admins += "%s (%s)\n" % (players.find_player(id).name, str(id))
     for id in team.members:
         if id not in team.admins and id != team.owner:
-            members += "%s (%s)\n" % (await players.find_player(id).name, str(id))
+            members += "%s (%s)\n" % (players.find_player(id).name, str(id))
     for id in team.pendings:
         if id in team.members:
             team.pendings.remove(id)
         else:
-            pendings += "%s (%s)\n" % (await players.find_player(id).name, str(id))
+            pendings += "%s (%s)\n" % (players.find_player(id).name, str(id))
         
     team_embed.add_field(name="Name", value=team.name, inline=False)
     team_embed.add_field(name="Description", value=team.description, inline=False)
-    team_embed.add_field(name="Owner", value="%s (%s)" % (await players.find_player(team.owner), team.owner), inline=False)
+    team_embed.add_field(name="Owner", value="%s (%s)" % (players.find_player(team.owner), team.owner), inline=False)
     team_embed.add_field(name="Member Count", value=len(team.members), inline=False)
     team_embed.add_field(name="Average level", value=team.avgLevel, inline=False)
     team_embed.add_field(name="Required level", value=team.level, inline=False)
@@ -406,7 +406,7 @@ async def showteams(ctx, page=1, **details):
             teams.teams[loaded_team.id] = util.load_and_update(teams.REFERENCE_TEAM, loaded_team)
             team = teams.teams[loaded_team.id]
         try:
-            owner = await players.find_player(team.owner)
+            owner = players.find_player(team.owner)
             teamsEmbed.add_field(name=team.name, value="Owner: **%s** (%s)\nDescription: **%s**\nMembers: **%s**\nAverage Level: **%s**\nRequired Level: **%s**\nRecruiting: **%s**" % (owner.name, owner.id, team.description, len(team.members), team.avgLevel, team.level, ("Yes" if team.open else "No")), inline=False)
         except:
             continue
@@ -430,19 +430,19 @@ async def showteaminfo(ctx, team, **details):
     admins = ""
     for id in team.admins:
         if id != team.owner:
-            admins += "%s (%s)\n" % (await players.find_player(id).name, str(id))
+            admins += "%s (%s)\n" % (players.find_player(id).name, str(id))
     for id in team.members:
         if id not in team.admins and id != team.owner:
-            members += "%s (%s)\n" % (await players.find_player(id).name, str(id))
+            members += "%s (%s)\n" % (players.find_player(id).name, str(id))
     for id in team.pendings:
         if id in team.members:
             team.pendings.remove(id)
         else:
-            pendings += "%s (%s)\n" % (await players.find_player(id).name, str(id))
+            pendings += "%s (%s)\n" % (players.find_player(id).name, str(id))
         
     team_embed.add_field(name="Name", value=team.name, inline=False)
     team_embed.add_field(name="Description", value=team.description, inline=False)
-    team_embed.add_field(name="Owner", value="%s (%s)" % (await players.find_player(team.owner).name, team.owner), inline=False)
+    team_embed.add_field(name="Owner", value="%s (%s)" % (players.find_player(team.owner).name, team.owner), inline=False)
     team_embed.add_field(name="Member Count", value=len(team.members), inline=False)
     team_embed.add_field(name="Average level", value=team.avgLevel, inline=False)
     team_embed.add_field(name="Required level", value=team.level, inline=False)
@@ -569,7 +569,7 @@ async def showteampendings(ctx, page=1, **details):
     pendings_embed = discord.Embed(title="**%s** pendings list" % (team.name), description="Displaying user pending to your team", type="rich", colour=gconf.DUE_COLOUR)
     for index in range((page_size * page), top, 1):
         id = team.pendings[index]
-        member = await players.find_player(id)
+        member = players.find_player(id)
         pendings_embed.add_field(name=index, value="%s (%s)" % (member.name, member.id), inline=False)
             
     if len(pendings_embed.fields) == 0:
@@ -642,7 +642,7 @@ async def declinepending(ctx, user, **details):
 #                 team = team_list[team]
 #                 if teams.find_team(team["name"]):
 #                     continue
-#                 teams.Team(await players.find_player(team["owner"]), team["name"], "This is a new and awesome team!", team["min_level"], team["open"])
+#                 teams.Team(players.find_player(team["owner"]), team["name"], "This is a new and awesome team!", team["min_level"], team["open"])
 #                 new_team = teams.find_team(team["name"])
 #                 for member in team["members"]:
 #                     new_team.members.append(member)

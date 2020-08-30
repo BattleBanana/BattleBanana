@@ -13,19 +13,19 @@ MIN_NUMBER = -MAX_NUMBER
 STRING_TYPES = ('S', 'M')
 THOUSANDS_REGEX = re.compile(r'(\,)([0-9][0-9][0-9])')
 
-async def strip_thousands_separators(value):
+def strip_thousands_separators(value):
     # Will strip 1000s without crazy 1,,,,,,,,,,000
     # Allowed will also allow incorrect formatting.
     return re.sub(THOUSANDS_REGEX, r'\2', value)
 
-async def parse_team(value):
+def parse_team(value):
     team = teams.find_team(value.lower())
     if team is None:
         return False
     return team
 
 
-async def parse_int(value):
+def parse_int(value):
     # An int limited between min and max number
     try:
         return util.clamp(int(strip_thousands_separators(value)), MIN_NUMBER, MAX_NUMBER)
@@ -33,7 +33,7 @@ async def parse_int(value):
         return False
 
 
-async def parse_string(value):
+def parse_string(value):
     # When is a string not a string?
     """
     This may seem dumb. But not all strings are strings in my
@@ -50,7 +50,7 @@ async def parse_string(value):
     return False
 
 
-async def parse_count(value):
+def parse_count(value):
     # The counting numbers.
     # Natural numbers starting from 1
     int_value = parse_int(value)
@@ -60,7 +60,7 @@ async def parse_count(value):
         return int_value
 
 
-async def parse_float(value):
+def parse_float(value):
     # Float between min and max number
     try:
         return util.clamp(float(strip_thousands_separators(value)), MIN_NUMBER, MAX_NUMBER)
@@ -68,10 +68,10 @@ async def parse_float(value):
         return False
 
 
-async def parse_player(player_id, called, ctx):
+def parse_player(player_id, called, ctx):
     # A DueUtil Player
     try:
-        player = await players.find_player(int(player_id))
+        player = players.find_player(int(player_id))
         if player is None or not player.is_playing(ctx.guild) \
                 and called.permission < Permission.BANANA_MOD:
             return False
@@ -80,18 +80,18 @@ async def parse_player(player_id, called, ctx):
         return False
 
 
-async def parse_type(arg_type, value, **extras):
+def parse_type(arg_type, value, **extras):
     called = extras.get("called")
     ctx = extras.get("ctx")
     return {
-        'T': await parse_team(value),
-        'S': await parse_string(value),
-        'I': await parse_int(value),
-        'C': await parse_count(value),
-        'R': await parse_float(value),
-        'P': await parse_player(value, called, ctx),
+        'T': parse_team(value),
+        'S': parse_string(value),
+        'I': parse_int(value),
+        'C': parse_count(value),
+        'R': parse_float(value),
+        'P': parse_player(value, called, ctx),
         # This one is for page selectors that could be a page number or a string like a weapon name.
-        'M': await parse_count(value) if await parse_count(value) else value,
+        'M': parse_count(value) if parse_count(value) else value,
         'B': value.lower() in misc.POSITIVE_BOOLS,
-        '%': await parse_float(value.rstrip("%"))
+        '%': parse_float(value.rstrip("%"))
     }.get(arg_type)

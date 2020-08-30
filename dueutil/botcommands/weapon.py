@@ -180,13 +180,13 @@ async def mywagers(ctx, page=1, **details):
     """
 
     @misc.paginator
-    async def wager_page(wagers_embed, current_wager, **extras):
-        sender = await players.find_player(current_wager.sender_id)
+    def wager_page(wagers_embed, current_wager, **extras):
+        sender = players.find_player(current_wager.sender_id)
         wagers_embed.add_field(name="%d. Request from %s" % (extras["index"]+1, sender.name_clean),
                                value="<@%s> ``%s``" % (sender.id, util.format_money(current_wager.wager_amount)))
 
     player = details["author"]
-    wager_list_embed = await wager_page(player.received_wagers, page-1,
+    wager_list_embed = wager_page(player.received_wagers, page-1,
                                   title=player.get_name_possession_clean() + " Received Wagers",
                                   footer_more="But wait there's more! Do %smywagers %d" % (details["cmd_key"], page+1),
                                   empty_list="")
@@ -220,7 +220,7 @@ async def acceptwager(ctx, wager_index, **details):
         raise util.BattleBananaException(ctx.channel, "You can't afford the risk!")
 
     wager = player.received_wagers.pop(wager_index)
-    sender = await players.find_player(wager.sender_id)
+    sender = players.find_player(wager.sender_id)
     battle_log = battles.get_battle_log(player_one=player, player_two=sender)
     battle_embed = battle_log.embed
     winner = battle_log.winner
@@ -308,7 +308,7 @@ async def declinewager(ctx, wager_index, **details):
         wager = player.received_wagers[wager_index]
         del player.received_wagers[wager_index]
         player.save()
-        sender = await players.find_player(wager.sender_id)
+        sender = players.find_player(wager.sender_id)
         await util.say(ctx.channel, "**" + player.name_clean + "** declined a wager from **" + sender.name_clean + "**")
 
     else:

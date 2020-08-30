@@ -33,9 +33,9 @@ def command(**command_rules):
                     or '@here' in ctx.content or '@everyone' in ctx.content)
         return False
 
-    async def get_command_details(ctx, **details):
+    def get_command_details(ctx, **details):
         details["timestamp"] = ctx.created_at 
-        details["author"] = await players.find_player(ctx.author.id)
+        details["author"] = players.find_player(ctx.author.id)
         details["server_id"] = ctx.guild.id
         details["server_name"] = ctx.guild.name
         details["server_name_clean"] = util.ultra_escape_string(ctx.guild.name)
@@ -51,7 +51,7 @@ def command(**command_rules):
         @wraps(command_func)
         async def wrapped_command(ctx, prefix, _, args, **details):
             name = command_func.__name__
-            player = await players.find_player(ctx.author.id)
+            player = players.find_player(ctx.author.id)
             if player is None:
                 if name != "createaccount":
                     await util.say(ctx.channel, "You are not registered\nUse `"+prefix+"createaccount` to register")
@@ -94,15 +94,15 @@ def command(**command_rules):
                     if name in ("eval", "evaluate"):
                         key = dueserverconfig.server_cmd_key(ctx.guild)
                         command_string = ctx.content.replace(key, '', 1).replace(name, '').strip()
-                        await command_func(ctx, command_string, **await get_command_details(ctx, **details))
+                        await command_func(ctx, command_string, **get_command_details(ctx, **details))
                     else:
-                        await command_func(ctx, *command_args, **await get_command_details(ctx, **details))
+                        await command_func(ctx, *command_args, **get_command_details(ctx, **details))
                 else:
                     raise util.BattleBananaException(ctx.channel, "Please don't include spam mentions in commands.")
             else:
                 # React X
                 if not (permissions.has_permission(ctx.author, Permission.PLAYER) or permissions.has_special_permission(ctx.author, Permission.BANNED)):
-                    player = await players.find_player(ctx.author.id)
+                    player = players.find_player(ctx.author.id)
                     local_optout = not player.is_playing(ctx.guild, local=True)
                     if local_optout:
                         await util.say(ctx.channel, "You are opted out. Use ``%soptinhere``!" % prefix)
@@ -378,7 +378,7 @@ async def determine_args(pattern, args, called, ctx):
             pos += 1
             pos_change = False
         # Get the value as the type it should be (if possible). Will return False or None if it fails.
-        value = await commandtypes.parse_type(current_rule, args[args_index], called=called, ctx=ctx)
+        value = commandtypes.parse_type(current_rule, args[args_index], called=called, ctx=ctx)
         if (value is False and current_rule != 'B') or value is None:
             # We've got a incorrect value and are not expecting multiple (*)
             if pattern[pos] != '*':
