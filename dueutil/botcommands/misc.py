@@ -274,9 +274,13 @@ async def eval(ctx, body, **details):
         value = stdout.getvalue()
         t2 = time.time()
         timep = f"#{(round((t2 - t1) * 1000000)) / 1000} ms"
+        if gconf.other_configs.get("botToken") in value:
+            value = value.replace(gconf.other_configs.get("botToken"), "[REDACTED]")
         await util.say(ctx.channel, f'```py\n{code_in}\n{value}{traceback.format_exc()}\n{timep}\n```')
     else:
         value = stdout.getvalue()
+        if gconf.other_configs.get("botToken") in value:
+            value = value.replace(gconf.other_configs.get("botToken"), "[REDACTED]")
         # try:
         #    successful = await util.say(ctx.channel, "Eval Successful")
         #    await asyncio.sleep(3)
@@ -289,6 +293,8 @@ async def eval(ctx, body, **details):
             else:
                 await util.say(ctx.channel, f"```py\n{code_in}\n{timep}\n```")
         else:
+            if gconf.other_configs.get("botToken") in ret:
+                ret = ret.replace(gconf.other_configs.get("botToken"), "[REDACTED]")
             await util.say(ctx.channel, f'```py\n{code_in}\n{value}{ret}\n{timep}\n```')
 
 
