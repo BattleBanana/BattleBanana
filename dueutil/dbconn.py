@@ -8,7 +8,6 @@ config = {}
 ASCENDING = pymongo.ASCENDING
 DESCENDING = pymongo.DESCENDING
 
-
 def conn():
     global db
     if db is None:
@@ -26,11 +25,11 @@ def conn():
 def insert_object(id, pickleable_object):
     if isinstance(id, str) and id.strip() == "":
         return
-    # todo
+    #todo
     # jsonpickle_data = json.loads(jsonpickle.encode(pickleable_object))
     conn()[type(pickleable_object).__name__].update({'_id': id},
-                                                          {"$set": {'data': jsonpickle.encode(pickleable_object)}},
-                                                          upsert=True)
+                                                    {"$set": {'data': jsonpickle.encode(pickleable_object)}},
+                                                    upsert=True)
 
 
 def drop_and_insert(collection, data):

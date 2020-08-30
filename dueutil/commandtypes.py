@@ -13,7 +13,7 @@ MIN_NUMBER = -MAX_NUMBER
 STRING_TYPES = ('S', 'M')
 THOUSANDS_REGEX = re.compile(r'(\,)([0-9][0-9][0-9])')
 
-def strip_thousands_separators(value):
+async def strip_thousands_separators(value):
     # Will strip 1000s without crazy 1,,,,,,,,,,000
     # Allowed will also allow incorrect formatting.
     return re.sub(THOUSANDS_REGEX, r'\2', value)
@@ -25,7 +25,7 @@ async def parse_team(value):
     return team
 
 
-def parse_int(value):
+async def parse_int(value):
     # An int limited between min and max number
     try:
         return util.clamp(int(strip_thousands_separators(value)), MIN_NUMBER, MAX_NUMBER)
@@ -33,7 +33,7 @@ def parse_int(value):
         return False
 
 
-def parse_string(value):
+async def parse_string(value):
     # When is a string not a string?
     """
     This may seem dumb. But not all strings are strings in my
@@ -50,7 +50,7 @@ def parse_string(value):
     return False
 
 
-def parse_count(value):
+async def parse_count(value):
     # The counting numbers.
     # Natural numbers starting from 1
     int_value = parse_int(value)
@@ -60,7 +60,7 @@ def parse_count(value):
         return int_value
 
 
-def parse_float(value):
+async def parse_float(value):
     # Float between min and max number
     try:
         return util.clamp(float(strip_thousands_separators(value)), MIN_NUMBER, MAX_NUMBER)
@@ -85,13 +85,13 @@ async def parse_type(arg_type, value, **extras):
     ctx = extras.get("ctx")
     return {
         'T': await parse_team(value),
-        'S': parse_string(value),
-        'I': parse_int(value),
-        'C': parse_count(value),
-        'R': parse_float(value),
+        'S': await parse_string(value),
+        'I': await parse_int(value),
+        'C': await parse_count(value),
+        'R': await parse_float(value),
         'P': await parse_player(value, called, ctx),
         # This one is for page selectors that could be a page number or a string like a weapon name.
-        'M': parse_count(value) if parse_count(value) else value,
+        'M': await parse_count(value) if await parse_count(value) else value,
         'B': value.lower() in misc.POSITIVE_BOOLS,
-        '%': parse_float(value.rstrip("%"))
+        '%': await parse_float(value.rstrip("%"))
     }.get(arg_type)
