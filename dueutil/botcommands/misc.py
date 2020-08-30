@@ -226,10 +226,12 @@ def get_syntax_error(e):
     return f'```py\n{e.text}{"^":>{e.offset}}\n{e.__class__.__name__}: {e}```'
 
 
-@commands.command(permission=Permission.BANANA_OWNER, args_pattern="S", hidden=True, aliases=['evaluate'])
+@commands.command(permission=Permission.BANANA_OWNER, args_pattern="S", aliases=['evaluate'])
 async def eval(ctx, body, **details):
     """
     [CMD_KEY]eval (code)
+
+    For 1337 haxors only! Go away!
 
     Evaluates a code
     """
