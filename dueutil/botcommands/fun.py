@@ -141,7 +141,7 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
             bonus = "     :second_place:"
         elif index == 2:
             bonus = "     :third_place:"
-        player = players.find_player(leaderboard_data[index])
+        player = await players.find_player(leaderboard_data[index])
         user_info = ctx.guild.get_member(player.id)
         if user_info is None:
             user_info = player.id
@@ -294,7 +294,7 @@ async def topdog(ctx, **_):
     """
     top_dog_stats = awards.get_award_stat("TopDog")
     if top_dog_stats is not None and "top_dog" in top_dog_stats:
-        top_dog = players.find_player(int(top_dog_stats["top_dog"]))
+        top_dog = await players.find_player(int(top_dog_stats["top_dog"]))
         await util.say(ctx.channel, (":dog: The current top dog is **%s** (%s)!\n"
                                      + "They are the **%s** to earn the rank of top dog!")
                        % (top_dog, top_dog.id, util.int_to_ordinal(top_dog_stats["times_given"])))
@@ -312,7 +312,7 @@ async def battletopdog(ctx, **details):
     if top_dog_stats is None or not "top_dog" in top_dog_stats:
         raise util.BattleBananaException(ctx.channel, "Sorry there was an error trying to find the topdog!")
 
-    top_dog = players.find_player(int(top_dog_stats["top_dog"]))
+    top_dog = await players.find_player(int(top_dog_stats["top_dog"]))
     if top_dog is None:
         raise util.BattleBananaException(ctx.channel, "Sorry there was an error trying to find the topdog!")
 
@@ -341,7 +341,7 @@ async def viewtopdog(ctx, **_):
     if top_dog_stats is None or not "top_dog" in top_dog_stats:
         raise util.BattleBananaException(ctx.channel, "Sorry there was an error trying to find the topdog!")
 
-    top_dog = players.find_player(int(top_dog_stats["top_dog"]))
+    top_dog = await players.find_player(int(top_dog_stats["top_dog"]))
     if top_dog is None:
         raise util.BattleBananaException(ctx.channel, "Sorry there was an error trying to find the topdog!")
 
@@ -436,12 +436,12 @@ async def topdoghistory(ctx, page=1, **details):
     if topdog is None or not "top_dog" in topdog:
         embed.add_field(name="Current topdog:", value=":bangbang: Failed to parse current topdog")
     else:
-        topdog = players.find_player(int(topdog["top_dog"]))
+        topdog = await players.find_player(int(topdog["top_dog"]))
         embed.add_field(name="Current topdog:", value=topdog.name)
 
     tdstring = ""
     for topdog in topdogs:
-        player = players.find_player(topdog.get('user_id'))
+        player = await players.find_player(topdog.get('user_id'))
         if player is not None:
             date:datetime = topdog.get('date')
 

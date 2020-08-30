@@ -243,7 +243,7 @@ async def check_for_removed_stats(player):
         delattr(player, "language")
 
 async def on_message(message):
-    player = players.find_player(message.author.id)
+    player = await players.find_player(message.author.id)
     spam_level = 100
     if player is not None:
         if not player.is_playing(message.guild):

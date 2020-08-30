@@ -444,10 +444,10 @@ class Player(BattleBananaObject, SlotPickleMixin):
         return object_state
 
 
-def find_player(user_id: int) -> Player:
+async def find_player(user_id: int) -> Player:
     if user_id in players:
         return players[user_id]
-    elif load_player(user_id):
+    elif await load_player(user_id):
         player = players[user_id]
         player.id = user_id
         return player
@@ -456,7 +456,7 @@ def find_player(user_id: int) -> Player:
 REFERENCE_PLAYER = Player(no_save=True)
 
 
-def load_player(player_id):
+async def load_player(player_id):
     response = dbconn.get_collection_for_object(Player).find_one({"_id": player_id})
     if response is not None and 'data' in response:
         player_data = response['data']

@@ -49,10 +49,10 @@ class Team(BattleBananaObject, SlotPickleMixin):
         owner.save()
 
     @property
-    def avgLevel(self):
+    async def avgLevel(self):
         level = 0
         for member in self.members:
-            level += players.find_player(member).level
+            level += await players.find_player(member).level
         return "%.2f" % (level/len(self.members))
 
     def isPending(self, member):
@@ -116,9 +116,9 @@ class Team(BattleBananaObject, SlotPickleMixin):
         self.pendings.remove(member.id)
         self.save()
 
-    def Delete(self):
+    async def Delete(self):
         for member in self.members:
-            member = players.find_player(member)
+            member = await players.find_player(member)
             member.team = None
             member.save()
 

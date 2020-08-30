@@ -24,7 +24,7 @@ def dict_command(**spec):
             # Get all args after and including the position of the arg for the dict_args
             # Those will be processed into a dict.
             arg_dict_index = params.index(args_dict_param) - 1  # -1 to ignore ctx arg
-            dict_args = determine_dict_args(list(args[arg_dict_index:]), wrapped_command, ctx,
+            dict_args = await determine_dict_args(list(args[arg_dict_index:]), wrapped_command, ctx,
                                             expected=expected, optional=optional)
 
             if dict_args is False:
@@ -41,7 +41,7 @@ def dict_command(**spec):
     return wrap
 
 
-def determine_dict_args(args, called, ctx, **spec):
+async def determine_dict_args(args, called, ctx, **spec):
 
     """
     A simple function to convert an array of args into
@@ -83,7 +83,7 @@ def determine_dict_args(args, called, ctx, **spec):
 
         # Parse the arg into the value it should be
         arg_type = args_spec[arg_key]
-        value = commandtypes.parse_type(arg_type, arg_value, called=called, ctx=ctx)
+        value = await commandtypes.parse_type(arg_type, arg_value, called=called, ctx=ctx)
         # Handle it being wrong.
         arg_invalid = value is False and arg_type != "B"
         if arg_invalid and expected:

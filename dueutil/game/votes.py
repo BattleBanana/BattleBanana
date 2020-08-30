@@ -33,7 +33,7 @@ async def process_votes():
             isWeekend = vote.get("weekend")
             date = vote.get("date")
 
-            player = players.find_player(user_id)
+            player = await players.find_player(user_id)
             if player is None:
                 dbconn.conn()["Votes"].delete_one({'_id': vote_id})
                 continue

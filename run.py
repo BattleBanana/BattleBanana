@@ -212,7 +212,7 @@ class BattleBananaClient(discord.AutoShardedClient):
     
     async def on_member_update(self, before, after):
         await self.wait_until_ready()
-        player = players.find_player(before.id)
+        player = await players.find_player(before.id)
         if player is not None:
             old_image = player.get_avatar_url(member=before)
             new_image = player.get_avatar_url(member=after)
