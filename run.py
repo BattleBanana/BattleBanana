@@ -191,6 +191,7 @@ class BattleBananaClient(discord.AutoShardedClient):
 
     
     async def on_message(self, message):
+        await self.wait_until_ready()
         if (message.author == self.user
             or message.author.bot
             or isinstance(message.channel, discord.abc.PrivateChannel)
