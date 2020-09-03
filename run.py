@@ -227,7 +227,7 @@ class BattleBananaClient(discord.AutoShardedClient):
     
     async def on_guild_remove(self, guild):
         for collection in dbconn.db.list_collection_names():
-            if collection != "Player":
+            if collection not in ("Player", "Topdogs"):
                 dbconn.db[collection].delete_many({'_id': {'$regex': '%s.*' % guild.id}})
                 dbconn.db[collection].delete_many({'_id': guild.id})
                 dbconn.db[collection].delete_many({'_id': str(guild.id)})
