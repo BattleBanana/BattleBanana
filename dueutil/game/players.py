@@ -34,7 +34,7 @@ class FakeMember:
 
 class Players(dict):
     # Amount of time before the bot will prune a player.
-    PRUNE_INACTIVITY_TIME = 1800
+    PRUNE_INACTIVITY_TIME = 3600*6
 
     def prune(self):
 
