@@ -86,11 +86,6 @@ def parse_type(arg_type, value, **extras):
     if arg_type in base_func_dict:
         return base_func_dict[arg_type](value)
     return {
-        'T': parse_team(value),
-        'S': parse_string(value),
-        'I': parse_int(value),
-        'C': parse_count(value),
-        'R': parse_float(value),
         'P': parse_player(value, called, ctx),
         # This one is for page selectors that could be a page number or a string like a weapon name.
         'M': parse_count(value) if parse_count(value) else value,
