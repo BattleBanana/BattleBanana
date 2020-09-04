@@ -84,7 +84,7 @@ def parse_type(arg_type, value, **extras):
     called = extras.get("called")
     ctx = extras.get("ctx")
     if arg_type in base_func_dict:
-        return {arg_type: base_func_dict[arg_type](value)}
+        return base_func_dict[arg_type](value)
     return {
         'T': parse_team(value),
         'S': parse_string(value),
