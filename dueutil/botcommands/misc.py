@@ -620,20 +620,23 @@ async def ping(ctx, **_):
     pong! Gives you the response time.
     """
     message = await util.say(ctx.channel, ":ping_pong:")
-
-    apims = round((message.created_at - ctx.created_at).total_seconds() * 1000)
-    latency = round(util.clients[0].latencies[util.get_shard_index(ctx.guild.id)][1] * 1000)
-
     t1 = time.time()
     dbconn.db.command('ping')
     t2 = time.time()
     dbms = round((t2 - t1) * 1000)
 
     embed = discord.Embed(title=":ping_pong: Pong!", type="rich", colour=gconf.DUE_COLOUR)
-    embed.add_field(name="Bot Latency:", value="``%sms``" % (apims))
-    embed.add_field(name="API Latency:", value="``%sms``" % (latency))
-    embed.add_field(name="Database Latency:", value="``%sms``" % (dbms), inline=False)
+    try:
+        apims = round((message.created_at - ctx.created_at).total_seconds() * 1000)
+        latency = round(util.clients[0].latencies[util.get_shard_index(ctx.guild.id)][1] * 1000)
 
+        embed.add_field(name="Bot Latency:", value="``%sms``" % (apims))
+        embed.add_field(name="API Latency:", value="``%sms``" % (latency))
+    except OverflowError:
+        embed.add_field(name="Bot Latency:", value="``NaN``" % (apims))
+        embed.add_field(name="API Latency:", value="``%sms``" % (latency))
+
+    embed.add_field(name="Database Latency:", value="``%sms``" % (dbms), inline=False)
     await util.edit_message(message, embed=embed)
 
 
