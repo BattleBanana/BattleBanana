@@ -191,7 +191,6 @@ class BattleBananaClient(discord.AutoShardedClient):
 
     
     async def on_message(self, message):
-        await self.wait_until_ready()
         if (message.author == self.user
             or message.author.bot
             or isinstance(message.channel, discord.abc.PrivateChannel)
@@ -212,7 +211,8 @@ class BattleBananaClient(discord.AutoShardedClient):
 
     
     async def on_member_update(self, before, after):
-        await self.wait_until_ready()
+        if not self.is_ready():
+            return
         player = players.find_player(before.id)
         if player is not None:
             old_image = player.get_avatar_url(member=before)

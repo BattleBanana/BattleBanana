@@ -456,7 +456,7 @@ def find_player(user_id: int) -> Player:
 REFERENCE_PLAYER = Player(no_save=True)
 
 
-def load_player(player_id):
+def load_player(player_id: int):
     response = dbconn.get_collection_for_object(Player).find_one({"_id": player_id})
     if response is not None and 'data' in response:
         player_data = response['data']
