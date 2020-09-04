@@ -624,16 +624,16 @@ async def ping(ctx, **_):
     dbconn.db.command('ping')
     t2 = time.time()
     dbms = round((t2 - t1) * 1000)
+    
+    apims = round((message.created_at - ctx.created_at).total_seconds() * 1000)
 
     embed = discord.Embed(title=":ping_pong: Pong!", type="rich", colour=gconf.DUE_COLOUR)
+    embed.add_field(name="Bot Latency:", value="``%sms``" % (apims))
     try:
-        apims = round((message.created_at - ctx.created_at).total_seconds() * 1000)
         latency = round(util.clients[0].latencies[util.get_shard_index(ctx.guild.id)][1] * 1000)
 
-        embed.add_field(name="Bot Latency:", value="``%sms``" % (apims))
         embed.add_field(name="API Latency:", value="``%sms``" % (latency))
     except OverflowError:
-        embed.add_field(name="Bot Latency:", value="``NaN``" % (apims))
         embed.add_field(name="API Latency:", value="``NaN``" % (latency))
 
     embed.add_field(name="Database Latency:", value="``%sms``" % (dbms), inline=False)
