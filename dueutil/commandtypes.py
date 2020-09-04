@@ -79,10 +79,16 @@ def parse_player(player_id, called, ctx):
     except ValueError:
         return False
 
-
+simple_parse_funcs = (('T', parse_team), ('S', parse_string), ('I', parse_int), ('C', parse_count), ('R', parse_float))
 def parse_type(arg_type, value, **extras):
     called = extras.get("called")
     ctx = extras.get("ctx")
+    arg_types = {}
+    for letter, func in simple_parse_funcs:
+        result = func(value)
+        arg_types.update({letter: result})
+        if result:
+            return arg_types
     return {
         'T': parse_team(value),
         'S': parse_string(value),
