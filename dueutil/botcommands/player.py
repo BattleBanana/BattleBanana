@@ -264,12 +264,11 @@ async def createaccount(ctx, **details):
     player = details["author"]
 
     if player:
-        await util.say(ctx.channel, "You are already registered")
-        return
+        return await util.say(ctx.channel, "You are already registered")
 
     players.Player(ctx.author)
     stats.increment_stat(stats.Stat.NEW_PLAYERS_JOINED)
-    await util.say(ctx.channel, "Created your account")
+    await util.say(ctx.channel, "Welcome to the BattleBanana club! Make sure you head to <https://battlebanana.xyz/howto> for a starter guide!\n\nHave fun! :D")
 
 
 @commands.command(args_pattern="S?")
