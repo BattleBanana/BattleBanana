@@ -228,6 +228,9 @@ class Player(BattleBananaObject, SlotPickleMixin):
 
         self.save()
 
+    def prestige_multiplicator(self):
+        return self.prestige_level + 1
+
     def progress(self, attack, strg, accy, **options):
         max_attr = options.get('max_attr', 0.1)
         max_exp = options.get('max_exp', 15)
