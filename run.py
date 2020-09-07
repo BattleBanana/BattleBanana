@@ -10,6 +10,7 @@ import aiohttp
 import gc
 import time
 start_time = time.time()
+shard_time = 0
 time_shown = False
 import sys
 from itertools import cycle
@@ -32,7 +33,7 @@ MAX_RECOVERY_ATTEMPTS = 1000
 
 stopped = False
 bot_key = ""
-client = None
+client:discord.AutoShardedClient = None
 clients = []
 shard_names = []
 
@@ -248,6 +249,9 @@ class BattleBananaClient(discord.AutoShardedClient):
 
     
     async def on_ready(self):
+        # TODO: Show the time it takes to turn on the bot & time it took to start shards
+        util.logger.info("Bot (re)started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - shard_time)
+
         await util.duelogger.bot("BattleBanana has *(re)*started\nBot version → ``%s``" % gconf.VERSION)
 
     
@@ -300,6 +304,7 @@ def run_due():
         loader.load_modules(packages=loader.COMMANDS)
 
         util.logger.info("Modules loaded after %.2fs", time.time() - start_time)
+        global shard_time
         shard_time = time.time()
 
         client_thread = ClientThread(asyncio.new_event_loop())
@@ -307,11 +312,6 @@ def run_due():
 
         while client is None:
             pass
-        while not client.is_ready():
-            pass
-
-        # TODO: Show the time it takes to turn on the bot & time it took to start shards
-        util.logger.info("Bot started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - shard_time)
 
         ### Tasks
         loop = asyncio.get_event_loop()
@@ -319,6 +319,7 @@ def run_due():
         for task in tasks.tasks:
             asyncio.ensure_future(task(), loop=loop)
         loop.run_forever()
+
 
 if __name__ == "__main__":
     util.logger.info("Starting BattleBanana!")
