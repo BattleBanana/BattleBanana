@@ -28,9 +28,7 @@ async def daily(ctx, **details):
     player = details["author"]
     responses = game.getResponses()
 
-    BALANCED_AMOUNT = DAILY_AMOUNT * player.level * (player.prestige_level + 1)
-    if player.donor:
-        BALANCED_AMOUNT *= 1.5
+    BALANCED_AMOUNT = DAILY_AMOUNT * player.level * player.prestige_multiplicator()
     
     player.money += BALANCED_AMOUNT
     player.save()
@@ -50,17 +48,11 @@ async def train(ctx, **details):
     """
 
     player = details["author"]
-    maxstats = 100 * (player.prestige_level + 1)
+    maxstats = 100 * player.prestige_multiplicator()
 
-    attack_increase = random.uniform(*TRAIN_RANGE) * player.level * ((player.prestige_level + 1) / 2 + .5)
-    strg_increase = random.uniform(*TRAIN_RANGE) * player.level * ((player.prestige_level + 1) / 2 + .5)
-    accy_increase = random.uniform(*TRAIN_RANGE) * player.level * ((player.prestige_level + 1) / 2 + .5)
-
-    if player.donor:
-        maxstats = maxstats * 2
-        attack_increase = attack_increase * 2
-        strg_increase = strg_increase * 2
-        accy_increase = accy_increase * 2
+    attack_increase = random.uniform(*TRAIN_RANGE) * player.level * player.prestige_multiplicator()
+    strg_increase = random.uniform(*TRAIN_RANGE) * player.level * player.prestige_multiplicator()
+    accy_increase = random.uniform(*TRAIN_RANGE) * player.level * player.prestige_multiplicator()
 
     player.progress(attack_increase, strg_increase, accy_increase,
                     max_exp=100, max_attr=maxstats)
