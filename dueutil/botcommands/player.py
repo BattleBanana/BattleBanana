@@ -55,7 +55,7 @@ async def train(ctx, **details):
     accy_increase = random.uniform(*TRAIN_RANGE) * player.level * player.prestige_multiplicator()
 
     player.progress(attack_increase, strg_increase, accy_increase,
-                    max_exp=100, max_attr=maxstats)
+                    max_exp=maxstats, max_attr=maxstats)
     progress_message = players.STAT_GAIN_FORMAT % (attack_increase, strg_increase, accy_increase)
 
     train_embed = discord.Embed(title="You trained like a mad man!", description="After a hard moment, you feel stronger!", type="rich", color=gconf.DUE_COLOUR)
