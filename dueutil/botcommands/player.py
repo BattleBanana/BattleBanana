@@ -5,7 +5,7 @@ import time
 import dueutil.game.awards as game_awards
 import generalconfig as gconf
 from ..game import players, customizations
-from ..game import stats, game, quests
+from ..game import stats, game, gamerules, quests
 from ..game.helpers import misc, playersabstract, imagehelper
 from ..game.configs import dueserverconfig
 from .. import commands, util, dbconn, permissions
@@ -315,6 +315,10 @@ async def sendquest(ctx, receiver, quest_index, message="", **details):
     receiver.quests.append(plr_quest)
     del plr.quests[quest_index]
 
+    rec_quest = receiver.quests[-1]
+    rec_quest.quester_id = receiver.id
+    rec_quest.quester = receiver
+
     receiver.save()
     plr.save()
     
@@ -441,8 +445,8 @@ async def prestige(ctx, cnf="", **details):
     """
 
     user = details["author"]
-    prestige_level = 80 + (5 * user.prestige_level)
-    req_money = 5000000 + (1000000 * user.prestige_level)
+    prestige_level = gamerules.get_level_for_prestige(user.prestige_level)
+    req_money = gamerules.get_money_for_prestige(user.prestige_level)
 
     if user.level < prestige_level:
         raise util.BattleBananaException(ctx.channel, "You need to be level %s or higher to go to the next prestige!" % prestige_level)
@@ -466,8 +470,8 @@ async def myprestige(ctx, player=None, **details):
 
     if player is None:
         player = details["author"]
-    prestige_level = 80 + (5 * player.prestige_level)
-    req_money = 5000000 + (1000000 * player.prestige_level)
+    prestige_level = gamerules.get_level_for_prestige(player.prestige_level)
+    req_money = gamerules.get_money_for_prestige(player.prestige_level)
 
     message = "%s prestige **%s**! " % ("**You** are" if player == details["author"] else "**" + player.name + "** is", player.prestige_level)
     message += "**%s** %s & %s" % ("You" if player == details["author"] else player.name, ("satisfy the level requirement" if prestige_level <= player.level else "need **%s** additional level(s)" % (prestige_level - player.level)),

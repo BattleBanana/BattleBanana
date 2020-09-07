@@ -145,7 +145,7 @@ async def acceptquest(ctx, quest_index, **details):
                         * quest.level * (turns / average_quest_battle_turns) / 2 * (quest_scale + 0.5) * 3))
 
         # Put some random in the prestige gain so its not a raw 20 * prestige
-        max_stats_gain = 100 * (player.prestige_level + 1)
+        max_stats_gain = 100 * player.prestige_multiplicator()
         if player.donor:
             max_stats_gain *= 1.5
 
@@ -159,7 +159,7 @@ async def acceptquest(ctx, quest_index, **details):
         quest_results = reward + stats_reward
 
         prevExp = player.total_exp 
-        player.progress(add_attack, add_strg, add_accy, max_attr=max_stats_gain, max_exp=10000 * (player.prestige_level + 1))
+        player.progress(add_attack, add_strg, add_accy, max_attr=max_stats_gain, max_exp=10000 * player.prestige_multiplicator())
         expGain = player.total_exp - prevExp
         quest_results = (reward + "and `" + str(round(expGain)) + "` EXP\n" + stats_reward)
 
@@ -253,7 +253,7 @@ async def acceptquest(ctx, quest_index, **details):
 #                            * quest.level * (turns / average_quest_battle_turns) / 2 * (quest_scale + 0.5) * 3))
 #
 #            # Put some random in the prestige gain so its not a raw 20 * prestige
-#            max_stats_gain = 100 * (player.prestige_level + 1)
+#            max_stats_gain = 100 * player.prestige_multiplicator()
 #            if player.donor:
 #                max_stats_gain *= 1.5
 #
@@ -262,7 +262,7 @@ async def acceptquest(ctx, quest_index, **details):
 #            add_accy = min(attr_gain(quest.accy), min(add_strg * 3 * random.uniform(0.6, 1.5), max_stats_gain))
 #
 #            prevExp = player.total_exp 
-#            player.progress(add_attack, add_strg, add_accy, max_attr=max_stats_gain, max_exp=10000 * (player.prestige_level + 1))
+#            player.progress(add_attack, add_strg, add_accy, max_attr=max_stats_gain, max_exp=10000 * player.prestige_multiplicator())
 #            expGain = player.total_exp - prevExp
 #
 #            totalXp += expGain

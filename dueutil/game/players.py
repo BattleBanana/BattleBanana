@@ -112,9 +112,9 @@ class Player(BattleBananaObject, SlotPickleMixin):
         self.level = 1
         self.exp = 0
         self.total_exp = 0
-        self.attack = 1 + self.prestige_level
-        self.strg = 1 + self.prestige_level
-        self.accy = 1 + self.prestige_level
+        self.attack = 1
+        self.strg = 1
+        self.accy = 1
         self.hp = 10
 
         ##### USAGE STATS #####
