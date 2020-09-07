@@ -14,6 +14,8 @@ WE_VOTE_REWARD = 40000
 
 @tasks.task(timeout=300)
 async def process_votes():
+    if not util.clients[0].is_ready():
+        return
     util.logger.info("Processing Votes.")
     try:
         votes = dbconn.conn()["Votes"].find()
