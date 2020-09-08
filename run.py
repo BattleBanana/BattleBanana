@@ -35,7 +35,8 @@ stopped = False
 bot_key = ""
 client:discord.AutoShardedClient = None
 clients = []
-shard_names = []
+config = gconf.other_configs
+shard_names = config["shardNames"]
 
 # I'm not sure of the root cause of this error & it only happens once in months.
 ERROR_OF_DEATH = "Timeout context manager should be used inside a task"
@@ -55,8 +56,15 @@ class BattleBananaClient(discord.AutoShardedClient):
     def __init__(self, **details):
         self.queue_tasks = queue.Queue()
         self.start_time = time.time()
+
+        loader.load_modules(packages=loader.GAME)
+        loader.load_modules(packages=loader.COMMANDS)
+        
+        util.clients.append(self)
+
         super(BattleBananaClient, self).__init__(**details)
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
+        self.run(details['token'])
 
     
     async def __check_task_queue(self):
@@ -207,7 +215,7 @@ class BattleBananaClient(discord.AutoShardedClient):
             message.content = re.sub(mentions_self_regex + "\s*",
                                     dueserverconfig.server_cmd_key(message.guild),
                                     message.content)
-            
+
         await events.on_message_event(message)
 
     
@@ -250,7 +258,7 @@ class BattleBananaClient(discord.AutoShardedClient):
     
     async def on_ready(self):
         # TODO: Show the time it takes to turn on the bot & time it took to start shards
-        util.logger.info("Bot (re)started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - shard_time)
+        util.logger.info("Bot (re)started after %.2fs", time.time() - start_time)
 
         await util.duelogger.bot("BattleBanana has *(re)*started\nBot version → ``%s``" % gconf.VERSION)
 
