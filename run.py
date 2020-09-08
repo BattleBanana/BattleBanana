@@ -64,6 +64,7 @@ class BattleBananaClient(discord.AutoShardedClient):
 
         super(BattleBananaClient, self).__init__(**details)
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
+        loader.add_cmds_to_dbconn()
         self.run(details['token'])
 
     
