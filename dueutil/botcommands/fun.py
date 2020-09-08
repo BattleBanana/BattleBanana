@@ -303,6 +303,7 @@ async def topdog(ctx, **_):
         
         
 @commands.command(args_pattern=None, aliases=["btd"])
+@commands.imagecommand()
 async def battletopdog(ctx, **details):
     """
     [CMD_KEY]battletopdog
@@ -330,8 +331,8 @@ async def battletopdog(ctx, **details):
         awards.give_award(ctx.channel, top_dog, "InconceivableBattle")
     await battles.give_awards_for_battle(ctx.channel, battle_log)
         
-
 @commands.command(args_pattern=None, aliases=["vtd"])
+@commands.imagecommand()
 async def viewtopdog(ctx, **_):
     """
     [CMD_KEY]viewtopdog
