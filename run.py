@@ -5,7 +5,6 @@ import queue
 import re
 import traceback
 from threading import Thread
-from multiprocessing import Process, dummy
 import aiohttp
 import gc
 import time
@@ -210,20 +209,21 @@ class BattleBananaClient(discord.AutoShardedClient):
             
         await events.on_message_event(message)
 
-    
-    async def on_member_update(self, before, after):
-        if not self.is_ready():
-            return
-        player = players.find_player(before.id)
-        if player is not None:
-            old_image = player.get_avatar_url(member=before)
-            new_image = player.get_avatar_url(member=after)
-            if old_image != new_image:
-                imagecache.uncache(old_image)
-            member = after
-            if (member.guild.id == gconf.THE_DEN and any(role.id == gconf.DONOR_ROLE_ID for role in member.roles)):
-                player.donor = True
-                player.save()
+    # TODO: Fix this so it doesnt error on laptop
+    # async def on_member_update(self, before, after):
+    #     if not self.is_ready():
+    #         return
+
+    #     player = players.find_player(before.id)
+    #     if player is not None:
+    #         old_image = player.get_avatar_url(member=before)
+    #         new_image = player.get_avatar_url(member=after)
+    #         if old_image != new_image:
+    #             imagecache.uncache(old_image)
+    #         member = after
+    #         if (member.guild.id == gconf.THE_DEN and any(role.id == gconf.DONOR_ROLE_ID for role in member.roles)):
+    #             player.donor = True
+    #             player.save()
 
     
     async def on_guild_remove(self, guild):
@@ -266,8 +266,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                          shard_id + 1, shard_names[shard_id], self.user.name, self.user.id)
 
 
-
-class ClientThread(dummy.Process):
+class ClientThread(Thread):
     """
     Thread for a client
     """
