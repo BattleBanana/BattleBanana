@@ -210,20 +210,20 @@ class BattleBananaClient(discord.AutoShardedClient):
         await events.on_message_event(message)
 
     # TODO: Fix this so it doesnt error on laptop
-    # async def on_member_update(self, before, after):
-    #     if not self.is_ready():
-    #         return
+    async def on_member_update(self, before, after):
+        if not self.is_ready():
+            return
 
-    #     player = players.find_player(before.id)
-    #     if player is not None:
-    #         old_image = player.get_avatar_url(member=before)
-    #         new_image = player.get_avatar_url(member=after)
-    #         if old_image != new_image:
-    #             imagecache.uncache(old_image)
-    #         member = after
-    #         if (member.guild.id == gconf.THE_DEN and any(role.id == gconf.DONOR_ROLE_ID for role in member.roles)):
-    #             player.donor = True
-    #             player.save()
+        player = players.find_player(before.id)
+        if player is not None:
+            old_image = player.get_avatar_url(member=before)
+            new_image = player.get_avatar_url(member=after)
+            if old_image != new_image:
+                imagecache.uncache(old_image)
+            member = after
+            if (member.guild.id == gconf.THE_DEN and any(role.id == gconf.DONOR_ROLE_ID for role in member.roles)):
+                player.donor = True
+                player.save()
 
     
     async def on_guild_remove(self, guild):
