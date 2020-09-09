@@ -209,7 +209,7 @@ class BattleBananaClient(discord.AutoShardedClient):
             
         await events.on_message_event(message)
 
-    # TODO: Fix this so it doesnt error on laptop
+    
     async def on_member_update(self, before, after):
         if not self.is_ready():
             return
