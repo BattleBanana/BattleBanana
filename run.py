@@ -91,7 +91,10 @@ class BattleBananaClient(discord.AutoShardedClient):
                                 ":confetti_ball: I'm on __**%d SERVERS**__ now!1!111!\n@everyone" % server_count)
 
         util.logger.info("Joined guild name: %s id: %s", guild.name, guild.id)
-        await util.set_up_roles(guild)
+        try:
+            await util.set_up_roles(guild)
+        except discord.Forbidden:
+            util.logger.warning("Unable to setup role for new server")
         server_stats = self.server_stats(guild)
         await util.duelogger.info(("BattleBanana has joined the guild **"
                                         + util.ultra_escape_string(guild.name) + "**!\n"
