@@ -79,7 +79,11 @@ class BattleBananaClient(discord.AutoShardedClient):
         """
         self.queue_tasks.put({"task": task, "args": args, "kwargs": kwargs})
 
-    
+
+    def who_added(self, event:discord.AuditLogEntry):
+        return event.target.id == self.user.id
+
+
     async def on_guild_join(self, guild):
         server_count = util.get_server_count()
         if server_count % 100 == 0:
@@ -96,18 +100,32 @@ class BattleBananaClient(discord.AutoShardedClient):
                                         + ("**BOT SERVER**" if server_stats["bot_server"] else "")))
 
         # Message to help out new guild admins.
-        for channel in guild.channels:
-            if channel.type == discord.ChannelType.text:
-                try:
-                    await channel.send(":wave: __Thanks for adding me!__\n"
+        try:
+            audit = await guild.audit_logs(action=discord.AuditLogAction.bot_add).find(self.who_added)
+            user = audit.user
+
+            await user.create_dm()
+            await user.send(":wave: __Thanks for adding me!__\n"
                                      + "If you would like to customize me to fit your "
                                      + "guild take a quick look at the admins "
                                      + "guide at <https://battlebanana.xyz/howto/#adming>.\n"
                                      + "It shows how to change the command prefix here, and set which "
                                      + "channels I or my commands can be used in (along with a bunch of other stuff).")
-                    break
-                except discord.Forbidden:
-                    continue
+        except discord.Forbidden:
+            for channel in guild.channels:
+                if channel.type == discord.ChannelType.text:
+                    try:
+                        await channel.send(":wave: __Thanks for adding me!__\n"
+                                        + "If you would like to customize me to fit your "
+                                        + "guild take a quick look at the admins "
+                                        + "guide at <https://battlebanana.xyz/howto/#adming>.\n"
+                                        + "It shows how to change the command prefix here, and set which "
+                                        + "channels I or my commands can be used in (along with a bunch of other stuff).")
+                        break
+                    except discord.Forbidden:
+                        continue
+        finally:
+            util.logger.warning("Unable to send on join message")
         
         # Update stats
         await servercounts.update_server_count(self)
