@@ -227,23 +227,6 @@ async def servers(ctx, **_):
                    + ("s" if server_count != 1 else "") + "**")
 
 
-@commands.command(permission=Permission.REAL_SERVER_ADMIN, args_pattern="S", aliases=("sl",))
-async def setlanguage(ctx, new_lan, **details):
-    """
-    [CMD_KEY]setlanguage
-
-    Sets the language for your guild
-
-    """
-
-    if util.filter_string(new_lan) != new_lan:
-        raise util.BattleBananaException(ctx.channel, "You must set a valid language!")
-
-    if str(new_lan) in ("en-gb", "fr-ca"):
-        dueserverconfig.set_language(ctx.guild, new_lan)
-        await util.say(ctx.channel, "success")
-
-
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern="S", aliases=("setprefix",))
 async def setcmdkey(ctx, new_key, **details):
     """

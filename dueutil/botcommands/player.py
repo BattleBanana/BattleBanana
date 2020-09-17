@@ -5,7 +5,7 @@ import time
 import dueutil.game.awards as game_awards
 import generalconfig as gconf
 from ..game import players, customizations
-from ..game import stats, game, gamerules, quests, translations
+from ..game import stats, game, gamerules, quests
 from ..game.helpers import misc, playersabstract, imagehelper
 from ..game.configs import dueserverconfig
 from .. import commands, util, dbconn, permissions
@@ -35,9 +35,7 @@ async def daily(ctx, **details):
     await util.say(ctx.channel, e.BBT + f' {random.choice(responses).format(user=f"**{player}**", daily=f"¤{BALANCED_AMOUNT}")}')
 
 @commands.command(args_pattern=None)
-@commands.ratelimit(cooldown=0, error="You've done all the training you can for now! You can train again in **[COOLDOWN]**!", save=True)
-#cooldown was 21600
-#set to 0 for testing purposes
+@commands.ratelimit(cooldown=21600, error="You've done all the training you can for now! You can train again in **[COOLDOWN]**!", save=True)
 async def train(ctx, **details):
     """
     [CMD_KEY]train
@@ -60,14 +58,13 @@ async def train(ctx, **details):
                     max_exp=maxstats, max_attr=maxstats)
     progress_message = players.STAT_GAIN_FORMAT % (attack_increase, strg_increase, accy_increase)
 
-    train_embed = discord.Embed(title=game.locale(ctx.guild, player, "player:train:TITLE"), description=game.locale(ctx.guild, player, "player:train:DESCRIPTION"), type="rich", color=gconf.DUE_COLOUR)
-    train_embed.add_field(name=game.locale(ctx.guild, player, "player:train:FIELDNAME"), value=progress_message, inline=True)
-    train_embed.set_footer(text=game.locale(ctx.guild, player, "player:train:FOOTER"))
+    train_embed = discord.Embed(title="You trained like a mad man!", description="After a hard moment, you feel stronger!", type="rich", color=gconf.DUE_COLOUR)
+    train_embed.add_field(name="Training result:", value=progress_message, inline=True)
+    train_embed.set_footer(text='You feel exhausted and may train again in 6 hours!')
 
     await game.check_for_level_up(ctx, player)
     player.save()
-    await util.say(ctx.channel, game.locale(ctx.guild, player, "player:train:COMPLETE"), embed=train_embed)
-    #await translations.sayT(ctx.channel, player, "player:train:COMPLETE", embed=train_embed)
+    await util.say(ctx.channel, "**%s** training complete!\n" % player, embed=train_embed)
 
 @commands.command(args_pattern=None)
 @commands.ratelimit(cooldown=604800, error="You can't collect your weekly reward again for **[COOLDOWN]**!", save=True)

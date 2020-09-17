@@ -1,9 +1,0 @@
-{
-    "HELP": "[CMD_KEY]train\n\nTrain to get a little exp to help you with quests.\n\nThis will never give you much exp! But should help you out with quests early on!\n\nYou can use this command once every 6 hours!",
-    "TITLE": "Tu t'es entraîné comme un fou",
-    "DESCRIPTION": "Après un moment difficile, vous vous sentez plus fort!",
-    "FIELDNAME": "Résultat de la formation:",
-    "FOOTER": "Vous vous sentez épuisé et pouvez vous entraîner à nouveau dans 6 heures!",
-    "ERROR": "You've done all the training you can for now! You can train again in **[COOLDOWN]**!",
-    "COMPLETE": "[PLAYER] formation terminée!"
-}
