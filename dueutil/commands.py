@@ -173,7 +173,7 @@ def ratelimit(**command_info):
             time_since_last_used = now - player.command_rate_limits.get(command_name, 0)
             if time_since_last_used < command_info["cooldown"]:
                 error = translations.getLocale(ctx, player, command_info["error"])
-                if help == "n/a":
+                if error == "n/a":
                     error = command_info["error"]
                 if "[COOLDOWN]" in error:
                     time_to_wait = command_info["cooldown"] - time_since_last_used
