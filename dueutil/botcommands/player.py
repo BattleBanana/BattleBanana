@@ -66,8 +66,8 @@ async def train(ctx, **details):
 
     await game.check_for_level_up(ctx, player)
     player.save()
-    await util.say(ctx.channel, game.locale(ctx.guild, player, "player:train:COMPLETE"), embed=train_embed)
-    #await translations.sayT(ctx.channel, player, "player:train:COMPLETE", embed=train_embed)
+    #await util.say(ctx.channel, game.locale(ctx.guild, player, "player:train:COMPLETE"), embed=train_embed)
+    await translations.sayT(ctx, player, "player:train:COMPLETE", embed=train_embed)
 
 @commands.command(args_pattern=None)
 @commands.ratelimit(cooldown=604800, error="You can't collect your weekly reward again for **[COOLDOWN]**!", save=True)
