@@ -51,6 +51,8 @@ async def help(ctx, *args, **details):
                 alias_count = len(chosen_command.aliases)
                 if chosen_command.__doc__ is not None:
                     help = translations.getLocale(ctx, player, chosen_command.__doc__)
+                    if help == "n/a":
+                        help = chosen_command.__doc__
                     command_help = help.replace('[CMD_KEY]', server_key)
                 else:
                     command_help = 'Sorry there is no help for that command!'

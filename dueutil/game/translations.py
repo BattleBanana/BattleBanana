@@ -32,7 +32,10 @@ async def say(ctx, player, args, **kwargs):
 def getLocale(ctx, player, thing):
     string = thing.split(":")
     lan = dueserverconfig.get_language(ctx.guild.id)
-    f = json.load(open("dueutil/game/configs/localization/"+str(lan)+"/"+string[0]+"/"+string[1]+".json", "r"))
+    try:
+        f = json.load(open("dueutil/game/configs/localization/"+str(lan)+"/"+string[0]+"/"+string[1]+".json", "r"))
+    except IndexError:
+        return "n/a"
     msg = f[string[2]]
 
     if "[PLAYER]" in msg:
