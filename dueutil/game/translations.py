@@ -2,7 +2,6 @@ import json
 import discord
 
 from dueutil.game.configs import dueserverconfig
-from dueutil.game import game
 from dueutil import util
 
 async def say(ctx, player, args, **kwargs):

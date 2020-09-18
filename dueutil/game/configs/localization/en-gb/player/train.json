@@ -4,6 +4,6 @@
     "DESCRIPTION": "After a hard moment, you feel stronger!",
     "FIELDNAME": "Training result:",
     "FOOTER": "You feel exhausted and may train again in 6 hours!",
-    "ERROR": "You've done all the training you can for now! You can train again in **[COOLDOWN]**!",
+    "RATELIMIT": "You've done all the training you can for now! You can train again in **[COOLDOWN]**!",
     "COMPLETE": "[PLAYER] training complete!"
 }

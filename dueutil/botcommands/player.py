@@ -35,7 +35,7 @@ async def daily(ctx, **details):
     await util.say(ctx.channel, e.BBT + f' {random.choice(responses).format(user=f"**{player}**", daily=f"¤{BALANCED_AMOUNT}")}')
 
 @commands.command(args_pattern=None)
-@commands.ratelimit(cooldown=0, error="You've done all the training you can for now! You can train again in **[COOLDOWN]**!", save=True)
+@commands.ratelimit(cooldown=21600, error="player:train:RATELIMIT", save=True)
 #cooldown was 21600
 #set to 0 for testing purposes
 async def train(ctx, **details):

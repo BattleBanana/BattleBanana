@@ -3,7 +3,7 @@ import time
 from functools import wraps
 
 from . import permissions
-from .game import players, emojis
+from .game import players, emojis, translations
 from .game.configs import dueserverconfig
 from . import events, util, commandtypes
 from .permissions import Permission
@@ -172,7 +172,9 @@ def ratelimit(**command_info):
             now = int(time.time())
             time_since_last_used = now - player.command_rate_limits.get(command_name, 0)
             if time_since_last_used < command_info["cooldown"]:
-                error = command_info["error"]
+                error = translations.getLocale(ctx, player, command_info["error"])
+                if help == "n/a":
+                    error = command_info["error"]
                 if "[COOLDOWN]" in error:
                     time_to_wait = command_info["cooldown"] - time_since_last_used
                     error = error.replace("[COOLDOWN]", util.display_time(time_to_wait))
