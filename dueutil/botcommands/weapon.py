@@ -3,18 +3,14 @@ import discord
 import generalconfig as gconf
 from ..game import players
 from ..permissions import Permission
-from ..game import battles, weapons, stats, awards
+from ..game import battles, weapons, stats, awards, translations
 from ..game.helpers import imagehelper, misc
 from .. import commands, util
 
 
 @commands.command(args_pattern="M?", aliases=["mw"])
 async def myweapons(ctx, *args, **details):
-    """
-    [CMD_KEY]myweapons (page)/(weapon name)
-    
-    Shows the contents of your weapon inventory.
-    """
+    """weapon:myweapons:HELP"""
 
     player = details["author"]
     player_weapons = player.get_owned_weapons()
@@ -27,10 +23,10 @@ async def myweapons(ctx, *args, **details):
                                     title=player.get_name_possession_clean() + " Weapons", price_divisor=4/3,
                                     empty_list="")
         if len(player_weapons) == 0:
-            weapon_store.add_field(name="No weapons stored!",
-                                   value="You can buy up to 6 more weapons from the shop and store them here!")
-        weapon_store.description = "Currently equipped: " + str(player.weapon)
-        weapon_store.set_footer(text="Do " + details["cmd_key"] + "equip (weapon name) to equip a weapon.")
+            weapon_store.add_field(name=translations.translate(ctx, player, "weapons:myweapons:NOWEPTITLE"),
+                                    value=translations.translate(ctx, player, "weapons:myweapons:NOWEPDES"))
+        weapon_store.description = translations.translate(ctx, player, "weapons:myweapons:EQUIPTEDWEPS")) + str(player.weapon)
+        weapon_store.set_footer(text=translations.translate(ctx, player, "weapons:myweapons:EQUIPTEDWEPS"), details["cmd_key"])
         await util.say(ctx.channel, embed=weapon_store)
     else:
         weapon_name = page
@@ -42,39 +38,31 @@ async def myweapons(ctx, *args, **details):
             info = weapon_info(**details, weapon=weapon, price_divisor=4 / 3, embed=embed)
             await util.say(ctx.channel, embed=info)
         else:
-            raise util.BattleBananaException(ctx.channel, "You don't have a weapon with that name!")
+            raise util.BattleBananaException(ctx.channel, translations.translate(ctx, player, "weapons:myweapons:NOWEAPNAME"))
 
 
 @commands.command(args_pattern="S?", aliases=["uq", "uneq"])
 async def unequip(ctx, _=None, **details):
-    """
-    [CMD_KEY]unequip
-    
-    Unequips your current weapon
-    """
+    """weapon:unequip:HELP"""
 
     player = details["author"]
     weapon = player.weapon
     if weapon.w_id == weapons.NO_WEAPON_ID:
-        raise util.BattleBananaException(ctx.channel, "You don't have anything equipped anyway!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, player, "weapons:unequip:NOTHINGEQUIPANYWAY"))
     if len(player.inventory["weapons"]) >= 6:
-        raise util.BattleBananaException(ctx.channel, "No room in your weapon storage!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, player, "weapons:unequip:NOROOM"))
     if player.owns_weapon(weapon.name):
-        raise util.BattleBananaException(ctx.channel, "You already have a weapon with that name stored!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, player, "weapons:unequip:ALREADYSTORED"))
 
     player.store_weapon(weapon)
     player.weapon = weapons.NO_WEAPON_ID
     player.save()
-    await util.say(ctx.channel, ":white_check_mark: **" + weapon.name_clean + "** unequipped!")
+    await util.say(ctx.channel, ":white_check_mark: **" + weapon.name_clean + "**"+translations.translate(ctx, player, "weapons:unequip:UNEQUIP"))
 
 
 @commands.command(args_pattern='S', aliases=["eq"])
 async def equip(ctx, weapon_name, **details):
-    """
-    [CMD_KEY]equip (weapon name)
-    
-    Equips a weapon from your weapon inventory.
-    """
+    """weapon:equip:HELP"""
 
     player = details["author"]
     current_weapon = player.weapon
@@ -83,15 +71,14 @@ async def equip(ctx, weapon_name, **details):
     weapon = player.get_weapon(weapon_name)
     if weapon is None:
         if weapon_name != current_weapon.name.lower():
-            raise util.BattleBananaException(ctx.channel, "You do not have that weapon stored!")
-        await util.say(ctx.channel, "You already have that weapon equipped!")
+            raise util.BattleBananaException(ctx.channel, translations.translate(ctx, player, "weapons:equip:NOTSTORED"))
+        await util.say(ctx.channel, translations.translate(ctx, player, "weapons:equip:ALREADYEQUIP"))
         return
 
     player.discard_stored_weapon(weapon)
     if player.owns_weapon(current_weapon.name):
         player.store_weapon(weapon)
-        raise util.BattleBananaException(ctx.channel, ("Can't put your current weapon into storage!\n"
-                                                  + "There is already a weapon with the same name stored!"))
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, player, "weapons:equip:SAMENAME"))
 
     if current_weapon.w_id != weapons.NO_WEAPON_ID:
         player.store_weapon(current_weapon)
@@ -99,7 +86,7 @@ async def equip(ctx, weapon_name, **details):
     player.weapon = weapon
     player.save()
 
-    await util.say(ctx.channel, ":white_check_mark: **" + weapon.name_clean + "** equipped!")
+    await util.say(ctx.channel, ":white_check_mark: **" + weapon.name_clean + "** "+translations.translate(ctx, player, "weapons:equip:EQUIPPED"))
 
 
 @misc.paginator
@@ -113,19 +100,12 @@ def weapons_page(weapons_embed, weapon, **extras):
 @commands.command(args_pattern='PP?', aliases=["bt"])
 @commands.imagecommand()
 async def battle(ctx, *args, **details):
-    """
-    [CMD_KEY]battle player (optional other player)
-    
-    Battle someone!
-    
-    Note! You don't gain any exp or reward from these battles!
-    Please do not spam anyone with unwanted battles.
-    """
+    """weapon:battle:HELP"""
     # TODO: Handle draws
     player = details["author"]
     if len(args) == 2 and args[0] == args[1] or len(args) == 1 and player == args[0]:
         # TODO Check if args are the author or random player
-        raise util.BattleBananaException(ctx.channel, "Don't beat yourself up!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, player, "weapons:battle:BATTLEAUTHOR"))
     if len(args) == 2:
         player_one = args[0]
         player_two = args[1]

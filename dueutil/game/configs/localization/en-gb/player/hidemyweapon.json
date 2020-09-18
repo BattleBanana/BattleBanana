@@ -1,0 +1,5 @@
+{
+    "HELP": "[CMD_KEY]hidemyweapon\n\nHides your weapon",
+    "NOWHIDDEN": "Your weapon is now hidden!",
+    "NOTHIDDEN": "Your weapon is not hidden anymore!"
+}

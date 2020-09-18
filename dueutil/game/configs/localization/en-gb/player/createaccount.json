@@ -1,0 +1,5 @@
+{
+    "HELP": "[CMD_KEY]createaccount\n\nCreate your account to start your BattleBanana adventure",
+    "ALREADYPLAYER": "You are already registered",
+    "NEWPLAYER": "Welcome to the BattleBanana club! Make sure you head to <https://battlebanana.xyz/howto> for a starter guide!\n\nHave fun! :D"
+}

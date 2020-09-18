@@ -1,0 +1,4 @@
+{
+    "HELP": "[CMD_KEY]resetme\n\nResets all your stats & any customization.\nThis cannot be reversed!",
+    "SUCCESS": "Your user has been reset."
+}

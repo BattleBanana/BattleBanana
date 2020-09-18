@@ -1,0 +1,5 @@
+{
+    "HELP": "[CMD_KEY]battlename (name)\n\nSets your name in BattleBanana.\nTo reset your name to your discord name run the\ncommand with no arguments",
+    "ERROR": "Battle name must be between **%d-%d** characters long!",
+    "RESPONSE": "Your battle name has been set to **%s**!"
+}

@@ -58,19 +58,12 @@ async def train(ctx, **details):
 
     await game.check_for_level_up(ctx, player)
     player.save()
-    #await util.say(ctx.channel, translations.getLocale(ctx, player, "player:train:COMPLETE"), embed=train_embed)
     await translations.say(ctx, player, "player:train:COMPLETE", embed=train_embed)
 
 @commands.command(args_pattern=None)
-@commands.ratelimit(cooldown=604800, error="You can't collect your weekly reward again for **[COOLDOWN]**!", save=True)
+@commands.ratelimit(cooldown=604800, error="player:weekly:RATELIMIT", save=True)
 async def weekly(ctx, **details):
-    """
-    [CMD_KEY]weekly
-
-    Your weekly free and easy to get quest!
-
-    You can use this command once very 7 days!
-    """
+    """player:weekly:HELP"""
     player = details["author"]
     channel = ctx.channel
 
@@ -86,48 +79,32 @@ async def weekly(ctx, **details):
 
 @commands.command(args_pattern=None)
 async def mylimit(ctx, **details):
-    """
-    [CMD_KEY]mylimit
-
-    Shows the weapon price you're limited to.
-    """
+    """player:mylimit:HELP"""
 
     player = details["author"]
-    await util.say(ctx.channel, "You're currently limited to weapons with a value up to **%s**!"
-                   % util.format_number(player.item_value_limit, money=True, full_precision=True))
+    await translations.say(ctx, player, "player:mylimit:RESPONSE", util.format_number(player.item_value_limit, money=True, full_precision=True))
 
 
 @commands.command(args_pattern="S?")
 async def battlename(ctx, name="", **details):
-    """
-    [CMD_KEY]battlename (name)
-    
-    Sets your name in BattleBanana.
-    To reset your name to your discord name run the
-    command with no arguments
-    """
+    """player:battlename:HELP"""
 
     player = details["author"]
     if name != "":
         name_len_range = players.Player.NAME_LENGTH_RANGE
         if len(name) not in name_len_range:
-            raise util.BattleBananaException(ctx.channel, "Battle name must be between **%d-%d** characters long!"
-                                                     % (min(name_len_range), max(name_len_range)))
+            raise util.BattleBananaException(ctx.channel, translations.translate(ctx, player, "player:battlename:ERROR", min(name_len_range), max(name_len_range)))
         player.name = util.filter_string(name)
     else:
         player.name = details["author_name"]
     player.save()
-    await util.say(ctx.channel, "Your battle name has been set to **%s**!" % player.name_clean)
+    await translations.say(ctx, player, "player:battlename:RESPONSE", player.name_clean)
 
 
 @commands.command(args_pattern=None, aliases=["mi"])
 @commands.imagecommand()
 async def myinfo(ctx, **details):
-    """
-    [CMD_KEY]myinfo
-    
-    Shows your info!
-    """
+    """player:myinfo:HELP"""
 
     await imagehelper.stats_screen(ctx.channel, details["author"])
 
@@ -142,46 +119,32 @@ def player_profile_url(player_id):
 
 @commands.command(args_pattern=None)
 async def myprofile(ctx, **details):
-    """
-    [CMD_KEY]myprofile
-
-    Gives the link to your battlebanana.xyz profile
-    """
+    """player:myprofile:HELP"""
 
     profile_url = player_profile_url(details["author"].id)
 
     if profile_url is None:
-        await util.say(ctx.channel, (":lock: Your profile is currently set to private!\n"
-                                     + "If you want a public profile login to <https://battlebanana.xyz/>"
-                                     + " and make your profile public in the settings."))
+        await translations.say(ctx, 0, "player:myprofile:LOCKED")
     else:
-        await util.say(ctx.channel, "Your profile is at %s" % profile_url)
+        await translations.say(ctx, 0, "player:myprofile:SUCCESS", profile_url)
 
 
 @commands.command(args_pattern='P')
 async def profile(ctx, player, **_):
-    """
-    [CMD_KEY]profile @player
-
-    Gives a link to a player's profile!
-    """
+    """player:profile:HELP"""
 
     profile_url = player_profile_url(player.id)
 
     if profile_url is None:
-        await util.say(ctx.channel, ":lock: **%s** profile is private!" % player.get_name_possession_clean())
+        await translations.say(ctx, 0, "player:profile:LOCKED", player.get_name_possession_clean())
     else:
-        await util.say(ctx.channel, "**%s** profile is at %s" % (player.get_name_possession_clean(), profile_url))
+        await translations.say(ctx, 0, "player:profile:SUCCESS", player.get_name_possession_clean(), profile_url)
 
 
 @commands.command(args_pattern='P', aliases=["in"])
 @commands.imagecommand()
 async def info(ctx, player, **_):
-    """
-    [CMD_KEY]info @player
-    
-    Shows the info of another player!
-    """
+    """player:info:HELP"""
 
     await imagehelper.stats_screen(ctx.channel, player)
 
@@ -189,7 +152,7 @@ async def info(ctx, player, **_):
 async def show_awards(ctx, player, page=0):
     # Always show page 1 (0)
     if page != 0 and page * 5 >= len(player.awards):
-        raise util.BattleBananaException(ctx.channel, "Page not found")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, player, "player:info:ERROR"))
 
     await imagehelper.awards_screen(ctx.channel, player, page,
                                     is_player_sender=ctx.author.id == player.id)
@@ -198,26 +161,20 @@ async def show_awards(ctx, player, page=0):
 @commands.command(args_pattern=None, aliases=["hmw"])
 async def hidemyweapon(ctx, **details):
     """
-    [CMD_KEY]hidemyweapon
-
-    Hides your weapon
+    
     """
     player = details["author"]
 
     player.weapon_hidden = not player.weapon_hidden
     player.save()
 
-    await util.say(ctx.channel, "Your weapon is now hidden!" if player.weapon_hidden else "Your weapon is not hidden anymore!")
+    await translations.say(ctx, player, "player:hidemyweapon:NOWHIDDEN" if player.weapon_hidden else "player:hidemyweapon:NOTHIDDEN")
 
 
 @commands.command(args_pattern='C?')
 @commands.imagecommand()
 async def myawards(ctx, page=1, **details):
-    """
-    [CMD_KEY]myawards (page number)
-    
-    Shows your awards!
-    """
+    """player:myawards:HELP"""
 
     await show_awards(ctx, details["author"], page - 1)
 
@@ -225,11 +182,7 @@ async def myawards(ctx, page=1, **details):
 @commands.command(args_pattern='PC?')
 @commands.imagecommand()
 async def awards(ctx, player, page=1, **_):
-    """
-    [CMD_KEY]awards @player (page number)
-    
-    Shows a players awards!
-    """
+    """player:awards:HELP"""
 
     await show_awards(ctx, player, page - 1)
 
@@ -237,71 +190,54 @@ async def awards(ctx, player, page=1, **_):
 @commands.require_cnf(warning="This will **__permanently__** reset your user!")
 async def resetme(ctx, cnf="", **details):
    """
-   [CMD_KEY]resetme
    
-   Resets all your stats & any customization.
-   This cannot be reversed!
    """
 
    player = details["author"]
    player.reset(ctx.author)
-   await util.say(ctx.channel, "Your user has been reset.")
+   await translations.say(ctx, player, "player:resetme:SUCCESS")
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None, aliases=["start"])
 async def createaccount(ctx, **details):
-    """
-    [CMD_KEY]createaccount
-
-    Create your account to start your BattleBanana adventure
-    """
+    """players:createaccount:HELP"""
 
     player = details["author"]
 
     if player:
-        return await util.say(ctx.channel, "You are already registered")
+        return await translations.say(ctx, player, "players:createaccount:ALREADYPLAYER")
 
     players.Player(ctx.author)
     stats.increment_stat(stats.Stat.NEW_PLAYERS_JOINED)
-    await util.say(ctx.channel, "Welcome to the BattleBanana club! Make sure you head to <https://battlebanana.xyz/howto> for a starter guide!\n\nHave fun! :D")
+    await translations.say(ctx, player, "players:createaccount:NEWPLAYER")
 
 
 @commands.command(args_pattern="S?")
 @commands.require_cnf(warning="This will **__permanently__** delete your account!")
 async def deleteme(ctx, cnf="", **details):
-    """
-    [CMD_KEY]deleteme
+    """players:deleteme:HELP"""
     
-    Deletes all your stats & any customization.
-    This cannot be reversed!
-    """
-    
-    user = details["author"]
+    player = details["author"]
 
-    dbconn.delete_player(user)
+    dbconn.delete_player(player)
     players.players.pop(ctx.author.id)
     
-    await util.say(ctx.channel, "Your user has been deleted.")
+    await translations.say(ctx, player, "players:deleteme:SUCCESS")
 
 @commands.command(args_pattern='PCS?', aliases=["sq"])
 async def sendquest(ctx, receiver, quest_index, message="", **details):
-    """
-    [CMD_KEY]sendquest @player (quest number) (optional message)
-
-    Sends one of your quest to another player.
-    Note: The quest can't be 10 level higher the other player's level.
-    """
+    """players:sendquest:HELP"""
 
     plr = details["author"]
     quest_index -= 1
 
     if receiver.id == plr.id:
-        raise util.BattleBananaException(ctx.channel, "There is no reason to send a quest to yourself!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, plr, "players:sendquest:SAMEUSER"))
     if quest_index >= len(plr.quests):
-        raise util.BattleBananaException(ctx.channel, "Quest not found!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, plr, "players:sendquest:QUESTNOTFOUND"))
     plr_quest = plr.quests[quest_index]
     if plr_quest.level > (receiver.level + 10):
-        raise util.BattleBananaException(ctx.channel, "The quest is too strong for the player! Highest quest level for this player is " + str(receiver.level + 10) + "!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, plr, "players:sendquest:TOOSTRONG", str(receiver.level + 10)))
 
     quest_name = plr_quest.name
     quest_level = str(plr_quest.level)
@@ -316,14 +252,14 @@ async def sendquest(ctx, receiver, quest_index, message="", **details):
     receiver.save()
     plr.save()
     
-    transaction_log = discord.Embed(title=e.QUESTER + " Transaction complete!", type="rich",
+    transaction_log = discord.Embed(title=e.QUESTER + translations.translate(ctx, plr, "players:sendquest:EMBEDTITLE"), type="rich",
                                     color=gconf.DUE_COLOUR)
-    transaction_log.add_field(name="Sender:", value=plr.name_clean)
-    transaction_log.add_field(name="Recipient:", value=receiver.name_clean)
-    transaction_log.add_field(name="Transaction:", value=quest_name + ", level " + quest_level, inline=False)
+    transaction_log.add_field(name=translations.translate(ctx, plr, "players:sendquest:EMBEDSENDER"), value=plr.name_clean)
+    transaction_log.add_field(name=translations.translate(ctx, plr, "playser:sendquest:EMBEDRECIPIENT"), value=receiver.name_clean)
+    transaction_log.add_field(name=translations.translate(ctx, plr, "playser:sendquest:EMBEDTRANS"), value=quest_name + ", level " + quest_level, inline=False)
     if message != "":
-        transaction_log.add_field(name=":pencil: Attached note:", value=message, inline=False)
-    transaction_log.set_footer(text="Please keep this receipt for your records.")
+        transaction_log.add_field(name=translations.translate(ctx, plr, "playser:sendquest:EMEDNOTE"), value=message, inline=False)
+    transaction_log.set_footer(text=translations.translate(ctx, plr, "playser:sendquest:EMBEDRECEIPT"))
     util.logger.info("%s (%s) sent %s to %s (%s)", plr.name, plr.id, quest_name + ", level " + quest_level, receiver.name, receiver.id)
 
     await util.say(ctx.channel, embed=transaction_log)
@@ -331,21 +267,22 @@ async def sendquest(ctx, receiver, quest_index, message="", **details):
 
 @commands.command(args_pattern='PP?')
 async def compare(ctx, player1, player2=None, **details):
-    """
-    [CMD_KEY]compare Player1 Player2
-
-    Compares 2 player's statistic! 
-    
-    If the "Player2" argument is not given, it will compare you to the "Player1"
-    """
+    """players:compare:HELP"""
     
     plr = details["author"]
     if player2 is None and player1 == plr:
-        raise util.BattleBananaException(ctx.channel, "There is no reason to compare yourself! You are as good as yourself (:")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, plr, "players:compare:COMPAREYOU"))
     if player1 == player2:
-        raise util.BattleBananaException(ctx.channel, "There is no reason to compare the same player!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, plr, "players:compare:SAMEPLAYER"))
     
     compare_Embed = discord.Embed()
+
+    prestige = translations.translate(ctx, plr, "players:compare:PRESTIGE")
+    level = translations.translate(ctx, plr, "players:compare:LEVEL")
+    health = translations.translate(ctx, plr, "players:compare:HEALTH")
+    attack = translations.translate(ctx, plr, "players:compare:ATTACK")
+    strength = translations.translate(ctx, plr, "players:compare:STRENGTH")
+    accuracy = translations.translate(ctx, plr, "players:compare:ACCURACY")
 
     if player2 is None:
         player2 = player1
@@ -353,12 +290,12 @@ async def compare(ctx, player1, player2=None, **details):
     compare_Embed.title = "Comparing **%s** with **%s**!" % (player1.name_clean, player2.name_clean)
     compare_Embed.add_field(
         name=player1.name_clean,
-        value=("Prestige: %s\nLevel: %s\nHealth: %.2f\nAttack: %.2f\nStrength: %.2f\nAccuracy: %.2f" % (player1.prestige_level, player1.level, player1.hp * player1.strg, player1.attack, player1.strg, player1.accy)), 
+        value=(prestige+": %s\n"+level+": %s\n"+health+": %.2f\n"+attack+": %.2f\n"+strength+": %.2f\n"+accuracy+": %.2f" % (player1.prestige_level, player1.level, player1.hp * player1.strg, player1.attack, player1.strg, player1.accy)), 
         inline=True
     )
     compare_Embed.add_field(
         name=player2.name_clean,
-        value=("Prestige: %s\nLevel: %s\nHealth: %.2f\nAttack: %.2f\nStrength: %.2f\nAccuracy: %.2f" % (player2.prestige_level, player2.level, player2.hp * player2.strg, player2.attack, player2.strg, player2.accy)), 
+        value=(prestige+": %s\n"+level+": %s\n"+health+": %.2f\n"+attack+": %.2f\n"+strength+": %.2f\n"+accuracy+": %.2f" % (player2.prestige_level, player2.level, player2.hp * player2.strg, player2.attack, player2.strg, player2.accy)), 
         inline=True
     )
 
@@ -366,43 +303,24 @@ async def compare(ctx, player1, player2=None, **details):
 
 @commands.command(args_pattern='PCS?', aliases=["sc"])
 async def sendcash(ctx, receiver, transaction_amount, message="", **details):
-    """
-    [CMD_KEY]sendcash @player amount (optional message)
-    
-    Sends some cash to another player.
-    Note: The maximum amount someone can receive is ten times their limit.
-    
-    Example usage:
-    
-    [CMD_KEY]sendcash @MacDue 1000000 "for the lit bot fam"
-    
-    or
-    
-    [CMD_KEY]sendcash @MrAwais 1
-    """
+    """player:sendcash:HELP"""
 
     sender = details["author"]
     amount_string = util.format_number(transaction_amount, money=True, full_precision=True)
 
     if receiver.id == sender.id:
-        raise util.BattleBananaException(ctx.channel, "There is no reason to send money to yourself!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, sender, "players:compare:SAMEPLAYER"))
 
     if sender.money - transaction_amount < 0:
         if sender.money > 0:
-            await util.say(ctx.channel, ("You do not have **" + amount_string + "**!\n"
-                                                                                "The maximum you can transfer is **"
-                                         + util.format_number(sender.money, money=True, full_precision=True) + "**"))
+            await translations.say(ctx, sender, "player:sendcash:HIGHER", amount_string, util.format_number(sender.money, money=True, full_precision=True))
         else:
-            await util.say(ctx.channel, "You do not have any money to transfer!")
+            await translations.say(ctx, sender, "player:sendcash:BROKE")
         return
 
     max_receive = int(receiver.item_value_limit * 10)
     if transaction_amount > max_receive:
-        await util.say(ctx.channel, ("**" + amount_string
-                                     + "** is more than ten times **" + receiver.name_clean
-                                     + "**'s limit!\nThe maximum **" + receiver.name_clean
-                                     + "** can receive is **"
-                                     + util.format_number(max_receive, money=True, full_precision=True) + "**!"))
+        await translations.say(ctx, sender, "player:sendcash:CANTAFFORD", amount_string, receiver.name_clean, receiver.name_clean, util.format_number(max_receive, money=True, full_precision=True))
         return
 
     sender.money -= transaction_amount
@@ -415,14 +333,14 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
     if transaction_amount >= 50:
         await game_awards.give_award(ctx.channel, sender, "SugarDaddy", "Sugar daddy!")
 
-    transaction_log = discord.Embed(title=e.BBT_WITH_WINGS + " Transaction complete!", type="rich",
+    transaction_log = discord.Embed(title=e.BBT_WITH_WINGS + translations.translate(ctx, sender, "players:compare:TITLE"), type="rich",
                                     color=gconf.DUE_COLOUR)
-    transaction_log.add_field(name="Sender:", value=sender.name_clean)
-    transaction_log.add_field(name="Recipient:", value=receiver.name_clean)
-    transaction_log.add_field(name="Transaction amount (BBT):", value=amount_string, inline=False)
+    transaction_log.add_field(name=translations.translate(ctx, sender, "players:compare:SENDER"), value=sender.name_clean)
+    transaction_log.add_field(name=translations.translate(ctx, sender, "players:compare:RECIPIENT"), value=receiver.name_clean)
+    transaction_log.add_field(name=translations.translate(ctx, sender, "players:compare:AMOUNT"), value=amount_string, inline=False)
     if message != "":
-        transaction_log.add_field(name=":pencil: Attached note:", value=message, inline=False)
-    transaction_log.set_footer(text="Please keep this receipt for your records.")
+        transaction_log.add_field(name=translations.translate(ctx, sender, "players:compare:NOTE"), value=message, inline=False)
+    transaction_log.set_footer(text=translations.translate(ctx, sender, "players:compare:FOOTER"))
     util.logger.info("%s (%s) sent %s to %s (%s)", sender.name, sender.id, amount_string, receiver.name, receiver.id)
 
     await util.say(ctx.channel, embed=transaction_log)
@@ -430,43 +348,34 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
 @commands.command(args_pattern="S?")
 @commands.require_cnf(warning="This action cannot be reverted, are you sure you want to prestige?")
 async def prestige(ctx, cnf="", **details):
-    """
-    [CMD_KEY]prestige
-
-    Make you restart from 0, 
-    keeping few stats 
-    and having some bonuses :)
-    """
+    """players:prestige:HELP"""
 
     user = details["author"]
     prestige_level = gamerules.get_level_for_prestige(user.prestige_level)
     req_money = gamerules.get_money_for_prestige(user.prestige_level)
 
     if user.level < prestige_level:
-        raise util.BattleBananaException(ctx.channel, "You need to be level %s or higher to go to the next prestige!" % prestige_level)
+        raise util.BattleBananaException(ctx.channel, user, translations.translate(ctx, user, "players:compare:LOWLEVEL"), prestige_level)
     if user.money < req_money:
-        raise util.BattleBananaException(ctx.channel, "You need atleast %s %s to afford the next prestige!" % (util.format_number_precise(req_money), e.BBT))
+        raise util.BattleBananaException(ctx.channel, user, translations.translate(ctx, user, "players:compare:CANTAFFORD"), util.format_number_precise(req_money), e.BBT)
 
     user.money -= req_money
     user.prestige()
 
     if prestige_level > 0:
         await game.awards.give_award(ctx.channel, user, 'Prestige')
-    await util.say(ctx.channel, "You successfully prestiged! You are now at prestige %s, congrats!" % user.prestige_level)
+    await translations.say(ctx, user, "players:pretige:SUCCESS", user.presitge_level)
 
 @commands.command(args_pattern="P?", aliases=["mp", "showprestige", "sp"])
 async def myprestige(ctx, player=None, **details):
-    """
-    [CMD_KEY]myprestige (player)
-
-    Display what prestige the player is, if no argument is given, it will display your prestige and how many BBTs & level you need for the next prestige!
-    """
+    """players:myprestige:HELP"""
 
     if player is None:
         player = details["author"]
     prestige_level = gamerules.get_level_for_prestige(player.prestige_level)
     req_money = gamerules.get_money_for_prestige(player.prestige_level)
 
+    #this is painful to read
     message = "%s prestige **%s**! " % ("**You** are" if player == details["author"] else "**" + player.name + "** is", player.prestige_level)
     message += "**%s** %s & %s" % ("You" if player == details["author"] else player.name, ("satisfy the level requirement" if prestige_level <= player.level else "need **%s** additional level(s)" % (prestige_level - player.level)),
                                     ("satisfy the money requirement" if req_money <= player.money else "need **%s%s** to afford the next prestige." 
@@ -476,11 +385,7 @@ async def myprestige(ctx, player=None, **details):
 
 @commands.command(hidden=True, args_pattern=None)
 async def benfont(ctx, **details):
-    """
-    [CMD_KEY]benfont 
-    
-    Shhhhh...
-    """
+    """players:benfont:HELP"""
 
     player = details["author"]
     player.benfont = not player.benfont
@@ -502,12 +407,7 @@ This is part of my quest in finding lazy ways to do things I cba.
 @commands.command(args_pattern='M?')
 @playersabstract.item_preview
 def mythemes(player):
-    """
-    [CMD_KEY]mythemes (optional theme name)
-    
-    Shows the amazing themes you can use on your profile.
-    If you use this command with a theme name you can get a preview of the theme!
-    """
+    """players:mythemes:HELP"""
 
     return {"thing_type": "theme",
             "thing_list": list(player.get_owned_themes().values()),
@@ -521,11 +421,7 @@ def mythemes(player):
 @commands.command(args_pattern='S')
 @playersabstract.item_setter
 def settheme():
-    """
-    [CMD_KEY]settheme (theme name)
-    
-    Sets your profile theme
-    """
+    """players:settheme:HELP"""
 
     return {"thing_type": "theme", "thing_inventory_slot": "themes"}
 
@@ -533,11 +429,7 @@ def settheme():
 @commands.command(args_pattern='M?', aliases=("mybackgrounds", "backgrounds"))
 @playersabstract.item_preview
 def mybgs(player):
-    """
-    [CMD_KEY]mybgs (optional background name)
-    
-    Shows the backgrounds you've bought!
-    """
+    """players:mybgs:HELP"""
 
     return {"thing_type": "background",
             "thing_list": list(player.get_owned_backgrounds().values()),
@@ -551,11 +443,7 @@ def mybgs(player):
 @commands.command(args_pattern='S', aliases=["setbackground"])
 @playersabstract.item_setter
 def setbg():
-    """
-    [CMD_KEY]setbg (background name)
-    
-    Sets your profile background
-    """
+    """players:setbg:HELP"""
 
     return {"thing_type": "background", "thing_inventory_slot": "backgrounds"}
 
@@ -563,11 +451,7 @@ def setbg():
 @commands.command(args_pattern='M?')
 @playersabstract.item_preview
 def mybanners(player):
-    """
-    [CMD_KEY]mybanners (optional banner name)
-    
-    Shows the banners you've bought!
-    """
+    """players:mybanners:HELP"""
     return {"thing_type": "banner",
             "thing_list": list(player.get_owned_banners().values()),
             "thing_lister": banner_page,
@@ -580,15 +464,11 @@ def mybanners(player):
 @commands.command(args_pattern='S')
 @playersabstract.item_setter
 def setbanner():
-    """
-    [CMD_KEY]setbanner (banner name)
-    
-    Sets your profile banner
-    """
+    """players:setbanners:HELP"""
 
     return {"thing_type": "banner", "thing_inventory_slot": "banners"}
 
-
+# so uh i need to add the translations later because i need to think -fire
 # Part of the shop buy command
 @misc.paginator
 def theme_page(themes_embed, theme, **extras):
@@ -647,7 +527,7 @@ def banner_info(banner_name, **details):
     if banner.donor:
         embed.description = ":star2: This is a __donor__ banner!"
     embed.set_image(url="https://battlebanana.xyz/duefiles/banners/" + banner.image_name)
-    embed.set_footer(text="Buy this banner for " + util.format_number(banner.price // price_divisor, money=True,
+    embed.set_footer(text="" + util.format_number(banner.price // price_divisor, money=True,
                                                                       full_precision=True))
     return embed
 

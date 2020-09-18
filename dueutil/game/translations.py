@@ -4,7 +4,8 @@ import discord
 from dueutil.game.configs import dueserverconfig
 from dueutil import util
 
-async def say(ctx, player, args, **kwargs):
+async def say(ctx, player, path, *args, **kwargs):
+    print(args)
     #if type(channel) is str:
     #    # Guild/Channel id
     #    server_id, channel_id = channel.split("/")
@@ -15,25 +16,45 @@ async def say(ctx, player, args, **kwargs):
     #else:
     try:
         channel = ctx.channel
-        string = str(args).split(":")
+        string = str(path).split(":")
         lan = dueserverconfig.get_language(ctx.guild.id)
-        f = json.load(open("dueutil/game/configs/localization/"+str(lan)+"/"+string[0]+"/"+string[1]+".json", "r"))
+        try:
+            f = json.load(open("dueutil/game/configs/localization/"+str(lan)+"/"+string[0]+"/"+string[1]+".json", "r"))
+        except (IndexError, FileNotFoundError):
+            f = json.load(open("dueutil/game/configs/localization/en-gb/"+string[0]+"/"+string[1]+".json", "r"))
         msg = f[string[2]]
 
         if "[PLAYER]" in msg:
                 msg = msg.replace("[PLAYER]", str(player))
  
-        return await channel.send(msg, **kwargs)
+        return await channel.send((msg % args), **kwargs)
     except discord.Forbidden as send_error:
         raise util.SendMessagePermMissing(send_error)
 
 
-def getLocale(ctx, player, thing):
-    string = thing.split(":")
+def translate(ctx, player, path, *args):
+    print(args)
+    print(str(args))
+    string = path.split(":")
     lan = dueserverconfig.get_language(ctx.guild.id)
     try:
         f = json.load(open("dueutil/game/configs/localization/"+str(lan)+"/"+string[0]+"/"+string[1]+".json", "r"))
-    except IndexError:
+    except (IndexError, FileNotFoundError):
+        f = json.load(open("dueutil/game/configs/localization/en-gb/"+string[0]+"/"+string[1]+".json", "r"))
+    msg = f[string[2]]
+
+    if "[PLAYER]" in msg:
+        msg = msg.replace("[PLAYER]", str(player))
+    
+    return (msg % args)
+
+
+def getLocale(ctx, player, path):
+    string = path.split(":")
+    lan = dueserverconfig.get_language(ctx.guild.id)
+    try:
+        f = json.load(open("dueutil/game/configs/localization/"+str(lan)+"/"+string[0]+"/"+string[1]+".json", "r"))
+    except (IndexError, FileNotFoundError):
         return "n/a"
     msg = f[string[2]]
 
