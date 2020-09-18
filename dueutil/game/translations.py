@@ -5,7 +5,7 @@ from dueutil.game.configs import dueserverconfig
 from dueutil.game import game
 from dueutil import util
 
-async def sayT(ctx, player, args, **kwargs):
+async def say(ctx, player, args, **kwargs):
     #if type(channel) is str:
     #    # Guild/Channel id
     #    server_id, channel_id = channel.split("/")
@@ -22,8 +22,19 @@ async def sayT(ctx, player, args, **kwargs):
         msg = f[string[2]]
 
         if "[PLAYER]" in msg:
-                msg.replace("[PLAYER]", str(player))
+                msg = msg.replace("[PLAYER]", str(player))
  
         return await channel.send(msg, **kwargs)
     except discord.Forbidden as send_error:
         raise util.SendMessagePermMissing(send_error)
+
+
+def getLocale(guild, player, thing):
+    string = thing.split(":")
+    lan = dueserverconfig.get_language(guild.id)
+    f = json.load(open("dueutil/game/configs/localization/"+str(lan)+"/"+string[0]+"/"+string[1]+".json", "r"))
+    msg = f[string[2]]
+
+    if "[PLAYER]" in msg:
+            msg = msg.replace("[PLAYER]", str(player))
+    return msg

@@ -60,14 +60,14 @@ async def train(ctx, **details):
                     max_exp=maxstats, max_attr=maxstats)
     progress_message = players.STAT_GAIN_FORMAT % (attack_increase, strg_increase, accy_increase)
 
-    train_embed = discord.Embed(title=game.locale(ctx.guild, player, "player:train:TITLE"), description=game.locale(ctx.guild, player, "player:train:DESCRIPTION"), type="rich", color=gconf.DUE_COLOUR)
-    train_embed.add_field(name=game.locale(ctx.guild, player, "player:train:FIELDNAME"), value=progress_message, inline=True)
-    train_embed.set_footer(text=game.locale(ctx.guild, player, "player:train:FOOTER"))
+    train_embed = discord.Embed(title=translations.getLocale(ctx.guild, player, "player:train:TITLE"), description=translations.getLocale(ctx.guild, player, "player:train:DESCRIPTION"), type="rich", color=gconf.DUE_COLOUR)
+    train_embed.add_field(name=translations.getLocale(ctx.guild, player, "player:train:FIELDNAME"), value=progress_message, inline=True)
+    train_embed.set_footer(text=translations.getLocale(ctx.guild, player, "player:train:FOOTER"))
 
     await game.check_for_level_up(ctx, player)
     player.save()
-    #await util.say(ctx.channel, game.locale(ctx.guild, player, "player:train:COMPLETE"), embed=train_embed)
-    await translations.sayT(ctx, player, "player:train:COMPLETE", embed=train_embed)
+    #await util.say(ctx.channel, translations.getLocale(ctx.guild, player, "player:train:COMPLETE"), embed=train_embed)
+    await translations.say(ctx, player, "player:train:COMPLETE", embed=train_embed)
 
 @commands.command(args_pattern=None)
 @commands.ratelimit(cooldown=604800, error="You can't collect your weekly reward again for **[COOLDOWN]**!", save=True)

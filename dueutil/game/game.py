@@ -26,17 +26,6 @@ testers = open('testers.txt').read()  # For testers award
 # spelling_lock = Lock()
 
 
-def locale(guild, player, thing):
-    string = thing.split(":")
-    lan = dueserverconfig.get_language(guild.id)
-    f = json.load(open("dueutil/game/configs/localization/"+str(lan)+"/"+string[0]+"/"+string[1]+".json", "r"))
-    msg = f[string[2]]
-
-    if "[PLAYER]" in msg:
-            msg = msg.replace("[PLAYER]", str(player))
-    return msg
-
-
 def getResponses():
     return json.load(open("dueutil/game/configs/daily.json", "r"))
 
