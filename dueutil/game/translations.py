@@ -29,12 +29,13 @@ async def say(ctx, player, args, **kwargs):
         raise util.SendMessagePermMissing(send_error)
 
 
-def getLocale(guild, player, thing):
+def getLocale(ctx, player, thing):
     string = thing.split(":")
-    lan = dueserverconfig.get_language(guild.id)
+    lan = dueserverconfig.get_language(ctx.guild.id)
     f = json.load(open("dueutil/game/configs/localization/"+str(lan)+"/"+string[0]+"/"+string[1]+".json", "r"))
     msg = f[string[2]]
 
     if "[PLAYER]" in msg:
-            msg = msg.replace("[PLAYER]", str(player))
+        msg = msg.replace("[PLAYER]", str(player))
+    
     return msg

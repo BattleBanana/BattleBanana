@@ -1,5 +1,5 @@
 {
-    "HELP": "[CMD_KEY]train\n\nTrain to get a little exp to help you with quests.\n\nThis will never give you much exp! But should help you out with quests early on!\n\nYou can use this command once every 6 hours!",
+    "HELP": "[CMD_KEY]train\n\nEntraînez-vous pour obtenir un peu d'exp pour vous aider dans vos quêtes.\n\nCela ne vous donnera jamais beaucoup d'expérience! Mais devrait vous aider avec les quêtes dès le début!\n\nVous pouvez utiliser cette commande une fois toutes les 6 heures!",
     "TITLE": "Tu t'es entraîné comme un fou",
     "DESCRIPTION": "Après un moment difficile, vous vous sentez plus fort!",
     "FIELDNAME": "Résultat de la formation:",

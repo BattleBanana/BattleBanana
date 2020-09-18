@@ -39,15 +39,7 @@ async def daily(ctx, **details):
 #cooldown was 21600
 #set to 0 for testing purposes
 async def train(ctx, **details):
-    """
-    [CMD_KEY]train
-
-    Train to get a little exp to help you with quests.
-
-    This will never give you much exp! But should help you out with quests early on!
-
-    You can use this command once every 6 hours!
-    """
+    """player:train:HELP"""
 
     player = details["author"]
     maxstats = 100 * player.prestige_multiplicator()
@@ -60,13 +52,13 @@ async def train(ctx, **details):
                     max_exp=maxstats, max_attr=maxstats)
     progress_message = players.STAT_GAIN_FORMAT % (attack_increase, strg_increase, accy_increase)
 
-    train_embed = discord.Embed(title=translations.getLocale(ctx.guild, player, "player:train:TITLE"), description=translations.getLocale(ctx.guild, player, "player:train:DESCRIPTION"), type="rich", color=gconf.DUE_COLOUR)
-    train_embed.add_field(name=translations.getLocale(ctx.guild, player, "player:train:FIELDNAME"), value=progress_message, inline=True)
-    train_embed.set_footer(text=translations.getLocale(ctx.guild, player, "player:train:FOOTER"))
+    train_embed = discord.Embed(title=translations.getLocale(ctx, player, "player:train:TITLE"), description=translations.getLocale(ctx, player, "player:train:DESCRIPTION"), type="rich", color=gconf.DUE_COLOUR)
+    train_embed.add_field(name=translations.getLocale(ctx, player, "player:train:FIELDNAME"), value=progress_message, inline=True)
+    train_embed.set_footer(text=translations.getLocale(ctx, player, "player:train:FOOTER"))
 
     await game.check_for_level_up(ctx, player)
     player.save()
-    #await util.say(ctx.channel, translations.getLocale(ctx.guild, player, "player:train:COMPLETE"), embed=train_embed)
+    #await util.say(ctx.channel, translations.getLocale(ctx, player, "player:train:COMPLETE"), embed=train_embed)
     await translations.say(ctx, player, "player:train:COMPLETE", embed=train_embed)
 
 @commands.command(args_pattern=None)

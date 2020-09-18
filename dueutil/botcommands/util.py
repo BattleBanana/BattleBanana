@@ -7,7 +7,7 @@ import generalconfig as gconf
 from .. import commands, events, util, permissions
 # Shorthand for emoji as I use gconf to hold emoji constants
 from ..game import emojis as e
-from ..game import stats, awards, discoin
+from ..game import stats, awards, discoin, translations
 from ..game.configs import dueserverconfig
 from ..game.stats import Stat
 from ..permissions import Permission
@@ -20,7 +20,7 @@ async def help(ctx, *args, **details):
     
     INCEPTION SOUND
     """
-
+    player = details["author"]
     help_logo = 'https://cdn.discordapp.com/attachments/173443449863929856/275299953528537088/helo_458x458.jpg'
 
     help_embed = discord.Embed(title="BattleBanana's Help", type="rich", color=gconf.DUE_COLOUR)
@@ -44,13 +44,14 @@ async def help(ctx, *args, **details):
                     command_name = 'dumbledore?!?'
                     command_help = 'Some stupid *joke?* reference to old due!!!111'
                     help_embed.set_image(url='http://i.imgur.com/UrWhI9P.gif')
-                    await awards.give_award(ctx.channel, details["author"], "Daddy",
+                    await awards.give_award(ctx.channel, player, "Daddy",
                                             "I have no memory of this award...")
             else:
                 command_name = chosen_command.__name__
                 alias_count = len(chosen_command.aliases)
                 if chosen_command.__doc__ is not None:
-                    command_help = chosen_command.__doc__.replace('[CMD_KEY]', server_key)
+                    help = translations.getLocale(ctx, player, chosen_command.__doc__)
+                    command_help = help.replace('[CMD_KEY]', server_key)
                 else:
                     command_help = 'Sorry there is no help for that command!'
 
