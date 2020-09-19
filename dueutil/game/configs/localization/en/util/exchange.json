@@ -1,0 +1,5 @@
+{
+    "HELP": "[CMD_KEY]exchange (amount) (currency)\nExchange your BBT (BattleBanana Tokens) for other bot currencies!\nFor more information go to: https://dash.discoin.zws.im/#/\nNote: Exchanges can take a few minutes to process!",
+    "RATELIMIT": "Your next transfer available is in **[COOLDOWN]**!",
+    "SAMECURRENCY": "There is no reason to exchange %s for %s!"
+}

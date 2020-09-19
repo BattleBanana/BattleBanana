@@ -1,0 +1,6 @@
+{
+    "HELP": "[CMD_KEY]setcmdkey\n\nSets the prefix for commands on your guild.\nThe default is '!'",
+    "INVALIDKEY": "You must set a valid command key!",
+    "INVALIDCHARS": "Command prefixes can only be one or two characters!",
+    "SUCCESS": "Command prefix on **%s** now set to ``%s``!"
+}

@@ -1,0 +1,4 @@
+{
+    "HELP": "[CMD_KEY]shutup\n\nMutes BattleBanana in the channel the command is used in.\nBy default the ``[CMD_KEY]shutup`` will stop alerts (level ups, ect)\nusing ``[CMD_KEY]shutup all`` will make BattleBanana ignore all commands\nfrom non-admins.",
+    "": ""
+}

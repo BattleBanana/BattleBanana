@@ -15,11 +15,7 @@ from ..permissions import Permission
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern="S?", aliases=("helpme",))
 async def help(ctx, *args, **details):
-    """
-    [CMD_KEY]help (command name or category)
-    
-    INCEPTION SOUND
-    """
+    """util:help:HELP"""
     player = details["author"]
     help_logo = 'https://cdn.discordapp.com/attachments/173443449863929856/275299953528537088/helo_458x458.jpg'
 
@@ -36,35 +32,32 @@ async def help(ctx, *args, **details):
             # Dumb award
             if chosen_command is None:
                 alias_count = 0
-                if arg != "dumbledore":
-                    command_name = 'Not found'
-                    command_help = 'That command was not found!'
-                else:
-                    # Stupid award reference
-                    command_name = 'dumbledore?!?'
-                    command_help = 'Some stupid *joke?* reference to old due!!!111'
-                    help_embed.set_image(url='http://i.imgur.com/UrWhI9P.gif')
-                    await awards.give_award(ctx.channel, player, "Daddy",
-                                            "I have no memory of this award...")
+                #if arg != "dumbledore":
+                command_name = translations.translate(ctx, "util:help:CNOTFOUND")
+                command_help = translations.translate(ctx, "util:help:CNOTFOUND2")
+                #else:
+                #    # Stupid award reference
+                #    command_name = 'dumbledore?!?'
+                #    command_help = 'Some stupid *joke?* reference to old due!!!111'
+                #    help_embed.set_image(url='http://i.imgur.com/UrWhI9P.gif')
+                #    await awards.give_award(ctx.channel, player, "Daddy",
+                #                            "I have no memory of this award...")
             else:
                 command_name = chosen_command.__name__
                 alias_count = len(chosen_command.aliases)
                 if chosen_command.__doc__ is not None:
-                    help = translations.getLocale(ctx, player, chosen_command.__doc__)
-                    if help == "n/a":
-                        help = chosen_command.__doc__
-                    command_help = help.replace('[CMD_KEY]', server_key)
+                    command_help = translations.translate(ctx, chosen_command.__doc__)
                 else:
-                    command_help = 'Sorry there is no help for that command!'
+                    command_help = translations.translate(ctx, "util:help:NOHELP")
 
-            help_embed.description = "Showing help for **" + command_name + "**"
+            help_embed.description = translations.translate(ctx, "util:help:HELPDESC", command_name)
             help_embed.add_field(name=":gear: " + command_name, value=command_help)
             if alias_count > 0:
                 help_embed.add_field(name=":performing_arts: " + ("Alias" if alias_count == 1 else "Aliases"),
                                      value=', '.join(chosen_command.aliases), inline=False)
         else:
             category = arg
-            help_embed.description = "Showing ``" + category + "`` commands."
+            help_embed.description = translations.translate(ctx, "util:help:HELPDESC2", category)
 
             commands_for_all = events.command_event.command_list(
                 filter=lambda command:
@@ -77,54 +70,40 @@ async def help(ctx, *args, **details):
                 command.permission == Permission.REAL_SERVER_ADMIN and command.category == category)
 
             if len(commands_for_all) > 0:
-                help_embed.add_field(name='Commands for everyone', value=', '.join(commands_for_all), inline=False)
+                help_embed.add_field(name=translations.translate(ctx, "util:help:CEVERYONE"), value=', '.join(commands_for_all), inline=False)
             if len(admin_commands) > 0:
-                help_embed.add_field(name='Admins only', value=', '.join(admin_commands), inline=False)
+                help_embed.add_field(name=translations.translate(ctx, "util:help:CADMIN"), value=', '.join(admin_commands), inline=False)
             if len(server_op_commands) > 0:
-                help_embed.add_field(name='Guild managers only', value=', '.join(server_op_commands), inline=False)
+                help_embed.add_field(name=translations.translate(ctx, "util:help:COWNER"), value=', '.join(server_op_commands), inline=False)
     else:
 
         help_embed.set_thumbnail(url=util.clients[0].user.avatar_url)
 
-        help_embed.description = 'Welcome to the help!\n Simply do ' + server_key + 'help (category) or (command name).'
-        help_embed.add_field(name=':file_folder: Command categories', value=', '.join(categories))
-        help_embed.add_field(name=e.THINKY_FONK + " Tips",
-                             value=("If BattleBanana reacts to your command it means something is wrong!\n"
-                                    + ":question: - Something is wrong with the command's syntax.\n"
-                                    + ":x: - You don't have the required permissions to use the command."))
-        help_embed.add_field(name=":link: Links", value=("**Invite me: %s**\n" % gconf.BOT_INVITE
-                                                         + "BattleBanana guide: https://battlebanana.xyz/howto\n"
-                                                         + "Support guild: https://discord.gg/P7DBDEC\n"
-                                                         + "Support me: https://patreon.com/developeranonymous"))
+        help_embed.description = translations.translate(ctx, "util:help:FDESC")
+        help_embed.add_field(name=':file_folder: '+translations.translate(ctx, "util:help:COMCA"), value=', '.join(categories))
+        help_embed.add_field(name=e.THINKY_FONK + translations.translate(ctx, "util:help:TTIP"),
+                             value=translations.translate(ctx, "util:help:TDESC"))
+        help_embed.add_field(name=":link:"+translations.translate(ctx, "util:help:LLINK"), value=translations.translate(ctx, "util:help:LDESC", gconf.BOT_INVITE))
         help_embed.set_footer(
-            text="To use admin commands you must have the manage guild permission or the 'Banana Commander' role.")
+            text=translations.translate(ctx, "util:help:FOOTER"))
 
     await util.say(ctx.channel, embed=help_embed)
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def invite(ctx, **_):
-    """
-    [CMD_KEY]invite
+    """util:invite:HELP"""
 
-    Display BattleBanana invite link & Support guild.
-    """
-
-    invite_embed = discord.Embed(title="BattleBanana's invites", type="rich", color=gconf.DUE_COLOUR)
-    invite_embed.description = "Here are 2 important links about me! :smiley:"
-    invite_embed.add_field(name="Invite me:", value=("[Here](%s)" % gconf.BOT_INVITE), inline=True)
-    invite_embed.add_field(name="Support guild:", value="[Here](https://discord.gg/P7DBDEC)", inline=True)
+    invite_embed = discord.Embed(title=translations.translate(ctx, "util:invite:TITLE"), type="rich", color=gconf.DUE_COLOUR)
+    invite_embed.description = translations.translate(ctx, "util:invite:DESC")
+    invite_embed.add_field(name=translations.translate(ctx, "util:invite:INVITE"), value=("["+translations.translate(ctx, "util:invite:HERE")+"](%s)" % gconf.BOT_INVITE), inline=True)
+    invite_embed.add_field(name=translations.translate(ctx, "util:invite:SUPPORT"), value="["+translations.translate(ctx, "util:invite:HERE")+"](https://discord.gg/P7DBDEC)", inline=True)
     await util.say(ctx.channel, embed=invite_embed)
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def donate(ctx, **_):
-    """
-    [CMD_KEY]donate
-
-    This command show where you can donate to <@115269304705875969>. 
-    All money received will be used for the guild costs and other expenses.
-    """
+    """util:donate:HELP"""
 
     donation_embed = discord.Embed(title="Donate", type="rich", color=gconf.DUE_COLOUR)
     donation_embed.add_field(name="Patreon (Donation)", value="[Here](https://patreon.com/developeranonymous)",
@@ -134,45 +113,33 @@ async def donate(ctx, **_):
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def botinfo(ctx, **_):
-    """
-    [CMD_KEY]botinfo
+    """util:botinfo:HELP"""
 
-    General information about BattleBanana.
-    """
-
-    info_embed = discord.Embed(title="BattleBanana's Information", type="rich", color=gconf.DUE_COLOUR)
-    info_embed.description = "BattleBanana is customizable bot to add fun commands, quests and battles to your guild."
-    info_embed.add_field(name="Originally DueUtil by", value="MacDue#4453")
-    info_embed.add_field(name="Continued by", value="[DeveloperAnonymous#9830](https://battlebanana.xyz/)")
-    info_embed.add_field(name="Framework",
+    info_embed = discord.Embed(title=translations.translate(ctx, "util:botinfo:TITLE"), type="rich", color=gconf.DUE_COLOUR)
+    info_embed.description = translations.translate(ctx, "util:botinfo:DESC")
+    info_embed.add_field(name=translations.translate(ctx, "util:botinfo:ORIGINAL"), value="MacDue#4453")
+    info_embed.add_field(name=translations.translate(ctx, "util:botinfo:CONTINUED"), value="[DeveloperAnonymous#9830](https://battlebanana.xyz/)")
+    info_embed.add_field(name=translations.translate(ctx, "util:botinfo:FRAME"),
                          value="[discord.py %s :two_hearts:](http://discordpy.readthedocs.io/en/latest/)"
                                % discord.__version__)
-    info_embed.add_field(name="Version", value=gconf.VERSION),
-    info_embed.add_field(name="Invite BB!", value="%s" % gconf.BOT_INVITE, inline=False)
-    info_embed.add_field(name="Support guild",
-                         value="For help with the bot or a laugh join **https://discord.gg/P7DBDEC**!")
+    info_embed.add_field(name=translations.translate(ctx, "util:botinfo:VER"), value=gconf.VERSION),
+    info_embed.add_field(name=translations.translate(ctx, "util:botinfo:INVITE"), value="%s" % gconf.BOT_INVITE, inline=False)
+    info_embed.add_field(name=translations.translate(ctx, "util:botinfo:NSUPPORT"),
+                         value=translations.translate(ctx, "util:botinfo:DSUPPORT"))
     await util.say(ctx.channel, embed=info_embed)
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def prefix(ctx, **details):
-    """
-    ``@BattleBanana``prefix
-
-    Tells you what the prefix is on a guild.
-    """
+    """util:prefix:HELP"""
 
     server_prefix = dueserverconfig.server_cmd_key(ctx.guild)
-    await util.say(ctx.channel, "The prefix on **%s** is ``%s``" % (details.get("server_name_clean"), server_prefix))
+    await translations.say(ctx, "util:prefix:MSG", details.get("server_name_clean"), server_prefix)
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def botstats(ctx, **_):
-    """
-    [CMD_KEY]stats
-    
-    BattleBanana's stats since the dawn of time!
-    """
+    """util:botstats:HELP"""
 
     game_stats = stats.get_stats()
     stats_embed = discord.Embed(title="BattleBanana's Statistics!", type="rich", color=gconf.DUE_COLOUR)
@@ -218,65 +185,53 @@ async def botstats(ctx, **_):
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def servers(ctx, **_):
-    """
-    [CMD_KEY]servers
-    
-    Shows the number of servers BattleBanana is chillin on.
-    
-    """
+    """util:servers:HELP"""
 
     server_count = util.get_server_count()
-    await util.say(ctx.channel, "BattleBanana is active on **" + str(server_count) + " guild"
-                   + ("s" if server_count != 1 else "") + "**")
+    await translations.say(ctx, "util:servers:MSG", server_count)
 
 
 @commands.command(permission=Permission.REAL_SERVER_ADMIN, args_pattern="S", aliases=("sl",))
 async def setlanguage(ctx, new_lan, **details):
-    """
-    [CMD_KEY]setlanguage
-
-    Sets the language for your guild
-
-    """
+    """util:setlanguage:HELP"""
 
     if util.filter_string(new_lan) != new_lan:
-        raise util.BattleBananaException(ctx.channel, "You must set a valid language!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "util:setlanguage:ERROR"))
 
-    if str(new_lan) in ("en-gb", "fr-ca"):
+    if str(new_lan) in ("en", "fr"):
         dueserverconfig.set_language(ctx.guild, new_lan)
-        await util.say(ctx.channel, "success")
+        await translations.say(ctx, "util:setlanguage:SUCCESS", ctx.guild.name, new_lan)
+    else:
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "util:setlanguage:ERROR"))
+
+
+@commands.command(permission=Permission.REAL_SERVER_ADMIN, args_pattern=None)
+async def languages(ctx, **_):
+    """util:languages:HELP"""
+
+    lan_embed = discord.Embed(title="BattleBanana's Localization!", type="rich", color=gconf.DUE_COLOUR)
+    lan_embed.description = "en - English\n fr - Français"
+
+    await util.say(ctx.channel, embed=lan_embed)
+
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern="S", aliases=("setprefix",))
 async def setcmdkey(ctx, new_key, **details):
-    """
-    [CMD_KEY]setcmdkey
-    
-    Sets the prefix for commands on your guild.
-    The default is '!'
-    """
+    """util:setcmdkey:HELP"""
     if util.filter_string(new_key) != new_key:
-        raise util.BattleBananaException(ctx.channel, "You must set a valid command key!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "util:setcmdkey:INVALIDKEY"))
 
     if len(new_key) in (1, 2):
         dueserverconfig.server_cmd_key(ctx.guild, new_key)
-        await util.say(ctx.channel,
-                       "Command prefix on **" + details["server_name_clean"] + "** set to ``" + new_key + "``!")
+        await translations.say(ctx, "util:setcmdkey:SUCCESS", ctx.guild.name, new_key)
     else:
-        raise util.BattleBananaException(ctx.channel, "Command prefixes can only be one or two characters!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "util:setcmdkey:INVALIDCHARS"))
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern="S?")
 async def shutup(ctx, *args, **details):
-    """
-    [CMD_KEY]shutup
-    
-    Mutes BattleBanana in the channel the command is used in.
-    By default the ``[CMD_KEY]shutup`` will stop alerts (level ups, ect)
-    using ``[CMD_KEY]shutup all`` will make BattleBanana ignore all commands
-    from non-admins.
-  
-    """
+    """util:shutup:HELP"""
 
     if len(args) == 0:
         mute_success = dueserverconfig.mute_channel(ctx.channel)
@@ -580,22 +535,16 @@ async def currencies(ctx, **details):
     await util.say(ctx.channel, embed=embed)
 
 
-@commands.ratelimit(cooldown=300, error="Your next transfer available is in **[COOLDOWN]**!", save=True)
+@commands.ratelimit(cooldown=300, error="util:exchange:RATELIMIT", save=True)
 @commands.command(args_pattern="CS", aliases=["convert"])
 async def exchange(ctx, amount, currency, **details):
-    """
-    [CMD_KEY]exchange (amount) (currency)
-    Exchange your BBT (BattleBanana Tokens) for other bot currencies!
-    For more information go to: https://dash.discoin.zws.im/#/
-    Note: Exchanges can take a few minutes to process!
-    """
+    """util:exchange:HELP"""
 
     player = details["author"]
     currency = currency.upper()
 
     if currency == discoin.CURRENCY_CODE:
-        raise util.BattleBananaException(ctx.channel, "There is no reason to exchange %s for %s!" % (
-            discoin.CURRENCY_CODE, discoin.CURRENCY_CODE))
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "util:exchange:SAMECURRENCY", discoin.CURRENCY_CODE, discoin.CURRENCY_CODE))
     if not currency in discoin.CODES:
         raise util.BattleBananaException(ctx.channel,
                                          "Not a valid currency! Use `%scurrencies` to know which currency is available." %
