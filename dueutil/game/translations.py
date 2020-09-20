@@ -20,12 +20,15 @@ async def say(ctx, path, *args, **kwargs):
         lan = dueserverconfig.get_language(ctx.guild.id)
         try:
             f = json.load(open("dueutil/game/configs/localization/"+str(lan)+"/"+string[0]+"/"+string[1]+".json", "r"))
-        except (IndexError, FileNotFoundError):
-            f = json.load(open("dueutil/game/configs/localization/en-gb/"+string[0]+"/"+string[1]+".json", "r"))
+        except (IndexError, FileNotFoundError, KeyError):
+            try:
+                f = json.load(open("dueutil/game/configs/localization/en/"+string[0]+"/"+string[1]+".json", "r"))
+            except (IndexError, FileNotFoundError, KeyError):
+                raise util.BattleBananaException(ctx.channel, "Translation error, missing English translation")
         msg = f[string[2]]
 
         if "[CMD_KEY]" in msg:
-            prefix = dueserverconfig.server_cmd_key(ctx.guild.id)
+            prefix = dueserverconfig.server_cmd_key(ctx.guild)
             msg = msg.replace("[CMD_KEY]", prefix)
  
         return await channel.send((msg % args), **kwargs)
@@ -40,17 +43,17 @@ def translate(ctx, path, *args):
     lan = dueserverconfig.get_language(ctx.guild.id)
     try:
         f = json.load(open("dueutil/game/configs/localization/"+str(lan)+"/"+string[0]+"/"+string[1]+".json", "r"))
-    except (IndexError, FileNotFoundError):
+    except (IndexError, FileNotFoundError, KeyError):
         try:
             f = json.load(open("dueutil/game/configs/localization/en/"+string[0]+"/"+string[1]+".json", "r"))
-        except KeyError:
+        except (IndexError, FileNotFoundError, KeyError):
             raise util.BattleBananaException(ctx.channel, "Translation error, missing English translation")
         #TODO other translations for non commands
         #raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "util:setlanguage:ERROR"))
     msg = f[string[2]]
 
     if "[CMD_KEY]" in msg:
-            prefix = dueserverconfig.server_cmd_key(ctx.guild.id)
+            prefix = dueserverconfig.server_cmd_key(ctx.guild)
             msg = msg.replace("[CMD_KEY]", prefix)
     
     return (msg % args)

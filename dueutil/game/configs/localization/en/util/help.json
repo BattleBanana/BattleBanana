@@ -18,6 +18,6 @@
     "TTIP": " Tips",
     "TDESC": "If BattleBanana reacts to your command it means something is wrong!\n:question: - Something is wrong with the command's syntax.\n:x: - You don't have the required permissions to use the command.",
     "LLINK": "Links",
-    "LDESC": "**Invite me: %s**\n %sBattleBanana guide: https://battlebanana.xyz/howto\nSupport guild: https://discord.gg/P7DBDEC\nSupport me: https://patreon.com/developeranonymous",
+    "LDESC": "**Invite me: https://battlebanana.xyz/invite**\n %sBattleBanana guide: https://battlebanana.xyz/howto\nSupport guild: https://discord.gg/P7DBDEC\nSupport me: https://patreon.com/developeranonymous",
     "FOOTER": "To use admin commands you must have the manage server permission or the 'Banana Commander' role."
 }

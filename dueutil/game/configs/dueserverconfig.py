@@ -81,7 +81,7 @@ def get_language(guildID):
     if guildID in lanaguage:
         return lanaguage[guildID]
     else:
-        return "en-gb"
+        return "en"
 
 
 def _load():

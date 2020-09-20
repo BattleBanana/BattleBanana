@@ -52,9 +52,9 @@ async def train(ctx, **details):
                     max_exp=maxstats, max_attr=maxstats)
     progress_message = players.STAT_GAIN_FORMAT % (attack_increase, strg_increase, accy_increase)
 
-    train_embed = discord.Embed(title=translations.getLocale(ctx, player, "player:train:TITLE"), description=translations.getLocale(ctx, player, "player:train:DESCRIPTION"), type="rich", color=gconf.DUE_COLOUR)
-    train_embed.add_field(name=translations.getLocale(ctx, player, "player:train:FIELDNAME"), value=progress_message, inline=True)
-    train_embed.set_footer(text=translations.getLocale(ctx, player, "player:train:FOOTER"))
+    train_embed = discord.Embed(title=translations.translate(ctx, "player:train:TITLE"), description=translations.translate(ctx, "player:train:DESCRIPTION"), type="rich", color=gconf.DUE_COLOUR)
+    train_embed.add_field(name=translations.translate(ctx, "player:train:FIELDNAME"), value=progress_message, inline=True)
+    train_embed.set_footer(text=translations.translate(ctx, "player:train:FOOTER"))
 
     await game.check_for_level_up(ctx, player)
     player.save()
@@ -251,15 +251,15 @@ async def sendquest(ctx, receiver, quest_index, message="", **details):
 
     receiver.save()
     plr.save()
-    
-    transaction_log = discord.Embed(title=e.QUESTER + translations.translate(ctx, "player:sendquest:EMBEDTITLE"), type="rich",
+
+    transaction_log = discord.Embed(title=e.QUESTER + translations.translate(ctx, "other:common:TCOMPLETE"), type="rich",
                                     color=gconf.DUE_COLOUR)
-    transaction_log.add_field(name=translations.translate(ctx, "player:sendquest:EMBEDSENDER"), value=plr.name_clean)
-    transaction_log.add_field(name=translations.translate(ctx, "player:sendquest:EMBEDRECIPIENT"), value=receiver.name_clean)
+    transaction_log.add_field(name=translations.translate(ctx, "other:common:TSENDER"), value=plr.name_clean)
+    transaction_log.add_field(name=translations.translate(ctx, "other:common:TRECIPIENT"), value=receiver.name_clean)
     transaction_log.add_field(name=translations.translate(ctx, "player:sendquest:EMBEDTRANS"), value=quest_name + ", level " + quest_level, inline=False)
     if message != "":
-        transaction_log.add_field(name=translations.translate(ctx, "player:sendquest:EMEDNOTE"), value=message, inline=False)
-    transaction_log.set_footer(text=translations.translate(ctx, "player:sendquest:EMBEDRECEIPT"))
+        transaction_log.add_field(name=translations.translate(ctx, "other:common:TNOTE"), value=message, inline=False)
+    transaction_log.set_footer(text=translations.translate(ctx, "other:common:TRECEIPT"))
     util.logger.info("%s (%s) sent %s to %s (%s)", plr.name, plr.id, quest_name + ", level " + quest_level, receiver.name, receiver.id)
 
     await util.say(ctx.channel, embed=transaction_log)
@@ -277,12 +277,14 @@ async def compare(ctx, player1, player2=None, **details):
     
     compare_Embed = discord.Embed()
 
-    prestige = translations.translate(ctx, "player:compare:PRESTIGE")
-    level = translations.translate(ctx, "player:compare:LEVEL")
-    health = translations.translate(ctx, "player:compare:HEALTH")
-    attack = translations.translate(ctx, "player:compare:ATTACK")
-    strength = translations.translate(ctx, "player:compare:STRENGTH")
-    accuracy = translations.translate(ctx, "player:compare:ACCURACY")
+    prestige = translations.translate(ctx, "player:other:PRESTIGE")
+    level = translations.translate(ctx, "player:other:LEVEL")
+    health = translations.translate(ctx, "player:other:HEALTH")
+    attack = translations.translate(ctx, "player:other:ATTACK")
+    strength = translations.translate(ctx, "player:other:STRENGTH")
+    accuracy = translations.translate(ctx, "player:other:ACCURACY")
+
+    string = prestige+": %s\n"+level+": %s\n"+health+": %.2f\n"+attack+": %.2f\n"+strength+": %.2f\n"+accuracy+": %.2f"
 
     if player2 is None:
         player2 = player1
@@ -290,12 +292,12 @@ async def compare(ctx, player1, player2=None, **details):
     compare_Embed.title = "Comparing **%s** with **%s**!" % (player1.name_clean, player2.name_clean)
     compare_Embed.add_field(
         name=player1.name_clean,
-        value=(prestige+": %s\n"+level+": %s\n"+health+": %.2f\n"+attack+": %.2f\n"+strength+": %.2f\n"+accuracy+": %.2f" % (player1.prestige_level, player1.level, player1.hp * player1.strg, player1.attack, player1.strg, player1.accy)), 
+        value=(string % (player1.prestige_level, player1.level, player1.hp * player1.strg, player1.attack, player1.strg, player1.accy)), 
         inline=True
     )
     compare_Embed.add_field(
         name=player2.name_clean,
-        value=(prestige+": %s\n"+level+": %s\n"+health+": %.2f\n"+attack+": %.2f\n"+strength+": %.2f\n"+accuracy+": %.2f" % (player2.prestige_level, player2.level, player2.hp * player2.strg, player2.attack, player2.strg, player2.accy)), 
+        value=(string % (player2.prestige_level, player2.level, player2.hp * player2.strg, player2.attack, player2.strg, player2.accy)), 
         inline=True
     )
 
@@ -333,14 +335,14 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
     if transaction_amount >= 50:
         await game_awards.give_award(ctx.channel, sender, "SugarDaddy", "Sugar daddy!")
 
-    transaction_log = discord.Embed(title=e.BBT_WITH_WINGS + translations.translate(ctx, "player:sendcash:TITLE"), type="rich",
+    transaction_log = discord.Embed(title=e.BBT_WITH_WINGS + translations.translate(ctx, "other:common:TCOMPLETE"), type="rich",
                                     color=gconf.DUE_COLOUR)
-    transaction_log.add_field(name=translations.translate(ctx, "player:sendcash:SENDER"), value=sender.name_clean)
-    transaction_log.add_field(name=translations.translate(ctx, "player:sendcash:RECIPIENT"), value=receiver.name_clean)
+    transaction_log.add_field(name=translations.translate(ctx, "other:common:TSENDER"), value=sender.name_clean)
+    transaction_log.add_field(name=translations.translate(ctx, "other:common:TRECIPIENT"), value=receiver.name_clean)
     transaction_log.add_field(name=translations.translate(ctx, "player:sendcash:AMOUNT"), value=amount_string, inline=False)
     if message != "":
-        transaction_log.add_field(name=translations.translate(ctx, "player:sendcash:NOTE"), value=message, inline=False)
-    transaction_log.set_footer(text=translations.translate(ctx, "player:sendcash:FOOTER"))
+        transaction_log.add_field(name=translations.translate(ctx, "other:common:TNOTE"), value=message, inline=False)
+    transaction_log.set_footer(text=translations.translate(ctx, "other:common:TRECEIPT"))
     util.logger.info("%s (%s) sent %s to %s (%s)", sender.name, sender.id, amount_string, receiver.name, receiver.id)
 
     await util.say(ctx.channel, embed=transaction_log)

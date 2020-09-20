@@ -1,0 +1,6 @@
+{
+    "HELP": "[CMD_KEY]optout\n\nOptout of BattleBanana.\n\nWhen you opt out:    \nYou don't get quests or exp.\n    Other players can't use you in commands.\n    You lose access to all \"game\" commands.\n\nGuild admins (that opt out) still have access to admin commands.\n\n(This applies to all servers with BattleBanana)",
+    "STAFFMEMBER": "You cannot optout everywhere and stay a BattleBanana mod or admin!",
+    "SUCCESS": ":ok_hand: You've opted out of BattleBanana everywhere.\nYou won't get exp, quests, and other players can't use you in commands.",
+    "ALREADYOPTOUT": "You've already opted out everywhere!\nYou can join the fun again with ``[CMD_KEY]optin``."
+}

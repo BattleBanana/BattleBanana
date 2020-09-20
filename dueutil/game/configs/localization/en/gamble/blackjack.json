@@ -9,7 +9,7 @@
     "STARTDESC": "%s game. Current bet: ¤%s",
     "STARTFOOTER": "Reply with \"hit\" or \"stand\". This prompt will close in 120 seconds",
 
-    "USERVALUE": "Your hand (%s)",
+    "USERHAND": "Your hand (%s)",
     "DEALERHAND": "Dealer's hand (%s)",
     "RESULT": "Result",
 

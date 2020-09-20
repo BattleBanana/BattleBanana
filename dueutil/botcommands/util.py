@@ -83,7 +83,7 @@ async def help(ctx, *args, **details):
         help_embed.add_field(name=':file_folder: '+translations.translate(ctx, "util:help:COMCA"), value=', '.join(categories))
         help_embed.add_field(name=e.THINKY_FONK + translations.translate(ctx, "util:help:TTIP"),
                              value=translations.translate(ctx, "util:help:TDESC"))
-        help_embed.add_field(name=":link:"+translations.translate(ctx, "util:help:LLINK"), value=translations.translate(ctx, "util:help:LDESC", gconf.BOT_INVITE))
+        help_embed.add_field(name=":link:"+translations.translate(ctx, "util:help:LLINK"), value=translations.translate(ctx, "util:help:LDESC"))
         help_embed.set_footer(
             text=translations.translate(ctx, "util:help:FOOTER"))
 
@@ -144,40 +144,27 @@ async def botstats(ctx, **_):
     game_stats = stats.get_stats()
     stats_embed = discord.Embed(title="BattleBanana's Statistics!", type="rich", color=gconf.DUE_COLOUR)
 
-    stats_embed.description = ("The numbers and stuff of BattleBanana right now!\n"
-                               + "The **worst** Discord bot since %s, %s!"
-                               % (gconf.DUE_START_DATE.strftime("%d/%m/%Y"),
-                                  repoze.timeago.get_elapsed(gconf.DUE_START_DATE)))
+    stats_embed.description = translations.translate(ctx, "util:botstats:DESC", gconf.DUE_START_DATE.strftime("%d/%m/%Y") ,repoze.timeago.get_elapsed(gconf.DUE_START_DATE))
 
     # General
-    stats_embed.add_field(name="General",
-                          value=(e.MYINFO + " **%s** images served.\n"
-                                 % util.format_number_precise(game_stats[Stat.IMAGES_SERVED])
-                                 + e.DISCOIN + " **Đ%s** Discoin received.\n"
-                                 % util.format_number_precise(game_stats[Stat.DISCOIN_RECEIVED])))
+    stats_embed.add_field(name=translations.translate(ctx, "util:botstats:GENERAL"),
+                          value=(e.MYINFO + translations.translate(ctx, "util:botstats:IMAGE", util.format_number_precise(game_stats[Stat.IMAGES_SERVED]))
+                                 + e.DISCOIN + translations.translate(ctx, "util:botstats:DISCOIN", util.format_number_precise(game_stats[Stat.DISCOIN_RECEIVED]))))
     # Game
-    stats_embed.add_field(name="Game",
-                          value=(e.QUESTER + " **%s** players.\n"
-                                 % util.format_number_precise(game_stats[Stat.NEW_PLAYERS_JOINED])
-                                 + e.QUEST + " **%s** quests given.\n"
-                                 % util.format_number_precise(game_stats[Stat.QUESTS_GIVEN])
-                                 + e.FIST + " **%s** quests attempted.\n"
-                                 % util.format_number_precise(game_stats[Stat.QUESTS_ATTEMPTED])
-                                 + e.LEVEL_UP + " **%s** level ups.\n"
-                                 % util.format_number_precise(game_stats[Stat.PLAYERS_LEVELED])
-                                 + e.BBT + " **%s** awarded.\n"
-                                 % util.format_money(game_stats[Stat.MONEY_CREATED])
-                                 + e.BBT_WITH_WINGS + " **%s** transferred between players."
-                                 % util.format_money(game_stats[Stat.MONEY_TRANSFERRED])),
+    stats_embed.add_field(name=translations.translate(ctx, "util:botstats:GAME"),
+                          value=(e.QUESTER + translations.translate(ctx, "util:botstats:PLAYERS", util.format_number_precise(game_stats[Stat.NEW_PLAYERS_JOINED]))
+                                 + e.QUEST + translations.translate(ctx, "util:botstats:QUESTS", util.format_number_precise(game_stats[Stat.QUESTS_GIVEN]))
+                                 + e.FIST + translations.translate(ctx, "util:botstats:QUESTSGIVEN", util.format_number_precise(game_stats[Stat.QUESTS_ATTEMPTED]))
+                                 + e.LEVEL_UP + translations.translate(ctx, "util:botstats:LEVELS", util.format_number_precise(game_stats[Stat.PLAYERS_LEVELED]))
+                                 + e.BBT + translations.translate(ctx, "util:botstats:BBTS", util.format_money(game_stats[Stat.MONEY_CREATED]))
+                                 + e.BBT_WITH_WINGS + translations.translate(ctx, "util:botstats:BBTSTRANSFERED", util.format_money(game_stats[Stat.MONEY_TRANSFERRED]))),
                           inline=False)
     # Sharding
     client = util.clients[0]
     current_shard = util.get_shard_index(ctx.guild.id)
-    stats_embed.add_field(name="Shard",
-                          value=("You're connected to shard **%d/%d** (that is named %s).\n"
-                                 % (current_shard + 1, client.shard_count, gconf.shard_names[current_shard])
-                                 + "Current uptime is %s."
-                                 % util.display_time(time.time() - client.start_time, granularity=4)),
+    stats_embed.add_field(name=translations.translate(ctx, "util:botstats:SHARD"),
+                          value=(translations.translate(ctx, "util:botstats:NAME", current_shard + 1, client.shard_count, gconf.shard_names[current_shard])
+                                 + translations.translate(ctx, "util:botstats:UPTIME", util.display_time(time.time() - client.start_time, granularity=4))),
                           inline=False)
 
     await util.say(ctx.channel, embed=stats_embed)
@@ -236,121 +223,65 @@ async def shutup(ctx, *args, **details):
     if len(args) == 0:
         mute_success = dueserverconfig.mute_channel(ctx.channel)
         if mute_success:
-            await util.say(ctx.channel, (":mute: I won't send any alerts in this channel!\n"
-                                         + "If you meant to disable commands too do ``" + details[
-                                             "cmd_key"] + "shutup all``."))
+            await translations.say(ctx, "util:shutup:MUTESUCCESS")
         else:
-            await util.say(ctx.channel, (":mute: I've already been set not to send alerts in this channel!\n"
-                                         + "If you want to disable commands too do ``" + details["cmd_key"]
-                                         + "shutup all``.\n"
-                                         + "To unmute me do ``" + details["cmd_key"] + "unshutup``."))
+            await translations.say(ctx, "util:shutup:MUTEERROR")
     else:
         mute_level = args[0].lower()
         if mute_level == "all":
             mute_success = dueserverconfig.mute_channel(ctx.channel, mute_all=True)
             if mute_success:
-                await util.say(ctx.channel, ":mute: Disabled all commands in this channel for non-admins!")
+                await translations.say(ctx, "util:shutup:MUTEALLSUCCESS")
             else:
-                await util.say(ctx.channel, (":mute: Already mute af in this channel!.\n"
-                                             + "To allow commands & alerts again do ``" + details[
-                                                 "cmd_key"] + "unshutup``."))
+                await translations.say(ctx, "util:shutup:MUTEALLERROR")
         else:
-            await util.say(ctx.channel, ":thinking: If you wanted to mute all the command is ``" + details[
-                "cmd_key"] + "shutup all``.")
+            await translations.say(ctx, "util:shutup:ERROR")
 
 
 @commands.command(permission=Permission.REAL_SERVER_ADMIN, args_pattern="S?")
 @commands.require_cnf(warning="The bot will leave your guild and __**everything**__ will be reset!")
 async def leave(ctx, **_):
-    """
-    [CMD_KEY]leave
-    
-    Makes BattleBanana leave your guild cleanly.
-    This will delete all quests & weapons created
-    on your guild.
-    
-    This command can only be run by real guild admins
-    (you must have manage guild permissions).
-    
-    """
+    """util:leave:HELP"""
 
-    bye_embed = discord.Embed(title="Goodbye!", color=gconf.DUE_COLOUR)
+    bye_embed = discord.Embed(title=translations.translate(ctx, "util:leave:BYE"), color=gconf.DUE_COLOUR)
     bye_embed.set_image(url="http://i.imgur.com/N65P9gL.gif")
     await util.say(ctx.channel, embed=bye_embed)
     try:
         await ctx.guild.leave()
     except:
-        raise util.BattleBananaException(ctx.channel, "Could not leave guild!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "util:leave:ERROR"))
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern=None)
 async def unshutup(ctx, **_):
-    """
-    [CMD_KEY]unshutup
-
-    Reverts ``[CMD_KEY]shutup`` or ``[CMD_KEY]shutup all``
-    (allowing BattleBanana to give alerts and be used again).
-
-    """
+    """util:unshutup:HELP"""
     if dueserverconfig.unmute_channel(ctx.channel):
-        await util.say(ctx.channel,
-                       ":speaker: Okay! I'll once more send alerts and listen for commands in this channel!")
+        await translations.say(ctx, "util:unshutup:SUCCESS")
     else:
-        await util.say(ctx.channel, ":thinking: Okay... I'm unmuted but I was not muted anyway.")
+        await translations.say(ctx, "util:unshutup:NOTMUTED")
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern="S*")
 async def whitelist(ctx, *args, **_):
-    """
-    [CMD_KEY]whitelist
-    
-    Choose what BattleBanana commands you want to allow in a channel.
-    E.g. ``[CMD_KEY]whitelist help battle shop myinfo info``
-    
-    Normal users will not be able to use any other commands than the ones you
-    choose.
-    The whitelist does not effect guild admins.
-    
-    To reset the whitelist run the command with no arguments.
-
-    Note: Whitelisting a command like !info will also whitelist !myinfo
-    (since !info is mapped to !myinfo)
-    """
+    """util:whitelist:HELP"""
 
     if len(args) > 0:
         due_commands = events.command_event.command_list(aliases=True)
         whitelisted_commands = set(commands.replace_aliases([command.lower() for command in args]))
         if whitelisted_commands.issubset(due_commands):
             dueserverconfig.set_command_whitelist(ctx.channel, list(whitelisted_commands))
-            await util.say(ctx.channel, (":notepad_spiral: Whitelist in this channel set to the following commands: ``"
-                                         + ', '.join(whitelisted_commands) + "``"))
+            await translations.say(ctx, "util:whitelist:SUCCESS", ', '.join(whitelisted_commands))
         else:
             incorrect_commands = whitelisted_commands.difference(due_commands)
-            await util.say(ctx.channel, (":confounded: Cannot set whitelist! The following commands don't exist: ``"
-                                         + ', '.join(incorrect_commands) + "``"))
+            await translations.say(ctx, "util:whitelist:ERROR", ', '.join(incorrect_commands))
     else:
         dueserverconfig.set_command_whitelist(ctx.channel, [])
-        await util.say(ctx.channel, ":pencil: Command whitelist set back to all commands.")
+        await translations.say(ctx, "util:whitelist:RESET")
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern="S*")
 async def blacklist(ctx, *args, **_):
-    """
-    [CMD_KEY]blacklist
-    
-    Choose what BattleBanana commands you want to ban in a channel.
-    E.g. ``[CMD_KEY]blacklist acceptquest battleme sell``
-    
-    Normal users will only be able to use commands not in the blacklist.
-    The blacklist does not effect guild admins.
-    
-    To reset the blacklist run the command with no arguments.
-    
-    The blacklist is not independent from the whitelist.
-
-    Note: Blacklisting a command like !info will also blacklist !myinfo
-    (since !info is mapped to !myinfo)
-    """
+    """util:blacklist:HELP"""
 
     if len(args) > 0:
         due_commands = events.command_event.command_list(aliases=True)
@@ -359,143 +290,96 @@ async def blacklist(ctx, *args, **_):
             whitelisted_commands = list(set(due_commands).difference(blacklisted_commands))
             whitelisted_commands.append("is_blacklist")
             dueserverconfig.set_command_whitelist(ctx.channel, whitelisted_commands)
-            await util.say(ctx.channel, (":notepad_spiral: Blacklist in this channel set to the following commands: ``"
-                                         + ', '.join(blacklisted_commands) + "``"))
+            await translations.say(ctx, "util:blacklist:SUCCESS", ', '.join(blacklisted_commands))
         else:
             incorrect_commands = blacklisted_commands.difference(due_commands)
-            await util.say(ctx.channel, (":confounded: Cannot set blacklist! The following commands don't exist: ``"
-                                         + ', '.join(incorrect_commands) + "``"))
+            await translations.say(ctx, "util:blacklist:ERROR", ', '.join(incorrect_commands))
     else:
         dueserverconfig.set_command_whitelist(ctx.channel, [])
-        await util.say(ctx.channel, ":pencil: Command blacklist removed.")
+        await translations.say(ctx, "util:blacklist:RESET")
 
 
 @commands.command(permission=Permission.REAL_SERVER_ADMIN, args_pattern=None)
 async def setuproles(ctx, **_):
-    """
-    [CMD_KEY]setuproles
-    
-    Creates any discord roles BattleBanana needs. These will have been made when
-    BattleBanana joined your guild but if you deleted any & need them you'll 
-    want to run this command.
-    
-    """
+    """util:setuproles:HELP"""
     roles_made = await util.set_up_roles(ctx.guild)
     roles_count = len(roles_made)
     if roles_count > 0:
-        result = ":white_check_mark: Created **%d %s**!\n" % (roles_count, util.s_suffix("role", roles_count))
+        result = translations.translate(ctx, "util:setuproles:CREATED", roles_count, util.s_suffix("role", roles_count))
         for role in roles_made:
             result += "→ ``%s``\n" % role["name"]
         await util.say(ctx.channel, result)
     else:
-        await util.say(ctx.channel, "No roles need to be created!")
+        await translations.say(ctx, "util:setuproles:NONEW")
 
 
-async def optout_is_topdog_check(channel, player):
+async def optout_is_topdog_check(ctx, player):
     topdog = player.is_top_dog()
     if topdog:
-        await util.say(channel, (":dog: You cannot opt out while you're top dog!\n"
-                                 + "Pass on the title before you leave us!"))
+        await translations.say(ctx, "util:misc:TOPDOGCHECK")
     return topdog
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def optout(ctx, **details):
-    """
-    [CMD_KEY]optout
-
-    Optout of BattleBanana.
-
-    When you opt out:
-        You don't get quests or exp.
-        Other players can't use you in commands.
-        You lose access to all "game" commands.
-
-    Guild admins (that opt out) still have access to admin commands.
-
-    (This applies to all servers with BattleBanana)
-    """
+    """util:optout:HELP"""
 
     player = details["author"]
     if player.is_playing():
         current_permission = permissions.get_special_permission(ctx.author)
-        if await optout_is_topdog_check(ctx.channel, player):
+        if await optout_is_topdog_check(ctx, player):
             return
         if current_permission >= Permission.BANANA_MOD:
-            raise util.BattleBananaException(ctx.channel,
-                                             "You cannot optout everywhere and stay a BattleBanana mod or admin!")
+            raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "util:optout:STAFFMEMBER"))
         permissions.give_permission(ctx.author, Permission.DISCORD_USER)
-        await util.say(ctx.channel, (":ok_hand: You've opted out of BattleBanana everywhere.\n"
-                                     + "You won't get exp, quests, and other players can't use you in commands."))
+        await util.say(ctx.channel, translations.translate(ctx, "util:optout:SUCCESS"))
     else:
-        await util.say(ctx.channel, ("You've already opted out everywhere!\n"
-                                     + "You can join the fun again with ``%soptin``." % details["cmd_key"]))
+        await util.say(ctx.channel, translations.translate(ctx, "util:optout:ALREADYOPTOUT"))
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def optin(ctx, **details):
-    """
-    [CMD_KEY]optin
-
-    Optin to BattleBanana.
-
-    (This applies to all servers with BattleBanana)
-    """
+    """util:optin:HELP"""
 
     player = details["author"]
     local_optout = not player.is_playing(ctx.guild, local=True)
     # Already playing
     if player.is_playing():
         if not local_optout:
-            await util.say(ctx.channel, "You've already opted in everywhere!")
+            await translations.translate(ctx, "util:optin:ALREADYOPTOUT")
         else:
-            await util.say(ctx.channel, ("You've only opted out on this guild!\n"
-                                         + "To optin here do ``%soptinhere``" % details["cmd_key"]))
+            await translations.say(ctx, "util:optin:OPTOUTGUILD")
     else:
         permissions.give_permission(ctx.author, Permission.PLAYER)
-        await util.say(ctx.channel, ("You've opted in everywhere"
-                                     + (" (does not override your guild level optout)" * local_optout) + "!\n"
-                                     + "Glad to have you back."))
+        await translations.say(ctx, "util:optin:OPTOUTALL")
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def optouthere(ctx, **details):
-    """
-    [CMD_KEY]optouthere
-
-    Optout of BattleBanana on the guild you run the command.
-    This has the same effect as [CMD_KEY]optout but is local.
-    """
+    """util:optouthere:HELP"""
 
     player = details["author"]
 
     if not player.is_playing():
-        await util.say(ctx.channel, "You've already opted out everywhere!")
+        await translations.say(ctx, "util:optouthere:ALREADYOPTOUT")
         return
 
     if player.is_playing(ctx.guild, local=True):
         optout_role = util.get_role_by_name(ctx.guild, gconf.OPTOUT_ROLE)
         if optout_role is None:
-            await util.say(ctx.channel, ("There is no optout role on this guild!\n"
-                                         + "Ask an admin to run ``%ssetuproles``" % details["cmd_key"]))
+            await translations.say(ctx, "util:optouthere:NOROLE")
         else:
-            if await optout_is_topdog_check(ctx.channel, player):
+            if await optout_is_topdog_check(ctx, player):
                 return
             await ctx.author.add_roles(optout_role)
-            await util.say(ctx.channel, (":ok_hand: You've opted out of BattleBanana on this guild!\n"
-                                         + "You won't get exp, quests or be able to use commands here."))
+            await translations.say(ctx, "util:optouthere:SUCCESS")
     else:
-        await util.say(ctx.channel, ("You've already opted out on this sever!\n"
-                                     + "Join the fun over here do ``%soptinhere``" % details["cmd_key"]))
+        await translations.say(ctx, "util:optouthere:ALREADY")
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def optinhere(ctx, **details):
-    """
-    [CMD_KEY]optinhere
-
-    Optin to BattleBanana on a guild.
-    """
+    """util:optinhere:HELP"""
 
     player = details["author"]
     globally_opted_out = not player.is_playing()
@@ -503,34 +387,27 @@ async def optinhere(ctx, **details):
     optout_role = util.get_role_by_name(ctx.guild, gconf.OPTOUT_ROLE)
     if optout_role is not None and not player.is_playing(ctx.guild, local=True):
         await ctx.author.remove_roles(optout_role)
-        await util.say(ctx.channel, ("You've opted in on this guild!\n"
-                                     + ("However this is overridden by your global optout.\n"
-                                        + "To optin everywhere to ``%soptin``" % details["cmd_key"])
-                                     * globally_opted_out))
+        await translations.say(ctx, "util:optinhere:SUCCESS")
     else:
         if globally_opted_out:
-            await util.say(ctx.channel, ("You've opted out of BattleBanana everywhere!\n"
-                                         + "To use BattleBanana do ``%soptin``" % details["cmd_key"]))
+            await translations.say(ctx, "util:optinhere:GLOBAL")
         else:
-            await util.say(ctx.channel, "You've not opted out on this guild.")
+            await translations.say(ctx, "util:optinhere:NOTOPTOUT")
 
 
 @commands.command(args_pattern=None)
 async def currencies(ctx, **details):
-    """
-    [CMD_KEY]currencies
-    
-    Display every currencies currently available on Discoin
-    """
+    """util:currencies:HELP"""
 
-    embed = discord.Embed(title=e.DISCOIN + " Current currencies!", type="rich", color=gconf.DUE_COLOUR)
+    link = "https://dash.discoin.zws.im/#/currencies"
+    embed = discord.Embed(title=e.DISCOIN + translations.translate(ctx, "util:currencies:TITLE"), type="rich", color=gconf.DUE_COLOUR)
     for id in discoin.CODES:
         currency = discoin.CODES[id]
         embed.add_field(name=id, value=currency['name'], inline=False)
 
     if len(embed.fields) == 0:
-        embed.add_field(name="An error occured!", value="There was an error retrieving Discoin's currencies.")
-    embed.set_footer(text="Visit https://dash.discoin.zws.im/#/currencies for exchange rate.")
+        embed.add_field(name=translations.translate(ctx, "util:currencies:NERROR"), value=translations.translate(ctx, "util:currencies:VERROR"))
+    embed.set_footer(text=translations.translate(ctx, "util:currencies:FOOTER", link))
 
     await util.say(ctx.channel, embed=embed)
 
@@ -546,35 +423,27 @@ async def exchange(ctx, amount, currency, **details):
     if currency == discoin.CURRENCY_CODE:
         raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "util:exchange:SAMECURRENCY", discoin.CURRENCY_CODE, discoin.CURRENCY_CODE))
     if not currency in discoin.CODES:
-        raise util.BattleBananaException(ctx.channel,
-                                         "Not a valid currency! Use `%scurrencies` to know which currency is available." %
-                                         details['cmd_key'])
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "util:exchange:BADCURRENCY"))
     if amount > discoin.MAX_TRANSACTION:
-        raise util.BattleBananaException(ctx.channel,
-                                         "The amount you try to exchange exceeds the maximum %s transfer limit of %s."
-                                         % (discoin.CURRENCY_CODE, discoin.MAX_TRANSACTION))
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "util:exchange:BREAKSLIMIT", discoin.CURRENCY_CODE, discoin.MAX_TRANSACTION))
 
     amount = int(amount)
     if player.money - amount < 0:
-        await util.say(ctx.channel, "You do not have **%s**!\n"
-                       % util.format_number(amount, full_precision=True, money=True)
-                       + "The maximum you can exchange is **%s**"
-                       % util.format_number(player.money, full_precision=True, money=True))
+        await translations.say(ctx, "util:exchange:CANTAFFORD", util.format_number(amount, full_precision=True, money=True), util.format_number(player.money, full_precision=True, money=True))
         return
 
     try:
         response = await discoin.make_transaction(player.id, amount, currency)
     except Exception as discoin_error:
         util.logger.error("Discoin exchange failed %s", discoin_error)
-        raise util.BattleBananaException(ctx.channel, "Something went wrong at Discoin!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "util:exchange:ERRORDISCOIN"))
 
     if response.get('statusCode'):
         code = response.get("statusCode")
         if code >= 500:
-            raise util.BattleBananaException(ctx.channel,
-                                             "Something went wrong at Discoin! %s: %s" % (code, response['error']))
+            raise util.BattleBananaException(ctx.channel,  (translations.translate(ctx, "util:exchange:ERRORDISCOIN")+"%s: %s" % (code, response['error'])))
         elif 400 <= code < 500:
-            raise util.BattleBananaException(ctx.channel, "Something went wrong! %s: %s" % (code, response['error']))
+            raise util.BattleBananaException(ctx.channel, (translations.translate(ctx, "util:exchange:ERRORBOT")+"%s: %s" % (code, response['error'])))
 
     await awards.give_award(ctx.channel, player, "Discoin")
     player.money -= amount
@@ -583,13 +452,13 @@ async def exchange(ctx, amount, currency, **details):
     transaction = response
     receipt = discoin.DISCOINDASH + "/" + transaction['id'] + "/show"
 
-    exchange_embed = discord.Embed(title=e.DISCOIN + " Exchange complete!", type="rich", color=gconf.DUE_COLOUR)
-    exchange_embed.add_field(name=f"Exchange amount ({discoin.CURRENCY_CODE}):",
+    exchange_embed = discord.Embed(title=e.DISCOIN + translations.translate(ctx, "util:exchange:TITLE"), type="rich", color=gconf.DUE_COLOUR)
+    exchange_embed.add_field(name=translations.translate(ctx, "util:exchange:EXCHANGE", discoin.CURRENCY_CODE),
                              value=util.format_number(amount, money=True, full_precision=True))
-    exchange_embed.add_field(name="Result amount (%s):" % currency,
+    exchange_embed.add_field(name=translations.translate(ctx, "util:exchange:RESULT", currency),
                              value="$" + util.format_number_precise(transaction['payout']))
-    exchange_embed.add_field(name="Receipt:", value=receipt, inline=False)
-    exchange_embed.set_footer(text="Keep the receipt for if something goes wrong!")
+    exchange_embed.add_field(name=translations.translate(ctx, "util:exchange:RECEIPT"), value=receipt, inline=False)
+    exchange_embed.set_footer(text=translations.translate(ctx, "util:exchange:FOOTER"))
 
     await util.say(ctx.channel, embed=exchange_embed)
 

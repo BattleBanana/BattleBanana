@@ -1,0 +1,6 @@
+{
+    "HELP": "[CMD_KEY]blacklist\n\nChoose what BattleBanana commands you want to ban in a channel.\nE.g. ``[CMD_KEY]blacklist acceptquest battleme sell``\n\nNormal users will only be able to use commands not in the blacklist.\nThe blacklist does not effect guild admins.\n\nTo reset the blacklist run the command with no arguments.\n\nThe blacklist is not independent from the whitelist.\n\nNote: Blacklisting a command like !info will also blacklist !myinfo\n(since !info is mapped to !myinfo)",
+    "SUCCESS": ":notepad_spiral: Blacklist in this channel set to the following commands: ``%s``",
+    "ERROR": ":confounded: Cannot set blacklist! The following commands don't exist: ``%s``",
+    "RESET": ":pencil: Command blacklist removed."
+}

@@ -15,7 +15,8 @@ from ..game import (
     stats,
     awards,
     players,
-    emojis)
+    emojis,
+    translations)
 from .. import commands, util
 from ..game.helpers import misc
 
@@ -61,55 +62,42 @@ async def spawnquest(ctx, *args, **details):
 @commands.command(args_pattern='C', aliases=['qi'])
 @commands.imagecommand()
 async def questinfo(ctx, quest_index, **details):
-    """
-    [CMD_KEY]questinfo index
-    
-    Shows a simple stats page for the quest
-    """
+    """quest:questinfo:HELP"""
 
     player = details["author"]
     quest_index -= 1
     if 0 <= quest_index < len(player.quests):
         await imagehelper.quest_screen(ctx.channel, player.quests[quest_index])
     else:
-        raise util.BattleBananaException(ctx.channel, "Quest not found!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:questinfo:NOTFOUND"))
 
 
 @commands.command(args_pattern='C?', aliases=['mq'])
 @commands.imagecommand()
 async def myquests(ctx, page=1, **details):
-    """
-    [CMD_KEY]myquests
-    
-    Shows the list of active quests you have pending.
-    """
+    """quest:myquests:HELP"""
 
     player = details["author"]
     page -= 1
     # Always show page 1 (0)
     if page != 0 and page * 5 >= len(player.quests):
-        raise util.BattleBananaException(ctx.channel, "Page not found")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:myquests:PNOTFOUND"))
     await imagehelper.quests_screen(ctx.channel, player, page)
 
 
 @commands.command(args_pattern='C', aliases=['aq'])
 @commands.imagecommand()
 async def acceptquest(ctx, quest_index, **details):
-    """
-    [CMD_KEY]acceptquest (quest number)
-
-    You know what to do. Spam ``[CMD_KEY]acceptquest 1``!
-    """
+    """quest:acceptquest:HELP"""
 
     player = details["author"]
     quest_index -= 1
     if quest_index >= len(player.quests):
-        raise util.BattleBananaException(ctx.channel, "Quest not found!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:acceptquest:QNOTFOUND"))
     if player.money - player.quests[quest_index].money // 2 < 0:
-        raise util.BattleBananaException(ctx.channel, "You can't afford the risk!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:acceptquest:CANTAFFORD"))
     if player.quests_completed_today >= quests.MAX_DAILY_QUESTS:
-        raise util.BattleBananaException(ctx.channel,
-                                    "You can't do more than " + str(quests.MAX_DAILY_QUESTS) + " quests a day!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:acceptquest:QLIMIT", str(quests.MAX_DAILY_QUESTS)))
 
     quest = player.quests.pop(quest_index)
     battle_log = battles.get_battle_log(player_one=player, player_two=quest, p2_prefix="the ")
@@ -121,8 +109,7 @@ async def acceptquest(ctx, quest_index, **details):
     average_quest_battle_turns = player.misc_stats["average_quest_battle_turns"] = (player.misc_stats[
                                                                                         "average_quest_battle_turns"] + turns) / 2
     if winner == quest:
-        quest_results = (":skull: **" + player.name_clean + "** lost to the **" + quest.name_clean + "** and dropped ``"
-                         + util.format_number(quest.money // 2, full_precision=True, money=True) + "``")
+        quest_results = (translations.translate(ctx, "quest:acceptquest:LOSE", player.name_clean, quest.name_clean, util.format_number(quest.money // 2, full_precision=True, money=True)))
         player.money -= quest.money // 2
         player.quest_spawn_build_up += 0.1
         player.misc_stats["quest_losing_streak"] += 1
@@ -134,9 +121,7 @@ async def acceptquest(ctx, quest_index, **details):
         player.quests_completed_today += 1
         player.quests_won += 1
 
-        reward = (
-            ":sparkles: **" + player.name_clean + "** defeated the **" + quest.name + "** and was rewarded with ``"
-            + util.format_number(quest.money, full_precision=True, money=True) + "`` ")
+        reward = (translations.translate(ctx, "quest:acceptquest:WIN", player.name_clean, quest.name, util.format_number(quest.money, full_precision=True, money=True)))
         quest_scale = quest.get_quest_scale()
         avg_player_stat = player.get_avg_stat()
 
@@ -161,7 +146,7 @@ async def acceptquest(ctx, quest_index, **details):
         prevExp = player.total_exp 
         player.progress(add_attack, add_strg, add_accy, max_attr=max_stats_gain, max_exp=10000 * player.prestige_multiplicator())
         expGain = player.total_exp - prevExp
-        quest_results = (reward + "and `" + str(round(expGain)) + "` EXP\n" + stats_reward)
+        quest_results = (reward +translations.translate(ctx, "other:singleword:AND")+" `" + str(round(expGain)) + "` EXP\n" + stats_reward)
 
         player.money += quest.money
         stats.increment_stat(stats.Stat.MONEY_CREATED, quest.money)
@@ -173,8 +158,8 @@ async def acceptquest(ctx, quest_index, **details):
         await game.check_for_level_up(ctx, player)
         player.misc_stats["quest_losing_streak"] = 0
     else:
-        quest_results = ":question: Against all you drew with the quest!"
-    battle_embed.add_field(name="Quest results", value=quest_results, inline=False)
+        quest_results = translations.translate(ctx, "quest:acceptquest:TIE")
+    battle_embed.add_field(name=translations.translate(ctx, "quest:acceptquest:QRESULT"), value=quest_results, inline=False)
     await imagehelper.battle_screen(ctx.channel, player, quest)
     await util.say(ctx.channel, embed=battle_embed)
     # Put this here to avoid 'spoiling' results before battle log

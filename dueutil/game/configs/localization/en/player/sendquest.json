@@ -3,10 +3,5 @@
     "SAMEUSER": "There is no reason to send a quest to yourself!",
     "QUESTNOTFOUND": "Quest not found",
     "TOOSTRONG": "The quest is too strong for the player! Highest quest level for this player is %s!",
-    "EMBEDTITLE": " Transaction complete!",
-    "EMBEDSENDER": "Sender: ",
-    "EMBEDRECIPIENT": "Recipient: ",
-    "EMBEDTRANS": "Transaction: ",
-    "EMBEDNOTE": ":pencil: Attached note: ",
-    "EMBEDRECEIPT": "Please keep this receipt for your records."
+    "EMBEDTRANS": "Transaction: "
 }

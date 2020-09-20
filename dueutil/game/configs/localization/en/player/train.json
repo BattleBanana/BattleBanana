@@ -5,5 +5,5 @@
     "DESCRIPTION": "After a hard moment, you feel stronger!",
     "FIELDNAME": "Training result:",
     "FOOTER": "You feel exhausted and may train again in 6 hours!",
-    "COMPLETE": "% training complete!"
+    "COMPLETE": "%s training complete!"
 }

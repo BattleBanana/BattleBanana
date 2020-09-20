@@ -1,0 +1,4 @@
+{
+    "HELP": "[CMD_KEY]questinfo index\n\nShows a simple stats page for the quest",
+    "NOTFOUND": "Quest not found!"
+}

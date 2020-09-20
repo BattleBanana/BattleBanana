@@ -1,0 +1,7 @@
+{
+    "HELP": "[CMD_KEY]optouthere\n\nOptout of BattleBanana on the guild you run the command.\nThis has the same effect as [CMD_KEY]optout but is local.",
+    "ALREADYOPTOUT": "You've already opted out everywhere!",
+    "NOROLE": "There is no optout role on this guild!\nAsk an admin to run ``[CMD_KEY]setuproles``",
+    "SUCCESS": ":ok_hand: You've opted out of BattleBanana on this guild!\nYou won't get exp, quests or be able to use commands here.",
+    "ALREADY": "You've already opted out on this sever!\nJoin the fun over here do ``[CMD_KEY]optinhere``"
+}
