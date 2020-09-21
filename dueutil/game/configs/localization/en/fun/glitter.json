@@ -1,5 +1,0 @@
-{
-    "HELP": "[CMD_KEY]glitter(text)\n\nCreates a glitter text gif!\n(Glitter text from http://www.gigaglitters.com/)",
-    "CONTENT": "Your glitter text!",
-    "ERROR": ":cry: Could not fetch glitter text!"
-}
