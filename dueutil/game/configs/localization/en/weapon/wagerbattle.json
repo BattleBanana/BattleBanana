@@ -1,0 +1,7 @@
+{
+    "HELP": "[CMD_KEY]wagerbattle player amount\n\nMoney will not be taken from your account after you use this command.\nIf you cannot afford to pay when the wager is accepted you will be forced\nto sell your weapons.",
+    "AGAINSTAUTHOR": "You can't wager against yourself!",
+    "CANTAFFORD": "You can't afford this wager!",
+    "INBOXFULL": "**%s** wager inbox is full!",
+    "MESSAGE": " that they will win in a battle!"
+}

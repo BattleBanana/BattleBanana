@@ -1,0 +1,6 @@
+{
+    "HELP": "[CMD_KEY]optin\n\nOptin to BattleBanana.\n\n(This applies to all servers with BattleBanana)",
+    "ALREADYOPTOUT": "You've already opted in everywhere!",
+    "OPTOUTGUILD": "You've only opted out on this guild!\nTo optin here do ``[CMD_KEY]optinhere``",
+    "OPTOUTALL": "You've opted in everywhere\nGlad to have you back.\n(does not override your guild level optout)"
+}

@@ -1,0 +1,5 @@
+{
+    "HELP": "[CMD_KEY]profile @player\n\nGives a link to a player's profile!",
+    "LOCKED": ":lock: **%s** profile is private!",
+    "SUCCESS": "**%s** profile is at %s"
+}

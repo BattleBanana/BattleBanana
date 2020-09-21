@@ -6,7 +6,7 @@ import generalconfig as gconf
 from .. import commands, util
 from . import player as player_cmds
 from . import weapon as weap_cmds
-from ..game import weapons, customizations
+from ..game import weapons, customizations, translations
 from ..game.helpers.shopabstract import ShopBuySellItem
 from ..game.helpers import imagehelper
 from functools import wraps
@@ -80,46 +80,42 @@ def filter_customizations(customization_items):
     return items_hidden_removed
 
 
-def shop_weapons_list(page, **details):
+def shop_weapons_list(ctx, page, **details):
     shop_weapons = list(weapons.get_weapons_for_server(details["server_id"]).values())
     shop_weapons.remove(weapons.NO_WEAPON)
     shop_weapons.sort(key=lambda weapon: weapon.price)
     shop_list = weap_cmds.weapons_page(shop_weapons, page, "BattleBanana's Weapon Shop!",
-                                       footer_more=("But wait there's more! Do "
-                                                    + details["cmd_key"] + "shop weapons " + str(page + 2)),
+                                       footer_more=(translations.translate(ctx, "general:misc:BUTWAIT")+" weapons " + str(page + 2)),
                                        footer_end=('Want more? Ask an admin on '
                                                    + details["server_name"] + ' to add some!'))
     return shop_list
 
 
-def shop_theme_list(page, **details):
+def shop_theme_list(ctx, page, **details):
     themes = list(customizations.get_themes().values())
     themes = filter_customizations(themes)
     shop_list = player_cmds.theme_page(themes, page, "BattleBanana's Theme Shop!",
-                                       footer_more=("But wait there's more! Do "
-                                                    + details["cmd_key"] + "shop themes " + str(page + 2)),
+                                       footer_more=(translations.translate(ctx, "general:misc:BUTWAIT")+" themes " + str(page + 2)),
                                        footer_end='More themes coming soon!')
     return shop_list
 
 
-def shop_background_list(page, **details):
+def shop_background_list(ctx, page, **details):
     backgrounds = list(customizations.backgrounds.values())
     backgrounds = filter_customizations(backgrounds)
     # Allow for hidden backgrounds (only used for certain themes - probably won't need for other things)
     shop_list = player_cmds.background_page(backgrounds, page, "BattleBanana's Background Shop!",
-                                            footer_more="But wait there's more! Do "
-                                                        + details["cmd_key"] + "shop bgs " + str(page + 2),
+                                            footer_more=translations.translate(ctx, "general:misc:BUTWAIT")+" bgs " + str(page + 2),
                                             footer_end='More backgrounds coming soon!')
     return shop_list
 
 
-def shop_banner_list(page, **details):
+def shop_banner_list(ctx, page, **details):
     banners = list(customizations.banners.values())
     banners = [banner for banner in banners if banner.can_use_banner(details["author"]) and banner.id != "discord blue"]
     banners.sort(key=_shop_sort)
     shop_list = player_cmds.banner_page(banners, page, "BattleBanana's Banner Shop!",
-                                        footer_more="But wait there's more! Do " + details[
-                                            "cmd_key"] + "shop banners " + str(page + 2),
+                                        footer_more=translations.translate(ctx, "general:misc:BUTWAIT")+" banners " + str(page + 2),
                                         footer_end='More banners coming soon!')
     return shop_list
 
@@ -288,30 +284,18 @@ def try_again(general_command):
 @commands.command(args_pattern='S?M?')
 @try_again
 async def shop(ctx, *args, **details):
-    """
-    [CMD_KEY]shop department (page or name)
-    
-    A place to see all the backgrounds, banners, themes 
-    and weapons on sale.
-    
-    e.g. [CMD_KEY]shop weapons 
-    will show all weapons currenly in store.
-    [CMD_KEY]shop item 
-    will show extra details about that item.
-    If you want anything from the shop use the
-    [CMD_KEY]buy command!
-    """
+    """general:shop:HELP"""
 
     shop_embed = discord.Embed(type="rich", color=gconf.DUE_COLOUR)
     details["embed"] = shop_embed
 
     if len(args) == 0:
         # Greet
-        greet = ":wave: **Welcome to the BattleBanana general store!**\n"
-        department_available = "Please have a look in some of our splendiferous departments!\n"
+        greet = translations.translate(ctx, "general:shop:GREET")
+        department_available = translations.translate(ctx, "general:shop:DEPAVALIBLE")
         for department_info in departments.values():
             department_available += "``" + details["cmd_key"] + "shop " + department_info["alias"][0] + "``\n"
-        shop_help = "For more info on the new shop do ``" + details["cmd_key"] + "help shop``"
+        shop_help = translations.translate(ctx, "general:shop:SHOPHELP")
         await util.say(ctx.channel, greet + department_available + shop_help)
     else:
         # If 1 args could be department or name.
@@ -320,10 +304,10 @@ async def shop(ctx, *args, **details):
         if department is not None:
             list_action = department["actions"]["list_action"]
             if len(args) == 1:
-                await util.say(ctx.channel, embed=list_action(0, **details))
+                await util.say(ctx.channel, embed=list_action(ctx, 0, **details))
             else:
                 if type(args[1]) is int:
-                    await util.say(ctx.channel, embed=list_action(args[1] - 1, **details))
+                    await util.say(ctx.channel, embed=list_action(ctx, args[1] - 1, **details))
                 else:
                     # Use item_action since it will do the check if item exists
                     await item_action(args[1], "info_action", department=department, **details)
@@ -336,9 +320,7 @@ async def shop(ctx, *args, **details):
 @commands.command(args_pattern='SS?')
 @try_again
 async def buy(ctx, *args, **details):
-    """
-    [CMD_KEY]buy item name
-    """
+    """general:buy:HELP"""
 
     if len(args) == 1:
         await item_action(args[0].lower(), "buy_action", **details)
@@ -353,9 +335,7 @@ async def buy(ctx, *args, **details):
 @commands.command(args_pattern='SS?')
 @try_again
 async def sell(ctx, *args, **details):
-    """
-    [CMD_KEY]sell item name
-    """
+    """general:sell:SHOP"""
     error = "You own multiple items with the same name!"
 
     if len(args) == 1:

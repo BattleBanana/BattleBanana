@@ -1,0 +1,8 @@
+{
+    "HELP": "[CMD_KEY]shutup\n\nMutes BattleBanana in the channel the command is used in.\nBy default the ``[CMD_KEY]shutup`` will stop alerts (level ups, ect)\nusing ``[CMD_KEY]shutup all`` will make BattleBanana ignore all commands\nfrom non-admins.",
+    "MUTESUCCESS": ":mute: I won't send any alerts in this channel!\nIf you meant to disable commands too do ``[CMD_KEY]shutup all``.",
+    "MUTEERROR": ":mute: I've already been set not to send alerts in this channel!\nIf you want to disable commands too do ``[CMD_KEY]shutup all``.\nTo unmute me do ``[CMD_KEY]unshutup``.",
+    "MUTEALLSUCCESS": ":mute: Disabled all commands in this channel for non-admins!",
+    "MUTEALLERROR": ":mute: Already mute af in this channel!.\nTo allow commands & alerts again do ``[CMD_KEY]unshutup``.",
+    "ERROR": ":thinking: If you wanted to mute all the command is ``[CMD_KEY]shutup all``."
+}

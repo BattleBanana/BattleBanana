@@ -1,0 +1,5 @@
+{
+    "HELP": "[CMD_KEY]unshutup\n\nReverts ``[CMD_KEY]shutup`` or ``[CMD_KEY]shutup all``\n(allowing BattleBanana to give alerts and be used again).",
+    "SUCCESS": ":speaker: Okay! I'll once more send alerts and listen for commands in this channel!",
+    "NOTMUTED": ":thinking: Okay... I'm unmuted but I was not muted anyway."
+}

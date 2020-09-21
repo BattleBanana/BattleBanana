@@ -1,0 +1,5 @@
+{
+    "HELP": "[CMD_KEY]setlanguage\n\nSets the language for your server",
+    "ERROR": "Not a valid language, use [CMD_KEY]languages to check all possible languages",
+    "SUCCESS": "Language on **%s** now set to ``%s``!"
+}

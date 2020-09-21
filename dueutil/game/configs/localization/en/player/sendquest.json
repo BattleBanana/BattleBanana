@@ -1,0 +1,7 @@
+{
+    "HELP": "[CMD_KEY]sendquest @player (quest number) (optional message)\n\nSends one of your quest to another player.\nNote: The quest can't be 10 level higher the other player's level.",
+    "SAMEUSER": "There is no reason to send a quest to yourself!",
+    "QUESTNOTFOUND": "Quest not found",
+    "TOOSTRONG": "The quest is too strong for the player! Highest quest level for this player is %s!",
+    "EMBEDTRANS": "Transaction: "
+}

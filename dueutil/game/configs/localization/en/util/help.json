@@ -1,0 +1,23 @@
+{
+    "HELP": "[CMD_KEY]help (command name or category)\n\nINCEPTION SOUND",
+    
+    "CNOTFOUND": "Not found",
+    "CNOTFOUND2": "That command was not found!",
+    "NOHELP": "Sorry there is no help for that command!",
+
+    "HELPDESC": "Showing help for **%s**",
+    "HELPDESC2": "Showing ``%s`` commands.",
+
+    "CEVERYONE": "Commands for everyone",
+    "CADMIN": "Admins only",
+    "COWNER": "Guild managers only",
+
+    "FDESC": "Welcome to the help!\n Simply do [CMD_KEY]help (category) or (command name).",
+    "COMCA": "Command categories",
+
+    "TTIP": " Tips",
+    "TDESC": "If BattleBanana reacts to your command it means something is wrong!\n:question: - Something is wrong with the command's syntax.\n:x: - You don't have the required permissions to use the command.",
+    "LLINK": "Links",
+    "LDESC": "**Invite me: https://battlebanana.xyz/invite**\nBattleBanana guide: https://battlebanana.xyz/howto\nSupport guild: https://discord.gg/P7DBDEC\nSupport me: https://patreon.com/developeranonymous",
+    "FOOTER": "To use admin commands you must have the manage server permission or the 'Banana Commander' role."
+}

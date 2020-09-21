@@ -1,0 +1,9 @@
+{
+    "HELP": "[CMD_KEY]russianroulette ~~(bet)~~\n\nPlay Russian Roulette with your friends, and a gun.\n\nGame objective: Pray to survive.",
+    "RATELIMIT": "You can't use russian roulette again for **[COOLDOWN]**!",
+    "TOOHIGH": "You cannot bet that much!",
+    "TOOLOW": "You cannot bet under ¤1",
+    "CLICK": "Click...",
+    "WIN": "\nYou survived and won `¤%s`!",
+    "LOSE": "\nYou died and lost`¤%s`!"
+}

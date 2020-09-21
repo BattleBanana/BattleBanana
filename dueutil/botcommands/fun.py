@@ -6,33 +6,27 @@ import asyncio
 
 import generalconfig as gconf
 from .. import commands, util, dbconn
-from ..game import awards, players, leaderboards, battles
+from ..game import awards, players, leaderboards, battles, translations
 from ..game.helpers import misc, imagehelper
 from ..game import emojis
 
 topdogs_per_page = 10
 
 
-async def glitter_text(channel, text):
+async def glitter_text(ctx, text):
     try:
         gif_text = await misc.get_glitter_text(text)
-        await channel.send(file=discord.File(fp=gif_text, filename="glittertext.gif"), content=":sparkles: Your glitter text!")
+        await ctx.channel.send(file=discord.File(fp=gif_text, filename="glittertext.gif"), content=":sparkles: "+translations.translate(ctx, "fun:glitter:CONTENT"))
     except (ValueError, asyncio.TimeoutError):
-        await util.say(channel, ":cry: Could not fetch glitter text!")
+        await translations.say(ctx, "fun:glitter:ERROR")
 
 
 @commands.command(args_pattern='S', aliases=("gt", "glittertext",))
 @commands.imagecommand()
 async def glitter(ctx, text, **details):
-    """
-    [CMD_KEY]glitter(text)
-    
-    Creates a glitter text gif!
-    
-    (Glitter text from http://www.gigaglitters.com/)
-    """
+    """fun:glitter:HELP"""
     details["author"].misc_stats["art_created"] += 1
-    await glitter_text(ctx.channel, text)
+    await glitter_text(ctx, text)
 
 
 @commands.command(args_pattern="S?")

@@ -1,0 +1,4 @@
+{
+    "HELP": "[CMD_KEY]weekly\n\nYour weekly free and easy to get quest!\n\nYou can use this command once very 7 days!",
+    "RATELIMIT": "You can't collect your weekly reward again for **[COOLDOWN]**!"
+}

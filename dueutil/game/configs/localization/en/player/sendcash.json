@@ -1,0 +1,8 @@
+{
+    "HELP": "[CMD_KEY]sendcash @player amount (optional message)\n\nSends some cash to another player.\nNote: The maximum amount someone can receive is ten times their limit.\n\nExample usage:\n\n[CMD_KEY]sendcash @DeveloperAnonymous 1000000 \"for the lit bot fam\"\n\nor\n\n[CMD_KEY]sendcash @PolarBear 1",
+    "SAMEPLAYER": "There is no reason to send money to yourself!",
+    "HIGHER": "You do not have **%s**!\nThe maximum you can transfer is **%s**",
+    "CANTAFFORD": "**%s** is more than ten times **%s**'s limit!\nThe maximum **%s** can receive is **%s**!",
+    "BROKE": "You do not have any money to transfer!",
+    "AMOUNT": "Transaction amount (BBT):"
+}

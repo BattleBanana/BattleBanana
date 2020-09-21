@@ -1,0 +1,5 @@
+{
+    "HELP": "[CMD_KEY]setuproles\n\nCreates any discord roles BattleBanana needs. These will have been made when\nBattleBanana joined your guild but if you deleted any & need them you'll \nwant to run this command.",
+    "CREATED": ":white_check_mark: Created **%d %s**!\n",
+    "NONEW": "No roles need to be created!"
+}

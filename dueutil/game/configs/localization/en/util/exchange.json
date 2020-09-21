@@ -1,0 +1,17 @@
+{
+    "HELP": "[CMD_KEY]exchange (amount) (currency)\nExchange your BBT (BattleBanana Tokens) for other bot currencies!\nFor more information go to: https://dash.discoin.zws.im/#/\nNote: Exchanges can take a few minutes to process!",
+    "RATELIMIT": "Your next transfer available is in **[COOLDOWN]**!",
+    "ERRORBOT": "Something went wrong! ",
+    "ERRORDISCOIN": "Something went wrong at Discoin! ",
+
+    "SAMECURRENCY": "There is no reason to exchange %s for %s!",
+    "BADCURRENCY": "Not a valid currency! Use `[CMD_KEY]currencies` to know which currency is available.",
+    "BREAKSLIMIT": "The amount you try to exchange exceeds the maximum %s transfer limit of %s.",
+    "CANTAFFORD": "You do not have **%s**!\nThe maximum you can exchange is **%s**",
+
+    "TITLE": " Exchange complete!",
+    "EXCHANGE": "Exchange amount (%s)",
+    "RESULT": "Result amount (%s):",
+    "RECEIPT": "Receipt:",
+    "FOOTER": "Keep the receipt for if something goes wrong!"
+}

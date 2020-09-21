@@ -1,0 +1,8 @@
+{
+    "HELP": "[CMD_KEY]myweapons (page)/(weapon name)\n\nShows the contents of your weapon inventory.",
+    "NOWEPTITLE": "No weapons stored!",
+    "NOWEPDES": "You can buy up to 6 more weapons from the shop and store them here!",
+    "EQUIPTEDWEPS": "Currently equipped: ",
+    "FOOTER": "Do `equip (weapon name)` to equip a weapon.",
+    "NOWEAPNAME": "You don't have a weapon with that name!"
+}

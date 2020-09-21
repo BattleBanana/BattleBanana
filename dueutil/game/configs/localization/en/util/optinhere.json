@@ -1,0 +1,8 @@
+{
+    "HELP": "[CMD_KEY]optinhere\n\nOptin to BattleBanana on a guild.",
+    "SUCCESS": "You've opted in on this guild!\n",
+    "SUCCESSEXTRA": "You've opted in on this guild!\nHowever this is overridden by your global optout.\nTo optin everywhere to ``[CMD_KEY]optin``",
+
+    "GLOBAL": "You've opted out of BattleBanana everywhere!\nTo use BattleBanana do ``[CMD_KEY]optin``",
+    "NOTOPTOUT": "You've not opted out on this guild."
+}

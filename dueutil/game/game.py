@@ -25,6 +25,7 @@ old_players = open('oldplayers.txt').read()  # For comeback award
 testers = open('testers.txt').read()  # For testers award
 # spelling_lock = Lock()
 
+
 def getResponses():
     return json.load(open("dueutil/game/configs/daily.json", "r"))
 

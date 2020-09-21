@@ -1,0 +1,5 @@
+{
+    "HELP": "[CMD_KEY]compare Player1 Player2\n\nCompares 2 player's statistic! \n\nIf the \"Player2\" argument is not given, it will compare you to the \"Player1\"",
+    "COMPAREYOU": "There is no reason to compare yourself! You are as good as yourself (:",
+    "SAMEPLAYER": "There is no reason to compare the same player!"
+}
