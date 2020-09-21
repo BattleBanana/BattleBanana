@@ -54,5 +54,7 @@ BattleBanana is still being developed with an active community behind it and sup
 If you have a soild understanding of python you can help BattleBanana by contributing towards the source code by fixing bugs, adding new features, or fixing up the repo.
 Active contributers can receive perks like (TBD)
 
+If you would like to contribute towards giving BattleBanana better translations you can visit [here](https://github.com/Firescoutt/BattleBanana-Localization)
+
 ## Licence
 Licenced under [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.en.html)
