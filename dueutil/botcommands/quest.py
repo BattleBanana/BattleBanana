@@ -297,11 +297,7 @@ async def acceptquest(ctx, quest_index, **details):
 
 @commands.command(args_pattern='C', aliases=["dq"])
 async def declinequest(ctx, quest_index, **details):
-    """
-    [CMD_KEY]declinequest index
-
-    Declines a quest because you're too wimpy to accept it.
-    """
+    """quest:declinequest:HELP"""
 
     player = details["author"]
     quest_index -= 1
@@ -313,62 +309,36 @@ async def declinequest(ctx, quest_index, **details):
         if quest_info is not None:
             quest_task = quest_info.task
         else:
-            quest_task = "do a long forgotten quest:"
-        await util.say(ctx.channel, ("**" + player.name_clean + "** declined to "
-                                     + quest_task + " **" + quest.name_clean
-                                     + " [Level " + str(math.trunc(quest.level)) + "]**!"))
+            quest_task = translations.translate(ctx, "quest:declinequest:FORGOTTEN")
+        await translations.say(ctx, "quest:declinequest:SUCCESS", player.name_clean, quest_task, quest.name_clean, str(math.trunc(quest.level)))
     else:
-        raise util.BattleBananaException(ctx.channel, "Quest not found!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:declinequest:NOTFOUND"))
 
 @commands.command(aliases=["daq"])
 @commands.require_cnf(warning="This will **__permanently__** delete **__all__** your quests!")
 async def declineallquests(ctx, **details):
-    """
-    [CMD_KEY]declineallquest
-
-    Declines all of your quests because you're too wimpy to do any of them.
-    """
+    """quest:declineallquests:HELP"""
 
     player = details["author"]
-    
+    #if not player.donor:
+        #raise util.BattleBananaException(ctx.channel, "This command is for donors only!")
+
     quests = len(player.quests)
     if quests == 0:
-        raise util.BattleBananaException(ctx.channel, "You have no quests to decline!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:declineallquests:NOQUESTS"))
 
     player.quests.clear()
     player.save()
     
-    await util.say(ctx.channel, "Declined %s quests!" % quests)
+    await translations.say(ctx, "quest:declineallquests:SUCCESS", quests)
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SRRRRS?S?S?%?')
 async def createquest(ctx, name, attack, strg, accy, hp,
                       task=None, weapon=None, image_url=None, spawn_chane=25, **_):
-    """
-    [CMD_KEY]createquest name (base attack) (base strg) (base accy) (base hp)
-    
-    You can also add (task string) (weapon) (image url) (spawn chance)
-    after the first four args.
-    
-    Note a base value is how strong the quest would be at level 1
-    
-    __Example__:
-    Basic Quest:
-        ``[CMD_KEY]createquest "Mega Mouse" 1.3 2 1.1 32``
-        This creates a quest named "Mega Mouse".
-        With base values:
-            Attack = 1.3
-            Strg = 2
-            Accy = 1.1
-            HP = 32
-    Advanced Quest:
-        ``[CMD_KEY]createquest "Snek Man" 1.3 2 1.1 32 "Kill the" "Dagger" http://i.imgur.com/sP8Rnhc.png 21``
-        This creates a quest with the same base values as before but with the message "Kill the"
-        when the quest pops up, a dagger, a quest icon image and a spawn chance of 21%
-    """
+    """quest:createquest:HELP"""
     if len(quests.get_server_quest_list(ctx.guild)) >= gconf.THING_AMOUNT_CAP:
-        raise util.BattleBananaException(ctx.guild, "Whoa, you've reached the limit of %d quests!"
-                                    % gconf.THING_AMOUNT_CAP)
+        raise util.BattleBananaException(ctx.guild, translations.translate(ctx, "quest:createquest:LIMIT", gconf.THING_AMOUNT_CAP))
 
     extras = {"spawn_chance": spawn_chane}
     if task is not None:
@@ -377,14 +347,13 @@ async def createquest(ctx, name, attack, strg, accy, hp,
         weapon_name_or_id = weapon
         weapon = weapons.find_weapon(ctx.guild, weapon_name_or_id)
         if weapon is None:
-            raise util.BattleBananaException(ctx.channel, "Weapon for the quest not found!")
+            raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:createquest:MISSINGWEAPON"))
         extras['weapon_id'] = weapon.w_id
     if image_url is not None:
         extras['image_url'] = image_url
 
     new_quest = quests.Quest(name, attack, strg, accy, hp, **extras, ctx=ctx)
-    await util.say(ctx.channel, ":white_check_mark: " + util.ultra_escape_string(
-        new_quest.task) + " **" + new_quest.name_clean + "** is now active!")
+    await translations.say(ctx, "quest:createquest:SUCCESS", util.ultra_escape_string(new_quest.task), new_quest.name_clean)
     if "image_url" in extras:
         await imagehelper.warn_on_invalid_image(ctx.channel, url=extras["image_url"])
 
@@ -394,22 +363,7 @@ async def createquest(ctx, name, attack, strg, accy, hp,
                                         "accy/accuracy": "R", "spawn": "%", "weapon/weap": "S",
                                         "image": "S", "task": "S", "channel": "S"})
 async def editquest(ctx, quest_name, updates, **_):
-    """
-    [CMD_KEY]editquest name (property value)+
-
-    Any number of properties can be set at once.
-    This is also how you set quest channels!
-
-    Properties:
-        __attack__, __hp__, __accy__, __spawn__, __weapon__,
-        __image__, __task__, __strg__, and __channel__
-
-    Example usage:
-
-        [CMD_KEY]editquest "snek man" hp 43 attack 4.2 task "Kill the monster"
-
-        [CMD_KEY]editquest slime channel ``#slime_fields``
-    """
+    """quest:editquest:HELP"""
 
     quest = quests.get_quest_on_server(ctx.guild, quest_name)
     if quest is None:
@@ -427,25 +381,25 @@ async def editquest(ctx, quest_name, updates, **_):
                 else:
                     quest.base_strg = value
             else:
-                updates[quest_property] = "Must be at least 1!"
+                updates[quest_property] = translations.translate(ctx, "quest:editquest:UNDER1")
             continue
         elif quest_property == "spawn":
             if 25 >= value >= 1:
                 quest.spawn_chance = value / 100
             else:
-                updates[quest_property] = "Must be 1-25%!"
+                updates[quest_property] = translations.translate(ctx, "quest:editquest:WRONGPERCENT")
         elif quest_property == "hp":
             if value >= 30:
                 quest.base_hp = value
             else:
-                updates[quest_property] = "Must be at least 30!"
+                updates[quest_property] = translations.translate(ctx, "quest:editquest:BADHEALTH")
         elif quest_property in ("weap", "weapon"):
             weapon = weapons.get_weapon_for_server(ctx.guild.id, value)
             if weapon is not None:
                 quest.w_id = weapon.w_id
                 updates[quest_property] = weapon
             else:
-                updates[quest_property] = "Weapon not found!"
+                updates[quest_property] = translations.translate(ctx, "quest:editquest:WPNNOTFOUND")
         elif quest_property == "channel":
             if value.upper() in ("ALL", "NONE"):
                 quest.channel = value.upper()
@@ -456,7 +410,7 @@ async def editquest(ctx, quest_name, updates, **_):
                 if channel is not None:
                     quest.channel = channel.id
                 else:
-                    updates[quest_property] = "Channel not found!"
+                    updates[quest_property] = translations.translate(ctx, "quest:editquest:CHANLNOTFOUND")
         else:
             updates[quest_property] = util.ultra_escape_string(value)
             if quest_property == "image":
@@ -468,10 +422,10 @@ async def editquest(ctx, quest_name, updates, **_):
 
     # Format result.
     if len(updates) == 0:
-        await util.say(ctx.channel, "You need to provide a valid list of changes for the quest!")
+        await translations.say(ctx, "quest:editquest:INVALIDCHANGE")
     else:
         quest.save()
-        result = e.QUEST + " **%s** updates!\n" % quest.name_clean
+        result = e.QUEST + translations.translate(ctx, "quest:editquest:UPDATES", quest.name_clean)
         for quest_property, update_result in updates.items():
             result += ("``%s`` → %s\n" % (quest_property, update_result))
         await util.say(ctx.channel, result)
@@ -481,51 +435,32 @@ async def editquest(ctx, quest_name, updates, **_):
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='S')
 async def removequest(ctx, quest_name, **_):
-    """
-    [CMD_KEY]removequest (quest name)
-    
-    Systematically exterminates all instances of the quest...
-    ...Even those yet to be born
-    """
+    """quest:removequest:HELP"""
 
     quest_name = quest_name.lower()
     quest = quests.get_quest_on_server(ctx.guild, quest_name)
     if quest is None:
-        raise util.BattleBananaException(ctx.channel, "Quest not found!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:removequest:QUESTNOTFOUND"))
 
     quests.remove_quest_from_server(ctx.guild, quest_name)
-    await util.say(ctx.channel, ":white_check_mark: **" + quest.name_clean + "** is no more!")
+    await translations.say(ctx, "quest:removequest:SUCCESS", quest.name_clean)
 
 
 @commands.command(permission=Permission.REAL_SERVER_ADMIN, args_pattern="S?")
 @commands.require_cnf(warning="This will **__permanently__** delete all your quests!")
 async def resetquests(ctx, **_):
-    """
-    [CMD_KEY]resetquests
-
-    Genocide in a command!
-    This command will **delete all quests** on your guild.
-    """
+    """quest:resetquests:HELP"""
 
     quests_deleted = quests.remove_all_quests(ctx.guild)
     if quests_deleted > 0:
-        await util.say(ctx.channel, ":wastebasket: Your quests have been reset—**%d %s** deleted."
-                                    % (quests_deleted, util.s_suffix("quest", quests_deleted)))
+        await translations.say(ctx, "quest:resetquests:SUCCESS", quests_deleted, util.s_suffix("quest", quests_deleted))
     else:
-        await util.say(ctx.channel, "There's no quests to delete!")
+        await translations.say(ctx, "quest:resetquests:NOQUESTS")
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='M?')
 async def serverquests(ctx, page=1, **details):
-    """
-    [CMD_KEY]serverquests (page or quest name)
-
-    Lists the quests active on your guild.
-
-    If you would like to see the base stats of a quest do [CMD_KEY]serverquests (quest name)
-
-    Remember you can edit any of the quests on your guild with [CMD_KEY]editquest
-    """
+    """quest:serverquests:HELP"""
 
     @misc.paginator
     def quest_list(quests_embed, current_quest, **_):

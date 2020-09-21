@@ -21,10 +21,10 @@ async def say(ctx, path, *args, **kwargs):
         try:
             f = json.load(open("dueutil/game/configs/localization/"+str(lan)+"/"+string[0]+"/"+string[1]+".json", "r"))
         except (IndexError, FileNotFoundError, KeyError):
-            try:
-                f = json.load(open("dueutil/game/configs/localization/en/"+string[0]+"/"+string[1]+".json", "r"))
-            except (IndexError, FileNotFoundError, KeyError):
-                raise util.BattleBananaException(ctx.channel, "Translation error, missing English translation")
+            #try:
+            f = json.load(open("dueutil/game/configs/localization/en/"+string[0]+"/"+string[1]+".json", "r"))
+            #except (IndexError, FileNotFoundError, KeyError):
+                #raise util.BattleBananaException(ctx.channel, "Translation error, missing English translation")
         msg = f[string[2]]
 
         if "[CMD_KEY]" in msg:
@@ -44,10 +44,10 @@ def translate(ctx, path, *args):
     try:
         f = json.load(open("dueutil/game/configs/localization/"+str(lan)+"/"+string[0]+"/"+string[1]+".json", "r"))
     except (IndexError, FileNotFoundError, KeyError):
-        try:
-            f = json.load(open("dueutil/game/configs/localization/en/"+string[0]+"/"+string[1]+".json", "r"))
-        except (IndexError, FileNotFoundError, KeyError):
-            raise util.BattleBananaException(ctx.channel, "Translation error, missing English translation")
+        #try:
+        f = json.load(open("dueutil/game/configs/localization/en/"+string[0]+"/"+string[1]+".json", "r"))
+        #except (IndexError, FileNotFoundError, KeyError):
+            #raise util.BattleBananaException(ctx.channel, "Translation error, missing English translation")
         #TODO other translations for non commands
         #raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "util:setlanguage:ERROR"))
     msg = f[string[2]]
@@ -56,6 +56,29 @@ def translate(ctx, path, *args):
             prefix = dueserverconfig.server_cmd_key(ctx.guild)
             msg = msg.replace("[CMD_KEY]", prefix)
     
+    return (msg % args)
+
+
+def translate_help(ctx, path, *args):
+    string = path.split(":")
+    lan = dueserverconfig.get_language(ctx.guild.id)
+    try:
+        f = json.load(open("dueutil/game/configs/localization/"+str(lan)+"/"+string[0]+"/"+string[1]+".json", "r"))
+    except (IndexError, FileNotFoundError, KeyError):
+        try:
+            f = json.load(open("dueutil/game/configs/localization/en/"+string[0]+"/"+string[1]+".json", "r"))
+        except (IndexError, FileNotFoundError, KeyError):
+            if "[CMD_KEY]" in path:
+                prefix = dueserverconfig.server_cmd_key(ctx.guild)
+                path = path.replace("[CMD_KEY]", prefix)
+            return path
+
+    msg = f[string[2]]
+    
+    if "[CMD_KEY]" in msg:
+            prefix = dueserverconfig.server_cmd_key(ctx.guild)
+            msg = msg.replace("[CMD_KEY]", prefix)
+
     return (msg % args)
 
 

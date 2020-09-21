@@ -1,0 +1,5 @@
+{
+    "HELP": "[CMD_KEY]declineallquest\n\nDeclines all of your quests because you're too wimpy to do any of them.",
+    "NOQUESTS": "You have no quests to decline!",
+    "SUCCESS": "Declined %s quests!"
+}

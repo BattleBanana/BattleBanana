@@ -46,7 +46,7 @@ async def help(ctx, *args, **details):
                 command_name = chosen_command.__name__
                 alias_count = len(chosen_command.aliases)
                 if chosen_command.__doc__ is not None:
-                    command_help = translations.translate(ctx, chosen_command.__doc__)
+                    command_help = translations.translate_help(ctx, chosen_command.__doc__)
                 else:
                     command_help = translations.translate(ctx, "util:help:NOHELP")
 
@@ -476,7 +476,7 @@ async def exchange(ctx, amount, currency, **details):
     await util.say(gconf.discoin_channel, embed=logs_embed)
 
 
-@commands.command(args_pattern="S?", permission=Permission.BANANA_ADMIN)
+@commands.command(args_pattern="S?", hidden=True, permission=Permission.BANANA_ADMIN)
 async def status(ctx, message=None, **details):
     """
     If message is none the status will be reset to the default one.

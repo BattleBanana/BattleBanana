@@ -1,0 +1,5 @@
+{
+    "HELP": "[CMD_KEY]removequest (quest name)\n\nSystematically exterminates all instances of the quest...\n...Even those yet to be born",
+    "QUESTNOTFOUND": "Quest not found!",
+    "SUCCESS": ":white_check_mark: **%** is no more!"
+}

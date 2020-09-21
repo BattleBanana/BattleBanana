@@ -1,0 +1,10 @@
+{
+    "HELP": "[CMD_KEY]editquest name (property value)+\n\nAny number of properties can be set at once.\nThis is also how you set quest channels!\n\nProperties:\n    __attack__, __hp__, __accy__, __spawn__, __weapon__,\n    __image__, __task__, __strg__, and __channel__\n\nExample usage:\n\n    [CMD_KEY]editquest \"snek man\" hp 43 attack 4.2 task \"Kill the monster\"\n\n    [CMD_KEY]editquest slime channel ``#slime_fields``",
+    "UNDER1": "Must be at least 1!",
+    "BADHEALTH": "Must be at least 30!",
+    "WRONGPERCENT": "Must be 1-25%!",
+    "WPNNOTFOUND": "Weapon not found!",
+    "CHANLNOTFOUND": "Channel not found!",
+    "INVALIDCHANGE": "You need to provide a valid list of changes for the quest!",
+    "UPDATES": " **%s** updates!\n"
+}

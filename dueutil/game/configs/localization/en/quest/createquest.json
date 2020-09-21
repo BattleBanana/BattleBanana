@@ -1,0 +1,6 @@
+{
+    "HELP": "[CMD_KEY]createquest name (base attack) (base strg) (base accy) (base hp)\n\nYou can also add (task string) (weapon) (image url) (spawn chance)\nafter the first four args.\n\nNote a base value is how strong the quest would be at level 1\n\n__Example__:\nBasic Quest:\n    ``[CMD_KEY]createquest \"Mega Mouse\" 1.3 2 1.1 32``\n    This creates a quest named \"Mega Mouse\".\n    With base values:\n        Attack = 1.3\n        Strg = 2\n        Accy = 1.1\n        HP = 32\nAdvanced Quest:\n    ``[CMD_KEY]createquest \"Snek Man\" 1.3 2 1.1 32 \"Kill the\" \"Dagger\" http://i.imgur.com/sP8Rnhc.png 21``\n    This creates a quest with the same base values as before but with the message \"Kill the\"\n    when the quest pops up, a dagger, a quest icon image and a spawn chance of 21 precent",
+    "LIMIT": "Whoa, you've reached the limit of %d quests!",
+    "MISSINGWEAPON": "Weapon for the quest not found!",
+    "SUCCESS": ":white_check_mark: %s **%s** is now active!"
+}

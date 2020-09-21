@@ -1,0 +1,4 @@
+{
+    "HELP": "[CMD_KEY]serverquests (page or quest name)\n\nLists the quests active on your guild.\n\nIf you would like to see the base stats of a quest do [CMD_KEY]serverquests (quest name)\n\nRemember you can edit any of the quests on your guild with [CMD_KEY]editquest",
+    "": ""
+}

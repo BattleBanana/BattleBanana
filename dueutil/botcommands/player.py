@@ -16,15 +16,9 @@ DAILY_AMOUNT = 50
 TRAIN_RANGE = (0.1, 0.3)
 
 @commands.command(args_pattern=None)
-@commands.ratelimit(cooldown=86400, error="You can't collect your daily reward again for **[COOLDOWN]**!", save=True)
+@commands.ratelimit(cooldown=86400, error="player:daily:RATELIMIT", save=True)
 async def daily(ctx, **details):
-    """
-    [CMD_KEY]daily
-
-    ¤50 * your level! Your daily pocket money!
-
-    You can use this command once every 24 hours!
-    """
+    """player:daily:HELP"""
     player = details["author"]
     responses = game.getResponses()
 
@@ -277,12 +271,12 @@ async def compare(ctx, player1, player2=None, **details):
     
     compare_Embed = discord.Embed()
 
-    prestige = translations.translate(ctx, "player:other:PRESTIGE")
-    level = translations.translate(ctx, "player:other:LEVEL")
-    health = translations.translate(ctx, "player:other:HEALTH")
-    attack = translations.translate(ctx, "player:other:ATTACK")
-    strength = translations.translate(ctx, "player:other:STRENGTH")
-    accuracy = translations.translate(ctx, "player:other:ACCURACY")
+    prestige = translations.translate(ctx, "other:singleword:PRESTIGE")
+    level = translations.translate(ctx, "other:singleword:LEVEL")
+    health = translations.translate(ctx, "other:singleword:HEALTH")
+    attack = translations.translate(ctx, "other:singleword:ATTACK")
+    strength = translations.translate(ctx, "other:singleword:STRENGTH")
+    accuracy = translations.translate(ctx, "other:singleword:ACCURACY")
 
     string = prestige+": %s\n"+level+": %s\n"+health+": %.2f\n"+attack+": %.2f\n"+strength+": %.2f\n"+accuracy+": %.2f"
 
