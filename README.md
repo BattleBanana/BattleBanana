@@ -32,7 +32,7 @@
   <a href="https://battlebanana.xyz/">
       <img src="https://img.shields.io/website?down_color=lightgrey&down_message=offline&up_color=blue&up_message=online&url=https%3A%2F%2Fbattlebanana.xyz" alt="website">
   </a>
-  <a href="https://gitlocalize.com/repo/5311/whole_project?utm_source=badge"> 
+  <a href="https://gitlocalize.com/repo/5311"> 
     <img src="https://gitlocalize.com/repo/5311/whole_project/badge.svg" alt="localization"> 
   </a>
 </p>
