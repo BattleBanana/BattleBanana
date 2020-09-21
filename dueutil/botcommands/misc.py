@@ -405,7 +405,7 @@ async def sudo(ctx, victim, command, **_):
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PC")
 async def setpermlevel(ctx, player, level, **_):
     if not (ctx.author.id in (115269304705875969, 261799488719552513)):
-        util.logger.info(ctx.author.id + " used the command: setpermlevel\n")
+        util.logger.info(str(ctx.author.id) + " used the command: setpermlevel\n")
         if (player.id in (115269304705875969, 261799488719552513)):
             raise util.BattleBananaException(ctx.channel,
                                              "You cannot change the permissions for DeveloperAnonymous or Firescoutt")
