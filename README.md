@@ -32,6 +32,9 @@
   <a href="https://battlebanana.xyz/">
       <img src="https://img.shields.io/website?down_color=lightgrey&down_message=offline&up_color=blue&up_message=online&url=https%3A%2F%2Fbattlebanana.xyz" alt="website">
   </a>
+  <a href="https://gitlocalize.com/repo/5311"> 
+    <img src="https://gitlocalize.com/repo/5311/whole_project/badge.svg" alt="localization"> 
+  </a>
 </p>
 
 ## Overview
@@ -53,6 +56,8 @@ BattleBanana is still being developed with an active community behind it and sup
 ## Contribute 
 If you have a soild understanding of python you can help BattleBanana by contributing towards the source code by fixing bugs, adding new features, or fixing up the repo.
 Active contributers can receive perks like (TBD)
+
+#### If you would like to contribute towards translating BattleBanana you can visit [here](https://gitlocalize.com/repo/5311)
 
 ## Licence
 Licenced under [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.en.html)

@@ -4,6 +4,7 @@ from ..helpers.misc import DueMap
 muted_channels = DueMap()
 command_whitelist = DueMap()
 server_keys = dict()
+lanaguage = dict()
 DEFAULT_SERVER_KEY = "!"
 
 """
@@ -70,18 +71,33 @@ def server_cmd_key(guild, *args):
             return DEFAULT_SERVER_KEY
 
 
+def set_language(guild, *args):
+    lanaguage[guild.id] = args[0]
+    update_server_config(guild, **{"language": args[0]})
+    return
+
+
+def get_language(guildID):
+    if guildID in lanaguage:
+        return lanaguage[guildID]
+    else:
+        return "en"
+
+
 def _load():
     configs = dbconn.conn()["serverconfigs"].find()
     for config in configs:
         server_id = config["_id"]
         if "server_key" in config:
             server_keys[server_id] = config["server_key"]
+        if "language" in config:
+            lanaguage[server_id] = config["language"]
         if "muted_channels" in config:
             muted_channels[server_id] = config["muted_channels"]
         if "command_whitelist" in config:
             command_whitelist[server_id] = config["command_whitelist"]
-    util.logger.info("%d guild keys, %d muted channels, and %d whitelists loaded",
-                     len(server_keys), len(muted_channels), len(command_whitelist))
+    util.logger.info("%d guild keys, %d languages, %d muted channels, and %d whitelists loaded",
+                     len(server_keys), len(lanaguage), len(muted_channels), len(command_whitelist))
 
 
 _load()
