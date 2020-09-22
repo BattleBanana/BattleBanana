@@ -185,7 +185,7 @@ async def setlanguage(ctx, new_lan, **details):
     if util.filter_string(new_lan) != new_lan:
         raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "util:setlanguage:ERROR"))
 
-    if str(new_lan) in ("en", "fr"):
+    if str(new_lan) in ("en", "es", "fr"):
         dueserverconfig.set_language(ctx.guild, new_lan)
         await translations.say(ctx, "util:setlanguage:SUCCESS", ctx.guild.name, new_lan)
     else:
@@ -197,7 +197,7 @@ async def languages(ctx, **_):
     """util:languages:HELP"""
 
     lan_embed = discord.Embed(title="BattleBanana's Localization!", type="rich", color=gconf.DUE_COLOUR)
-    lan_embed.description = "en - English\n fr - Français"
+    lan_embed.description = "en - English\n es - Español\n fr - Français"
 
     await util.say(ctx.channel, embed=lan_embed)
 

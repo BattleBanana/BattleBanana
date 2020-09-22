@@ -1,0 +1,10 @@
+{
+    "HELP": "[CMD_KEY]createteam name (description) (recruiting) (Minimum Level)\n\nName: Team's name\nDescription: Describe your team\nrecruiting: Accepts people?\nMin level: Lowest level for someone to join the team\n\nVery basic.. isn't it?",
+    "ALREADYTEAM": "You are already in a team!",
+    "TEAMCHARS": "Team Name must be between 4 and 32 characters",
+    "BIGDESC": "Description must not exceed 1024 characters!",
+    "BADTEAMNAME": "Invalid team name!",
+    "TAKENNAME": "That team already exists!",
+    "UNDERONE": "Minimum level cannot be under 1!",
+    "SUCCESS": "Successfully created **%s**!"
+}

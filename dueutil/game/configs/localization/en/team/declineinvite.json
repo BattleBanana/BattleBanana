@@ -1,0 +1,5 @@
+{
+    "HELP": "[CMD_KEY]declineinvite (team index)\n\nDecline a team invite cuz you're too good for it.",
+    "NOTFOUND": "Team not found!",
+    "SUCCESS": "Successfully deleted **%s** invite!"
+}

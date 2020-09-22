@@ -114,7 +114,7 @@ async def battle(ctx, *args, **details):
         player_one = player
         player_two = args[0]
 
-    battle_log = battles.get_battle_log(player_one=player_one, player_two=player_two)
+    battle_log = battles.get_battle_log(ctx, player_one=player_one, player_two=player_two)
 
     await imagehelper.battle_screen(ctx.channel, player_one, player_two)
     await util.say(ctx.channel, embed=battle_log.embed)
@@ -192,7 +192,7 @@ async def acceptwager(ctx, wager_index, **details):
 
     wager = player.received_wagers.pop(wager_index)
     sender = players.find_player(wager.sender_id)
-    battle_log = battles.get_battle_log(player_one=player, player_two=sender)
+    battle_log = battles.get_battle_log(ctx, player_one=player, player_two=sender)
     battle_embed = battle_log.embed
     winner = battle_log.winner
     loser = battle_log.loser

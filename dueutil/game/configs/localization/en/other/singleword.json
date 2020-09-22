@@ -1,9 +1,12 @@
 {
     "AND": "and",
+    "HIT": "hit",
     "PRESTIGE": "Prestige",
     "HEALTH": "Health",
     "LEVEL": "Level",
     "ATTACK": "Attack",
     "STRENGTH": "Strength",
-    "ACCURACY": "Accuracy"
+    "ACCURACY": "Accuracy",
+    "YES": "Yes",
+    "No": "No"
 }

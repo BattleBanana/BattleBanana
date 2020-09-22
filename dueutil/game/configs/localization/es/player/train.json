@@ -1,0 +1,9 @@
+{
+  "HELP": "[CMD_KEY]train\n\nEntrena para conseguir un poco de experiencia que te ayude con las misiones.\n\n¡Esto nunca te dará mucha experiencia! ¡Pero debería ayudarte con las misiones desde el principio!\n\n¡Puede usar este comando una vez cada 6 horas!",
+  "RATELIMIT": "¡Has hecho todo el entrenamiento que puedes por ahora! ¡Puedes volver a entrenar en ** [COOLDOWN]**!",
+  "TITLE": "Entrenaste como un loco",
+  "DESCRIPTION": "Después de un momento difícil, ¡te sientes más fuerte!",
+  "FIELDNAME": "Resultado del entrenamiento:",
+  "FOOTER": "¡Te sientes agotado y puedes volver a entrenar en 6 horas!",
+  "COMPLETE": "¡Entrenamiento de %s completado!"
+}

@@ -1,0 +1,6 @@
+{
+    "HELP": "[CMD_KEY]deleteteam\n\nDeletes your team",
+    "NOTEAM": "You're not in a team!",
+    "NOTOWNER": "You need to be the owner to delete the team!",
+    "SUCCESS": "**%s** successfully deleted!"
+}

@@ -81,7 +81,7 @@ class Team(BattleBananaObject, SlotPickleMixin):
             raise util.BattleBananaException(ctx.channel, member.name + " is not in the team!")
         
         if member.id in self.admins:
-            self.removeAdmin(member)
+            self.admins.remove(member.id)
         self.members.remove(member.id)
         self.save()
 

@@ -1,0 +1,11 @@
+{
+    "HELP": "[CMD_KEY]teaminvite (player)\n\nNOTE: You cannot invite a player that is already in a team!",
+    "YOURSELF": "You cannot invite yourself!",
+    "NOTEAM": "You are not a part of a team!",
+    "ALREADYINTEAM": "This player is already in a team!",
+
+    "NOTINTEAM": "You are not a part of a team!",
+    "NOPERMS": "You do not have permissions to send invites!",
+    "ALREADYINVITED": "This player has already been invited to join your team!",
+    "SUCCESS": ":thumbsup: Invite has been sent to **%s**!"
+}

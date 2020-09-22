@@ -1,0 +1,6 @@
+{
+    "HELP": "[CMD_KEY]acceptinvite (team)\n\nAccept a team invite.",
+    "ALREADYTEAM": "You are already in a team.",
+    "INNOTFOUND": "Invite not found!",
+    "SUCCESS": "Successfully joined **%s**!"
+}
