@@ -1,0 +1,5 @@
+{
+    "HELP": "[CMD_KEY]resetweapons\n\nScrew over everyone on your guild!\nThis command **deletes all weapons** on your guild.",
+    "NOWEAPONS": "There's no weapons to delete!",
+    "SUCCESS": ":wastebasket: Your weapon shop has been reset—**%d %s** deleted."
+}

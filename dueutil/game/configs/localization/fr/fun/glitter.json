@@ -1,0 +1,5 @@
+{
+  "HELP": "[CMD_KEY]glitter(texte)\n\nCrée un texte gif à paillettes!\n(Texte à paillettes de http://www.gigaglitters.com/)",
+  "CONTENT": "Votre texte scintillant!",
+  "ERROR": ":cry: Impossible de récupérer le texte scintillant!"
+}

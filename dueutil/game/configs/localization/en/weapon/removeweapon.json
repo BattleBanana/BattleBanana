@@ -1,0 +1,5 @@
+{
+    "HELP": "[CMD_KEY]removeweapon (weapon name)\n\nScrew all the people that bought it :D",
+    "STOCK": "You can't remove stock weapons!",
+    "SUCCESS": "**%s** has been removed from the shop!"
+}

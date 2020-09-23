@@ -1,0 +1,5 @@
+{
+    "HELP": "[CMD_KEY]createweapon \"weapon name\" \"hit message\" damage accy\n\nCreates a weapon for the guild shop!\n\nFor extra customization you add the following:\n\n(ranged) (icon) (image url)\n\n__Example__: \n\nBasic Weapon:\n    ``[CMD_KEY]createweapon \"Laser\" \"FIRES THEIR LAZOR AT\" 100 50``\n    This creates a weapon named \"Laser\" with the hit message\n    \"FIRES THEIR LAZOR AT\", 100 damage and 50% accy\nAdvanced Weapon:\n    ``[CMD_KEY]createweapon \"Banana Gun\" \"splats\" 12 10 True :banana: http://i.imgur.com/6etFBta.png``\n    The first four properties work like before. This weapon also has ranged set to ``true``\n    as it fires projectiles, a icon (for the shop) ':banana:' and image of the weapon from the url.",
+    "CAPPED": "Sorry you've used all %s slots in your shop!",
+    "SUCCESS": "%s **%s** is available in the shop for %s!"
+}

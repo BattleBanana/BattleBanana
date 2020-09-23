@@ -1,0 +1,7 @@
+{
+    "HELP": "[CMD_KEY]editweapon name (property value)+\n\nAny number of properties can be set at once.\n\nProperties:\n    __message__, __icon__, __ranged__, and __image__\n\nExample usage:\n\n    [CMD_KEY]editweapon laser message \"pews at\" icon :gun:\n\n    [CMD_KEY]editweapon \"a gun\" image http://i.imgur.com/QuZQm4D.png",
+    "STOCK": "You cannot edit stock weapons!",
+    "NOTEMOJI": "Must be an emoji! (custom emojis must be on this guild)",
+    "OVER32": "Cannot be over 32 characters!",
+    "NOCHANGES": "You need to provide a list of valid changes for the weapon!"
+}

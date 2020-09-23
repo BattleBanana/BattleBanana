@@ -1,0 +1,4 @@
+{
+    "HELP": "[CMD_KEY]bugreport (report)\n\nLeaves a bug report on the official BattleBanana server and trello.",
+    "RATELIMIT": ":cold_sweat: Please don't submit anymore reports (for a few minutes)!"
+}

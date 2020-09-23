@@ -2,5 +2,6 @@
     "HELP": "[CMD_KEY]shop department (page or name)\n\nA place to see all the backgrounds, banners, themes \nand weapons on sale.\n\ne.g. [CMD_KEY]shop weapons \nwill show all weapons currenly in store.\n[CMD_KEY]shop item \nwill show extra details about that item.\nIf you want anything from the shop use the\n[CMD_KEY]buy command!",
     "GREET": ":wave: **Welcome to the BattleBanana general store!**\n",
     "DEPAVALIBLE": "Please have a look in some of our splendiferous departments!\n",
-    "SHOPHELP": "For more info on the new shop do ``[CMD_KEY]help shop``"
+    "SHOPHELP": "For more info on the new shop do ``[CMD_KEY]help shop``",
+    "MULTITEMS": "You own multiple items with the same name!"
 }

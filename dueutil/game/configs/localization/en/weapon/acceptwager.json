@@ -1,0 +1,13 @@
+{
+    "HELP": "[CMD_KEY]acceptwager (wager number)\n\nAccepts a wager!",
+    "REQNOTFOUND": "Request not found!",
+    "CANTAFFORD": "You can't afford the risk!",
+    "NOLONGERPLAYER": "Player no longer exists!",
+    "LOSE": ":skull: **%s** lost to **%s** and paid ``%s``",
+    "WIN": ":sparkles: **%s** won against **%s**!\n%s",
+    "DRAW": "Against all the odds the wager ended in a draw!",
+    "CANTAFFORDNOWEP": "**%s** could not afford to pay and had no weapons to sell! \n``%s`` is all they could pay.",
+    "CANTAFFORDWEP": "**%s** could not afford to pay and had to sell %s weapon\n",
+    "CANTAFFORD3": "They were still only able to pay ``%s``. \nPathetic.",
+    "CANTAFFORD4": "They were able to muster up the full ``%s``"
+}
