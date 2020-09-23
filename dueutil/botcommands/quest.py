@@ -100,7 +100,7 @@ async def acceptquest(ctx, quest_index, **details):
         raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:acceptquest:QLIMIT", str(quests.MAX_DAILY_QUESTS)))
 
     quest = player.quests.pop(quest_index)
-    battle_log = battles.get_battle_log(player_one=player, player_two=quest, p2_prefix="the ")
+    battle_log = battles.get_battle_log(ctx, player_one=player, player_two=quest, p2_prefix="the ")
     battle_embed = battle_log.embed
     turns = battle_log.turn_count
     winner = battle_log.winner
@@ -209,7 +209,7 @@ async def acceptquest(ctx, quest_index, **details):
 #    quests = len(player.quests)
 #    while b < quests:
 #        quest = player.quests.pop(b)
-#        battle_log = battles.get_battle_log(player_one=player, player_two=quest, p2_prefix="the ")
+#        battle_log = battles.get_battle_log(ctx, player_one=player, player_two=quest, p2_prefix="the ")
 #        turns = battle_log.turn_count
 #        winner = battle_log.winner
 #        stats.increment_stat(stats.Stat.QUESTS_ATTEMPTED)
