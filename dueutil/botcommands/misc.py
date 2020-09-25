@@ -223,7 +223,7 @@ async def eval(ctx, body, **details):
     """
 
     env = {
-        'bot': util.clients[0],
+        'bot': util.shard_client,
         'ctx': ctx,
         'channel': ctx.channel,
         'author': ctx.author,
@@ -571,7 +571,7 @@ async def updatebot(ctx, **_):
 async def stopbot(ctx, **_):
     await util.say(ctx.channel, ":wave: Stopping BattleBanana!")
     await util.duelogger.concern("BattleBanana shutting down!")
-    await util.clients[0].change_presence(activity=discord.Activity(name="restarting"), status=discord.Status.idle,
+    await util.shard_client.change_presence(activity=discord.Activity(name="restarting"), status=discord.Status.idle,
                                           afk=True)
     os._exit(0)
 
@@ -580,7 +580,7 @@ async def stopbot(ctx, **_):
 async def restartbot(ctx, **_):
     await util.say(ctx.channel, ":ferris_wheel: Restarting BattleBanana!")
     await util.duelogger.concern("BattleBanana restarting!!")
-    await util.clients[0].change_presence(activity=discord.Activity(name="restarting"), status=discord.Status.idle,
+    await util.shard_client.change_presence(activity=discord.Activity(name="restarting"), status=discord.Status.idle,
                                           afk=True)
     os._exit(1)
 
@@ -609,7 +609,7 @@ async def ping(ctx, **_):
     embed = discord.Embed(title=":ping_pong: Pong!", type="rich", colour=gconf.DUE_COLOUR)
     embed.add_field(name=translations.translate(ctx, "misc:pingpong:BOT"), value="``%sms``" % (apims))
     try:
-        latency = round(util.clients[0].latencies[util.get_shard_index(ctx.guild.id)][1] * 1000)
+        latency = round(util.shard_client.latencies[util.get_shard_index(ctx.guild.id)][1] * 1000)
 
         embed.add_field(name=translations.translate(ctx, "misc:pingpong:API"), value="``%sms``" % (latency))
     except OverflowError:
@@ -625,7 +625,7 @@ async def pong(ctx, **_):
     message = await util.say(ctx.channel, ":ping_pong:")
 
     apims = round((message.created_at - ctx.created_at).total_seconds() * 1000)
-    latency = round(util.clients[0].latencies[util.get_shard_index(ctx.guild.id)][1] * 1000)
+    latency = round(util.shard_client.latencies[util.get_shard_index(ctx.guild.id)][1] * 1000)
 
     t1 = time.time()
     dbconn.db.command('ping')

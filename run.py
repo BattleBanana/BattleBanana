@@ -32,7 +32,7 @@ MAX_RECOVERY_ATTEMPTS = 1000
 
 stopped = False
 bot_key = ""
-client:discord.AutoShardedClient = None
+shard_client = None
 shard_names = []
 
 # I'm not sure of the root cause of this error & it only happens once in months.
@@ -297,9 +297,9 @@ class ClientThread(Thread):
 
     def run(self, level=1):
         asyncio.set_event_loop(self.event_loop)
-        client = BattleBananaClient(fetch_offline_members=False)
+        shard_client = BattleBananaClient(fetch_offline_members=False)
         try:
-            client.loop.run_until_complete(client.start(bot_key))
+            shard_client.loop.run_until_complete(shard_client.start(bot_key))
         except Exception as client_exception:
             util.logger.exception(client_exception, exc_info=True)
             if level < MAX_RECOVERY_ATTEMPTS:
@@ -328,7 +328,7 @@ def run_due():
         client_thread = ClientThread(asyncio.new_event_loop())
         client_thread.start()
 
-        while client is None:
+        while shard_client is None:
             pass
 
         ### Tasks
@@ -344,5 +344,5 @@ if __name__ == "__main__":
     config = gconf.other_configs
     bot_key = config["botToken"]
     shard_names = config["shardNames"]
-    util.load(client)
+    util.load(shard_client)
     run_due()

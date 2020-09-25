@@ -78,7 +78,7 @@ async def mark_as_completed(transaction):
 
 @tasks.task(timeout=150)
 async def process_transactions():
-    if not util.clients[0].is_ready():
+    if not util.shard_client.is_ready():
         return
     await get_currencies()
     util.logger.info("Processing Discoin transactions.")
@@ -91,7 +91,7 @@ async def process_transactions():
     if unprocessed is None:
         return
     
-    client = util.clients[0]
+    client = util.shard_client
 
     for transaction in unprocessed:
         if type(transaction) == dict:
@@ -130,7 +130,7 @@ async def process_transactions():
 async def notify_complete(user_id, transaction, failed=False):
     await mark_as_completed(transaction)
     user_id = int(user_id)
-    client = util.clients[0]
+    client = util.shard_client
     user = await client.fetch_user(user_id)
     try:
         await user.create_dm()

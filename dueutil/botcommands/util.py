@@ -77,7 +77,7 @@ async def help(ctx, *args, **details):
                 help_embed.add_field(name=translations.translate(ctx, "util:help:COWNER"), value=', '.join(server_op_commands), inline=False)
     else:
 
-        help_embed.set_thumbnail(url=util.clients[0].user.avatar_url)
+        help_embed.set_thumbnail(url=util.shard_client.user.avatar_url)
 
         help_embed.description = translations.translate(ctx, "util:help:FDESC")
         help_embed.add_field(name=':file_folder: '+translations.translate(ctx, "util:help:COMCA"), value=', '.join(categories))
@@ -160,7 +160,7 @@ async def botstats(ctx, **_):
                                  + e.BBT_WITH_WINGS + translations.translate(ctx, "util:botstats:BBTSTRANSFERED", util.format_money(game_stats[Stat.MONEY_TRANSFERRED]))),
                           inline=False)
     # Sharding
-    client = util.clients[0]
+    client = util.shard_client
     current_shard = util.get_shard_index(ctx.guild.id)
     stats_embed.add_field(name=translations.translate(ctx, "util:botstats:SHARD"),
                           value=(translations.translate(ctx, "util:botstats:NAME", current_shard + 1, client.shard_count, gconf.shard_names[current_shard])
@@ -484,7 +484,7 @@ async def status(ctx, message=None, **details):
     This sets the status of all the shards to the one specified.
     """
 
-    client: discord.AutoShardedClient = util.clients[0]
+    client: discord.AutoShardedClient = util.shard_client
     if message is None:
         count = client.shard_count
         for shardID in range(0, count):

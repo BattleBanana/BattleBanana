@@ -121,7 +121,7 @@ class Quest(BattleBananaObject, SlotPickleMixin):
     @property
     def home(self):
         try:
-            return util.clients[0].get_guild(self.server_id).name
+            return util.shard_client.get_guild(self.server_id).name
         except AttributeError:
             return "Unknown"
 

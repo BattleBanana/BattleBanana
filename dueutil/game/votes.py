@@ -14,7 +14,7 @@ WE_VOTE_REWARD = 40000
 
 @tasks.task(timeout=300)
 async def process_votes():
-    if not util.clients[0].is_ready():
+    if not util.shard_client.is_ready():
         return
     util.logger.info("Processing Votes.")
     try:
@@ -26,7 +26,7 @@ async def process_votes():
     if votes is None:
         return
 
-    client = util.clients[0]
+    client = util.shard_client
 
     for vote in votes:
         if type(vote) == dict:
@@ -58,7 +58,7 @@ async def process_votes():
 
 
 async def notify_complete(user_id, vote, reward):
-    client = util.clients[0]
+    client = util.shard_client
 
     try:
         user = await client.fetch_user(user_id)
