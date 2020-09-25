@@ -125,9 +125,9 @@ async def say(channel, *args, **kwargs):
         # Guild/Channel id
         server_id, channel_id = channel.split("/")
         channel = get_guild(int(server_id)).get_channel(int(channel_id))
-    if asyncio.get_event_loop() != clients[0].loop:
+    if asyncio.get_event_loop() != client.loop:
         # Allows it to speak across shards
-        clients[0].run_task(say, *((channel,) + args), **kwargs)
+        client.run_task(say, *((channel,) + args), **kwargs)
     else:
         try:
             return await channel.send(*args, **kwargs)
@@ -150,7 +150,7 @@ async def wait_for_message(ctx, author, timeout=120):
         return (msg.startswith("hit") or msg.startswith("stand")) and message.author == author and message.channel == channel
     
     try:
-        return await clients[0].wait_for('message', timeout=timeout, check=check)
+        return await client.wait_for('message', timeout=timeout, check=check)
     except asyncio.exceptions.TimeoutError:
         return None
 
@@ -176,7 +176,7 @@ def load_and_update(reference, bot_object):
 def get_shard_index(server):
     if isinstance(server, discord.Guild):
         return server.shard_id
-    return clients[0].get_guild(server).shard_id
+    return client.get_guild(server).shard_id
 
 
 def pretty_time():
@@ -184,7 +184,7 @@ def pretty_time():
 
 
 def get_server_count():
-    return len(clients[0].guilds)
+    return len(client.guilds)
 
 
 def get_guild_id(source):
@@ -197,7 +197,7 @@ def get_guild_id(source):
 
 
 def get_guild(server_id: int):
-    return clients[0].get_guild(server_id)
+    return client.get_guild(server_id)
 
 
 def is_today(date: datetime):
@@ -211,9 +211,9 @@ def is_yesterday(date: datetime):
 
 def get_channel(channel_id):
     if isinstance(channel_id, int):
-        return clients[0].get_channel(channel_id)
+        return client.get_channel(channel_id)
     try: 
-        return clients[0].get_channel(int(channel_id))
+        return client.get_channel(int(channel_id))
     except ValueError:
         return None
 
@@ -386,5 +386,5 @@ def s_suffix(word, count):
 
 
 def load(c):
-    global clients
-    clients = c
+    global client
+    client = c
