@@ -336,7 +336,7 @@ async def buy(ctx, *args, **details):
 @try_again
 async def sell(ctx, *args, **details):
     """general:sell:SHOP"""
-    error = "You own multiple items with the same name!"
+    error = translations.translate(ctx, "general:sell:MULTITEMS")
 
     if len(args) == 1:
         await item_action(args[0].lower(), "sell_action", **details, exists_check="item_exists_sell", error=error)
