@@ -16,7 +16,7 @@ import generalconfig as gconf
 import objgraph
 
 from .. import commands, util, events, dbconn, loader
-from ..game import customizations, awards, leaderboards, game, emojis
+from ..game import customizations, awards, leaderboards, game, emojis, translations
 from ..game.helpers import imagehelper
 from ..permissions import Permission
 
@@ -26,12 +26,7 @@ from ..permissions import Permission
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def permissions(ctx, **_):
-    """
-    [CMD_KEY]permissions
-    
-    A check command for the permissions system.
-    
-    """
+    """misc:permissions:HELP"""
 
     permissions_report = ""
     for permission in dueutil.permissions.permissions:
@@ -69,16 +64,7 @@ async def add(ctx, first_number, second_number, **_):
 
 @commands.command()
 async def wish(*_, **details):
-    """
-    [CMD_KEY]wish
-    
-    Does this increase the chance of a quest spawn?!
-    
-    Who knows?
-    
-    Me.
-    
-    """
+    """misc:wish:HELP"""
 
     player = details["author"]
     player.quest_spawn_build_up += 0.005
@@ -252,6 +238,9 @@ async def eval(ctx, body, **details):
     code_in_l = body.split("\n")
     code_in = ""
     for item in code_in_l:
+        if "other_configs" in item.lower():
+            body = body.replace(item, "print('[REDACTED]')")
+            item = "[REDACTED]"
         if item.startswith(" "):
             code_in += f"... {item}\n"
         else:
@@ -274,9 +263,13 @@ async def eval(ctx, body, **details):
         value = stdout.getvalue()
         t2 = time.time()
         timep = f"#{(round((t2 - t1) * 1000000)) / 1000} ms"
+        if gconf.other_configs.get("botToken") in value:
+            value = value.replace(gconf.other_configs.get("botToken"), "[REDACTED]")
         await util.say(ctx.channel, f'```py\n{code_in}\n{value}{traceback.format_exc()}\n{timep}\n```')
     else:
         value = stdout.getvalue()
+        if gconf.other_configs.get("botToken") in value:
+            value = value.replace(gconf.other_configs.get("botToken"), "[REDACTED]")
         # try:
         #    successful = await util.say(ctx.channel, "Eval Successful")
         #    await asyncio.sleep(3)
@@ -289,6 +282,8 @@ async def eval(ctx, body, **details):
             else:
                 await util.say(ctx.channel, f"```py\n{code_in}\n{timep}\n```")
         else:
+            if gconf.other_configs.get("botToken") in ret:
+                ret = ret.replace(gconf.other_configs.get("botToken"), "[REDACTED]")
             await util.say(ctx.channel, f'```py\n{code_in}\n{value}{ret}\n{timep}\n```')
 
 
@@ -355,11 +350,7 @@ async def codes(ctx, page=1, **details):
 
 @commands.command(args_pattern="S")
 async def redeem(ctx, code, **details):
-    """
-    [CMD_KEY]redeem (code)
-
-    Redeem your code
-    """
+    """misc:redeem:HELP"""
 
     with open("dueutil/game/configs/codes.json", "r+") as code_file:
         try:
@@ -369,7 +360,7 @@ async def redeem(ctx, code, **details):
 
         if not codes.get(code):
             code_file.close()
-            raise util.BattleBananaException(ctx.channel, "Code does not exist!")
+            raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "misc:redeem:INVALID"))
 
         user = details["author"]
         money = codes[code]
@@ -383,7 +374,7 @@ async def redeem(ctx, code, **details):
         json.dump(codes, code_file, indent=4)
         code_file.close()
 
-        await util.say(ctx.channel, "You successfully reclaimed **%s** !!" % (util.format_money(money)))
+        await translations.say(ctx, "misc:redeem:SUCCESS", util.format_money(money))
 
 
 @commands.command(permission=Permission.BANANA_OWNER, args_pattern="PS")
@@ -414,7 +405,7 @@ async def sudo(ctx, victim, command, **_):
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PC")
 async def setpermlevel(ctx, player, level, **_):
     if not (ctx.author.id in (115269304705875969, 261799488719552513)):
-        util.logger.info(ctx.author.id + " used the command: setpermlevel\n")
+        util.logger.info(str(ctx.author.id) + " used the command: setpermlevel\n")
         if (player.id in (115269304705875969, 261799488719552513)):
             raise util.BattleBananaException(ctx.channel,
                                              "You cannot change the permissions for DeveloperAnonymous or Firescoutt")
@@ -606,10 +597,7 @@ async def meminfo(ctx, **_):
 
 @commands.command(args_pattern=None)
 async def ping(ctx, **_):
-    """
-    [CMD_KEY]ping
-    pong! Gives you the response time.
-    """
+    """misc:pingpong:PINGHELP"""
     message = await util.say(ctx.channel, ":ping_pong:")
     t1 = time.time()
     dbconn.db.command('ping')
@@ -619,24 +607,21 @@ async def ping(ctx, **_):
     apims = round((message.created_at - ctx.created_at).total_seconds() * 1000)
 
     embed = discord.Embed(title=":ping_pong: Pong!", type="rich", colour=gconf.DUE_COLOUR)
-    embed.add_field(name="Bot Latency:", value="``%sms``" % (apims))
+    embed.add_field(name=translations.translate(ctx, "misc:pingpong:BOT"), value="``%sms``" % (apims))
     try:
         latency = round(util.clients[0].latencies[util.get_shard_index(ctx.guild.id)][1] * 1000)
 
-        embed.add_field(name="API Latency:", value="``%sms``" % (latency))
+        embed.add_field(name=translations.translate(ctx, "misc:pingpong:API"), value="``%sms``" % (latency))
     except OverflowError:
-        embed.add_field(name="API Latency:", value="``NaN``" % (latency))
+        embed.add_field(name=translations.translate(ctx, "misc:pingpong:API"), value="``NaN``" % (latency))
 
-    embed.add_field(name="Database Latency:", value="``%sms``" % (dbms), inline=False)
+    embed.add_field(name=translations.translate(ctx, "misc:pingpong:DB"), value="``%sms``" % (dbms), inline=False)
     await util.edit_message(message, embed=embed)
 
 
 @commands.command(args_pattern=None, hidden=True)
 async def pong(ctx, **_):
-    """
-    [CMD_KEY]pong
-    pong! Gives you the response time.
-    """
+    """misc:pingpong:PONGHELP"""
     message = await util.say(ctx.channel, ":ping_pong:")
 
     apims = round((message.created_at - ctx.created_at).total_seconds() * 1000)
@@ -648,24 +633,22 @@ async def pong(ctx, **_):
     dbms = round((t2 - t1) * 1000)
 
     embed = discord.Embed(title=":ping_pong: Pong!", type="rich", colour=gconf.DUE_COLOUR)
-    embed.add_field(name="API Latency:", value="``%sms``" % (latency))
-    embed.add_field(name="Bot Latency:", value="``%sms``" % (apims))
-    embed.add_field(name="Database Latency:", value="``%sms``" % (dbms), inline=False)
+    embed.add_field(name=translations.translate(ctx, "misc:pingpong:API"), value="``%sms``" % (latency))
+    embed.add_field(name=translations.translate(ctx, "misc:pingpong:BOT"), value="``%sms``" % (apims))
+    embed.add_field(name=translations.translate(ctx, "misc:pingpong:DB"), value="``%sms``" % (dbms), inline=False)
 
     await util.edit_message(message, embed=embed)
 
 
 @commands.command(args_pattern=None)
 async def vote(ctx, **details):
-    """
-    Obtain up to ¤40'000 for voting
-    """
+    """misc:vote:HELP"""
 
-    Embed = discord.Embed(title="Vote for your favorite Discord Bot", type="rich", colour=gconf.DUE_COLOUR)
+    Embed = discord.Embed(title=translations.translate(ctx, "misc:vote:TITLE"), type="rich", colour=gconf.DUE_COLOUR)
     Embed.add_field(name="Vote:", value="[top.gg](https://top.gg/bot/464601463440801792/vote)\n"
                                         "[discordbotlist.com](https://discordbotlist.com/bots/battlebanana/upvote)\n"
                                         "[bots.ondiscord.xyz](https://bots.ondiscord.xyz/bots/464601463440801792)")
-    Embed.set_footer(text="You will receive your reward shortly after voting! (Up to 5 minutes)")
+    Embed.set_footer(text=translations.translate(ctx, "misc:vote:FOOTER"))
 
     await util.say(ctx.channel, embed=Embed)
 
