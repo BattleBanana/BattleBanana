@@ -17,7 +17,7 @@ import dueutil.permissions
 from ..game.helpers import imagehelper
 from ..permissions import Permission
 from .. import commands, util, events, dbconn
-from ..game import players, translations, emojis as e
+from ..game import players, emojis as e
 from ..game import blackjack as blackjackGame
 
 """
@@ -27,17 +27,24 @@ Have fun kiddos!
 """
 
 @commands.command(args_pattern="I", aliases=["bj"])
-@commands.ratelimit(cooldown=5, error="gamble:blackjack:RATELIMIT", save=True)
+@commands.ratelimit(cooldown=5, error="You can't use blackjack again for **[COOLDOWN]**!", save=True)
 async def blackjack(ctx, price, **details):
-    """gamble:blackjack:HELP"""
+    """
+    [CMD_KEY]blackjack (bet)
+    
+    Play blackjack with BattleBanana.
+    
+    Game objective: Obtain 21 or the closest to win!
+    [Card Values](https://battlebanana.xyz/img/21Values.png)
+    """
     user = details["author"]
     
     if user.money < price:
-        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "gamble:blackjack:HIGHBET"))
+        raise util.BattleBananaException(ctx.channel, "You cannot bet that much!")
     if price < 1:
-        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "gamble:blackjack:LOWBET"))
+        raise util.BattleBananaException(ctx.channel, "You cannot bet under ¤1")
     if (user.gamble_play and int(time.time() - user.last_played) < 120) or int(time.time() - user.last_played) < 120:
-        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "gamble:blackjack:ALREADYPLAY"))
+        raise util.BattleBananaException(ctx.channel, "You are already playing!")
     
     
     # Create new deck, make player playing
@@ -51,10 +58,11 @@ async def blackjack(ctx, price, **details):
     user_hand = deck.deal(2)
     user_value, dealer_value = blackjackGame.compare_decks(user_hand, dealer_hand)
     
-    blackjack_embed = discord.Embed(title=translations.translate(ctx,"gamble:blackjack:STARTTITLE"), description=translations.translate(ctx,"gamble:blackjack:STARTDESC", user.get_name_possession(), price), type="rich", colour=gconf.DUE_COLOUR)
-    blackjack_embed.add_field(name=translations.translate(ctx, "gamble:blackjack:USERHAND", user_value), value=user_hand)
-    blackjack_embed.add_field(name=translations.translate(ctx, "gamble:blackjack:DEALERHAND", dealer_value), value=dealer_hand)        
-    blackjack_embed.set_footer(text=translations.translate(ctx, "gamble:blackjack:STARTFOOTER"))
+    blackjack_embed = discord.Embed(title="Blackjack dealer", description="%s game. Current bet: ¤%s" 
+                                    % (user.get_name_possession(), price), type="rich", colour=gconf.DUE_COLOUR)
+    blackjack_embed.add_field(name="Your hand (%s)" % (user_value), value=user_hand)
+    blackjack_embed.add_field(name="Dealer's hand (%s)" % (dealer_value), value=dealer_hand)
+    blackjack_embed.set_footer(text="Reply with \"hit\" or \"stand\". This prompt will close in 120 seconds")
     
     msg = await util.say(ctx.channel, embed=blackjack_embed)
     # Player's play
@@ -70,8 +78,8 @@ async def blackjack(ctx, price, **details):
             user_value, dealer_value = blackjackGame.compare_decks(user_hand, dealer_hand)
             
             blackjack_embed.clear_fields()
-            blackjack_embed.add_field(name=translations.translate(ctx, "gamble:blackjack:USERHAND", user_value), value=user_hand)
-            blackjack_embed.add_field(name=translations.translate(ctx, "gamble:blackjack:DEALERHAND", dealer_value), value=dealer_hand)
+            blackjack_embed.add_field(name="Your hand (%s)" % (user_value), value=user_hand)
+            blackjack_embed.add_field(name="Dealer's hand (%s)" % (dealer_value), value=dealer_hand)
             
             await util.edit_message(msg, embed=blackjack_embed)
             
@@ -98,43 +106,43 @@ async def blackjack(ctx, price, **details):
     if user_value > dealer_value:
         if user_value > 21:
             gain -= price
-            result = translations.translate(ctx, "gamble:blackjack:USERBUST")
+            result = "You busted!"
         elif user_value == 21:
             gain += price * 1.5
-            result = translations.translate(ctx, "gamble:blackjack:USERBJ")
+            result = "You win with a blackjack!"
         else:
             gain += price
-            result = translations.translate(ctx, "gamble:blackjack:USERWIN", user_value, dealer_value)
+            result = "You win with an hand of %s against %s." % (user_value, dealer_value)
     elif user_value < dealer_value:
         if dealer_value > 21:
             if user_value == 21: # If you have 21 and dealer busted
                 gain += price * 1.5
             else:
                 gain += price
-            result = translations.translate(ctx, "gamble:blackjack:DEALBUST")
+            result = "Dealer busted!"
         elif dealer_value == 21:
             gain -= price
-            result = translations.translate(ctx, "gamble:blackjack:DEALBJ")
+            result = "Dealer win with a blackjack!"
         else:
             gain -= price
-            result = translations.translate(ctx, "gamble:blackjack:DEALWIN", dealer_value, user_value)
+            result = "Dealer win with an hand of %s against %s." % (dealer_value, user_value)
     else:
-        result =  translations.translate(ctx, "gamble:blackjack:TIE", user_value, dealer_value)
+        result = "This is a tie! %s-%s" % (user_value, dealer_value)
     
     # Manage the message
     gain = math.floor(gain)
     user.money += gain
     if gain > 0:
-        result += translations.translate(ctx, "gamble:blackjack:REWARDWIN", price+gain)
+        result += " You were rewarded with `¤%s`" % (price+gain)
     elif gain < 0:
-        result += translations.translate(ctx, "gamble:blackjack:REWARDLOSE", price)
+        result += " You lost `¤%s`." % (price)
     else:
-        result += translations.translate(ctx, "gamble:blackjack:REWARDTIE")
+        result += " You got your bet back!"
     
     blackjack_embed.clear_fields()
-    blackjack_embed.add_field(name=translations.translate(ctx, "gamble:blackjack:USERHAND", user_value), value=user_hand)
-    blackjack_embed.add_field(name=translations.translate(ctx, "gamble:blackjack:DEALERHAND", dealer_value), value=dealer_hand)
-    blackjack_embed.add_field(name=translations.translate(ctx, "gamble:blackjack:RESULT"), value=result, inline=False)
+    blackjack_embed.add_field(name="Your hand (%s)" % (user_value), value=user_hand)
+    blackjack_embed.add_field(name="Dealer's hand (%s)" % (dealer_value), value=dealer_hand)
+    blackjack_embed.add_field(name="Result", value=result, inline=False)
     blackjack_embed.set_footer()
     
     user.command_rate_limits['blackjack_saved_cooldown'] = int(time.time())
@@ -145,25 +153,31 @@ async def blackjack(ctx, price, **details):
     await util.edit_message(msg, embed=blackjack_embed)
 
 @commands.command(args_pattern="I", aliases=["rr"])
-@commands.ratelimit(cooldown=5, error="gamble:russianroulette:RATELIMIT", save=True)
+@commands.ratelimit(cooldown=5, error="You can't use russian roulette again for **[COOLDOWN]**!", save=True)
 async def russianroulette(ctx, price, **details):
-    """gamble:russianroulette:HELP"""
+    """
+   [CMD_KEY]rusaianroulette ~~(bet)~~
+    
+    Play Russian Roulette with your friends, the gun.
+    
+    Game objective: Pray to survive.
+    """
 
     user = details["author"]
     
     if user.money < price:
-       raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "gamble:russianroulette:TOOHIGH"))
+       raise util.BattleBananaException(ctx.channel, "You cannot bet that much!")
     if price < 1:
-       raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "gamble:russianroulette:TOOLOW"))
+       raise util.BattleBananaException(ctx.channel, "You cannot bet under ¤1")
     
-    message = await translations.say(ctx, "gamble:russianroulette:CLICK")
+    message = await util.say(ctx.channel, "Click...")
     rnd = random.randint(1, 6)
     await asyncio.sleep(random.random() * 2)
     if rnd == 1:
         reward = price * 5
         user.money += reward
-        await util.edit_message(message, content=message.content + translations.translate(ctx, "gamble:russianroulette:WIN", reward))
+        await util.edit_message(message, content=message.content + "\nYou survived and won `¤%s`!" % (reward))
     else:
         user.money -= price
-        await util.edit_message(message, content=message.content + translations.translate(ctx, "gamble:russianroulette:LOSE", price))
+        await util.edit_message(message, content=message.content + "\nYou died and lost `¤%s`!" % (price))
     user.save()
