@@ -328,7 +328,7 @@ async def editweapon(ctx, weapon_name, updates, **_):
         await translations.say(ctx, "weapon:editweapon:NOCHANGES")
     else:
         weapon.save()
-        result = weapon.icon+" **%s**"+translations.translate(ctx, "other:singleword:UPDATES")+"!\n" % weapon.name_clean
+        result = weapon.icon+" **"+weapon.name_clean+"**"+translations.translate(ctx, "other:singleword:UPDATES")+"!\n"
         for weapon_property, update_result in updates.items():
             result += "``%s`` → %s\n" % (weapon_property, update_result)
         await util.say(ctx.channel, result)

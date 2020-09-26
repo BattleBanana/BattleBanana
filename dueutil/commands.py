@@ -150,7 +150,7 @@ def replace_aliases(command_list):
 
 def imagecommand():
     def wrap(command_func):
-        @ratelimit(slow_command=True, cooldown=IMAGE_REQUEST_COOLDOWN, error=":cold_sweat: Please don't break me!")
+        @ratelimit(slow_command=True, cooldown=IMAGE_REQUEST_COOLDOWN, error="other:misc:RATELIMIT")
         @wraps(command_func)
         async def wrapped_command(ctx, *args, **kwargs):
             await ctx.channel.trigger_typing()

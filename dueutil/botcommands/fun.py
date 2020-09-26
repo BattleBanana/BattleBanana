@@ -315,7 +315,7 @@ async def battletopdog(ctx, **details):
     if top_dog == player:
         raise util.BattleBananaException(ctx.channel, "Don't beat yourself up!")
     
-    battle_log = battles.get_battle_log(player_one=player, player_two=top_dog)
+    battle_log = battles.get_battle_log(ctx, player_one=player, player_two=top_dog)
 
     await imagehelper.battle_screen(ctx.channel, player, top_dog)
     await util.say(ctx.channel, embed=battle_log.embed)
