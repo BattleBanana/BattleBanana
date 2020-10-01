@@ -363,7 +363,7 @@ async def resetweapons(ctx, **_):
 
 
 # Part of the shop buy command
-async def buy_weapon(weapon_name, **details):
+async def buy_weapon(ctx, weapon_name, **details):
     customer = details["author"]
     weapon = weapons.get_weapon_for_server(details["server_id"], weapon_name)
     channel = details["channel"]
@@ -402,7 +402,7 @@ async def buy_weapon(weapon_name, **details):
     customer.save()
 
 
-async def sell_weapon(weapon_name, **details):
+async def sell_weapon(ctx, weapon_name, **details):
     player = details["author"]
     channel = details["channel"]
 
@@ -415,13 +415,13 @@ async def sell_weapon(weapon_name, **details):
         weapon_to_sell = next((weapon for weapon in player.get_owned_weapons() if weapon.name.lower() == weapon_name),
                               None)
         if weapon_to_sell is None:
-            raise util.BattleBananaException(channel, "Weapon not found!")
+            raise util.BattleBananaException(channel, translations.translate(ctx, "weapon:sell:NOTFOUND"))
         player.discard_stored_weapon(weapon_to_sell)
 
     sell_price = weapon_to_sell.price // price_divisor
     player.money += sell_price
-    await util.say(channel, ("**" + player.name_clean + "** sold their trusty **" + weapon_to_sell.name_clean
-                             + "** for ``" + util.format_number(sell_price, money=True, full_precision=True) + "``"))
+    await util.say(channel, ("**" + player.name_clean + "**"+translations.translate(ctx, "weapon:sell:SOLD")+"**" + weapon_to_sell.name_clean
+                             + "**"+translations.translate(ctx, "other:singleword:FOR")+" ``" + util.format_number(sell_price, money=True, full_precision=True) + "``"))
     player.save()
 
 

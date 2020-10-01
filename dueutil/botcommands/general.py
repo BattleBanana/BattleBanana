@@ -323,7 +323,7 @@ async def buy(ctx, *args, **details):
     """general:buy:HELP"""
 
     if len(args) == 1:
-        await item_action(args[0].lower(), "buy_action", **details)
+        await item_action(args[0].lower(), "buy_action", ctx, **details)
     else:
         department = get_department_from_name(args[0])
         if department is not None:
@@ -339,7 +339,7 @@ async def sell(ctx, *args, **details):
     error = translations.translate(ctx, "general:sell:MULTITEMS")
 
     if len(args) == 1:
-        await item_action(args[0].lower(), "sell_action", **details, exists_check="item_exists_sell", error=error)
+        await item_action(args[0].lower(), "sell_action", ctx, **details, exists_check="item_exists_sell", error=error)
     else:
         department = get_department_from_name(args[0])
         if department is not None:
