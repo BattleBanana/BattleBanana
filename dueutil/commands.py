@@ -196,9 +196,7 @@ def require_cnf(warning):
         @wraps(command_func)
         async def wrapped_command(ctx, cnf="", **details):
             if cnf.lower() != "cnf":
-                await util.say(ctx.channel, ("Are you sure?! %s\n"
-                                             + "Do ``%s%s cnf`` if you're sure!")
-                               % (warning, details["cmd_key"], command_func.__name__))
+                await translations.say(ctx, "misc:cnf:CHECK", translations.translate(ctx, warning), details["cmd_key"], command_func.__name__)
                 return
             await command_func(ctx, **details)
 

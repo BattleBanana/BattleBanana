@@ -239,7 +239,7 @@ async def shutup(ctx, *args, **details):
 
 
 @commands.command(permission=Permission.REAL_SERVER_ADMIN, args_pattern="S?")
-@commands.require_cnf(warning="The bot will leave your guild and __**everything**__ will be reset!")
+@commands.require_cnf(warning="util:leave:CNF")
 async def leave(ctx, **_):
     """util:leave:HELP"""
 

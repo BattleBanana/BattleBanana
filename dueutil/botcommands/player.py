@@ -181,11 +181,9 @@ async def awards(ctx, player, page=1, **_):
     await show_awards(ctx, player, page - 1)
 
 @commands.command(args_pattern="S?")
-@commands.require_cnf(warning="This will **__permanently__** reset your user!")
+@commands.require_cnf(warning="player:resetme:CNF")
 async def resetme(ctx, cnf="", **details):
-   """
-   
-   """
+   """player:resetme:HELP"""
 
    player = details["author"]
    player.reset(ctx.author)
@@ -207,7 +205,7 @@ async def createaccount(ctx, **details):
 
 
 @commands.command(args_pattern="S?")
-@commands.require_cnf(warning="This will **__permanently__** delete your account!")
+@commands.require_cnf(warning="player:deleteme:CNF")
 async def deleteme(ctx, cnf="", **details):
     """player:deleteme:HELP"""
     
@@ -342,7 +340,7 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
     await util.say(ctx.channel, embed=transaction_log)
 
 @commands.command(args_pattern="S?")
-@commands.require_cnf(warning="This action cannot be reverted, are you sure you want to prestige?")
+@commands.require_cnf(warning="player:prestige:CNF")
 async def prestige(ctx, cnf="", **details):
     """player:prestige:HELP"""
 

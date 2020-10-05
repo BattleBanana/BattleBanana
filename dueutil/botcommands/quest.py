@@ -315,7 +315,7 @@ async def declinequest(ctx, quest_index, **details):
         raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:declinequest:NOTFOUND"))
 
 @commands.command(aliases=["daq"])
-@commands.require_cnf(warning="This will **__permanently__** delete **__all__** your quests!")
+@commands.require_cnf(warning="quest:declineallquests:CNF")
 async def declineallquests(ctx, **details):
     """quest:declineallquests:HELP"""
 
@@ -447,7 +447,7 @@ async def removequest(ctx, quest_name, **_):
 
 
 @commands.command(permission=Permission.REAL_SERVER_ADMIN, args_pattern="S?")
-@commands.require_cnf(warning="This will **__permanently__** delete all your quests!")
+@commands.require_cnf(warning="quest:resetquests:CNF")
 async def resetquests(ctx, **_):
     """quest:resetquests:HELP"""
 
