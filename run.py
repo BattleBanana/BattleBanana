@@ -54,6 +54,7 @@ class BattleBananaClient(discord.AutoShardedClient):
     def __init__(self, **details):
         self.queue_tasks = queue.Queue()
         self.start_time = time.time()
+        i = discord.Intents.default()
         super(BattleBananaClient, self).__init__(**details)
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
 
@@ -294,23 +295,18 @@ class ClientThread(Thread):
     """
     def __init__(self, event_loop):
         self.event_loop = event_loop
+        self.intents = discord.Intents.none()
+        self.intents.members = True
+        self.intents.guilds = True
+        self.intents.guild_messages = True
+        self.intents.typing = True
         super().__init__()
 
     def run(self, level=1):
         asyncio.set_event_loop(self.event_loop)
+
         global client
-        intents = discord.Intents.default()
-        intents.members = True
-        intents.bans = False
-        intents.emojis = False
-        intents.integrations = False
-        intents.webhooks = False
-        intents.invites = False
-        intents.voice_states = False
-        intents.dm_messages = False
-        intents.dm_reactions = False
-        intents.typing = False
-        client = BattleBananaClient(fetch_offline_members=False, intents=intents)
+        client = BattleBananaClient(fetch_offline_members=False, intents=self.intents)
         clients.append(client)
         try:
             client.loop.run_until_complete(client.start(bot_key))
