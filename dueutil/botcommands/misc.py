@@ -625,7 +625,7 @@ async def ping(ctx, **_):
 
         embed.add_field(name="API Latency:", value="``%sms``" % (latency))
     except OverflowError:
-        embed.add_field(name="API Latency:", value="``NaN``" % (latency))
+        embed.add_field(name="API Latency:", value="``NaN``")
 
     embed.add_field(name="Database Latency:", value="``%sms``" % (dbms), inline=False)
     await util.edit_message(message, embed=embed)
