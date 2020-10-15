@@ -295,18 +295,15 @@ class ClientThread(Thread):
     """
     def __init__(self, event_loop):
         self.event_loop = event_loop
-        self.intents = discord.Intents.none()
+        self.intents = discord.Intents.default()
         self.intents.members = True
-        self.intents.guilds = True
-        self.intents.guild_messages = True
-        self.intents.typing = True
         super().__init__()
 
     def run(self, level=1):
         asyncio.set_event_loop(self.event_loop)
 
         global client
-        client = BattleBananaClient(fetch_offline_members=False, intents=self.intents)
+        client = BattleBananaClient(fetch_offline_members=False)
         clients.append(client)
         try:
             client.loop.run_until_complete(client.start(bot_key))
