@@ -54,7 +54,6 @@ class BattleBananaClient(discord.AutoShardedClient):
     def __init__(self, **details):
         self.queue_tasks = queue.Queue()
         self.start_time = time.time()
-        i = discord.Intents.default()
         super(BattleBananaClient, self).__init__(**details)
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
 
@@ -72,7 +71,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                     task(*args, **kwargs)
             except queue.Empty:
                 pass
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(1)
 
     def run_task(self, task, *args, **kwargs):
         """
