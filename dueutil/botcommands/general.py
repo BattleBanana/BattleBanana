@@ -126,7 +126,7 @@ def get_department_from_name(name):
         None)
 
 
-async def item_action(item_name, action, department=None, **details):
+async def item_action(ctx, item_name, action, department=None, **details):
     # Does not support list action page. Since I have no case where I need that.
     exists_check = details.get('exists_check', "item_exists")
     if department is None:
@@ -310,9 +310,9 @@ async def shop(ctx, *args, **details):
                     await util.say(ctx.channel, embed=list_action(ctx, args[1] - 1, **details))
                 else:
                     # Use item_action since it will do the check if item exists
-                    await item_action(args[1], "info_action", department=department, **details)
+                    await item_action(ctx, args[1], "info_action", department=department, **details)
         elif len(args) == 1:
-            await item_action(args[0].lower(), "info_action", **details)
+            await item_action(ctx, args[0].lower(), "info_action", **details)
         else:
             raise util.BattleBananaException(ctx.channel, DEPARTMENT_NOT_FOUND)
 
@@ -323,7 +323,7 @@ async def buy(ctx, *args, **details):
     """general:buy:HELP"""
 
     if len(args) == 1:
-        await item_action(args[0].lower(), "buy_action", ctx, **details)
+        await item_action(ctx, args[0].lower(), "buy_action", **details)
     else:
         department = get_department_from_name(args[0])
         if department is not None:
@@ -339,7 +339,7 @@ async def sell(ctx, *args, **details):
     error = translations.translate(ctx, "general:sell:MULTITEMS")
 
     if len(args) == 1:
-        await item_action(args[0].lower(), "sell_action", ctx, **details, exists_check="item_exists_sell", error=error)
+        await item_action(ctx, args[0].lower(), "sell_action", **details, exists_check="item_exists_sell", error=error)
     else:
         department = get_department_from_name(args[0])
         if department is not None:
