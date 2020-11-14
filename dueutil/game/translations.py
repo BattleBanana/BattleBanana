@@ -77,7 +77,12 @@ def translate_help(ctx, path, *args):
                 path = path.replace("[CMD_KEY]", prefix)
             return path
 
-    msg = f[string[2]]
+    if "\n\nNote" in string[2]:
+        string2 = string[2].split("\n\nNote")
+        msg = f[string2[0]]
+        msg += "\nNote:"+string2[1]
+    else:
+        msg = f[string[2]]
     
     if "[CMD_KEY]" in msg:
             prefix = dueserverconfig.server_cmd_key(ctx.guild)

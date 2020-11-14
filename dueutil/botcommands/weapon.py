@@ -347,7 +347,7 @@ async def removeweapon(ctx, weapon_name, **_):
     if weapon.id != weapons.NO_WEAPON_ID and weapons.stock_weapon(weapon_name) != weapons.NO_WEAPON_ID:
         raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "weapon:removeweapon:STOCK"))
     weapons.remove_weapon_from_shop(ctx.guild, weapon_name)
-    await translations.say(ctx, "weapon:removeweapon:SUCCESS")
+    await translations.say(ctx, "weapon:removeweapon:SUCCESS", weapon_name)
 
 
 @commands.command(permission=Permission.REAL_SERVER_ADMIN, args_pattern="S?")

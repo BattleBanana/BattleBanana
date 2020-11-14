@@ -152,9 +152,9 @@ async def item_action(ctx, item_name, action, department=None, **details):
     if 'possible_departments' in locals() or department[exists_check](details, item_name):
         action = department["actions"][action]
         if inspect.iscoroutinefunction(action):
-            action_result = await action(item_name, **details)
+            action_result = await action(ctx, item_name, **details)
         else:
-            action_result = action(item_name, **details)
+            action_result = action(ctx, item_name, **details)
         if isinstance(action_result, discord.Embed):
             await util.say(details["channel"], embed=action_result)
     else:
