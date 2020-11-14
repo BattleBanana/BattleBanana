@@ -62,42 +62,42 @@ async def spawnquest(ctx, *args, **details):
 @commands.command(args_pattern='C', aliases=['qi'])
 @commands.imagecommand()
 async def questinfo(ctx, quest_index, **details):
-    """quest:questinfo:HELP"""
+    """quest:questinfo:Help"""
 
     player = details["author"]
     quest_index -= 1
     if 0 <= quest_index < len(player.quests):
         await imagehelper.quest_screen(ctx.channel, player.quests[quest_index])
     else:
-        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:questinfo:NOTFOUND"))
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:questinfo:NotFound"))
 
 
 @commands.command(args_pattern='C?', aliases=['mq'])
 @commands.imagecommand()
 async def myquests(ctx, page=1, **details):
-    """quest:myquests:HELP"""
+    """quest:myquests:Help"""
 
     player = details["author"]
     page -= 1
     # Always show page 1 (0)
     if page != 0 and page * 5 >= len(player.quests):
-        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:myquests:PNOTFOUND"))
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:myquests:PNotFound"))
     await imagehelper.quests_screen(ctx.channel, player, page)
 
 
 @commands.command(args_pattern='C', aliases=['aq'])
 @commands.imagecommand()
 async def acceptquest(ctx, quest_index, **details):
-    """quest:acceptquest:HELP"""
+    """quest:acceptquest:Help"""
 
     player = details["author"]
     quest_index -= 1
     if quest_index >= len(player.quests):
-        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:acceptquest:QNOTFOUND"))
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:acceptquest:QNotFound"))
     if player.money - player.quests[quest_index].money // 2 < 0:
-        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:acceptquest:CANTAFFORD"))
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:acceptquest:CantAfford"))
     if player.quests_completed_today >= quests.MAX_DAILY_QUESTS:
-        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:acceptquest:QLIMIT", str(quests.MAX_DAILY_QUESTS)))
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:acceptquest:QLimit", str(quests.MAX_DAILY_QUESTS)))
 
     quest = player.quests.pop(quest_index)
     battle_log = battles.get_battle_log(ctx, player_one=player, player_two=quest, p2_prefix="the ")
@@ -109,7 +109,7 @@ async def acceptquest(ctx, quest_index, **details):
     average_quest_battle_turns = player.misc_stats["average_quest_battle_turns"] = (player.misc_stats[
                                                                                         "average_quest_battle_turns"] + turns) / 2
     if winner == quest:
-        quest_results = (translations.translate(ctx, "quest:acceptquest:LOSE", player.name_clean, quest.name_clean, util.format_number(quest.money // 2, full_precision=True, money=True)))
+        quest_results = (translations.translate(ctx, "quest:acceptquest:Lose", player.name_clean, quest.name_clean, util.format_number(quest.money // 2, full_precision=True, money=True)))
         player.money -= quest.money // 2
         player.quest_spawn_build_up += 0.1
         player.misc_stats["quest_losing_streak"] += 1
@@ -121,7 +121,7 @@ async def acceptquest(ctx, quest_index, **details):
         player.quests_completed_today += 1
         player.quests_won += 1
 
-        reward = (translations.translate(ctx, "quest:acceptquest:WIN", player.name_clean, quest.name, util.format_number(quest.money, full_precision=True, money=True)))
+        reward = (translations.translate(ctx, "quest:acceptquest:Win", player.name_clean, quest.name, util.format_number(quest.money, full_precision=True, money=True)))
         quest_scale = quest.get_quest_scale()
         avg_player_stat = player.get_avg_stat()
 
@@ -146,7 +146,7 @@ async def acceptquest(ctx, quest_index, **details):
         prevExp = player.total_exp 
         player.progress(add_attack, add_strg, add_accy, max_attr=max_stats_gain, max_exp=10000 * player.prestige_multiplicator())
         expGain = player.total_exp - prevExp
-        quest_results = (reward +translations.translate(ctx, "other:singleword:AND")+" `" + str(round(expGain)) + "` EXP\n" + stats_reward)
+        quest_results = (reward +translations.translate(ctx, "other:singleword:And")+" `" + str(round(expGain)) + "` EXP\n" + stats_reward)
 
         player.money += quest.money
         stats.increment_stat(stats.Stat.MONEY_CREATED, quest.money)
@@ -158,8 +158,8 @@ async def acceptquest(ctx, quest_index, **details):
         await game.check_for_level_up(ctx, player)
         player.misc_stats["quest_losing_streak"] = 0
     else:
-        quest_results = translations.translate(ctx, "quest:acceptquest:TIE")
-    battle_embed.add_field(name=translations.translate(ctx, "quest:acceptquest:QRESULT"), value=quest_results, inline=False)
+        quest_results = translations.translate(ctx, "quest:acceptquest:Tie")
+    battle_embed.add_field(name=translations.translate(ctx, "quest:acceptquest:QResult"), value=quest_results, inline=False)
     await imagehelper.battle_screen(ctx.channel, player, quest)
     await util.say(ctx.channel, embed=battle_embed)
     # Put this here to avoid 'spoiling' results before battle log
@@ -297,7 +297,7 @@ async def acceptquest(ctx, quest_index, **details):
 
 @commands.command(args_pattern='C', aliases=["dq"])
 async def declinequest(ctx, quest_index, **details):
-    """quest:declinequest:HELP"""
+    """quest:declinequest:Help"""
 
     player = details["author"]
     quest_index -= 1
@@ -309,15 +309,15 @@ async def declinequest(ctx, quest_index, **details):
         if quest_info is not None:
             quest_task = quest_info.task
         else:
-            quest_task = translations.translate(ctx, "quest:declinequest:FORGOTTEN")
-        await translations.say(ctx, "quest:declinequest:SUCCESS", player.name_clean, quest_task, quest.name_clean, str(math.trunc(quest.level)))
+            quest_task = translations.translate(ctx, "quest:declinequest:Forgotten")
+        await translations.say(ctx, "quest:declinequest:Success", player.name_clean, quest_task, quest.name_clean, str(math.trunc(quest.level)))
     else:
-        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:declinequest:NOTFOUND"))
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:declinequest:NotFound"))
 
 @commands.command(aliases=["daq"])
 @commands.require_cnf(warning="quest:declineallquests:CNF")
 async def declineallquests(ctx, **details):
-    """quest:declineallquests:HELP"""
+    """quest:declineallquests:Help"""
 
     player = details["author"]
     #if not player.donor:
@@ -325,20 +325,20 @@ async def declineallquests(ctx, **details):
 
     quests = len(player.quests)
     if quests == 0:
-        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:declineallquests:NOQUESTS"))
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:declineallquests:NoQuests"))
 
     player.quests.clear()
     player.save()
     
-    await translations.say(ctx, "quest:declineallquests:SUCCESS", quests)
+    await translations.say(ctx, "quest:declineallquests:Success", quests)
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SRRRRS?S?S?%?')
 async def createquest(ctx, name, attack, strg, accy, hp,
                       task=None, weapon=None, image_url=None, spawn_chane=25, **_):
-    """quest:createquest:HELP"""
+    """quest:createquest:Help"""
     if len(quests.get_server_quest_list(ctx.guild)) >= gconf.THING_AMOUNT_CAP:
-        raise util.BattleBananaException(ctx.guild, translations.translate(ctx, "quest:createquest:LIMIT", gconf.THING_AMOUNT_CAP))
+        raise util.BattleBananaException(ctx.guild, translations.translate(ctx, "quest:createquest:Limit", gconf.THING_AMOUNT_CAP))
 
     extras = {"spawn_chance": spawn_chane}
     if task is not None:
@@ -347,13 +347,13 @@ async def createquest(ctx, name, attack, strg, accy, hp,
         weapon_name_or_id = weapon
         weapon = weapons.find_weapon(ctx.guild, weapon_name_or_id)
         if weapon is None:
-            raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:createquest:MISSINGWEAPON"))
+            raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:createquest:MissingWeapon"))
         extras['weapon_id'] = weapon.w_id
     if image_url is not None:
         extras['image_url'] = image_url
 
     new_quest = quests.Quest(name, attack, strg, accy, hp, **extras, ctx=ctx)
-    await translations.say(ctx, "quest:createquest:SUCCESS", util.ultra_escape_string(new_quest.task), new_quest.name_clean)
+    await translations.say(ctx, "quest:createquest:Success", util.ultra_escape_string(new_quest.task), new_quest.name_clean)
     if "image_url" in extras:
         await imagehelper.warn_on_invalid_image(ctx.channel, url=extras["image_url"])
 
@@ -363,7 +363,7 @@ async def createquest(ctx, name, attack, strg, accy, hp,
                                         "accy/accuracy": "R", "spawn": "%", "weapon/weap": "S",
                                         "image": "S", "task": "S", "channel": "S"})
 async def editquest(ctx, quest_name, updates, **_):
-    """quest:editquest:HELP"""
+    """quest:editquest:Help"""
 
     quest = quests.get_quest_on_server(ctx.guild, quest_name)
     if quest is None:
@@ -381,25 +381,25 @@ async def editquest(ctx, quest_name, updates, **_):
                 else:
                     quest.base_strg = value
             else:
-                updates[quest_property] = translations.translate(ctx, "quest:editquest:UNDER1")
+                updates[quest_property] = translations.translate(ctx, "quest:editquest:Under1")
             continue
         elif quest_property == "spawn":
             if 25 >= value >= 1:
                 quest.spawn_chance = value / 100
             else:
-                updates[quest_property] = translations.translate(ctx, "quest:editquest:WRONGPERCENT")
+                updates[quest_property] = translations.translate(ctx, "quest:editquest:WrongPercent")
         elif quest_property == "hp":
             if value >= 30:
                 quest.base_hp = value
             else:
-                updates[quest_property] = translations.translate(ctx, "quest:editquest:BADHEALTH")
+                updates[quest_property] = translations.translate(ctx, "quest:editquest:BadHealth")
         elif quest_property in ("weap", "weapon"):
             weapon = weapons.get_weapon_for_server(ctx.guild.id, value)
             if weapon is not None:
                 quest.w_id = weapon.w_id
                 updates[quest_property] = weapon
             else:
-                updates[quest_property] = translations.translate(ctx, "quest:editquest:WPNNOTFOUND")
+                updates[quest_property] = translations.translate(ctx, "quest:editquest:WpnNotFound")
         elif quest_property == "channel":
             if value.upper() in ("ALL", "NONE"):
                 quest.channel = value.upper()
@@ -410,7 +410,7 @@ async def editquest(ctx, quest_name, updates, **_):
                 if channel is not None:
                     quest.channel = channel.id
                 else:
-                    updates[quest_property] = translations.translate(ctx, "quest:editquest:CHANLNOTFOUND")
+                    updates[quest_property] = translations.translate(ctx, "quest:editquest:ChanNotFound")
         else:
             updates[quest_property] = util.ultra_escape_string(value)
             if quest_property == "image":
@@ -422,10 +422,10 @@ async def editquest(ctx, quest_name, updates, **_):
 
     # Format result.
     if len(updates) == 0:
-        await translations.say(ctx, "quest:editquest:INVALIDCHANGE")
+        await translations.say(ctx, "quest:editquest:InvalidChange")
     else:
         quest.save()
-        result = e.QUEST + translations.translate(ctx, "quest:editquest:UPDATES", quest.name_clean)
+        result = e.QUEST + translations.translate(ctx, "quest:editquest:Updates", quest.name_clean)
         for quest_property, update_result in updates.items():
             result += ("``%s`` → %s\n" % (quest_property, update_result))
         await util.say(ctx.channel, result)
@@ -435,32 +435,32 @@ async def editquest(ctx, quest_name, updates, **_):
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='S')
 async def removequest(ctx, quest_name, **_):
-    """quest:removequest:HELP"""
+    """quest:removequest:Help"""
 
     quest_name = quest_name.lower()
     quest = quests.get_quest_on_server(ctx.guild, quest_name)
     if quest is None:
-        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:removequest:QUESTNOTFOUND"))
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:removequest:QuestNotFound"))
 
     quests.remove_quest_from_server(ctx.guild, quest_name)
-    await translations.say(ctx, "quest:removequest:SUCCESS", quest.name_clean)
+    await translations.say(ctx, "quest:removequest:Success", quest.name_clean)
 
 
 @commands.command(permission=Permission.REAL_SERVER_ADMIN, args_pattern="S?")
 @commands.require_cnf(warning="quest:resetquests:CNF")
 async def resetquests(ctx, **_):
-    """quest:resetquests:HELP"""
+    """quest:resetquests:Help"""
 
     quests_deleted = quests.remove_all_quests(ctx.guild)
     if quests_deleted > 0:
-        await translations.say(ctx, "quest:resetquests:SUCCESS", quests_deleted, util.s_suffix("quest", quests_deleted))
+        await translations.say(ctx, "quest:resetquests:Success", quests_deleted, util.s_suffix("quest", quests_deleted))
     else:
-        await translations.say(ctx, "quest:resetquests:NOQUESTS")
+        await translations.say(ctx, "quest:resetquests:NoQuests")
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='M?')
 async def serverquests(ctx, page=1, **details):
-    """quest:serverquests:HELP"""
+    """quest:serverquests:Help"""
 
     @misc.paginator
     def quest_list(quests_embed, current_quest, **_):

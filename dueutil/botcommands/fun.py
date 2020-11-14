@@ -16,15 +16,15 @@ topdogs_per_page = 10
 async def glitter_text(ctx, text):
     try:
         gif_text = await misc.get_glitter_text(text)
-        await ctx.channel.send(file=discord.File(fp=gif_text, filename="glittertext.gif"), content=":sparkles: "+translations.translate(ctx, "fun:glitter:CONTENT"))
+        await ctx.channel.send(file=discord.File(fp=gif_text, filename="glittertext.gif"), content=":sparkles: "+translations.translate(ctx, "fun:glitter:Content"))
     except (ValueError, asyncio.TimeoutError):
-        await translations.say(ctx, "fun:glitter:ERROR")
+        await translations.say(ctx, "fun:glitter:Error")
 
 
 @commands.command(args_pattern='S', aliases=("gt", "glittertext",))
 @commands.imagecommand()
 async def glitter(ctx, text, **details):
-    """fun:glitter:HELP"""
+    """fun:glitter:Help"""
     details["author"].misc_stats["art_created"] += 1
     await glitter_text(ctx, text)
 

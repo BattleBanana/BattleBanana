@@ -36,7 +36,7 @@ class FeedbackHandler:
         report.add_field(name=ctx.guild.name, value=ctx.guild.id)
         report.add_field(name=ctx.channel.name, value=ctx.channel.id)
         report.set_footer(text="Sent at " + util.pretty_time())
-        await translations.say(ctx, "feedback:misc:SENT", self.type, trello_link)
+        await translations.say(ctx, "feedback:misc:Sent", self.type, trello_link)
         await util.say(ctx.channel, embed=report)
 
         logReport = discord.Embed(color=gconf.DUE_COLOUR)
@@ -51,16 +51,16 @@ suggestion_sender = FeedbackHandler(channel=gconf.feedback_channel, type="sugges
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern="S")
-@commands.ratelimit(cooldown=300, error="feedback:bugreport:RATELIMIT")
+@commands.ratelimit(cooldown=300, error="feedback:bugreport:RateLimit")
 async def bugreport(ctx, report, **_):
-    """feedback:bugreport:HELP"""
+    """feedback:bugreport:Help"""
 
     await bug_reporter.send_report(ctx, report)
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern="S")
-@commands.ratelimit(cooldown=300, error="feedback:suggest:RATELIMIT")
+@commands.ratelimit(cooldown=300, error="feedback:suggest:RateLimit")
 async def suggest(ctx, suggestion, **_):
-    """feedback:suggest:HELP"""
+    """feedback:suggest:Help"""
 
     await suggestion_sender.send_report(ctx, suggestion)

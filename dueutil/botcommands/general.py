@@ -85,7 +85,7 @@ def shop_weapons_list(ctx, page, **details):
     shop_weapons.remove(weapons.NO_WEAPON)
     shop_weapons.sort(key=lambda weapon: weapon.price)
     shop_list = weap_cmds.weapons_page(shop_weapons, page, "BattleBanana's Weapon Shop!",
-                                       footer_more=(translations.translate(ctx, "general:misc:BUTWAIT")+" weapons " + str(page + 2)),
+                                       footer_more=(translations.translate(ctx, "general:misc:ButWait")+" weapons " + str(page + 2)),
                                        footer_end=('Want more? Ask an admin on '
                                                    + details["server_name"] + ' to add some!'))
     return shop_list
@@ -95,7 +95,7 @@ def shop_theme_list(ctx, page, **details):
     themes = list(customizations.get_themes().values())
     themes = filter_customizations(themes)
     shop_list = player_cmds.theme_page(themes, page, "BattleBanana's Theme Shop!",
-                                       footer_more=(translations.translate(ctx, "general:misc:BUTWAIT")+" themes " + str(page + 2)),
+                                       footer_more=(translations.translate(ctx, "general:misc:ButWait")+" themes " + str(page + 2)),
                                        footer_end='More themes coming soon!')
     return shop_list
 
@@ -105,7 +105,7 @@ def shop_background_list(ctx, page, **details):
     backgrounds = filter_customizations(backgrounds)
     # Allow for hidden backgrounds (only used for certain themes - probably won't need for other things)
     shop_list = player_cmds.background_page(backgrounds, page, "BattleBanana's Background Shop!",
-                                            footer_more=translations.translate(ctx, "general:misc:BUTWAIT")+" bgs " + str(page + 2),
+                                            footer_more=translations.translate(ctx, "general:misc:ButWait")+" bgs " + str(page + 2),
                                             footer_end='More backgrounds coming soon!')
     return shop_list
 
@@ -115,7 +115,7 @@ def shop_banner_list(ctx, page, **details):
     banners = [banner for banner in banners if banner.can_use_banner(details["author"]) and banner.id != "discord blue"]
     banners.sort(key=_shop_sort)
     shop_list = player_cmds.banner_page(banners, page, "BattleBanana's Banner Shop!",
-                                        footer_more=translations.translate(ctx, "general:misc:BUTWAIT")+" banners " + str(page + 2),
+                                        footer_more=translations.translate(ctx, "general:misc:ButWait")+" banners " + str(page + 2),
                                         footer_end='More banners coming soon!')
     return shop_list
 
@@ -284,18 +284,18 @@ def try_again(general_command):
 @commands.command(args_pattern='S?M?')
 @try_again
 async def shop(ctx, *args, **details):
-    """general:shop:HELP"""
+    """general:shop:Help"""
 
     shop_embed = discord.Embed(type="rich", color=gconf.DUE_COLOUR)
     details["embed"] = shop_embed
 
     if len(args) == 0:
         # Greet
-        greet = translations.translate(ctx, "general:shop:GREET")
-        department_available = translations.translate(ctx, "general:shop:DEPAVALIBLE")
+        greet = translations.translate(ctx, "general:shop:Greet")
+        department_available = translations.translate(ctx, "general:shop:DepAvalible")
         for department_info in departments.values():
             department_available += "``" + details["cmd_key"] + "shop " + department_info["alias"][0] + "``\n"
-        shop_help = translations.translate(ctx, "general:shop:SHOPHELP")
+        shop_help = translations.translate(ctx, "general:shop:ShopHelp")
         await util.say(ctx.channel, greet + department_available + shop_help)
     else:
         # If 1 args could be department or name.
@@ -320,7 +320,7 @@ async def shop(ctx, *args, **details):
 @commands.command(args_pattern='SS?')
 @try_again
 async def buy(ctx, *args, **details):
-    """general:buy:HELP"""
+    """general:buy:Help"""
 
     if len(args) == 1:
         await item_action(ctx, args[0].lower(), "buy_action", **details)
@@ -335,8 +335,8 @@ async def buy(ctx, *args, **details):
 @commands.command(args_pattern='SS?')
 @try_again
 async def sell(ctx, *args, **details):
-    """general:sell:SHOP"""
-    error = translations.translate(ctx, "general:sell:MULTITEMS")
+    """general:sell:Help"""
+    error = translations.translate(ctx, "general:sell:MultiItems")
 
     if len(args) == 1:
         await item_action(ctx, args[0].lower(), "sell_action", **details, exists_check="item_exists_sell", error=error)
