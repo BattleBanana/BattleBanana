@@ -64,9 +64,9 @@
     "{user} pressed some buttons on their keyboard and somehow got {daily}",
     "{user} became a wizzard and gave yourself {daily}",
     "a drunk man paid {user} {daily} to walk backwards",
-    "{user} worked for a private paramility organization for {daily}",
+    "{user} worked for a private paramilitary organization for {daily}",
     "A sudden gust of win blew {daily} in {user}'s direction",
-    "{user} finds an weird looking coin in the street, then finds out its a rare ancient coin worth {daily}",
+    "{user} finds an weird looking coin in the street, then finds out it's a rare ancient coin worth {daily}",
     "{user} became a Twitch streamer and made {daily} in donations after some *special* gameplay",
     "{user} decided to go to the dark side and slaughter an entire town resulting in you earning {daily}... some how",
     "{user} found Atlantis and made off with {daily}",
@@ -100,5 +100,11 @@
     "{user} stole some sweets from some schoolgirls and sold it back to them for {daily}",
     "{user} worked as a minecraft hacker and managed to rake in {daily}",
     "{user} got out of bed. Have {daily}",
-    "{user} won an Olympic gold medal and sold it for {daily}"
+    "{user} won an Olympic gold medal and sold it for {daily}",
+    "{user} broke into Jeff Bezos home and stole {daily}",
+    "{user} posted cringe and received {daily}",
+    "{user} broke their poor piggy bank and found {daily}",
+    "{user} created a GoFundMe and somehow got {daily}",
+    "{user} used the reality stone to get {daily}",
+    "{user} bought a bitcoin miner and mined {daily}"
 ]
