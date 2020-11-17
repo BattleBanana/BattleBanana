@@ -111,7 +111,7 @@ async def blackjack(ctx, price, **details):
                 gain += price * 1.5
             else:
                 gain += price
-            result = translations.translate(ctx, "gamble:blackjack:DealBUST")
+            result = translations.translate(ctx, "gamble:blackjack:DealBust")
         elif dealer_value == 21:
             gain -= price
             result = translations.translate(ctx, "gamble:blackjack:DealBJ")

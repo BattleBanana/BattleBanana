@@ -95,12 +95,12 @@ def get_battle_log(ctx, **battleargs):
     if len(battle_log) > MAX_BATTLE_LOG_LEN:
         # Too long battle.
         # Mini summary.
-        Hit = translations.translate(ctx, "other:singleword:HIT")
-        And = translations.translate(ctx, "other:singleword:AND")
+        Hit = translations.translate(ctx, "other:singleword:Hit")
+        And = translations.translate(ctx, "other:singleword:And")
         player_one = battle_result.opponents.p1
         player_two = battle_result.opponents.p2
-        battle_embed.description = translations.translate(ctx, "other:battles:MINISUM")
-        battle_embed.add_field(name=translations.translate(ctx, "other:battles:NMINISUM"),
+        battle_embed.description = translations.translate(ctx, "other:battles:MiniSum")
+        battle_embed.add_field(name=translations.translate(ctx, "other:battles:NMiniSum"),
                                value="%s**%s**"+Hit+"**%d** %s"+And+"%s**%s**"+Hit+"**%d** %s!\n"
                                      % (player_one.prefix.title(), player_one.player.name_clean, battle_result.p1_hits,
                                         util.s_suffix("time", battle_result.p1_hits),
@@ -108,7 +108,7 @@ def get_battle_log(ctx, **battleargs):
                                         util.s_suffix("time", battle_result.p2_hits))
                                      + battle_moves[-1].message)
     else:
-        battle_embed.add_field(name=translations.translate(ctx, "other:battles:BATTLELOG"), value=battle_log)
+        battle_embed.add_field(name=translations.translate(ctx, "other:battles:BattleLog"), value=battle_log)
     battle_info = battle_result._asdict()
     # Deleted unneeded keys
     del battle_info["moves"], battle_info["opponents"], \
@@ -254,7 +254,7 @@ def battle(ctx, **battleargs):
         # Inconceivable
         winner = loser = None
     turns = current_move - 1
-    moves["winner"] = _Move(message=(translations.translate(ctx, "other:battles:WINNER",
+    moves["winner"] = _Move(message=(translations.translate(ctx, "other:battles:Winner",
                                         winner.prefix.title(),
                                         winner.player.name_clean,
                                         turns,
