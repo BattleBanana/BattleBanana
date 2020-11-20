@@ -298,7 +298,7 @@ def is_server_emoji(guild, possible_emoji):
     if possible_emoji.startswith("<a:"):
         possible_emoji = "<" + possible_emoji[2:]
     possible_emojis = [str(custom_emoji) for custom_emoji in guild.emojis if str(custom_emoji) in possible_emoji]
-    return len(possible_emojis) == 1 and (possible_emojis[0] == possible_emoji)
+    return possible_emoji in set(possible_emojis)
 
 
 def is_discord_emoji(guild, possible_emoji):
