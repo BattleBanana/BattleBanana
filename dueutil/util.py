@@ -285,8 +285,6 @@ def format_number_precise(number):
 
 
 def char_is_emoji(character):
-    if len(character) > 1:
-        return False
     emojize = emoji.emojize(character, use_aliases=True)
     demojize = emoji.demojize(emojize)
     return emojize != demojize
@@ -295,14 +293,14 @@ def char_is_emoji(character):
 def is_server_emoji(guild, possible_emoji):
     if guild is None:
         return False
-    if possible_emoji.startswith("<a:"):
-        possible_emoji = "<" + possible_emoji[2:]
-    possible_emojis = [str(custom_emoji) for custom_emoji in guild.emojis if str(custom_emoji) in possible_emoji]
-    return possible_emoji in set(possible_emojis)
+    
+    possible_emojis = [str(custom_emoji) for custom_emoji in guild.emojis]
+    print(possible_emoji in possible_emojis)
+    return possible_emoji in possible_emojis
 
 
-def is_discord_emoji(guild, possible_emoji):
-    return char_is_emoji(possible_emoji) or is_server_emoji(guild, possible_emoji)
+def is_discord_emoji(guild, emoji):
+    return char_is_emoji(emoji) or is_server_emoji(guild, emoji)
 
 
 def get_server_name(guild, user_id):
