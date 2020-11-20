@@ -285,8 +285,8 @@ def format_number_precise(number):
 
 
 def char_is_emoji(character):
-    if len(character) > 1:
-        return False
+#    if len(character) > 1:
+#        return False
     emojize = emoji.emojize(character, use_aliases=True)
     demojize = emoji.demojize(emojize)
     return emojize != demojize
