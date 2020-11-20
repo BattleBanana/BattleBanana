@@ -195,7 +195,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                 return
         elif isinstance(error, discord.HTTPException):
             util.logger.error("Discord HTTP error: %s", error)
-        elif isinstance(error, aiohttp.ClientResponseError):
+        elif isinstance(error, (aiohttp.ClientResponseError, aiohttp.ClientOSError)):
             if ctx_is_message:
                 util.logger.error("%s: ctx from %s: %s", error, ctx.author.id, ctx.content)
             else:
