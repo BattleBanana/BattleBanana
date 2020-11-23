@@ -243,8 +243,8 @@ class BattleBananaClient(discord.AutoShardedClient):
         if (member.guild.id == gconf.THE_DEN and any(role.id == gconf.DONOR_ROLE_ID for role in member.roles)):
             player = players.find_player(before.id)
             if player is not None:
-                old_image = player.get_avatar_url(member=before)
-                new_image = player.get_avatar_url(member=after)
+                old_image = await player.get_avatar_url(member=before)
+                new_image = await player.get_avatar_url(member=after)
                 if old_image != new_image:
                     imagecache.uncache(old_image)
             

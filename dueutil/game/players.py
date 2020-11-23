@@ -283,30 +283,19 @@ class Player(BattleBananaObject, SlotPickleMixin):
     def weapon_hit(self):
         return random.random() < self.weapon_accy
 
-    def get_avatar_url(self, guild=None, **extras):
+    async def get_avatar_url(self, guild=None, **extras):
         if guild is None:
             member = extras.get("member")
         elif guild is not None:
             member = guild.get_member(self.id)
         else:
             raise ValueError("Invalid arguments")
+
+        if member is None:
+            return ""
+    
         return str(member.avatar_url)
 
-    async def async_get_avatar_url(self, guild=None, **extras):
-        if guild is None:
-            member = extras.get("member")
-        elif guild is not None:
-            member = guild.get_member(int(self.id))
-            if member is None:
-                member = (await guild.query_members(user_ids=[int(self.id)]))[0]
-        else:
-            raise ValueError("Invalid arguments")
-        if member is None:
-            return
-        if member.avatar_url != "":
-            return str(member.avatar_url)
-        return member.default_avatar_url
-    
     def get_avg_stat(self):
         return sum((self.attack, self.strg, self.accy)) / 4
 
