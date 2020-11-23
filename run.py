@@ -240,16 +240,16 @@ class BattleBananaClient(discord.AutoShardedClient):
             return
 
         member = after
-        if (member.guild.id == gconf.THE_DEN and any(role.id == gconf.DONOR_ROLE_ID for role in member.roles)):
-            player = players.find_player(before.id)
-            if player is not None:
-                old_image = await player.get_avatar_url(member=before)
-                new_image = await player.get_avatar_url(member=after)
-                if old_image != new_image:
-                    imagecache.uncache(old_image)
-            
-                player.donor = True
-                player.save()
+        player = players.find_player(before.id)
+        if player is not None:
+            old_image = await player.get_avatar_url(member=before)
+            new_image = await player.get_avatar_url(member=after)
+            if old_image != new_image:
+                imagecache.uncache(old_image)
+                
+            if (member.guild.id == gconf.THE_DEN and any(role.id == gconf.DONOR_ROLE_ID for role in member.roles)):
+                    player.donor = True
+                    player.save()
 
     
     async def on_guild_remove(self, guild):
