@@ -151,7 +151,7 @@ def resize(image, width, height):
 
 
 async def resize_avatar(player, server, width, height):
-    return await resize_image_url((await player.async_get_avatar_url(server)), width, height)
+    return await resize_image_url((await player.get_avatar_url(server)), width, height)
 
 
 async def resize_image_url(url, width, height):
