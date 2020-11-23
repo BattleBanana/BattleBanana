@@ -150,8 +150,8 @@ def resize(image, width, height):
     return image.resize((width, height), Image.ANTIALIAS)
 
 
-async def resize_avatar(player, guild, width, height):
-    return await resize_image_url(player.get_avatar_url(guild), width, height)
+async def resize_avatar(player, server, width, height):
+    return await resize_image_url((await player.async_get_avatar_url(server)), width, height)
 
 
 async def resize_image_url(url, width, height):
