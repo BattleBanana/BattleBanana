@@ -287,7 +287,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
         if guild is None:
             member = extras.get("member")
         elif guild is not None:
-            member = guild.get_member(self.id)
+            member = await guild.fetch_member(self.id)
         else:
             raise ValueError("Invalid arguments")
 
