@@ -218,13 +218,6 @@ def get_channel(channel_id):
         return None
 
 
-def find_channel(channel_name):
-    channels = get_guild(gconf.other_configs['supportServer']).channels
-    for channel in channels:
-        if channel.name == channel_name:
-            return channel
-
-
 def ultra_escape_string(string):
     """
     A simple function to escape all discord crap!
@@ -303,19 +296,8 @@ def is_discord_emoji(guild, emoji):
     return char_is_emoji(emoji) or is_server_emoji(guild, emoji)
 
 
-def get_server_name(guild, user_id):
-    try:
-        return guild.get_member(user_id).name
-    except AttributeError:
-        return "Unknown User"
-
-
 def clamp(number, min_val, max_val):
     return max(min(max_val, number), min_val)
-
-
-def normalize(number, min_val, max_val):
-    return (number - min_val) / (max_val - min_val)
 
 
 async def set_up_roles(guild):
