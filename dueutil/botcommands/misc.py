@@ -399,7 +399,7 @@ async def sudo(ctx, victim, command, **_):
             raise util.BattleBananaException(ctx.channel, "You cannot sudo DeveloperAnonymous or Firescoutt")
 
     try:
-        ctx.author = ctx.guild.get_member(victim.id)
+        ctx.author = await ctx.guild.fetch_member(victim.id)
         if ctx.author is None:
             # This may not fix all places where author is used.
             ctx.author = victim.to_member(ctx.guild)
