@@ -1,7 +1,7 @@
 import inspect
 from inspect import Parameter
 from .game import emojis
-from . import commandtypes, util
+from . import commandtypes
 from functools import wraps
 import itertools
 

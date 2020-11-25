@@ -1,5 +1,4 @@
 import re
-import json
 
 from .game.helpers import misc
 from .game import players, teams

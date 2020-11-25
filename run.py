@@ -6,26 +6,20 @@ import re
 import traceback
 from threading import Thread
 import aiohttp
-import gc
 import time
-start_time = time.time()
-shard_time = 0
-time_shown = False
 import sys
-from itertools import cycle
 import sentry_sdk
-
 import discord
-from dueutil.permissions import Permission
 
+from dueutil.permissions import Permission
 import generalconfig as gconf
 from dueutil import loader, servercounts
-from dueutil.game import players, stats, emojis
-from dueutil.game.stats import Stat
+from dueutil.game import players
 from dueutil.game.helpers import imagecache
 from dueutil.game.configs import dueserverconfig
 from dueutil import permissions
 from dueutil import util, events, dbconn
+
 sentry_sdk.init(gconf.other_configs.get("sentryAuth"))
 
 MAX_RECOVERY_ATTEMPTS = 1000
@@ -35,6 +29,10 @@ bot_key = ""
 client:discord.AutoShardedClient = None
 clients = []
 shard_names = []
+
+start_time = time.time()
+shard_time = 0
+time_shown = False
 
 # I'm not sure of the root cause of this error & it only happens once in months.
 ERROR_OF_DEATH = "Timeout context manager should be used inside a task"

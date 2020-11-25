@@ -541,7 +541,7 @@ async def optinhere(ctx, **details):
 
 
 @commands.command(args_pattern=None)
-async def currencies(ctx, **details):
+async def currencies(ctx, **_):
     """
     [CMD_KEY]currencies
     

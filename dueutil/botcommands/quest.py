@@ -14,8 +14,7 @@ from ..game import (
     weapons,
     stats,
     awards,
-    players,
-    emojis)
+    players)
 from .. import commands, util
 from ..game.helpers import misc
 

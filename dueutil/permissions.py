@@ -1,6 +1,5 @@
 from enum import Enum
 
-import discord
 import generalconfig as gconf
 
 from . import dbconn, util

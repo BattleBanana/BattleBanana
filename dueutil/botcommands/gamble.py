@@ -1,23 +1,14 @@
-import os
-import re
-import subprocess
 import math
 import time
-from io import StringIO
 import random
 import asyncio
 
 from pydealer import Deck
 
 import discord
-import objgraph
 
 import generalconfig as gconf
-import dueutil.permissions
-from ..game.helpers import imagehelper
-from ..permissions import Permission
-from .. import commands, util, events, dbconn
-from ..game import players, emojis as e
+from .. import commands, util
 from ..game import blackjack as blackjackGame
 
 """

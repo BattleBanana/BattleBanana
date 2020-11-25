@@ -416,7 +416,7 @@ async def minecraft(ctx, **_):
     await util.say(ctx.channel, f"{emojis.QUESTER} Official BananaCraft server!", embed=embed)
 
 @commands.command(args_pattern="C?", aliases=["tdh"])
-async def topdoghistory(ctx, page=1, **details):
+async def topdoghistory(ctx, page=1, **_):
     """
     [CMD_KEY]topdoghistory (page)
 
@@ -457,16 +457,6 @@ async def topdoghistory(ctx, page=1, **details):
 
     await util.say(ctx.channel, embed=embed)
 
-# import aiohttp
-# @commands.command(args_pattern=None)
-# async def darkjoke(ctx, **details):
-#     async with aiohttp.ClientSession() as session:
-#         async with session.get(url="https://sv443.net/jokeapi/category/Dark") as response:
-#             json = await response.json()
-#             if json['type'] == "twopart":
-#                 await util.say(ctx.channel, f"{json['setup']}\n{json['delivery']}")
-#             else:
-#                 await util.say(ctx.channel, json["joke"])
 
 # import random
 # @commands.command(args_pattern=None)

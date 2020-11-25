@@ -117,7 +117,6 @@ async def download_file(url):
             response.release()
             file_data.seek(0)
             return file_data
-        await session.close()
 
 
 async def say(channel, *args, **kwargs):

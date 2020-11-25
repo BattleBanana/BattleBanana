@@ -8,7 +8,7 @@ from ..game import players, customizations
 from ..game import stats, game, gamerules, quests
 from ..game.helpers import misc, playersabstract, imagehelper
 from ..game.configs import dueserverconfig
-from .. import commands, util, dbconn, permissions
+from .. import commands, util, dbconn
 from ..permissions import Permission
 from ..game import emojis as e
 

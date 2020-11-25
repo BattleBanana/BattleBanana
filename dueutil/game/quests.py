@@ -11,7 +11,7 @@ import jsonpickle
 from ..util import SlotPickleMixin
 from .. import dbconn
 from .. import util
-from ..game import players, game
+from ..game import players
 from ..game import weapons
 from ..game.helpers.misc import BattleBananaObject, DueMap
 from .players import Player

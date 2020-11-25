@@ -277,12 +277,7 @@ async def eval(ctx, body, **details):
         await util.say(ctx.channel, f'```py\n{code_in}\n{value}{traceback.format_exc()}\n{timep}\n```')
     else:
         value = stdout.getvalue()
-        # try:
-        #    successful = await util.say(ctx.channel, "Eval Successful")
-        #    await asyncio.sleep(3)
-        #    await successful.delete()
-        # except:
-        #    pass
+
         if ret is None:
             if value:
                 await util.say(ctx.channel, f'```py\n{code_in}\n{value}\n{timep}\n```')
@@ -515,7 +510,7 @@ async def setcash(ctx, player, amount, **_):
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PI")
-async def setprestige(ctx, player, prestige, **details):
+async def setprestige(ctx, player, prestige, **_):
     player.prestige_level = prestige
     player.save()
     await util.say(ctx.channel, "Set prestige to **%s** for **%s**" % (prestige, player.get_name_possession_clean()))
@@ -656,7 +651,7 @@ async def pong(ctx, **_):
 
 
 @commands.command(args_pattern=None)
-async def vote(ctx, **details):
+async def vote(ctx, **_):
     """
     Obtain up to ¤40'000 for voting
     """

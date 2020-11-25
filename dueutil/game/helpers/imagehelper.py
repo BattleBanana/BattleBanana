@@ -7,7 +7,6 @@ from urllib.parse import urlparse
 from PIL import Image, ImageDraw, ImageFont
 from colour import Color
 import aiohttp
-import asyncio
 from discord import File
 
 from dueutil import util
@@ -109,7 +108,6 @@ async def url_image(url):
             async with session.head(url=url, allow_redirects=True) as response:
                 return "Content-Type" in response.headers and \
                        response.headers["Content-Type"].lower().startswith("image")
-            await session.close()
     except Exception as exception:
         util.logger.error("Got %s while checking image url.", exception)
         # Do not care about any of the network errors that could occur.
@@ -255,6 +253,7 @@ async def awards_screen(channel, player, page, **kwargs):
                        + dueserverconfig.server_cmd_key(channel.guild) + command
                        + " " + str(page + 2) + " for the next page.")
             break
+    msg = ""
     if player_award == 0:
         msg = "That's all folks!"
     if len(player.awards) == 0:
@@ -318,6 +317,7 @@ async def quests_screen(channel, player, page):
                        + dueserverconfig.server_cmd_key(channel.guild)
                        + "myquests " + str(page + 2) + " for the next page.")
             break
+    msg = ""
     if quest_index == 0:
         msg = "That's all your quests!"
     if len(player.quests) == 0:
@@ -560,7 +560,7 @@ async def googly_eyes(channel, eye_descriptor):
         """
         mods = ["evil", "gay", "snek", "high", "ogre", "emoji", "small"]
         eye_type = ""
-        for number_of_mods in range(0, random.randrange(0, len(mods))):
+        for _ in range(0, random.randrange(0, len(mods))):
             mod = random.choice(mods)
             eye_type += mod
             mods.remove(mod)
