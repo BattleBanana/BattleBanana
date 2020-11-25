@@ -9,7 +9,7 @@ import discord
 
 import generalconfig as gconf
 from .. import commands, util
-from ..game import blackjack as blackjackGame
+from ..game import blackjack as blackjackGame, players
 
 """
 This is a super cool category with some ~~gambling~~ surprise mechanics. 
