@@ -302,20 +302,13 @@ class Player(BattleBananaObject, SlotPickleMixin):
     def is_top_dog(self):
         return "TopDog" in self.awards
 
-    def is_playing(self, guild=None, **extras):
+    def is_playing(self, member=None, **extras):
         # Having the perm DISCORD_USER specially set to override PLAYER
         # means you have opted out.
         if self.is_top_dog():
             return True  # Topdog is ALWAYS playing.
-        if guild is not None:
-            member = guild.get_member(self.id)
-            if member is None:
-                # Member not on guild.
-                member = self.to_member(guild)
-        elif extras.get("member"):
-            member = extras.get("member")
-        else:
-            # Guild not passed.
+        if member is None:
+            # Member not passed.
             member = self.to_member()
         if not extras.get("local", False):
             return permissions.has_permission(member, Permission.PLAYER)

@@ -468,7 +468,7 @@ async def optin(ctx, **details):
     """
 
     player = details["author"]
-    local_optout = not player.is_playing(ctx.guild, local=True)
+    local_optout = not player.is_playing(ctx.author, local=True)
     # Already playing
     if player.is_playing():
         if not local_optout:
@@ -498,7 +498,7 @@ async def optouthere(ctx, **details):
         await util.say(ctx.channel, "You've already opted out everywhere!")
         return
 
-    if player.is_playing(ctx.guild, local=True):
+    if player.is_playing(ctx.author, local=True):
         optout_role = util.get_role_by_name(ctx.guild, gconf.OPTOUT_ROLE)
         if optout_role is None:
             await util.say(ctx.channel, ("There is no optout role on this guild!\n"
@@ -526,7 +526,7 @@ async def optinhere(ctx, **details):
     globally_opted_out = not player.is_playing()
 
     optout_role = util.get_role_by_name(ctx.guild, gconf.OPTOUT_ROLE)
-    if optout_role is not None and not player.is_playing(ctx.guild, local=True):
+    if optout_role is not None and not player.is_playing(ctx.author, local=True):
         await ctx.author.remove_roles(optout_role)
         await util.say(ctx.channel, ("You've opted in on this guild!\n"
                                      + ("However this is overridden by your global optout.\n"

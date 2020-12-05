@@ -103,7 +103,7 @@ def command(**command_rules):
                 # React X
                 if not (permissions.has_permission(ctx.author, Permission.PLAYER) or permissions.has_special_permission(ctx.author, Permission.BANNED)):
                     player = players.find_player(ctx.author.id)
-                    local_optout = not player.is_playing(ctx.guild, local=True)
+                    local_optout = not player.is_playing(ctx.author, local=True)
                     if local_optout:
                         await util.say(ctx.channel, "You are opted out. Use ``%soptinhere``!" % prefix)
                     else:
