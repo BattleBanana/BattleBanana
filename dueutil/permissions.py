@@ -61,7 +61,7 @@ def give_permission(member, permission):
 
 
 def strip_permissions(member):
-    dbconn.conn()["permissions"].remove({'_id': member.id})
+    dbconn.conn()["permissions"].delete_many({'_id': member.id})
     if member.id in special_permissions:
         del special_permissions[member.id]
 
