@@ -88,7 +88,7 @@ class BattleBananaClient(discord.AutoShardedClient):
 
     async def on_guild_join(self, guild):
         server_count = util.get_server_count()
-        if server_count % 100 == 0:
+        if server_count % 250 == 0:
             await util.say(gconf.announcement_channel,
                                 ":confetti_ball: I'm on __**%d SERVERS**__ now!1!111!\n@everyone" % server_count)
 
@@ -100,7 +100,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         server_stats = self.server_stats(guild)
         await util.duelogger.info(("BattleBanana has joined the guild **"
                                         + util.ultra_escape_string(guild.name) + "**!\n"
-                                        + "``Member count →`` " + str(server_stats["member_count"]) + "\n"
+                                        + "``Member count →`` " + str(guild.member_count) + "\n"
                                         + "``Bot members →``" + str(server_stats["bot_count"]) + "\n"
                                         + ("**BOT SERVER**" if server_stats["bot_server"] else "")))
 
@@ -275,7 +275,6 @@ class BattleBananaClient(discord.AutoShardedClient):
     async def on_ready(self):
         # TODO: Show the time it takes to turn on the bot & time it took to start shards
         util.logger.info("Bot (re)started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - shard_time)
-
         await util.duelogger.bot("BattleBanana has *(re)*started\nBot version → ``%s``" % gconf.VERSION)
 
     
@@ -346,7 +345,7 @@ def run_due():
 
 
 if __name__ == "__main__":
-    util.logger.info("Starting BattleBanana!")
+    print("Starting BattleBanana!")
     config = gconf.other_configs
     bot_key = config["botToken"]
     shard_names = config["shardNames"]
