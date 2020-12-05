@@ -410,9 +410,6 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
                                      + util.format_number(max_receive, money=True, full_precision=True) + "**!"))
         return
 
-    if receiver.money + transaction_amount > 1000000000:
-        raise util.BattleBananaException(ctx.channel, "This user can't receive any more money!")
-
     sender.money -= transaction_amount
     receiver.money += transaction_amount
 
