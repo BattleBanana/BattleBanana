@@ -312,6 +312,8 @@ class Player(BattleBananaObject, SlotPickleMixin):
             if member is None:
                 # Member not on guild.
                 member = self.to_member(guild)
+        elif extras.get("member"):
+            member = extras.get("member")
         else:
             # Guild not passed.
             member = self.to_member()
@@ -410,10 +412,10 @@ class Player(BattleBananaObject, SlotPickleMixin):
         Returns a discord member or a fake member.
         """
         if guild is not None:
-            member = guild.get_member(int(self.id))
+            member = guild.get_member(self.id)
             if member is not None:
                 return member
-        return FakeMember(self.user_id, self.name)
+        return FakeMember(self.id, self.name)
 
     def _setter(self, thing, value):
         if isinstance(value, BattleBananaObject):
