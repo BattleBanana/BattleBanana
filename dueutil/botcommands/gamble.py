@@ -31,12 +31,10 @@ async def blackjack(ctx, price, **details):
     user = details["author"]
     BattleBanana = players.find_player(ctx.guild.me.id)
     
-    if user.money < price:
+    if user.money < price or price > 1000000000:
         raise util.BattleBananaException(ctx.channel, "You cannot bet that much!")
     if price < 1:
         raise util.BattleBananaException(ctx.channel, "You cannot bet under ¤1")
-    if price > 100000000:
-        raise util.BattleBananaException(ctx.channel, "You cannot bet that much!")
     if (user.gamble_play and int(time.time() - user.last_played) < 120) or int(time.time() - user.last_played) < 120:
         raise util.BattleBananaException(ctx.channel, "You are already playing!")
     
@@ -162,12 +160,10 @@ async def russianroulette(ctx, price, **details):
     user = details["author"]
     BattleBanana = players.find_player(ctx.guild.me.id)
     
-    if user.money < price:
+    if user.money < price or price > 1000000000:
        raise util.BattleBananaException(ctx.channel, "You cannot bet that much!")
     if price < 1:
        raise util.BattleBananaException(ctx.channel, "You cannot bet under ¤1")
-    if price > 100000000:
-        raise util.BattleBananaException(ctx.channel, "You cannot bet that much!")
     
     message = await util.say(ctx.channel, "Click...")
     rnd = random.randint(1, 6)
