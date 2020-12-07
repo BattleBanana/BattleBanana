@@ -224,6 +224,9 @@ class BattleBananaClient(discord.AutoShardedClient):
         if owner.id == config["owner"] and not permissions.has_permission(owner, Permission.BANANA_OWNER):
             permissions.give_permission(owner, Permission.BANANA_OWNER)
 
+        # what are you doing daughter - dev
+        # fixing mac's shitty slow regex parser - me, theel
+        message.content = message.content.replace(f"<@!{self.user.id}>", dueserverconfig.server_cmd_key(message.guild), 1) if message.content.startswith(f"<@!{self.user.id}>") else message.content
         message.content = message.content.replace(f"<@{self.user.id}>", dueserverconfig.server_cmd_key(message.guild), 1) if message.content.startswith(f"<@{self.user.id}>") else message.content
             
         await events.on_message_event(message)
