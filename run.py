@@ -167,7 +167,7 @@ class BattleBananaClient(discord.AutoShardedClient):
             loader.reload_modules()
             await util.say(error.channel, loader.get_loaded_modules())
             return
-        elif isinstance(error, discord.errors.Forbidden):
+        elif isinstance(error, discord.Forbidden):
             if ctx_is_message:
                 channel = ctx.channel
                 if isinstance(error, util.SendMessagePermMissing):
@@ -188,7 +188,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                                             )
                     except util.SendMessagePermMissing:
                         pass  # They've block sending messages too.
-                    except discord.errors.Forbidden: 
+                    except discord.Forbidden: 
                         pass
                 return
         elif isinstance(error, discord.HTTPException):
@@ -305,6 +305,9 @@ class ClientThread(Thread):
         clients.append(client)
         try:
             client.loop.run_until_complete(client.start(bot_key))
+        except KeyboardInterrupt:
+            client.loop.run_until_complete(client.logout())
+            util.logger.warning("Bot has been stopped with CTRL + C")
         except Exception as client_exception:
             util.logger.exception(client_exception, exc_info=True)
             if level < MAX_RECOVERY_ATTEMPTS:
