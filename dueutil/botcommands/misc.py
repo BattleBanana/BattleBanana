@@ -21,9 +21,6 @@ from ..game.helpers import imagehelper
 from ..permissions import Permission
 
 
-# Import all game things. This is (bad) but is needed to fully use the eval command
-
-
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def permissions(ctx, **_):
     """
