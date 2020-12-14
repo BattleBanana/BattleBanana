@@ -119,13 +119,14 @@ async def donate(ctx, **_):
     """
     [CMD_KEY]donate
 
-    This command show where you can donate to <@115269304705875969>. 
-    All money received will be used for the guild costs and other expenses.
+    This command show where you can donate to BattleBanana.
+
+    All money received is used to pay BattleBanana's cost.
     """
 
     donation_embed = discord.Embed(title="Donate", type="rich", color=gconf.DUE_COLOUR)
-    donation_embed.add_field(name="Patreon (Donation)", value="[Here](https://patreon.com/developeranonymous)",
-                             inline=True)
+    donation_embed.add_field(name="Patreon", value="[Here](https://patreon.com/developeranonymous)", inline=True)
+
     await util.say(ctx.channel, embed=donation_embed)
 
 
