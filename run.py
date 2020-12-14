@@ -59,7 +59,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         super(BattleBananaClient, self).__init__(intents=intents, **details)
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
 
-    
+
     async def __check_task_queue(self):
         while True:
             try:
@@ -74,6 +74,7 @@ class BattleBananaClient(discord.AutoShardedClient):
             except queue.Empty:
                 pass
             await asyncio.sleep(1)
+
 
     def run_task(self, task, *args, **kwargs):
         """
@@ -135,6 +136,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         # Update stats
         await servercounts.update_server_count(self)
 
+
     @staticmethod
     def server_stats(guild):
         member_count = len(guild.members)
@@ -144,7 +146,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         return {"member_count": member_count, "bot_percent": bot_percent,
                 "bot_count": bot_count, "bot_server": bot_server}
 
-    
+
     async def on_error(self, event, *args):
         ctx = args[0] if len(args) == 1 else None
         ctx_is_message = isinstance(ctx, discord.Message)
@@ -212,7 +214,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         util.sentry_client.captureException()
         traceback.print_exc()
 
-    
+
     async def on_message(self, message):
         if (message.author == self.user
             or message.author.bot
@@ -248,7 +250,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                     player.donor = True
                     player.save()
 
-    
+
     async def on_guild_remove(self, guild):
         for collection in dbconn.db.list_collection_names():
             if collection not in ("Player", "Topdogs"):
@@ -260,7 +262,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         # Update stats
         await servercounts.update_server_count(self)
 
-    
+
     async def change_avatar(self, channel, avatar_name):
         try:
             avatar = open("avatars/" + avatar_name.strip(), "rb")
@@ -270,13 +272,12 @@ class BattleBananaClient(discord.AutoShardedClient):
         except FileNotFoundError:
             await util.say(channel, ":bangbang: **Avatar change failed!**")
 
-    
+
     async def on_ready(self):
-        # TODO: Show the time it takes to turn on the bot & time it took to start shards
         util.logger.info("Bot (re)started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - shard_time)
         await util.duelogger.bot("BattleBanana has *(re)*started\nBot version → ``%s``" % gconf.VERSION)
 
-    
+
     async def on_shard_ready(self, shard_id):
         game = discord.Activity(name="battlebanana.xyz | shard %d/%d" % (shard_id+1, self.shard_count), type=discord.ActivityType.watching)
         try:
