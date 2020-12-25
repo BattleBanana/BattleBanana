@@ -3,9 +3,10 @@ import math
 import os
 import random
 import re
-import subprocess
+import platform
 import textwrap
 import time
+import asyncio
 import traceback
 from contextlib import redirect_stdout
 from io import StringIO
@@ -552,10 +553,27 @@ async def updatebot(ctx, **_):
     """
 
     try:
-        update_result = subprocess.check_output(['bash', 'update_script.sh'])
-    except subprocess.CalledProcessError as updateexc:
+        sys = platform.platform()
+        if "Windows" in sys:
+            update_result = await asyncio.create_subprocess_shell('"C:\\Program Files\\Git\\bin\\bash" update_script.sh',
+                                                                    stdout=asyncio.subprocess.PIPE,
+                                                                    stderr=asyncio.subprocess.PIPE)
+        elif "Linux" in sys:
+            update_result = await asyncio.create_subprocess_shell('bash update_script.sh',
+                                                                    stdout=asyncio.subprocess.PIPE,
+                                                                    stderr=asyncio.subprocess.PIPE)
+        else:
+            raise asyncio.CancelledError()
+    except asyncio.CancelledError as updateexc:
         update_result = updateexc.output
-    update_result = update_result.decode("utf-8")
+    stdout, stderr = await update_result.communicate()
+    if stdout:
+        update_result = stdout.decode("utf-8")
+    elif stderr:
+        update_result = stderr.decode("utf-8")
+    else:
+        update_result = "Something went wrong!"
+
     if len(update_result.strip()) == 0:
         update_result = "No output."
     update_embed = discord.Embed(title=":gear: Updating BattleBanana!", type="rich", color=gconf.DUE_COLOUR)
@@ -563,7 +581,7 @@ async def updatebot(ctx, **_):
     update_embed.add_field(name='Changes', value='```' + update_result + '```', inline=False)
     await util.say(ctx.channel, embed=update_embed)
     update_result = update_result.strip()
-    if not (update_result.endswith("is up to date.") or update_result.endswith("up-to-date.")):
+    if not (update_result.endswith("is up to date.") or update_result.endswith("up-to-date.") or update_result == "Something went wrong!"):
         await util.duelogger.concern("BattleBanana updating!")
         os._exit(1)
 
