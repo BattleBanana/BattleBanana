@@ -246,6 +246,8 @@ async def on_message(message):
     player = players.find_player(message.author.id)
     spam_level = 100
     if player is not None:
+        if message.guild.get_member(message.author.id) is None:
+            await message.guild.fetch_member(message.author.id) # Load player into our cache. this way we progressively 
         if not player.is_playing(message.author):
             return
         if quest_time(player) or progress_time(player):
