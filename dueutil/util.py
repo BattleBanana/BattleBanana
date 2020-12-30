@@ -287,7 +287,6 @@ def is_server_emoji(guild, possible_emoji):
         return False
     
     possible_emojis = [str(custom_emoji) for custom_emoji in guild.emojis]
-    print(possible_emoji in possible_emojis)
     return possible_emoji in possible_emojis
 
 
