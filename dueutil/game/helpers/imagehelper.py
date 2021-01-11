@@ -179,7 +179,7 @@ async def send_image(ctx, image, Type, **kwargs):
     if Type == "r":
         await ctx.reply(file=File(output, filename=kwargs.pop('file_name')), **kwargs)
     else:
-        await channel.send(file=File(output, filename=kwargs.pop('file_name')), **kwargs)
+        await ctx.channel.send(file=File(output, filename=kwargs.pop('file_name')), **kwargs)
     output.close()
 
 
