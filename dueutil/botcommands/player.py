@@ -358,7 +358,7 @@ async def prestige(ctx, cnf="", **details):
 
     if prestige_level > 0:
         await game.awards.give_award(ctx.channel, user, 'Prestige')
-    await translations.say(ctx, "player:pretige:Success", user.presitge_level)
+    await translations.say(ctx, "player:pretige:Success", str(user.presitge_level))
 
 @commands.command(args_pattern="P?", aliases=["mp", "showprestige", "sp"])
 async def myprestige(ctx, player=None, **details):
