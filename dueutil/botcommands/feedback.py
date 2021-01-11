@@ -37,7 +37,7 @@ class FeedbackHandler:
         report.add_field(name=ctx.channel.name, value=ctx.channel.id)
         report.set_footer(text="Sent at " + util.pretty_time())
         await translations.say(ctx, "feedback:misc:Sent", self.type, trello_link)
-        await util.say(ctx.channel, embed=report)
+        await util.reply(ctx, embed=report)
 
         logReport = discord.Embed(color=gconf.DUE_COLOUR)
         logReport.set_author(name=author_name, icon_url=author_icon_url)

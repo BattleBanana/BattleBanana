@@ -56,7 +56,7 @@ async def blackjack(ctx, price, **details):
     blackjack_embed.add_field(name=translations.translate(ctx, "gamble:blackjack:DealerHand", dealer_value), value=dealer_hand)        
     blackjack_embed.set_footer(text=translations.translate(ctx, "gamble:blackjack:StartFooter"))
     
-    msg = await util.say(ctx.channel, embed=blackjack_embed)
+    msg = await util.reply(ctx, embed=blackjack_embed)
     # Player's play
     while True:
         user.last_played = time.time()

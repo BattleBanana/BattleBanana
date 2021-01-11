@@ -87,7 +87,7 @@ async def help(ctx, *args, **details):
         help_embed.set_footer(
             text=translations.translate(ctx, "util:help:Footer"))
 
-    await util.say(ctx.channel, embed=help_embed)
+    await util.reply(ctx, embed=help_embed)
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
@@ -98,7 +98,7 @@ async def invite(ctx, **_):
     invite_embed.description = translations.translate(ctx, "util:invite:Desc")
     invite_embed.add_field(name=translations.translate(ctx, "util:invite:Invite"), value=("["+translations.translate(ctx, "other:singlewords:Here")+"](%s)" % gconf.BOT_INVITE), inline=True)
     invite_embed.add_field(name=translations.translate(ctx, "util:invite:Support"), value="["+translations.translate(ctx, "other:singlewords:Here")+"](https://discord.gg/P7DBDEC)", inline=True)
-    await util.say(ctx.channel, embed=invite_embed)
+    await util.reply(ctx, embed=invite_embed)
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
@@ -108,7 +108,7 @@ async def donate(ctx, **_):
     donation_embed = discord.Embed(title="Donate", type="rich", color=gconf.DUE_COLOUR)
     donation_embed.add_field(name="Patreon (Donation)", value="[Here](https://patreon.com/developeranonymous)",
                              inline=True)
-    await util.say(ctx.channel, embed=donation_embed)
+    await util.reply(ctx, embed=donation_embed)
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
@@ -126,7 +126,7 @@ async def botinfo(ctx, **_):
     info_embed.add_field(name=translations.translate(ctx, "util:botinfo:Invite"), value="%s" % gconf.BOT_INVITE, inline=False)
     info_embed.add_field(name=translations.translate(ctx, "util:botinfo:NSupport"),
                          value=translations.translate(ctx, "util:botinfo:DSupport"))
-    await util.say(ctx.channel, embed=info_embed)
+    await util.reply(ctx, embed=info_embed)
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
@@ -167,7 +167,7 @@ async def botstats(ctx, **_):
                                  + translations.translate(ctx, "util:botstats:Uptime", util.display_time(time.time() - client.start_time, granularity=4))),
                           inline=False)
 
-    await util.say(ctx.channel, embed=stats_embed)
+    await util.reply(ctx, embed=stats_embed)
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
@@ -199,7 +199,7 @@ async def languages(ctx, **_):
     lan_embed = discord.Embed(title="BattleBanana's Localization!", type="rich", color=gconf.DUE_COLOUR)
     lan_embed.description = "en - English\n es - Español\n fr - Français"
 
-    await util.say(ctx.channel, embed=lan_embed)
+    await util.reply(ctx, embed=lan_embed)
 
 
 
@@ -245,7 +245,7 @@ async def leave(ctx, **_):
 
     bye_embed = discord.Embed(title=translations.translate(ctx, "util:leave:Bye"), color=gconf.DUE_COLOUR)
     bye_embed.set_image(url="http://i.imgur.com/N65P9gL.gif")
-    await util.say(ctx.channel, embed=bye_embed)
+    await util.reply(ctx, embed=bye_embed)
     try:
         await ctx.guild.leave()
     except:
@@ -308,7 +308,7 @@ async def setuproles(ctx, **_):
         result = translations.translate(ctx, "util:setuproles:Created", roles_count, util.s_suffix("role", roles_count))
         for role in roles_made:
             result += "→ ``%s``\n" % role["name"]
-        await util.say(ctx.channel, result)
+        await util.reply(ctx, result)
     else:
         await translations.say(ctx, "util:setuproles:NoNew")
 
@@ -332,9 +332,9 @@ async def optout(ctx, **details):
         if current_permission >= Permission.BANANA_MOD:
             raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "util:optout:StaffMember"))
         permissions.give_permission(ctx.author, Permission.DISCORD_USER)
-        await util.say(ctx.channel, translations.translate(ctx, "util:optout:Success"))
+        await util.reply(ctx, translations.translate(ctx, "util:optout:Success"))
     else:
-        await util.say(ctx.channel, translations.translate(ctx, "util:optout:AlreadyOptOut"))
+        await util.reply(ctx, translations.translate(ctx, "util:optout:AlreadyOptOut"))
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
@@ -409,7 +409,7 @@ async def currencies(ctx, **details):
         embed.add_field(name=translations.translate(ctx, "util:currencies:NError"), value=translations.translate(ctx, "util:currencies:VError"))
     embed.set_footer(text=translations.translate(ctx, "util:currencies:Footer", link))
 
-    await util.say(ctx.channel, embed=embed)
+    await util.reply(ctx, embed=embed)
 
 
 @commands.ratelimit(cooldown=300, error="util:exchange:RateLimit", save=True)
@@ -460,7 +460,7 @@ async def exchange(ctx, amount, currency, **details):
     exchange_embed.add_field(name=translations.translate(ctx, "util:exchange:Receipt"), value=receipt, inline=False)
     exchange_embed.set_footer(text=translations.translate(ctx, "util:exchange:Footer"))
 
-    await util.say(ctx.channel, embed=exchange_embed)
+    await util.reply(ctx, embed=exchange_embed)
 
     to = transaction.get("to")
     toID = to.get("id")
@@ -495,4 +495,4 @@ async def status(ctx, message=None, **details):
         await client.change_presence(activity=discord.Activity(name=message, type=discord.ActivityType.watching),
                                      afk=False)
 
-    await util.say(ctx.channel, "All done!")
+    await util.reply(ctx, "All done!")

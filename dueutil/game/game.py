@@ -154,7 +154,7 @@ async def check_for_level_up(ctx, player):
     stats.increment_stat(stats.Stat.MONEY_CREATED, level_up_reward)
     if level_up_reward > 0:
         if dueserverconfig.mute_level(ctx.channel) < 0:
-            await imagehelper.level_up_screen(ctx.channel, player, level_up_reward)
+            await imagehelper.level_up_screen(ctx, player, level_up_reward)
         else:
             util.logger.info("Won't send level up image - channel blocked.")
         rank = player.rank
@@ -185,7 +185,7 @@ async def manage_quests(message, player, spam_level):
             stats.increment_stat(stats.Stat.QUESTS_GIVEN)
             player.quest_spawn_build_up = 1
             if dueserverconfig.mute_level(message.channel) < 0:
-                await imagehelper.new_quest_screen(channel, new_quest, player)
+                await imagehelper.new_quest_screen(message, new_quest, player)
             else:
                 util.logger.info("Won't send new quest image - channel blocked.")
             util.logger.info("%s has received a quest [%s]", player.name_assii, new_quest.q_id)

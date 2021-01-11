@@ -170,35 +170,38 @@ def has_dimensions(image, dimensions):
     return width == dimensions[0] and height == dimensions[1]
 
 
-async def send_image(channel, image, **kwargs):
+async def send_image(ctx, image, Type, **kwargs):
     stats.increment_stat(stats.Stat.IMAGES_SERVED)
     #kwargs["filename"] = kwargs.pop('file_name', "")
     output = BytesIO()
     image.save(output, format="PNG")
     output.seek(0)
-    await channel.send(file=File(output, filename=kwargs.pop('file_name')), **kwargs)
+    if Type == "r":
+        await ctx.reply(file=File(output, filename=kwargs.pop('file_name')), **kwargs)
+    else:
+        await channel.send(file=File(output, filename=kwargs.pop('file_name')), **kwargs)
     output.close()
 
 
-async def level_up_screen(channel, player, cash):
+async def level_up_screen(ctx, player, cash):
     image = level_up_template.copy()
     level = math.trunc(player.level)
     try:
-        avatar = await resize_avatar(player, channel.guild, 54, 54)
+        avatar = await resize_avatar(player, ctx.channel.guild, 54, 54)
         image.paste(avatar, (10, 10))
     except:
         pass
     draw = ImageDraw.Draw(image)
     draw.text((159, 18), str(level), "white", font=font_big)
     draw.text((127, 40), util.format_number(cash, money=True), "white", font=font_big)
-    await send_image(channel, image, file_name="level_up.png",
+    await send_image(ctx, image, "s", file_name="level_up.png",
                      content=e.LEVEL_UP+" **" + player.name_clean + "** Level Up!")
 
 
-async def new_quest_screen(channel, quest, player):
+async def new_quest_screen(ctx, quest, player):
     image = new_quest_template.copy()
     try:
-        avatar = await resize_avatar(quest, channel.guild, 54, 54)
+        avatar = await resize_avatar(quest, ctx.channel.guild, 54, 54)
         image.paste(avatar, (10, 10))
     except:
         pass
@@ -217,11 +220,11 @@ async def new_quest_screen(channel, quest, player):
         (quest_bubble_position, (quest_bubble_position[0] + quest_index_width + 5, quest_bubble_position[1] + 11)),
         fill="#2a52be", outline="#a1caf1")
     draw.text((9, quest_bubble_position[1]), quest_index_text, "white", font=font_small)
-    await send_image(channel, image, file_name="new_quest.png",
+    await send_image(ctx, image, "s", file_name="new_quest.png",
                      content=e.QUEST+" **" + player.name_clean + "** New Quest!")
 
 
-async def awards_screen(channel, player, page, **kwargs):
+async def awards_screen(ctx, player, page, **kwargs):
     for_player = kwargs.get('is_player_sender', False)
     image = awards_screen_template.copy()
 
@@ -252,7 +255,7 @@ async def awards_screen(channel, player, page, **kwargs):
                 if not for_player:
                     command = "awards @User"
                 msg = ("+ " + str(len(player.awards) - (5 * (page + 1))) + " More. Do "
-                       + dueserverconfig.server_cmd_key(channel.guild) + command
+                       + dueserverconfig.server_cmd_key(ctx.channel.guild) + command
                        + " " + str(page + 2) + " for the next page.")
             break
     if player_award == 0:
@@ -262,11 +265,11 @@ async def awards_screen(channel, player, page, **kwargs):
         msg = name + " doesn't have any awards!"
     width = draw.textsize(msg, font=font_small)[0]
     draw.text(((256 - width) / 2, 42 + 44 * count), msg, "white", font=font_small)
-    await send_image(channel, image, file_name="awards_list.png",
+    await send_image(ctx, image, "r", file_name="awards_list.png",
                      content=":trophy: **" + player.get_name_possession_clean() + "** Awards!")
 
 
-async def quests_screen(channel, player, page):
+async def quests_screen(ctx, player, page):
     image = awards_screen_template.copy()
     draw = ImageDraw.Draw(image)
     suffix = " Quests"
@@ -315,7 +318,7 @@ async def quests_screen(channel, player, page):
         if count == 5:
             if quest_index != 0:
                 msg = ("+ " + str(len(player.quests) - (5 * (page + 1))) + " More. Do "
-                       + dueserverconfig.server_cmd_key(channel.guild)
+                       + dueserverconfig.server_cmd_key(ctx.channel.guild)
                        + "myquests " + str(page + 2) + " for the next page.")
             break
     if quest_index == 0:
@@ -324,11 +327,11 @@ async def quests_screen(channel, player, page):
         msg = "You don't have any quests!"
     width = draw.textsize(msg, font=font_small)[0]
     draw.text(((256 - width) / 2, 42 + 44 * count), msg, "white", font=font_small)
-    await send_image(channel, image, file_name="myquests.png",
+    await send_image(ctx, image, "r", file_name="myquests.png",
                      content=e.QUEST+" **" + player.get_name_possession_clean() + "** Quests!")
 
 
-async def stats_screen(channel, player):
+async def stats_screen(ctx, player):
     theme = player.theme
 
     if "fontColour" in theme:
@@ -361,7 +364,7 @@ async def stats_screen(channel, player):
     paste_alpha(image, avatar_border, (3, 6))
 
     try:
-        image.paste(await resize_avatar(player, channel.guild, 80, 80), (9, 12))
+        image.paste(await resize_avatar(player, ctx.channel.guild, 80, 80), (9, 12))
     except:
         pass
 
@@ -436,11 +439,11 @@ async def stats_screen(channel, player):
     elif len(player.awards) == 0:
         draw.text((38, 183), "None", side_colour, font=font)
 
-    await send_image(channel, image, file_name="myinfo.png",
+    await send_image(ctx, image, "r", file_name="myinfo.png",
                      content=":pen_fountain: **" + player.get_name_possession_clean() + "** information.")
 
 
-async def quest_screen(channel, quest):
+async def quest_screen(ctx, quest):
     image = quest_info_template.copy()
 
     try:
@@ -485,20 +488,20 @@ async def quest_screen(channel, quest):
     width = draw.textsize(reward, font=font_med)[0]
     draw.text((203 - width, 266), reward, DUE_BLACK, font=font_med)
 
-    await send_image(channel, image, file_name="questinfo.png", content=":pen_fountain: Here you go.")
+    await send_image(ctx, image, "r", file_name="questinfo.png", content=":pen_fountain: Here you go.")
 
 
-async def battle_screen(channel, player_one, player_two):
+async def battle_screen(ctx, player_one, player_two):
     image = battle_screen_template.copy()
     width, height = image.size
 
     try:
-        image.paste(await resize_avatar(player_one, channel.guild, 54, 54), (9, 9))
+        image.paste(await resize_avatar(player_one, ctx.channel.guild, 54, 54), (9, 9))
     except:
         pass
 
     try:
-        image.paste(await resize_avatar(player_two, channel.guild, 54, 54), (width - 9 - 55, 9))
+        image.paste(await resize_avatar(player_two, ctx.channel.guild, 54, 54), (width - 9 - 55, 9))
     except:
         pass
 
@@ -532,10 +535,10 @@ async def battle_screen(channel, player_one, player_two):
     draw.text((124 - width, 88), weap_one_name, "white", font=font)
     draw.text((132, 103), get_text_limit_len(draw, weapon_two.name, font, 85), "white", font=font)
 
-    await send_image(channel, image, file_name="battle.png")
+    await send_image(ctx, image, "r", file_name="battle.png")
 
 
-async def googly_eyes(channel, eye_descriptor):
+async def googly_eyes(ctx, eye_descriptor):
     """
     Googly eye generator.
     """
@@ -660,7 +663,7 @@ async def googly_eyes(channel, eye_descriptor):
     draw_eye(0, 0)
     draw_eye(size[0] // 2, 0)
     image = resize(image, width // 2, height // 2)
-    await send_image(channel, image, file_name="eyes.png")
+    await send_image(ctx, image, "r", file_name="eyes.png")
 
 
 def get_text_limit_len(draw, text, given_font, length):

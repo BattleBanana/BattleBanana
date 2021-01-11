@@ -53,7 +53,7 @@ async def spawnquest(ctx, *args, **details):
             active_quest.level = args[2]
             await active_quest._calculate_stats()
         player.save()
-        await util.say(ctx.channel,
+        await util.reply(ctx,
                        ":cloud_lightning: Spawned **" + quest.name_clean + "** [Level " + str(active_quest.level) + "]")
     except:
         raise util.BattleBananaException(ctx.channel, "Failed to spawn quest!")
@@ -67,7 +67,7 @@ async def questinfo(ctx, quest_index, **details):
     player = details["author"]
     quest_index -= 1
     if 0 <= quest_index < len(player.quests):
-        await imagehelper.quest_screen(ctx.channel, player.quests[quest_index])
+        await imagehelper.quest_screen(ctx, player.quests[quest_index])
     else:
         raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:questinfo:NotFound"))
 
@@ -82,7 +82,7 @@ async def myquests(ctx, page=1, **details):
     # Always show page 1 (0)
     if page != 0 and page * 5 >= len(player.quests):
         raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "quest:myquests:PNotFound"))
-    await imagehelper.quests_screen(ctx.channel, player, page)
+    await imagehelper.quests_screen(ctx, player, page)
 
 
 @commands.command(args_pattern='C', aliases=['aq'])
@@ -160,8 +160,8 @@ async def acceptquest(ctx, quest_index, **details):
     else:
         quest_results = translations.translate(ctx, "quest:acceptquest:Tie")
     battle_embed.add_field(name=translations.translate(ctx, "quest:acceptquest:QResult"), value=quest_results, inline=False)
-    await imagehelper.battle_screen(ctx.channel, player, quest)
-    await util.say(ctx.channel, embed=battle_embed)
+    await imagehelper.battle_screen(ctx, player, quest)
+    await util.reply(ctx, embed=battle_embed)
     # Put this here to avoid 'spoiling' results before battle log
     if winner == player:
         await awards.give_award(ctx.channel, player, "QuestDone", "*Saved* the guild!")
@@ -283,7 +283,7 @@ async def acceptquest(ctx, quest_index, **details):
 #    #    battle_embed.add_field(name="Total turns", value=(str(round(totalTurns))))
 #    battle_embed.set_footer(text="If the added money is negative, then you lost more money from losing battles than you gained from winning them.")
 #    
-#    await util.say(ctx.channel, embed=battle_embed)
+#    await util.reply(ctx, embed=battle_embed)
 #
 #    if wins > 0:
 #        await awards.give_award(ctx.channel, player, "QuestDone", "*Saved* the guild!")
@@ -428,7 +428,7 @@ async def editquest(ctx, quest_name, updates, **_):
         result = e.QUEST + translations.translate(ctx, "quest:editquest:Updates", quest.name_clean)
         for quest_property, update_result in updates.items():
             result += ("``%s`` → %s\n" % (quest_property, update_result))
-        await util.say(ctx.channel, result)
+        await util.reply(ctx, result)
         if new_image_url is not None:
             await imagehelper.warn_on_invalid_image(ctx.channel, new_image_url)
 
@@ -481,7 +481,7 @@ async def serverquests(ctx, page=1, **details):
                                       footer_more="But wait there more! Do %sserverquests %d" % (details["cmd_key"], page+2),
                                       empty_list="There are no quests on this guild!\nHow sad.")
 
-        await util.say(ctx.channel, embed=quest_list_embed)
+        await util.reply(ctx, embed=quest_list_embed)
     else:
         # TODO: Improve
         quest_info_embed = discord.Embed(type="rich", color=gconf.DUE_COLOUR)
@@ -511,4 +511,4 @@ async def serverquests(ctx, page=1, **details):
                                                                    % quest.get_channel_mention(ctx.guild)),
                                    inline=False)
         quest_info_embed.set_thumbnail(url=quest.image_url)
-        await util.say(ctx.channel, embed=quest_info_embed)
+        await util.reply(ctx, embed=quest_info_embed)

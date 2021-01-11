@@ -296,7 +296,7 @@ async def shop(ctx, *args, **details):
         for department_info in departments.values():
             department_available += "``" + details["cmd_key"] + "shop " + department_info["alias"][0] + "``\n"
         shop_help = translations.translate(ctx, "general:shop:ShopHelp")
-        await util.say(ctx.channel, greet + department_available + shop_help)
+        await util.reply(ctx, greet + department_available + shop_help)
     else:
         # If 1 args could be department or name.
         # If two. Department then name.
@@ -304,10 +304,10 @@ async def shop(ctx, *args, **details):
         if department is not None:
             list_action = department["actions"]["list_action"]
             if len(args) == 1:
-                await util.say(ctx.channel, embed=list_action(ctx, 0, **details))
+                await util.reply(ctx, embed=list_action(ctx, 0, **details))
             else:
                 if type(args[1]) is int:
-                    await util.say(ctx.channel, embed=list_action(ctx, args[1] - 1, **details))
+                    await util.reply(ctx, embed=list_action(ctx, args[1] - 1, **details))
                 else:
                     # Use item_action since it will do the check if item exists
                     await item_action(ctx, args[1], "info_action", department=department, **details)

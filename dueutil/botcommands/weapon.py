@@ -28,7 +28,7 @@ async def myweapons(ctx, *args, **details):
                                     value=translations.translate(ctx, "weapon:myweapons:NoWepDes"))
         weapon_store.description = translations.translate(ctx, "weapon:myweapons:EquiptedWeps") + str(player.weapon)
         weapon_store.set_footer(text=translations.translate(ctx, "weapon:myweapons:Footer"))
-        await util.say(ctx.channel, embed=weapon_store)
+        await util.reply(ctx, embed=weapon_store)
     else:
         weapon_name = page
         if player.equipped["weapon"] != weapons.NO_WEAPON_ID:
@@ -37,7 +37,7 @@ async def myweapons(ctx, *args, **details):
         if weapon is not None:
             embed = discord.Embed(type="rich", color=gconf.DUE_COLOUR)
             info = weapon_info(**details, weapon=weapon, price_divisor=4 / 3, embed=embed)
-            await util.say(ctx.channel, embed=info)
+            await util.reply(ctx, embed=info)
         else:
             raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "weapon:myweapons:NoWepName"))
 
@@ -58,7 +58,7 @@ async def unequip(ctx, _=None, **details):
     player.store_weapon(weapon)
     player.weapon = weapons.NO_WEAPON_ID
     player.save()
-    await util.say(ctx.channel, ":white_check_mark: **" + weapon.name_clean + "**"+translations.translate(ctx, "weapon:unequip:UnEquip"))
+    await util.reply(ctx, ":white_check_mark: **" + weapon.name_clean + "**"+translations.translate(ctx, "weapon:unequip:UnEquip"))
 
 
 @commands.command(args_pattern='S', aliases=["eq"])
@@ -73,7 +73,7 @@ async def equip(ctx, weapon_name, **details):
     if weapon is None:
         if weapon_name != current_weapon.name.lower():
             raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "weapon:equip:NotStored"))
-        await util.say(ctx.channel, translations.translate(ctx, "weapon:equip:AlreadyEquip"))
+        await util.reply(ctx, translations.translate(ctx, "weapon:equip:AlreadyEquip"))
         return
 
     player.discard_stored_weapon(weapon)
@@ -87,7 +87,7 @@ async def equip(ctx, weapon_name, **details):
     player.weapon = weapon
     player.save()
 
-    await util.say(ctx.channel, ":white_check_mark: **" + weapon.name_clean + "** "+translations.translate(ctx, "weapon:equip:Equipped"))
+    await util.reply(ctx, ":white_check_mark: **" + weapon.name_clean + "** "+translations.translate(ctx, "weapon:equip:Equipped"))
 
 
 @misc.paginator
@@ -116,8 +116,8 @@ async def battle(ctx, *args, **details):
 
     battle_log = battles.get_battle_log(ctx, player_one=player_one, player_two=player_two)
 
-    await imagehelper.battle_screen(ctx.channel, player_one, player_two)
-    await util.say(ctx.channel, embed=battle_log.embed)
+    await imagehelper.battle_screen(ctx, player_one, player_two)
+    await util.reply(ctx, embed=battle_log.embed)
     if battle_log.winner is None:
         # Both players get the draw battle award
         awards.give_award(ctx.channel, player_one, "InconceivableBattle")
@@ -141,7 +141,7 @@ async def wagerbattle(ctx, receiver, money, **details):
 
     battles.BattleRequest(sender, receiver, money)
 
-    await util.say(ctx.channel, ("**" + sender.name_clean + "** wagers **" + receiver.name_clean + "** ``"
+    await util.reply(ctx, ("**" + sender.name_clean + "** wagers **" + receiver.name_clean + "** ``"
                                  + util.format_number(money, full_precision=True,
                                                       money=True) + "``"+translations.translate(ctx, "weapon:wagerbattle:Message")))
 
@@ -171,7 +171,7 @@ async def mywagers(ctx, page=1, **details):
         wager_list_embed.add_field(name="No wagers received!",
                                    value="Wager requests you get from other players will appear here.")
 
-    await util.say(ctx.channel, embed=wager_list_embed)
+    await util.reply(ctx, embed=wager_list_embed)
 
 
 @commands.command(args_pattern='C', aliases=["aw"])
@@ -242,8 +242,8 @@ async def acceptwager(ctx, wager_index, **details):
         wager_results = translations.translate(ctx, "weapon:acceptwager:Draw")
     stats.increment_stat(stats.Stat.MONEY_TRANSFERRED, total_transferred)
     battle_embed.add_field(name="Wager results", value=wager_results, inline=False)
-    await imagehelper.battle_screen(ctx.channel, player, sender)
-    await util.say(ctx.channel, embed=battle_embed)
+    await imagehelper.battle_screen(ctx, player, sender)
+    await util.reply(ctx, embed=battle_embed)
     if winner is not None:
         await awards.give_award(ctx.channel, winner, "YouWin", "Win a wager")
         await awards.give_award(ctx.channel, loser, "YouLose", "Lose a wager!")
@@ -331,7 +331,7 @@ async def editweapon(ctx, weapon_name, updates, **_):
         result = weapon.icon+" **"+weapon.name_clean+"** "+translations.translate(ctx, "other:singleword:Updates")+"!\n"
         for weapon_property, update_result in updates.items():
             result += "``%s`` → %s\n" % (weapon_property, update_result)
-        await util.say(ctx.channel, result)
+        await util.reply(ctx, result)
         if new_image_url is not None:
             await imagehelper.warn_on_invalid_image(ctx.channel, new_image_url)
 

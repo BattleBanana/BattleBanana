@@ -15,7 +15,6 @@ async def say(ctx, path, *args, **kwargs):
     #    clients[0].run_task(say, *((channel,) + args), **kwargs)
     #else:
     try:
-        channel = ctx.channel
         string = str(path).split(":")
         lan = dueserverconfig.get_language(ctx.guild.id)
         try:
@@ -32,7 +31,7 @@ async def say(ctx, path, *args, **kwargs):
             prefix = dueserverconfig.server_cmd_key(ctx.guild)
             msg = msg.replace("[CMD_KEY]", prefix)
  
-        return await channel.send((msg % args), **kwargs)
+        return await ctx.reply((msg % args), **kwargs)
     except discord.Forbidden as send_error:
         raise util.SendMessagePermMissing(send_error)
 

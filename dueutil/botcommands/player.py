@@ -26,7 +26,7 @@ async def daily(ctx, **details):
     
     player.money += BALANCED_AMOUNT
     player.save()
-    await util.say(ctx.channel, e.BBT + f' {random.choice(responses).format(user=f"**{player}**", daily=f"¤{BALANCED_AMOUNT}")}')
+    await util.reply(ctx, e.BBT + f' {random.choice(responses).format(user=f"**{player}**", daily=f"¤{BALANCED_AMOUNT}")}')
 
 @commands.command(args_pattern=None)
 @commands.ratelimit(cooldown=21600, error="player:train:RateLimit", save=True)
@@ -67,7 +67,7 @@ async def weekly(ctx, **details):
         new_quest = await quests.ActiveQuest.create(quest.q_id, player)
         stats.increment_stat(stats.Stat.QUESTS_GIVEN)
         if dueserverconfig.mute_level(ctx.channel) < 0:
-            await imagehelper.new_quest_screen(channel, new_quest, player)
+            await imagehelper.new_quest_screen(ctx, new_quest, player)
         else:
             util.logger.info("Won't send new quest image - channel blocked.")
 
@@ -100,7 +100,7 @@ async def battlename(ctx, name="", **details):
 async def myinfo(ctx, **details):
     """player:myinfo:Help"""
 
-    await imagehelper.stats_screen(ctx.channel, details["author"])
+    await imagehelper.stats_screen(ctx, details["author"])
 
 
 def player_profile_url(player_id):
@@ -140,7 +140,7 @@ async def profile(ctx, player, **_):
 async def info(ctx, player, **_):
     """player:info:Help"""
 
-    await imagehelper.stats_screen(ctx.channel, player)
+    await imagehelper.stats_screen(ctx, player)
 
 
 async def show_awards(ctx, player, page=0):
@@ -148,7 +148,7 @@ async def show_awards(ctx, player, page=0):
     if page != 0 and page * 5 >= len(player.awards):
         raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "player:info:Error"))
 
-    await imagehelper.awards_screen(ctx.channel, player, page,
+    await imagehelper.awards_screen(ctx, player, page,
                                     is_player_sender=ctx.author.id == player.id)
 
 
@@ -254,7 +254,7 @@ async def sendquest(ctx, receiver, quest_index, message="", **details):
     transaction_log.set_footer(text=translations.translate(ctx, "other:common:TReceipt"))
     util.logger.info("%s (%s) sent %s to %s (%s)", plr.name, plr.id, quest_name + ", level " + quest_level, receiver.name, receiver.id)
 
-    await util.say(ctx.channel, embed=transaction_log)
+    await util.reply(ctx, embed=transaction_log)
 
 
 @commands.command(args_pattern='PP?')
@@ -293,7 +293,7 @@ async def compare(ctx, player1, player2=None, **details):
         inline=True
     )
 
-    await util.say(ctx.channel, embed=compare_Embed)
+    await util.reply(ctx, embed=compare_Embed)
 
 @commands.command(args_pattern='PCS?', aliases=["sc"])
 async def sendcash(ctx, receiver, transaction_amount, message="", **details):
@@ -337,7 +337,7 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
     transaction_log.set_footer(text=translations.translate(ctx, "other:common:TReceipt"))
     util.logger.info("%s (%s) sent %s to %s (%s)", sender.name, sender.id, amount_string, receiver.name, receiver.id)
 
-    await util.say(ctx.channel, embed=transaction_log)
+    await util.reply(ctx, embed=transaction_log)
 
 @commands.command(args_pattern="S?")
 @commands.require_cnf(warning="player:prestige:CNF")
@@ -375,7 +375,7 @@ async def myprestige(ctx, player=None, **details):
                                     ("satisfy the money requirement" if req_money <= player.money else "need **%s%s** to afford the next prestige." 
                                     % (util.format_number_precise(req_money - player.money), e.BBT)))
     
-    await util.say(ctx.channel, message)
+    await util.reply(ctx, message)
 
 @commands.command(hidden=True, args_pattern=None)
 async def benfont(ctx, **details):

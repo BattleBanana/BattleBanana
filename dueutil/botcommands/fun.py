@@ -55,7 +55,7 @@ async def eyes(ctx, eye_description="", **details):
         no modifiers - Procedurally generated eyes!!!111
     """
     details["author"].misc_stats["art_created"] += 1
-    await imagehelper.googly_eyes(ctx.channel, eye_description)
+    await imagehelper.googly_eyes(ctx, eye_description)
 
 
 @commands.command(args_pattern="C?", aliases=("globalrankings", "globalleaderboard", "gleaderboard"))
@@ -112,7 +112,7 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
         last_updated = leaderboards.last_leaderboard_update
 
     if leaderboard_data is None or len(leaderboard_data) == 0:
-        await util.say(ctx.channel, "The %s leaderboard has yet to be calculated!\n" % ranks
+        await util.reply(ctx, "The %s leaderboard has yet to be calculated!\n" % ranks
                        + "Check again soon!")
         return
 
@@ -152,7 +152,7 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
                                           % (details["cmd_key"], "" if local else " global", page + 2), inline=False)
     leaderboard_embed.set_footer(text="Leaderboard calculated "
                                       + repoze.timeago.get_elapsed(datetime.utcfromtimestamp(last_updated)))
-    await util.say(ctx.channel, embed=leaderboard_embed)
+    await util.reply(ctx, embed=leaderboard_embed)
 
 
 async def rank_command(ctx, player, ranks="", **details):
@@ -171,13 +171,13 @@ async def rank_command(ctx, player, ranks="", **details):
 
     if position != -1:
         page = position // 10 + (1 * position % 10 != 0)
-        await util.say(ctx.channel, (":sparkles: " + ("You're" if player_is_author else player_name + " is")
+        await util.reply(ctx, (":sparkles: " + ("You're" if player_is_author else player_name + " is")
                                      + (" **{0}** on the{4}{3} leaderboard!\n"
                                         + "That's on page {1} (``{2}leaderboard{4}{3} {5}``)!")
                                      .format(util.int_to_ordinal(position), page,
                                              details["cmd_key"], ranks, padding, page if page > 1 else "")))
     else:
-        await util.say(ctx.channel, (":confounded: I can't find "
+        await util.reply(ctx, (":confounded: I can't find "
                                      + ("you" if player_is_author else player_name)
                                      + " on the {}{}leaderboard!?\n".format(ranks, padding)
                                      + "You'll need to wait till it next updates!" * player_is_author))
@@ -289,11 +289,11 @@ async def topdog(ctx, **_):
     top_dog_stats = awards.get_award_stat("TopDog")
     if top_dog_stats is not None and "top_dog" in top_dog_stats:
         top_dog = players.find_player(int(top_dog_stats["top_dog"]))
-        await util.say(ctx.channel, (":dog: The current top dog is **%s** (%s)!\n"
+        await util.reply(ctx, (":dog: The current top dog is **%s** (%s)!\n"
                                      + "They are the **%s** to earn the rank of top dog!")
                        % (top_dog, top_dog.id, util.int_to_ordinal(top_dog_stats["times_given"])))
     else:
-        await util.say(ctx.channel, "There is not a top dog yet!")
+        await util.reply(ctx, "There is not a top dog yet!")
         
         
 @commands.command(args_pattern=None, aliases=["btd"])
@@ -317,8 +317,8 @@ async def battletopdog(ctx, **details):
     
     battle_log = battles.get_battle_log(ctx, player_one=player, player_two=top_dog)
 
-    await imagehelper.battle_screen(ctx.channel, player, top_dog)
-    await util.say(ctx.channel, embed=battle_log.embed)
+    await imagehelper.battle_screen(ctx, player, top_dog)
+    await util.reply(ctx, embed=battle_log.embed)
     if battle_log.winner is None:
         # Both players get the draw battle award
         awards.give_award(ctx.channel, player, "InconceivableBattle")
@@ -340,7 +340,7 @@ async def viewtopdog(ctx, **_):
     if top_dog is None:
         raise util.BattleBananaException(ctx.channel, "Sorry there was an error trying to find the topdog!")
 
-    await imagehelper.stats_screen(ctx.channel, top_dog)
+    await imagehelper.stats_screen(ctx, top_dog)
 
 
 async def show_awards(ctx, top_dog, page=0):
@@ -362,7 +362,7 @@ async def pandemic(ctx, **_):
     virus_stats = awards.get_award_stat("Duerus")
 
     if virus_stats is None or virus_stats["times_given"] == 0:
-        await util.say(ctx.channel, "All looks good now though a pandemic could break out any day.")
+        await util.reply(ctx, "All looks good now though a pandemic could break out any day.")
         return
 
     warning_symbols = {0: ":heart: - Healthy", 1: ":yellow_heart: - Worrisome", 2: ":black_heart: - Doomed"}
@@ -393,7 +393,7 @@ async def pandemic(ctx, **_):
     pandemic_embed.add_field(name="Health level",
                              value=warning_symbols.get(pandemic_level, warning_symbols[2]))
 
-    await util.say(ctx.channel, embed=pandemic_embed)
+    await util.reply(ctx, embed=pandemic_embed)
 
 @commands.command(args_pattern=None)
 async def minecraft(ctx, **_):
@@ -407,7 +407,7 @@ async def minecraft(ctx, **_):
     embed.add_field(name="Minecraft version:", value="1.16.1")
     embed.add_field(name="Server address:", value="mc.battlebanana.xyz")
 
-    await util.say(ctx.channel, f"{emojis.QUESTER} Official BananaCraft server!", embed=embed)
+    await util.reply(ctx, f"{emojis.QUESTER} Official BananaCraft server!", embed=embed)
 
 @commands.command(args_pattern="C?", aliases=["tdh"])
 async def topdoghistory(ctx, page=1, **details):
@@ -449,7 +449,7 @@ async def topdoghistory(ctx, page=1, **details):
     
     embed.add_field(name="Previous topdogs:", value=tdstring, inline=False)
 
-    await util.say(ctx.channel, embed=embed)
+    await util.reply(ctx, embed=embed)
 
 # import aiohttp
 # @commands.command(args_pattern=None)
@@ -458,9 +458,9 @@ async def topdoghistory(ctx, page=1, **details):
 #         async with session.get(url="https://sv443.net/jokeapi/category/Dark") as response:
 #             json = await response.json()
 #             if json['type'] == "twopart":
-#                 await util.say(ctx.channel, f"{json['setup']}\n{json['delivery']}")
+#                 await util.reply(ctx, f"{json['setup']}\n{json['delivery']}")
 #             else:
-#                 await util.say(ctx.channel, json["joke"])
+#                 await util.reply(ctx, json["joke"])
 
 # import random
 # @commands.command(args_pattern=None)
@@ -472,6 +472,6 @@ async def topdoghistory(ctx, page=1, **details):
 #     """
 #     randomnumber = random.randint(1, 100)
 #     if randomnumber >= 50:
-#         await util.say(ctx.channel, "%s is a fool!1!!11 :confused:" % (ctx.author.mention))
+#         await util.reply(ctx, "%s is a fool!1!!11 :confused:" % (ctx.author.mention))
 #     else:
-#         await util.say(ctx.channel, "%s is not a fool!1!11!1! :smiley:" % (ctx.author.mention))
+#         await util.reply(ctx, "%s is not a fool!1!11!1! :smiley:" % (ctx.author.mention))
