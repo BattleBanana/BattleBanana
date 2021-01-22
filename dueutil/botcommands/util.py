@@ -96,7 +96,7 @@ async def help(ctx, *args, **details):
         help_embed.set_footer(
             text="To use admin commands you must have the manage guild permission or the 'Banana Commander' role.")
 
-    await util.say(ctx.channel, embed=help_embed)
+    await util.reply(ctx, embed=help_embed)
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
@@ -111,7 +111,7 @@ async def invite(ctx, **_):
     invite_embed.description = "Here are 2 important links about me! :smiley:"
     invite_embed.add_field(name="Invite me:", value=("[Here](%s)" % gconf.BOT_INVITE), inline=True)
     invite_embed.add_field(name="Support guild:", value="[Here](https://discord.gg/P7DBDEC)", inline=True)
-    await util.say(ctx.channel, embed=invite_embed)
+    await util.reply(ctx, embed=invite_embed)
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
@@ -127,7 +127,7 @@ async def donate(ctx, **_):
     donation_embed = discord.Embed(title="Donate", type="rich", color=gconf.DUE_COLOUR)
     donation_embed.add_field(name="Patreon", value="[Here](https://patreon.com/developeranonymous)", inline=True)
 
-    await util.say(ctx.channel, embed=donation_embed)
+    await util.reply(ctx, embed=donation_embed)
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
@@ -149,7 +149,7 @@ async def botinfo(ctx, **_):
     info_embed.add_field(name="Invite BB!", value="%s" % gconf.BOT_INVITE, inline=False)
     info_embed.add_field(name="Support guild",
                          value="For help with the bot or a laugh join **https://discord.gg/P7DBDEC**!")
-    await util.say(ctx.channel, embed=info_embed)
+    await util.reply(ctx, embed=info_embed)
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
@@ -161,7 +161,7 @@ async def prefix(ctx, **details):
     """
 
     server_prefix = dueserverconfig.server_cmd_key(ctx.guild)
-    await util.say(ctx.channel, "The prefix on **%s** is ``%s``" % (details.get("server_name_clean"), server_prefix))
+    await util.reply(ctx, "The prefix on **%s** is ``%s``" % (details.get("server_name_clean"), server_prefix))
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
@@ -211,7 +211,7 @@ async def botstats(ctx, **_):
                                  % util.display_time(time.time() - client.start_time, granularity=4)),
                           inline=False)
 
-    await util.say(ctx.channel, embed=stats_embed)
+    await util.reply(ctx, embed=stats_embed)
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
@@ -224,7 +224,7 @@ async def servers(ctx, **_):
     """
 
     server_count = util.get_server_count()
-    await util.say(ctx.channel, "BattleBanana is active on **" + str(server_count) + " guild"
+    await util.reply(ctx, "BattleBanana is active on **" + str(server_count) + " guild"
                    + ("s" if server_count != 1 else "") + "**")
 
 
@@ -241,7 +241,7 @@ async def setcmdkey(ctx, new_key, **details):
 
     if len(new_key) in (1, 2):
         dueserverconfig.server_cmd_key(ctx.guild, new_key)
-        await util.say(ctx.channel,
+        await util.reply(ctx,
                        "Command prefix on **" + details["server_name_clean"] + "** set to ``" + new_key + "``!")
     else:
         raise util.BattleBananaException(ctx.channel, "Command prefixes can only be one or two characters!")
@@ -262,11 +262,11 @@ async def shutup(ctx, *args, **details):
     if len(args) == 0:
         mute_success = dueserverconfig.mute_channel(ctx.channel)
         if mute_success:
-            await util.say(ctx.channel, (":mute: I won't send any alerts in this channel!\n"
+            await util.reply(ctx, (":mute: I won't send any alerts in this channel!\n"
                                          + "If you meant to disable commands too do ``" + details[
                                              "cmd_key"] + "shutup all``."))
         else:
-            await util.say(ctx.channel, (":mute: I've already been set not to send alerts in this channel!\n"
+            await util.reply(ctx, (":mute: I've already been set not to send alerts in this channel!\n"
                                          + "If you want to disable commands too do ``" + details["cmd_key"]
                                          + "shutup all``.\n"
                                          + "To unmute me do ``" + details["cmd_key"] + "unshutup``."))
@@ -275,13 +275,13 @@ async def shutup(ctx, *args, **details):
         if mute_level == "all":
             mute_success = dueserverconfig.mute_channel(ctx.channel, mute_all=True)
             if mute_success:
-                await util.say(ctx.channel, ":mute: Disabled all commands in this channel for non-admins!")
+                await util.reply(ctx, ":mute: Disabled all commands in this channel for non-admins!")
             else:
-                await util.say(ctx.channel, (":mute: Already mute af in this channel!.\n"
+                await util.reply(ctx, (":mute: Already mute af in this channel!.\n"
                                              + "To allow commands & alerts again do ``" + details[
                                                  "cmd_key"] + "unshutup``."))
         else:
-            await util.say(ctx.channel, ":thinking: If you wanted to mute all the command is ``" + details[
+            await util.reply(ctx, ":thinking: If you wanted to mute all the command is ``" + details[
                 "cmd_key"] + "shutup all``.")
 
 
@@ -302,7 +302,7 @@ async def leave(ctx, **_):
 
     bye_embed = discord.Embed(title="Goodbye!", color=gconf.DUE_COLOUR)
     bye_embed.set_image(url="http://i.imgur.com/N65P9gL.gif")
-    await util.say(ctx.channel, embed=bye_embed)
+    await util.reply(ctx, embed=bye_embed)
     try:
         await ctx.guild.leave()
     except:
@@ -319,10 +319,10 @@ async def unshutup(ctx, **_):
 
     """
     if dueserverconfig.unmute_channel(ctx.channel):
-        await util.say(ctx.channel,
+        await util.reply(ctx,
                        ":speaker: Okay! I'll once more send alerts and listen for commands in this channel!")
     else:
-        await util.say(ctx.channel, ":thinking: Okay... I'm unmuted but I was not muted anyway.")
+        await util.reply(ctx, ":thinking: Okay... I'm unmuted but I was not muted anyway.")
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern="S*")
@@ -348,15 +348,15 @@ async def whitelist(ctx, *args, **_):
         whitelisted_commands = set(commands.replace_aliases([command.lower() for command in args]))
         if whitelisted_commands.issubset(due_commands):
             dueserverconfig.set_command_whitelist(ctx.channel, list(whitelisted_commands))
-            await util.say(ctx.channel, (":notepad_spiral: Whitelist in this channel set to the following commands: ``"
+            await util.reply(ctx, (":notepad_spiral: Whitelist in this channel set to the following commands: ``"
                                          + ', '.join(whitelisted_commands) + "``"))
         else:
             incorrect_commands = whitelisted_commands.difference(due_commands)
-            await util.say(ctx.channel, (":confounded: Cannot set whitelist! The following commands don't exist: ``"
+            await util.reply(ctx, (":confounded: Cannot set whitelist! The following commands don't exist: ``"
                                          + ', '.join(incorrect_commands) + "``"))
     else:
         dueserverconfig.set_command_whitelist(ctx.channel, [])
-        await util.say(ctx.channel, ":pencil: Command whitelist set back to all commands.")
+        await util.reply(ctx, ":pencil: Command whitelist set back to all commands.")
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern="S*")
@@ -385,15 +385,15 @@ async def blacklist(ctx, *args, **_):
             whitelisted_commands = list(set(due_commands).difference(blacklisted_commands))
             whitelisted_commands.append("is_blacklist")
             dueserverconfig.set_command_whitelist(ctx.channel, whitelisted_commands)
-            await util.say(ctx.channel, (":notepad_spiral: Blacklist in this channel set to the following commands: ``"
+            await util.reply(ctx, (":notepad_spiral: Blacklist in this channel set to the following commands: ``"
                                          + ', '.join(blacklisted_commands) + "``"))
         else:
             incorrect_commands = blacklisted_commands.difference(due_commands)
-            await util.say(ctx.channel, (":confounded: Cannot set blacklist! The following commands don't exist: ``"
+            await util.reply(ctx, (":confounded: Cannot set blacklist! The following commands don't exist: ``"
                                          + ', '.join(incorrect_commands) + "``"))
     else:
         dueserverconfig.set_command_whitelist(ctx.channel, [])
-        await util.say(ctx.channel, ":pencil: Command blacklist removed.")
+        await util.reply(ctx, ":pencil: Command blacklist removed.")
 
 
 @commands.command(permission=Permission.REAL_SERVER_ADMIN, args_pattern=None)
@@ -412,9 +412,9 @@ async def setuproles(ctx, **_):
         result = ":white_check_mark: Created **%d %s**!\n" % (roles_count, util.s_suffix("role", roles_count))
         for role in roles_made:
             result += "→ ``%s``\n" % role["name"]
-        await util.say(ctx.channel, result)
+        await util.reply(ctx, result)
     else:
-        await util.say(ctx.channel, "No roles need to be created!")
+        await util.reply(ctx, "No roles need to be created!")
 
 
 async def optout_is_topdog_check(channel, player):
@@ -451,10 +451,10 @@ async def optout(ctx, **details):
             raise util.BattleBananaException(ctx.channel,
                                              "You cannot optout everywhere and stay a BattleBanana mod or admin!")
         permissions.give_permission(ctx.author, Permission.DISCORD_USER)
-        await util.say(ctx.channel, (":ok_hand: You've opted out of BattleBanana everywhere.\n"
+        await util.reply(ctx, (":ok_hand: You've opted out of BattleBanana everywhere.\n"
                                      + "You won't get exp, quests, and other players can't use you in commands."))
     else:
-        await util.say(ctx.channel, ("You've already opted out everywhere!\n"
+        await util.reply(ctx, ("You've already opted out everywhere!\n"
                                      + "You can join the fun again with ``%soptin``." % details["cmd_key"]))
 
 
@@ -473,13 +473,13 @@ async def optin(ctx, **details):
     # Already playing
     if player.is_playing():
         if not local_optout:
-            await util.say(ctx.channel, "You've already opted in everywhere!")
+            await util.reply(ctx, "You've already opted in everywhere!")
         else:
-            await util.say(ctx.channel, ("You've only opted out on this guild!\n"
+            await util.reply(ctx, ("You've only opted out on this guild!\n"
                                          + "To optin here do ``%soptinhere``" % details["cmd_key"]))
     else:
         permissions.give_permission(ctx.author, Permission.PLAYER)
-        await util.say(ctx.channel, ("You've opted in everywhere"
+        await util.reply(ctx, ("You've opted in everywhere"
                                      + (" (does not override your guild level optout)" * local_optout) + "!\n"
                                      + "Glad to have you back."))
 
@@ -496,22 +496,22 @@ async def optouthere(ctx, **details):
     player = details["author"]
 
     if not player.is_playing():
-        await util.say(ctx.channel, "You've already opted out everywhere!")
+        await util.reply(ctx, "You've already opted out everywhere!")
         return
 
     if player.is_playing(ctx.author, local=True):
         optout_role = util.get_role_by_name(ctx.guild, gconf.OPTOUT_ROLE)
         if optout_role is None:
-            await util.say(ctx.channel, ("There is no optout role on this guild!\n"
+            await util.reply(ctx, ("There is no optout role on this guild!\n"
                                          + "Ask an admin to run ``%ssetuproles``" % details["cmd_key"]))
         else:
             if await optout_is_topdog_check(ctx.channel, player):
                 return
             await ctx.author.add_roles(optout_role)
-            await util.say(ctx.channel, (":ok_hand: You've opted out of BattleBanana on this guild!\n"
+            await util.reply(ctx, (":ok_hand: You've opted out of BattleBanana on this guild!\n"
                                          + "You won't get exp, quests or be able to use commands here."))
     else:
-        await util.say(ctx.channel, ("You've already opted out on this sever!\n"
+        await util.reply(ctx, ("You've already opted out on this sever!\n"
                                      + "Join the fun over here do ``%soptinhere``" % details["cmd_key"]))
 
 
@@ -529,16 +529,16 @@ async def optinhere(ctx, **details):
     optout_role = util.get_role_by_name(ctx.guild, gconf.OPTOUT_ROLE)
     if optout_role is not None and not player.is_playing(ctx.author, local=True):
         await ctx.author.remove_roles(optout_role)
-        await util.say(ctx.channel, ("You've opted in on this guild!\n"
+        await util.reply(ctx, ("You've opted in on this guild!\n"
                                      + ("However this is overridden by your global optout.\n"
                                         + "To optin everywhere to ``%soptin``" % details["cmd_key"])
                                      * globally_opted_out))
     else:
         if globally_opted_out:
-            await util.say(ctx.channel, ("You've opted out of BattleBanana everywhere!\n"
+            await util.reply(ctx, ("You've opted out of BattleBanana everywhere!\n"
                                          + "To use BattleBanana do ``%soptin``" % details["cmd_key"]))
         else:
-            await util.say(ctx.channel, "You've not opted out on this guild.")
+            await util.reply(ctx, "You've not opted out on this guild.")
 
 
 @commands.command(args_pattern=None)
@@ -558,7 +558,7 @@ async def currencies(ctx, **_):
         embed.add_field(name="An error occured!", value="There was an error retrieving Discoin's currencies.")
     embed.set_footer(text="Visit https://dash.discoin.zws.im/#/currencies for exchange rate.")
 
-    await util.say(ctx.channel, embed=embed)
+    await util.reply(ctx, embed=embed)
 
 
 @commands.ratelimit(cooldown=300, error="Your next transfer available is in **[COOLDOWN]**!", save=True)
@@ -588,7 +588,7 @@ async def exchange(ctx, amount, currency, **details):
 
     amount = int(amount)
     if player.money - amount < 0:
-        await util.say(ctx.channel, "You do not have **%s**!\n"
+        await util.reply(ctx, "You do not have **%s**!\n"
                        % util.format_number(amount, full_precision=True, money=True)
                        + "The maximum you can exchange is **%s**"
                        % util.format_number(player.money, full_precision=True, money=True))
@@ -623,7 +623,7 @@ async def exchange(ctx, amount, currency, **details):
     exchange_embed.add_field(name="Receipt:", value=receipt, inline=False)
     exchange_embed.set_footer(text="Keep the receipt for if something goes wrong!")
 
-    await util.say(ctx.channel, embed=exchange_embed)
+    await util.reply(ctx, embed=exchange_embed)
 
     to = transaction.get("to")
     toID = to.get("id")
@@ -658,4 +658,4 @@ async def status(ctx, message=None, **details):
         await client.change_presence(activity=discord.Activity(name=message, type=discord.ActivityType.watching),
                                      afk=False)
 
-    await util.say(ctx.channel, "All done!")
+    await util.reply(ctx, "All done!")

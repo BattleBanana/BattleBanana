@@ -51,7 +51,7 @@ async def spawnquest(ctx, *args, **details):
             active_quest.level = args[2]
             await active_quest._calculate_stats()
         player.save()
-        await util.say(ctx.channel,
+        await util.reply(ctx,
                        ":cloud_lightning: Spawned **" + quest.name_clean + "** [Level " + str(active_quest.level) + "]")
     except:
         raise util.BattleBananaException(ctx.channel, "Failed to spawn quest!")
@@ -69,7 +69,7 @@ async def questinfo(ctx, quest_index, **details):
     player = details["author"]
     quest_index -= 1
     if 0 <= quest_index < len(player.quests):
-        await imagehelper.quest_screen(ctx.channel, player.quests[quest_index])
+        await imagehelper.quest_screen(ctx, player.quests[quest_index])
     else:
         raise util.BattleBananaException(ctx.channel, "Quest not found!")
 
@@ -88,7 +88,7 @@ async def myquests(ctx, page=1, **details):
     # Always show page 1 (0)
     if page != 0 and page * 5 >= len(player.quests):
         raise util.BattleBananaException(ctx.channel, "Page not found")
-    await imagehelper.quests_screen(ctx.channel, player, page)
+    await imagehelper.quests_screen(ctx, player, page)
 
 
 @commands.command(args_pattern='C', aliases=['aq'])
@@ -174,8 +174,8 @@ async def acceptquest(ctx, quest_index, **details):
     else:
         quest_results = ":question: Against all you drew with the quest!"
     battle_embed.add_field(name="Quest results", value=quest_results, inline=False)
-    await imagehelper.battle_screen(ctx.channel, player, quest)
-    await util.say(ctx.channel, embed=battle_embed)
+    await imagehelper.battle_screen(ctx, player, quest)
+    await util.reply(ctx, embed=battle_embed)
     # Put this here to avoid 'spoiling' results before battle log
     if winner == player:
         await awards.give_award(ctx.channel, player, "QuestDone", "*Saved* the guild!")
@@ -297,7 +297,7 @@ async def acceptquest(ctx, quest_index, **details):
 #    #    battle_embed.add_field(name="Total turns", value=(str(round(totalTurns))))
 #    battle_embed.set_footer(text="If the added money is negative, then you lost more money from losing battles than you gained from winning them.")
 #    
-#    await util.say(ctx.channel, embed=battle_embed)
+#    await util.reply(ctx, embed=battle_embed)
 #
 #    if wins > 0:
 #        await awards.give_award(ctx.channel, player, "QuestDone", "*Saved* the guild!")
@@ -328,7 +328,7 @@ async def declinequest(ctx, quest_index, **details):
             quest_task = quest_info.task
         else:
             quest_task = "do a long forgotten quest:"
-        await util.say(ctx.channel, ("**" + player.name_clean + "** declined to "
+        await util.reply(ctx, ("**" + player.name_clean + "** declined to "
                                      + quest_task + " **" + quest.name_clean
                                      + " [Level " + str(math.trunc(quest.level)) + "]**!"))
     else:
@@ -352,7 +352,7 @@ async def declineallquests(ctx, **details):
     player.quests.clear()
     player.save()
     
-    await util.say(ctx.channel, "Declined %s quests!" % quests)
+    await util.reply(ctx, "Declined %s quests!" % quests)
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SRRRRS?S?S?%?')
@@ -397,7 +397,7 @@ async def createquest(ctx, name, attack, strg, accy, hp,
         extras['image_url'] = image_url
 
     new_quest = quests.Quest(name, attack, strg, accy, hp, **extras, ctx=ctx)
-    await util.say(ctx.channel, ":white_check_mark: " + util.ultra_escape_string(
+    await util.reply(ctx, ":white_check_mark: " + util.ultra_escape_string(
         new_quest.task) + " **" + new_quest.name_clean + "** is now active!")
     if "image_url" in extras:
         await imagehelper.warn_on_invalid_image(ctx.channel, url=extras["image_url"])
@@ -482,13 +482,13 @@ async def editquest(ctx, quest_name, updates, **_):
 
     # Format result.
     if len(updates) == 0:
-        await util.say(ctx.channel, "You need to provide a valid list of changes for the quest!")
+        await util.reply(ctx, "You need to provide a valid list of changes for the quest!")
     else:
         quest.save()
         result = e.QUEST + " **%s** updates!\n" % quest.name_clean
         for quest_property, update_result in updates.items():
             result += ("``%s`` → %s\n" % (quest_property, update_result))
-        await util.say(ctx.channel, result)
+        await util.reply(ctx, result)
         if new_image_url is not None:
             await imagehelper.warn_on_invalid_image(ctx.channel, new_image_url)
 
@@ -508,7 +508,7 @@ async def removequest(ctx, quest_name, **_):
         raise util.BattleBananaException(ctx.channel, "Quest not found!")
 
     quests.remove_quest_from_server(ctx.guild, quest_name)
-    await util.say(ctx.channel, ":white_check_mark: **" + quest.name_clean + "** is no more!")
+    await util.reply(ctx, ":white_check_mark: **" + quest.name_clean + "** is no more!")
 
 
 @commands.command(permission=Permission.REAL_SERVER_ADMIN, args_pattern="S?")
@@ -523,10 +523,10 @@ async def resetquests(ctx, **_):
 
     quests_deleted = quests.remove_all_quests(ctx.guild)
     if quests_deleted > 0:
-        await util.say(ctx.channel, ":wastebasket: Your quests have been reset—**%d %s** deleted."
+        await util.reply(ctx, ":wastebasket: Your quests have been reset—**%d %s** deleted."
                                     % (quests_deleted, util.s_suffix("quest", quests_deleted)))
     else:
-        await util.say(ctx.channel, "There's no quests to delete!")
+        await util.reply(ctx, "There's no quests to delete!")
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='M?')
@@ -560,7 +560,7 @@ async def serverquests(ctx, page=1, **details):
                                       footer_more="But wait there more! Do %sserverquests %d" % (details["cmd_key"], page+2),
                                       empty_list="There are no quests on this guild!\nHow sad.")
 
-        await util.say(ctx.channel, embed=quest_list_embed)
+        await util.reply(ctx, embed=quest_list_embed)
     else:
         # TODO: Improve
         quest_info_embed = discord.Embed(type="rich", color=gconf.DUE_COLOUR)
@@ -590,4 +590,4 @@ async def serverquests(ctx, page=1, **details):
                                                                    % quest.get_channel_mention(ctx.guild)),
                                    inline=False)
         quest_info_embed.set_thumbnail(url=quest.image_url)
-        await util.say(ctx.channel, embed=quest_info_embed)
+        await util.reply(ctx, embed=quest_info_embed)

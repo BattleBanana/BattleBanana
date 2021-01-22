@@ -56,7 +56,7 @@ async def blackjack(ctx, price, **details):
     blackjack_embed.add_field(name="Dealer's hand (%s)" % (dealer_value), value=dealer_hand)
     blackjack_embed.set_footer(text="Reply with \"hit\" or \"stand\". This prompt will close in 120 seconds")
     
-    msg = await util.say(ctx.channel, embed=blackjack_embed)
+    msg = await util.reply(ctx, embed=blackjack_embed)
     # Player's play
     while True:
         user.last_played = time.time()
@@ -165,7 +165,7 @@ async def russianroulette(ctx, price, **details):
     if price < 1:
        raise util.BattleBananaException(ctx.channel, "You cannot bet under ¤1")
     
-    message = await util.say(ctx.channel, "Click...")
+    message = await util.reply(ctx, "Click...")
     rnd = random.randint(1, 6)
     await asyncio.sleep(random.random() * 2)
     if rnd == 1:

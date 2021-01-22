@@ -37,7 +37,7 @@ async def permissions(ctx, **_):
                                + (":white_check_mark:" if dueutil.permissions.has_permission(ctx.author,
                                                                                              permission)
                                   else ":no_entry:") + "\n")
-    await util.say(ctx.channel, permissions_report)
+    await util.reply(ctx, permissions_report)
 
 
 @commands.command(args_pattern="S*", hidden=True)
@@ -47,7 +47,7 @@ async def test(ctx, *args, **_):
     # print(args[0].__dict__)
     # args[0].save()
     # await imagehelper.test(ctx.channel)
-    await util.say(ctx.channel, ("Yo!!! What up dis be my test command fo show.\n"
+    await util.reply(ctx, ("Yo!!! What up dis be my test command fo show.\n"
                                  "I got deedz args ```" + str(args) + "```!"))
 
 
@@ -62,7 +62,7 @@ async def add(ctx, first_number, second_number, **_):
     """
 
     result = first_number + second_number
-    await util.say(ctx.channel, "Is " + str(result))
+    await util.reply(ctx, "Is " + str(result))
 
 
 @commands.command()
@@ -140,7 +140,7 @@ async def uploadbg(ctx, icon, name, description, url, price, submitter=None, **d
 
     customizations.backgrounds._load_backgrounds()
 
-    await util.say(ctx.channel, ":white_check_mark: Background **" + name + "** has been uploaded!")
+    await util.reply(ctx, ":white_check_mark: Background **" + name + "** has been uploaded!")
     await util.duelogger.info("**%s** added the background **%s**" % (details["author"].name_clean, name))
 
     if submitter is not None:
@@ -162,12 +162,12 @@ async def testbg(ctx, url, **_):
 
     if not imagehelper.has_dimensions(image, (256, 299)):
         width, height = image.size
-        await util.say(ctx.channel, (":thumbsdown: **That does not meet the requirements!**\n"
+        await util.reply(ctx, (":thumbsdown: **That does not meet the requirements!**\n"
                                      + "The tested image had the dimensions ``" + str(width)
                                      + "*" + str(height) + "``!\n"
                                      + "It should be ``256*299``!"))
     else:
-        await util.say(ctx.channel, (":thumbsup: **That looks good to me!**\n"
+        await util.reply(ctx, (":thumbsup: **That looks good to me!**\n"
                                      + "P.s. I can't check for low quality images!"))
 
 
@@ -204,7 +204,7 @@ async def deletebg(ctx, background_to_delete, **details):
 
     customizations.backgrounds._load_backgrounds()
 
-    await util.say(ctx.channel, ":wastebasket: Background **" + background.name_clean + "** has been deleted!")
+    await util.reply(ctx, ":wastebasket: Background **" + background.name_clean + "** has been deleted!")
     await util.duelogger.info(
         "**%s** deleted the background **%s**" % (details["author"].name_clean, background.name_clean))
 
@@ -261,7 +261,7 @@ async def eval(ctx, body, **details):
     try:
         exec(to_compile, env)
     except Exception as e:
-        return await util.say(ctx.channel, f'```py\n{code_in}\n{e.__class__.__name__}: {e}\n```')
+        return await util.reply(ctx, f'```py\n{code_in}\n{e.__class__.__name__}: {e}\n```')
     func = env['func']
     try:
         with redirect_stdout(stdout):
@@ -272,17 +272,17 @@ async def eval(ctx, body, **details):
         value = stdout.getvalue()
         t2 = time.time()
         timep = f"#{(round((t2 - t1) * 1000000)) / 1000} ms"
-        await util.say(ctx.channel, f'```py\n{code_in}\n{value}{traceback.format_exc()}\n{timep}\n```')
+        await util.reply(ctx, f'```py\n{code_in}\n{value}{traceback.format_exc()}\n{timep}\n```')
     else:
         value = stdout.getvalue()
 
         if ret is None:
             if value:
-                await util.say(ctx.channel, f'```py\n{code_in}\n{value}\n{timep}\n```')
+                await util.reply(ctx, f'```py\n{code_in}\n{value}\n{timep}\n```')
             else:
-                await util.say(ctx.channel, f"```py\n{code_in}\n{timep}\n```")
+                await util.reply(ctx, f"```py\n{code_in}\n{timep}\n```")
         else:
-            await util.say(ctx.channel, f'```py\n{code_in}\n{value}{ret}\n{timep}\n```')
+            await util.reply(ctx, f'```py\n{code_in}\n{value}{ret}\n{timep}\n```')
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="CC?B?", hidden=True)
@@ -314,7 +314,7 @@ async def generatecode(ctx, value, count=1, show=True, **details):
         code_Embed.add_field(name="Codes:", value=newcodes)
         code_Embed.set_footer(
             text="These codes can only be used once! Use %sredeem (code) to redeem the prize!" % (details["cmd_key"]))
-        await util.say(ctx.channel, embed=code_Embed)
+        await util.reply(ctx, embed=code_Embed)
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="C?")
@@ -343,7 +343,7 @@ async def codes(ctx, page=1, **details):
     code_Embed.add_field(name="Codes:", value="%s" % (codelist if len(codelist) != 0 else "No code to display!"))
     code_Embed.set_footer(
         text="These codes can only be used once! Use %sredeem (code) to redeem the prize!" % (details["cmd_key"]))
-    await util.say(ctx.channel, embed=code_Embed)
+    await util.reply(ctx, embed=code_Embed)
 
 
 @commands.command(args_pattern="S")
@@ -376,7 +376,7 @@ async def redeem(ctx, code, **details):
         json.dump(codes, code_file, indent=4)
         code_file.close()
 
-        await util.say(ctx.channel, "You successfully reclaimed **%s** !!" % (util.format_money(money)))
+        await util.reply(ctx, "You successfully reclaimed **%s** !!" % (util.format_money(money)))
 
 
 @commands.command(permission=Permission.BANANA_OWNER, args_pattern="PS")
@@ -398,7 +398,7 @@ async def sudo(ctx, victim, command, **_):
             ctx.author = victim.to_member(ctx.guild)
             ctx.author.guild = ctx.guild  # Lie about what guild they're on.
         ctx.content = command
-        await util.say(ctx.channel, ":smiling_imp: Sudoing **" + victim.name_clean + "**!")
+        await util.reply(ctx, ":smiling_imp: Sudoing **" + victim.name_clean + "**!")
         await events.command_event(ctx)
     except util.BattleBananaException as command_failed:
         raise util.BattleBananaException(ctx.channel, 'Sudo failed! "%s"' % command_failed.message)
@@ -418,7 +418,7 @@ async def setpermlevel(ctx, player, level, **_):
     if permission_index < len(permission_list):
         permission = permission_list[permission_index]
         dueutil.permissions.give_permission(member, permission)
-        await util.say(ctx.channel,
+        await util.reply(ctx,
                        "**" + player.name_clean + "** permission level set to ``" + permission.value[1] + "``.")
         if permission == Permission.BANANA_MOD:
             await awards.give_award(ctx.channel, player, "Mod", "Become an mod!")
@@ -441,7 +441,7 @@ async def ban(ctx, player, **_):
     if (player.id in (115269304705875969, 261799488719552513)):
         raise util.BattleBananaException(ctx.channel, "You cannot ban DeveloperAnonymous or Firescoutt")
     dueutil.permissions.give_permission(player.to_member(ctx.guild), Permission.BANNED)
-    await util.say(ctx.channel, emojis.MACBAN + " **" + player.name_clean + "** banned!")
+    await util.reply(ctx, emojis.MACBAN + " **" + player.name_clean + "** banned!")
     await util.duelogger.concern("**%s** has been banned!" % player.name_clean)
 
 
@@ -449,10 +449,10 @@ async def ban(ctx, player, **_):
 async def unban(ctx, player, **_):
     member = player.to_member(ctx.guild)
     if not dueutil.permissions.has_special_permission(member, Permission.BANNED):
-        await util.say(ctx.channel, "**%s** is not banned..." % player.name_clean)
+        await util.reply(ctx, "**%s** is not banned..." % player.name_clean)
         return
     dueutil.permissions.give_permission(member, Permission.PLAYER)
-    await util.say(ctx.channel, ":unicorn: **" + player.name_clean + "** has been unbanned!")
+    await util.reply(ctx, ":unicorn: **" + player.name_clean + "** has been unbanned!")
     await util.duelogger.info("**%s** has been unbanned" % player.name_clean)
 
 
@@ -465,21 +465,21 @@ async def bans(ctx, **_):
             string += "<@%s> (%s)\n" % (k, k)
     bans_embed.add_field(name="There is what I collected about bad people:", value=string or "Nobody is banned!")
 
-    await util.say(ctx.channel, embed=bans_embed)
+    await util.reply(ctx, embed=bans_embed)
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="P")
 async def toggledonor(ctx, player, **_):
     player.donor = not player.donor
     if player.donor:
-        await util.say(ctx.channel, "**%s** is now a donor!" % player.name_clean)
+        await util.reply(ctx, "**%s** is now a donor!" % player.name_clean)
     else:
-        await util.say(ctx.channel, "**%s** is no longer donor" % player.name_clean)
+        await util.reply(ctx, "**%s** is no longer donor" % player.name_clean)
 
 
 @commands.command(permission=Permission.BANANA_OWNER, args_pattern=None)
 async def reloadbot(ctx, **_):
-    await util.say(ctx.channel, ":ferris_wheel: Reloading BattleBanana modules!")
+    await util.reply(ctx, ":ferris_wheel: Reloading BattleBanana modules!")
     await util.duelogger.concern("BattleBanana Reloading!")
     loader.reload_modules(packages=loader.COMMANDS)
     raise util.DueReloadException(ctx.channel)
@@ -497,21 +497,21 @@ async def givecash(ctx, amount, *players, **_):
             toSend += "Subtracted ``" + amount_str + "`` from **" + player.get_name_possession_clean() + "** account!\n"
         player.save()
 
-    await util.say(ctx.channel, toSend)
+    await util.reply(ctx, toSend)
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PI")
 async def setcash(ctx, player, amount, **_):
     player.money = amount
     amount_str = util.format_number(amount, money=True, full_precision=True)
-    await util.say(ctx.channel, "Set **%s** balance to ``%s``" % (player.get_name_possession_clean(), amount_str))
+    await util.reply(ctx, "Set **%s** balance to ``%s``" % (player.get_name_possession_clean(), amount_str))
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PI")
 async def setprestige(ctx, player, prestige, **_):
     player.prestige_level = prestige
     player.save()
-    await util.say(ctx.channel, "Set prestige to **%s** for **%s**" % (prestige, player.get_name_possession_clean()))
+    await util.reply(ctx, "Set prestige to **%s** for **%s**" % (prestige, player.get_name_possession_clean()))
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PS")
@@ -530,7 +530,7 @@ async def giveexp(ctx, player, exp, **_):
     increase_stat = exp / 300
     player.progress(increase_stat, increase_stat, increase_stat,
                     max_exp=math.inf, max_attr=math.inf)
-    await util.say(ctx.channel, "**%s** has been given **%s** exp!"
+    await util.reply(ctx, "**%s** has been given **%s** exp!"
                    % (player.name_clean, util.format_number(exp, full_precision=True)))
     await game.check_for_level_up(ctx, player)
     player.save()
@@ -540,7 +540,7 @@ async def giveexp(ctx, player, exp, **_):
 async def updateleaderboard(ctx, **_):
     leaderboards.last_leaderboard_update = 0
     await leaderboards.update_leaderboards(ctx)
-    await util.say(ctx.channel, ":ferris_wheel: Updating leaderboard!")
+    await util.reply(ctx, ":ferris_wheel: Updating leaderboard!")
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern=None)
@@ -579,7 +579,7 @@ async def updatebot(ctx, **_):
     update_embed = discord.Embed(title=":gear: Updating BattleBanana!", type="rich", color=gconf.DUE_COLOUR)
     update_embed.description = "Pulling lastest version from **github**!"
     update_embed.add_field(name='Changes', value='```' + update_result + '```', inline=False)
-    await util.say(ctx.channel, embed=update_embed)
+    await util.reply(ctx, embed=update_embed)
     update_result = update_result.strip()
     if not (update_result.endswith("is up to date.") or update_result.endswith("up-to-date.") or update_result == "Something went wrong!"):
         await util.duelogger.concern("BattleBanana updating!")
@@ -588,7 +588,7 @@ async def updatebot(ctx, **_):
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern=None)
 async def stopbot(ctx, **_):
-    await util.say(ctx.channel, ":wave: Stopping BattleBanana!")
+    await util.reply(ctx, ":wave: Stopping BattleBanana!")
     await util.duelogger.concern("BattleBanana shutting down!")
     await util.clients[0].change_presence(activity=discord.Activity(name="restarting"), status=discord.Status.idle,
                                           afk=True)
@@ -597,7 +597,7 @@ async def stopbot(ctx, **_):
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern=None)
 async def restartbot(ctx, **_):
-    await util.say(ctx.channel, ":ferris_wheel: Restarting BattleBanana!")
+    await util.reply(ctx, ":ferris_wheel: Restarting BattleBanana!")
     await util.duelogger.concern("BattleBanana restarting!!")
     await util.clients[0].change_presence(activity=discord.Activity(name="restarting"), status=discord.Status.idle,
                                           afk=True)
@@ -608,10 +608,10 @@ async def restartbot(ctx, **_):
 async def meminfo(ctx, **_):
     mem_info = StringIO()
     objgraph.show_most_common_types(file=mem_info)
-    await util.say(ctx.channel, "```%s```" % mem_info.getvalue())
+    await util.reply(ctx, "```%s```" % mem_info.getvalue())
     mem_info = StringIO()
     objgraph.show_growth(file=mem_info)
-    await util.say(ctx.channel, "```%s```" % mem_info.getvalue())
+    await util.reply(ctx, "```%s```" % mem_info.getvalue())
 
 
 @commands.command(args_pattern=None)
@@ -620,7 +620,7 @@ async def ping(ctx, **_):
     [CMD_KEY]ping
     pong! Gives you the response time.
     """
-    message = await util.say(ctx.channel, ":ping_pong:")
+    message = await util.reply(ctx, ":ping_pong:")
     t1 = time.time()
     dbconn.db.command('ping')
     t2 = time.time()
@@ -647,7 +647,7 @@ async def pong(ctx, **_):
     [CMD_KEY]pong
     pong! Gives you the response time.
     """
-    message = await util.say(ctx.channel, ":ping_pong:")
+    message = await util.reply(ctx, ":ping_pong:")
 
     apims = round((message.created_at - ctx.created_at).total_seconds() * 1000)
     latency = round(util.clients[0].latencies[util.get_shard_index(ctx.guild.id)][1] * 1000)
@@ -677,14 +677,14 @@ async def vote(ctx, **_):
                                         "[bots.ondiscord.xyz](https://bots.ondiscord.xyz/bots/464601463440801792)")
     Embed.set_footer(text="You will receive your reward shortly after voting! (Up to 5 minutes)")
 
-    await util.say(ctx.channel, embed=Embed)
+    await util.reply(ctx, embed=Embed)
 
 # @commands.command(permission=Permission.BANANA_ADMIN, args_pattern=None, hidden=True)
 # async def cleartopdogs(ctx, **details):
-#     await util.say(ctx.channel, ":arrows_counterclockwise: Removing every active topdog!")
+#     await util.reply(ctx, ":arrows_counterclockwise: Removing every active topdog!")
 #     for id, v in sorted(game.players.players.items()):
 #         if 'TopDog' in v.awards:
 #             v.awards.remove("TopDog")
 #             v.save()
 
-#     await util.say(ctx.channel, "Scan is done! ")
+#     await util.reply(ctx, "Scan is done! ")
