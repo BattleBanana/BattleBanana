@@ -31,7 +31,7 @@ async def myweapons(ctx, *args, **details):
                                    value="You can buy up to 6 more weapons from the shop and store them here!")
         weapon_store.description = "Currently equipped: " + str(player.weapon)
         weapon_store.set_footer(text="Do " + details["cmd_key"] + "equip (weapon name) to equip a weapon.")
-        await util.say(ctx.channel, embed=weapon_store)
+        await util.reply(ctx, embed=weapon_store)
     else:
         weapon_name = page
         if player.equipped["weapon"] != weapons.NO_WEAPON_ID:
@@ -40,7 +40,7 @@ async def myweapons(ctx, *args, **details):
         if weapon is not None:
             embed = discord.Embed(type="rich", color=gconf.DUE_COLOUR)
             info = weapon_info(**details, weapon=weapon, price_divisor=4 / 3, embed=embed)
-            await util.say(ctx.channel, embed=info)
+            await util.reply(ctx, embed=info)
         else:
             raise util.BattleBananaException(ctx.channel, "You don't have a weapon with that name!")
 
@@ -65,7 +65,7 @@ async def unequip(ctx, _=None, **details):
     player.store_weapon(weapon)
     player.weapon = weapons.NO_WEAPON_ID
     player.save()
-    await util.say(ctx.channel, ":white_check_mark: **" + weapon.name_clean + "** unequipped!")
+    await util.reply(ctx, ":white_check_mark: **" + weapon.name_clean + "** unequipped!")
 
 
 @commands.command(args_pattern='S', aliases=["eq"])
@@ -84,7 +84,7 @@ async def equip(ctx, weapon_name, **details):
     if weapon is None:
         if weapon_name != current_weapon.name.lower():
             raise util.BattleBananaException(ctx.channel, "You do not have that weapon stored!")
-        await util.say(ctx.channel, "You already have that weapon equipped!")
+        await util.reply(ctx, "You already have that weapon equipped!")
         return
 
     player.discard_stored_weapon(weapon)
@@ -99,7 +99,7 @@ async def equip(ctx, weapon_name, **details):
     player.weapon = weapon
     player.save()
 
-    await util.say(ctx.channel, ":white_check_mark: **" + weapon.name_clean + "** equipped!")
+    await util.reply(ctx, ":white_check_mark: **" + weapon.name_clean + "** equipped!")
 
 
 @misc.paginator
@@ -135,8 +135,8 @@ async def battle(ctx, *args, **details):
 
     battle_log = battles.get_battle_log(player_one=player_one, player_two=player_two)
 
-    await imagehelper.battle_screen(ctx.channel, player_one, player_two)
-    await util.say(ctx.channel, embed=battle_log.embed)
+    await imagehelper.battle_screen(ctx, player_one, player_two)
+    await util.reply(ctx, embed=battle_log.embed)
     if battle_log.winner is None:
         # Both players get the draw battle award
         awards.give_award(ctx.channel, player_one, "InconceivableBattle")
@@ -166,7 +166,7 @@ async def wagerbattle(ctx, receiver, money, **details):
 
     battles.BattleRequest(sender, receiver, money)
 
-    await util.say(ctx.channel, ("**" + sender.name_clean + "** wagers **" + receiver.name_clean + "** ``"
+    await util.reply(ctx, ("**" + sender.name_clean + "** wagers **" + receiver.name_clean + "** ``"
                                  + util.format_number(money, full_precision=True,
                                                       money=True) + "`` that they will win in a battle!"))
 
@@ -200,7 +200,7 @@ async def mywagers(ctx, page=1, **details):
         wager_list_embed.add_field(name="No wagers received!",
                                    value="Wager requests you get from other players will appear here.")
 
-    await util.say(ctx.channel, embed=wager_list_embed)
+    await util.reply(ctx, embed=wager_list_embed)
 
 
 @commands.command(args_pattern='C', aliases=["aw"])
@@ -279,8 +279,8 @@ async def acceptwager(ctx, wager_index, **details):
         wager_results = "Against all the odds the wager ended in a draw!"
     stats.increment_stat(stats.Stat.MONEY_TRANSFERRED, total_transferred)
     battle_embed.add_field(name="Wager results", value=wager_results, inline=False)
-    await imagehelper.battle_screen(ctx.channel, player, sender)
-    await util.say(ctx.channel, embed=battle_embed)
+    await imagehelper.battle_screen(ctx, player, sender)
+    await util.reply(ctx, embed=battle_embed)
     if winner is not None:
         await awards.give_award(ctx.channel, winner, "YouWin", "Win a wager")
         await awards.give_award(ctx.channel, loser, "YouLose", "Lose a wager!")
@@ -309,7 +309,7 @@ async def declinewager(ctx, wager_index, **details):
         del player.received_wagers[wager_index]
         player.save()
         sender = players.find_player(wager.sender_id)
-        await util.say(ctx.channel, "**" + player.name_clean + "** declined a wager from **" + sender.name_clean + "**")
+        await util.reply(ctx, "**" + player.name_clean + "** declined a wager from **" + sender.name_clean + "**")
 
     else:
         raise util.BattleBananaException(ctx.channel, "Request not found!")
@@ -346,7 +346,7 @@ async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon=
         extras["image_url"] = image_url
 
     weapon = weapons.Weapon(name, hit_message, damage, accy, **extras, ctx=ctx)
-    await util.say(ctx.channel, (weapon.icon + " **" + weapon.name_clean + "** is available in the shop for "
+    await util.reply(ctx, (weapon.icon + " **" + weapon.name_clean + "** is available in the shop for "
                                  + util.format_number(weapon.price, money=True) + "!"))
     if "image_url" in extras:
         await imagehelper.warn_on_invalid_image(ctx.channel, url=extras["image_url"])
@@ -400,13 +400,13 @@ async def editweapon(ctx, weapon_name, updates, **_):
                     updates[weapon_property] = "Cannot be over 32 characters!"
 
     if len(updates) == 0:
-        await util.say(ctx.channel, "You need to provide a list of valid changes for the weapon!")
+        await util.reply(ctx, "You need to provide a list of valid changes for the weapon!")
     else:
         weapon.save()
         result = weapon.icon+" **%s** updates!\n" % weapon.name_clean
         for weapon_property, update_result in updates.items():
             result += "``%s`` → %s\n" % (weapon_property, update_result)
-        await util.say(ctx.channel, result)
+        await util.reply(ctx, result)
         if new_image_url is not None:
             await imagehelper.warn_on_invalid_image(ctx.channel, new_image_url)
 
@@ -426,7 +426,7 @@ async def removeweapon(ctx, weapon_name, **_):
     if weapon.id != weapons.NO_WEAPON_ID and weapons.stock_weapon(weapon_name) != weapons.NO_WEAPON_ID:
         raise util.BattleBananaException(ctx.channel, "You can't remove stock weapons!")
     weapons.remove_weapon_from_shop(ctx.guild, weapon_name)
-    await util.say(ctx.channel, "**" + weapon.name_clean + "** has been removed from the shop!")
+    await util.reply(ctx, "**" + weapon.name_clean + "** has been removed from the shop!")
 
 
 @commands.command(permission=Permission.REAL_SERVER_ADMIN, args_pattern="S?")
@@ -441,10 +441,10 @@ async def resetweapons(ctx, **_):
 
     weapons_deleted = weapons.remove_all_weapons(ctx.guild)
     if weapons_deleted > 0:
-        await util.say(ctx.channel, ":wastebasket: Your weapon shop has been reset—**%d %s** deleted."
+        await util.reply(ctx, ":wastebasket: Your weapon shop has been reset—**%d %s** deleted."
                                     % (weapons_deleted, util.s_suffix("weapon", weapons_deleted)))
     else:
-        await util.say(ctx.channel, "There's no weapons to delete!")
+        await util.reply(ctx, "There's no weapons to delete!")
 
 
 # Part of the shop buy command

@@ -119,6 +119,21 @@ async def download_file(url):
             return file_data
 
 
+async def reply(ctx, *args, **kwargs):
+    if type(ctx.channel) is str:
+        # Guild/Channel id
+        server_id, channel_id = ctx.channel.split("/")
+        ctx.channel = get_guild(int(server_id)).get_channel(int(channel_id))
+    if asyncio.get_event_loop() != clients[0].loop:
+        # Allows it to speak across shards
+        clients[0].run_task(say, *((ctx.channel,) + args), **kwargs)
+    else:
+        try:
+            return await ctx.reply(*args, **kwargs)
+        except discord.Forbidden as send_error:
+            raise SendMessagePermMissing(send_error)
+
+
 async def say(channel, *args, **kwargs):
     if type(channel) is str:
         # Guild/Channel id
