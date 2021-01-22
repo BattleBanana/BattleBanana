@@ -34,9 +34,9 @@ class FeedbackHandler:
         report.add_field(name=ctx.guild.name, value=ctx.guild.id)
         report.add_field(name=ctx.channel.name, value=ctx.channel.id)
         report.set_footer(text="Sent at " + util.pretty_time())
-        await util.reply(ctx,
+        await util.say(ctx.channel,
                        ":mailbox_with_mail: Sent! You can view your %s here: <%s>" % (self.type, trello_link))
-        await util.reply(ctx, embed=report)
+        await util.say(ctx.channel, embed=report)
 
         logReport = discord.Embed(color=gconf.DUE_COLOUR)
         logReport.set_author(name=author_name, icon_url=author_icon_url)

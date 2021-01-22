@@ -36,7 +36,7 @@ async def createteam(ctx, name, description="This is a new and awesome team!", i
     
     teams.Team(details["author"], name, description, level, isOpen)
 
-    await util.reply(ctx, "Successfully created **%s**!" % (name))
+    await util.say(ctx.channel, "Successfully created **%s**!" % (name))
 
 
 @commands.command(args_pattern=None)
@@ -61,7 +61,7 @@ async def deleteteam(ctx, **details):
     name = team.name
     team.Delete()
 
-    await util.reply(ctx, "**%s** successfully deleted!" % (name))
+    await util.say(ctx.channel, "**%s** successfully deleted!" % (name))
 
 
 @commands.command(args_pattern="P", aliases=["ti"])
@@ -96,7 +96,7 @@ async def teaminvite(ctx, member, **details):
     
     member.team_invites.append(inviter.team)
     member.save()
-    await util.reply(ctx, ":thumbsup: Invite has been sent to **%s**!" % member.name)
+    await util.say(ctx.channel, ":thumbsup: Invite has been sent to **%s**!" % member.name)
 
 
 @commands.command(args_pattern=None, aliases=["si"])
@@ -125,7 +125,7 @@ async def showinvites(ctx, **details):
                 member.team_invites.remove(id)
     
     member.save()
-    await util.reply(ctx, embed=Embed)
+    await util.say(ctx.channel, embed=Embed)
 
 
 @commands.command(args_pattern="T", aliases=["ai"])
@@ -145,7 +145,7 @@ async def acceptinvite(ctx, team, **details):
 
     team.addMember(ctx, member)
             
-    await util.reply(ctx, "Successfully joined **%s**!" % team)
+    await util.say(ctx.channel, "Successfully joined **%s**!" % team)
 
 
 @commands.command(args_pattern="T", aliases=["di"])
@@ -163,7 +163,7 @@ async def declineinvite(ctx, team, **details):
 
     member.team_invites.remove(team.id)
     member.save()
-    await util.reply(ctx, "Successfully deleted **%s** invite!" % team.name)
+    await util.say(ctx.channel, "Successfully deleted **%s** invite!" % team.name)
 
 
 @commands.command(args_pattern=None, aliases=["mt"])
@@ -223,7 +223,7 @@ async def myteam(ctx, **details):
     team_embed.add_field(name="Members:", value=members)
     team_embed.add_field(name="Pendings:", value=pendings)
 
-    await util.reply(ctx, embed=team_embed)
+    await util.say(ctx.channel, embed=team_embed)
 
 @commands.command(args_pattern="P", aliases=["pu"])
 async def promoteuser(ctx, user, **details):
@@ -259,7 +259,7 @@ async def promoteuser(ctx, user, **details):
         raise util.BattleBananaException(ctx.channel, "You are not allowed to promote users! (You must be owner!)")
     
     team.addAdmin(ctx, user)
-    await util.reply(ctx, "Successfully promoted **%s** as an **admin**!" % (user.get_name_possession_clean()))
+    await util.say(ctx.channel, "Successfully promoted **%s** as an **admin**!" % (user.get_name_possession_clean()))
 
 
 @commands.command(args_pattern="P", aliases=["du"])
@@ -295,7 +295,7 @@ async def demoteuser(ctx, user, **details):
         raise util.BattleBananaException(ctx.channel, "This player is already a member!")
     
     team.removeAdmin(ctx, user)
-    await util.reply(ctx, "**%s** has been demoted to **Member**" % (user.name))
+    await util.say(ctx.channel, "**%s** has been demoted to **Member**" % (user.name))
         
 
 @commands.command(args_pattern="P", aliases=["tk"])
@@ -334,7 +334,7 @@ async def teamkick(ctx, user, **details):
         raise util.BattleBananaException(ctx.channel, "You must be the owner to kick this player from the team!")
     
     team.Kick(ctx, user)
-    await util.reply(ctx, "Successfully kicked **%s** from your team, adios amigos!" % user.name)
+    await util.say(ctx.channel, "Successfully kicked **%s** from your team, adios amigos!" % user.name)
 
 
 @commands.command(args_pattern=None, aliases=["lt"])
@@ -360,7 +360,7 @@ async def leaveteam(ctx, **details):
         raise util.BattleBananaException(ctx.channel, "You cannot leave this team! If you want to disband it, use `%sdeleteteam`" % (details["cmd_key"]))
     
     team.Kick(ctx, member)
-    await util.reply(ctx, "You successfully left your team!")
+    await util.say(ctx.channel, "You successfully left your team!")
 
 
 @commands.command(args_pattern="C?", aliases=["st", "teams"])
@@ -403,7 +403,7 @@ async def showteams(ctx, page=1, **details):
     
     limit = page_size * page + page_size < len(db_teams)
     teamsEmbed.set_footer(text="%s" % (("Do %sshowteams %d for the next page!" % (details["cmd_key"], page + 2)) if limit else "That's all the teams!"))
-    await util.reply(ctx, embed=teamsEmbed)
+    await util.say(ctx.channel, embed=teamsEmbed)
 
 
 @commands.command(args_pattern="T", aliases=["sti"])
@@ -449,7 +449,7 @@ async def showteaminfo(ctx, team, **_):
     team_embed.add_field(name="Members:", value=members)
     team_embed.add_field(name="Pendings:", value=pendings)
 
-    await util.reply(ctx, embed=team_embed)
+    await util.say(ctx.channel, embed=team_embed)
 
 
 @commands.command(args_pattern="T", aliases=["jt"])
@@ -467,14 +467,14 @@ async def jointeam(ctx, team, **details):
 
     if (team.open or team.id in member.team_invites) and member.level >= team.level:
         team.addMember(ctx, member)
-        await util.reply(ctx, "You successfully joined **%s**!" % (team.name))
+        await util.say(ctx.channel, "You successfully joined **%s**!" % (team.name))
 
     elif member.level < team.level:
         raise util.BattleBananaException(ctx.channel, "You must be level %s or higher to join this team!" % (team.level))
 
     else:
         team.addPending(ctx, member)
-        await util.reply(ctx, "You have been added to **%s** pending list!" % (team.get_name_possession()))
+        await util.say(ctx.channel, "You have been added to **%s** pending list!" % (team.get_name_possession()))
 
 
 @commands.command(args_pattern='S*', aliases=["ts"])
@@ -524,13 +524,13 @@ async def editteam(ctx, updates, **details):
             continue
 
     if len(updates) == 0:
-        await util.reply(ctx, "You need to provide a valid property for the team!")
+        await util.say(ctx.channel, "You need to provide a valid property for the team!")
     else:
         team.save()
         result = "**Settings changed:**\n"
         for prop, value in updates.items():
             result += ("``%s`` → %s\n" % (prop, value))
-        await util.reply(ctx, result)
+        await util.say(ctx.channel, result)
 
 
 @commands.command(args_pattern="I?", aliases=["pendings", "stp"])
@@ -567,7 +567,7 @@ async def showteampendings(ctx, page=1, **details):
     limit = (5 * page) + 5 < len(team.pendings)
     pendings_embed.set_footer(text="%s" % (("Do %sshowpendings %d for the next page!" % (details["cmd_key"], page + 2)) if limit else "That's all the pendings!"))
     
-    await util.reply(ctx, embed=pendings_embed)
+    await util.say(ctx.channel, embed=pendings_embed)
 
 
 @commands.command(args_pattern="P", aliases=["ap"])
@@ -591,7 +591,7 @@ async def acceptpending(ctx, user, **details):
         raise util.BattleBananaException(ctx.channel, "Pending user not found!")
     
     team.addMember(ctx, user)
-    await util.reply(ctx, "Accepted **%s** in your team!" % (user.name))
+    await util.say(ctx.channel, "Accepted **%s** in your team!" % (user.name))
 
 
 @commands.command(args_pattern="P", aliases=["dp"])
@@ -615,4 +615,4 @@ async def declinepending(ctx, user, **details):
     
     team.removePending(ctx, user)
     
-    await util.reply(ctx, "Removed **%s** from pendings!" % (user.name))
+    await util.say(ctx.channel, "Removed **%s** from pendings!" % (user.name))

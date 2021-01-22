@@ -54,7 +54,7 @@ def command(**command_rules):
             player = players.find_player(ctx.author.id)
             if player is None:
                 if name != "createaccount":
-                    await util.reply(ctx, "You are not registered\nUse `"+prefix+"createaccount` to register")
+                    await util.say(ctx.channel, "You are not registered\nUse `"+prefix+"createaccount` to register")
                     return
                 
             # Player has admin perms
@@ -65,11 +65,11 @@ def command(**command_rules):
             command_whitelist = dueserverconfig.whitelisted_commands(ctx.channel)
             if command_whitelist is not None and not is_admin and name not in command_whitelist:
                 if "is_blacklist" not in command_whitelist:
-                    await util.reply(ctx, (":anger: That command is not whitelisted in this channel!\n"
+                    await util.say(ctx.channel, (":anger: That command is not whitelisted in this channel!\n"
                                                  + " You can only use the following commands: ``"
                                                  + ', '.join(command_whitelist) + "``."))
                 else:
-                    await util.reply(ctx, ":anger: That command is blacklisted in this channel!")
+                    await util.say(ctx.channel, ":anger: That command is blacklisted in this channel!")
                 return True
             # Do they have the perms for the command
             if check(ctx.author, wrapped_command):
@@ -105,9 +105,9 @@ def command(**command_rules):
                     player = players.find_player(ctx.author.id)
                     local_optout = not player.is_playing(ctx.author, local=True)
                     if local_optout:
-                        await util.reply(ctx, "You are opted out. Use ``%soptinhere``!" % prefix)
+                        await util.say(ctx.channel, "You are opted out. Use ``%soptinhere``!" % prefix)
                     else:
-                        await util.reply(ctx, "You are opted out. Use ``%soptin``!" % prefix)
+                        await util.say(ctx.channel, "You are opted out. Use ``%soptin``!" % prefix)
                 else:
                     await ctx.add_reaction(emojis.CROSS_REACT)
             return True
@@ -176,7 +176,7 @@ def ratelimit(**command_info):
                 if "[COOLDOWN]" in error:
                     time_to_wait = command_info["cooldown"] - time_since_last_used
                     error = error.replace("[COOLDOWN]", util.display_time(time_to_wait))
-                await util.reply(ctx, error)
+                await util.say(ctx.channel, error)
                 return
             else:
                 player.command_rate_limits[command_name] = now
@@ -194,7 +194,7 @@ def require_cnf(warning):
         @wraps(command_func)
         async def wrapped_command(ctx, cnf="", **details):
             if cnf.lower() != "cnf":
-                await util.reply(ctx, ("Are you sure?! %s\n"
+                await util.say(ctx.channel, ("Are you sure?! %s\n"
                                              + "Do ``%s%s cnf`` if you're sure!")
                                % (warning, details["cmd_key"], command_func.__name__))
                 return
