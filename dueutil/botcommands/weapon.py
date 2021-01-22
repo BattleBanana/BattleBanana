@@ -182,8 +182,6 @@ async def mywagers(ctx, page=1, **details):
     @misc.paginator
     def wager_page(wagers_embed, current_wager, **extras):
         sender = players.find_player(current_wager.sender_id)
-        if not sender: 
-            return
         wagers_embed.add_field(name="%d. Request from %s" % (extras["index"]+1, sender.name_clean),
                                value="<@%s> ``%s``" % (sender.id, util.format_money(current_wager.wager_amount)))
 
@@ -223,8 +221,6 @@ async def acceptwager(ctx, wager_index, **details):
 
     wager = player.received_wagers.pop(wager_index)
     sender = players.find_player(wager.sender_id)
-    if not sender:
-        raise util.BattleBananaException(ctx.channel, "Play no longer exists!")
     battle_log = battles.get_battle_log(player_one=player, player_two=sender)
     battle_embed = battle_log.embed
     winner = battle_log.winner
