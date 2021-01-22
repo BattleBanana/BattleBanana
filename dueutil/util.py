@@ -176,6 +176,13 @@ async def edit_message(message, **kwargs):
     await message.edit(content=content, embed=embed)
 
 
+async def fetch_user(user_id):
+    user = clients[0].get_user(int(user_id)) # Get user from cache
+    if user is None:
+        # User not in cache
+        user = await clients[0].fetch_user(int(user_id))
+    return user
+
 async def delete_message(message):
     await message.delete()
 

@@ -1,13 +1,15 @@
 import time
-
+import asyncio
 import discord
 import repoze.timeago
+import json
+from itertools import chain
 
 import generalconfig as gconf
 from .. import commands, events, util, permissions
 # Shorthand for emoji as I use gconf to hold emoji constants
 from ..game import emojis as e
-from ..game import stats, awards, discoin
+from ..game import stats, awards, discoin, players
 from ..game.configs import dueserverconfig
 from ..game.stats import Stat
 from ..permissions import Permission
@@ -646,7 +648,6 @@ async def status(ctx, message=None, **details):
 
     This sets the status of all the shards to the one specified.
     """
-
     client: discord.AutoShardedClient = util.clients[0]
     if message is None:
         count = client.shard_count
@@ -659,3 +660,47 @@ async def status(ctx, message=None, **details):
                                      afk=False)
 
     await util.reply(ctx, "All done!")
+
+
+@commands.command(args_pattern='S?', aliases=['transdata', 'td'])
+@commands.require_cnf(warning="Transferring your data will override your current data, assuming you have any, on TheelUtil!")
+@commands.ratelimit(cooldown=1, error="You can't transfer your data again for **[COOLDOWN]**!", save=True)
+async def transferdata(ctx, cnf="", **details):
+    reader, writer = await asyncio.open_connection(gconf.other_configs["connectionIP"], gconf.other_configs["connectionPort"])
+    attributes_to_remove = ['inventory', 'quests', 'equipped', 'received_wagers', 'awards', 'team', 'donor', 'quest_spawn_build_up']
+    message = dict(details["author"])
+    for attr in attributes_to_remove:
+        try:
+            message.pop(attr)
+        except KeyError:
+            continue
+    max_stats = {"level": 100, "money": 1000000000, "total_exp": 67952143, "exp": 67952143, "hp": 1000, "attack": 1000000, "strg": 1000000, "accy": 1000000}
+    for attr in max_stats:
+        if message.get(attr, 0) > max_stats[attr]:
+            await util.say(ctx.channel, "At least one of your stats will be likely capped on the other bot!")
+            break
+    message = json.dumps(message)
+    writer.write(message.encode())
+    await util.say(ctx.channel, "Your data has been sent! It should appear on the other bot within a few seconds!")
+    writer.close()
+    await writer.wait_closed()
+
+async def get_stuff(self):
+    for attr in chain.from_iterable(getattr(cls, '__slots__', []) for cls in self.__class__.__mro__):
+        try:
+            yield attr
+        except AttributeError:
+            continue
+
+@commands.command(permission=Permission.BANANA_OWNER, args_pattern=None, aliases=['sss'], hidden=True)
+async def startsocketserver(ctx, **details):
+    """
+    [CMD_KEY]sss
+
+    Only in case the server doesn't boot up in run.py
+    """
+    global async_server
+    loop = asyncio.get_event_loop()
+    async_server = await asyncio.start_server(players.handle_client, '', gconf.other_configs["connectionPort"])
+    server_port = async_server.sockets[0].getsockname()[1] # get port that the server is on, to confirm it started on 4000
+    await util.say(ctx.channel, "Listening on port %s!" % server_port)

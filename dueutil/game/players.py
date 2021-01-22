@@ -3,11 +3,14 @@ import random
 import time
 from collections import defaultdict
 from copy import copy
+from itertools import chain
 import gc
 
 import discord
 import jsonpickle
 import numpy
+import json
+import asyncio
 
 import generalconfig as gconf
 from ..util import SlotPickleMixin
@@ -445,6 +448,13 @@ class Player(BattleBananaObject, SlotPickleMixin):
         object_state["misc_stats"] = dict(object_state["misc_stats"])
         return object_state
 
+    def __iter__(self):
+     for attr in chain.from_iterable(getattr(cls, '__slots__', []) for cls in self.__class__.__mro__):
+        try:
+            yield attr, getattr(self, attr)
+        except AttributeError:
+            continue
+
 
 def find_player(user_id: int) -> Player:
     if user_id in players:
@@ -453,7 +463,6 @@ def find_player(user_id: int) -> Player:
         player = players[user_id]
         player.id = user_id
         return player
-
 
 REFERENCE_PLAYER = Player(no_save=True)
 
@@ -465,3 +474,39 @@ def load_player(player_id: int):
         loaded_player = jsonpickle.decode(player_data)
         players[player_id] = util.load_and_update(REFERENCE_PLAYER, loaded_player)
         return True
+
+import json
+from itertools import chain
+
+async def get_stuff(self):
+    for attr in chain.from_iterable(getattr(cls, '__slots__', []) for cls in self.__class__.__mro__):
+        try:
+            yield attr
+        except AttributeError:
+            continue
+
+async def handle_client(reader, writer):
+    if writer.get_extra_info('peername')[0] != gconf.other_configs["connectionIP"]:
+        writer.close()
+        return "smh"
+    request = (await reader.read()).decode('utf8')
+    try:
+        request = json.loads(request)
+        player = find_player(int(request['id'])) or find_player(str(request['id']))
+    except json.decoder.JSONDecodeError:
+        player = None
+    if not player is None:
+        max_stats = {"level": 100, "money": 1000000000, "total_exp": 67952143, "exp": 67952143, "hp": 1000, "attack": 1000000, "strg": 1000000, "accy": 1000000}
+        player_data = {i async for i in get_stuff(player)}
+        for attr in list(set(request.keys()).intersection(player_data)): # shared attrs between request and player
+            if request.get(attr, 0) < max_stats[attr]:
+                setattr(player, attr, request[attr])
+            elif getattr(player, attr) < max_stats[attr]:
+                setattr(player, attr, max_stats[attr])
+        writer.write("200 OK".encode())
+        user:discord.abc.User = util.fetch_user(request['id'])
+        if user:
+            await user.create_dm()
+            await user.send("Your data has been received and transferred! You can transfer again in 7 days.")
+        await asyncio.sleep(0.2)
+    writer.close() # close it
