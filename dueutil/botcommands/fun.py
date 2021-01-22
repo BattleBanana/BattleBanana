@@ -323,7 +323,7 @@ async def battletopdog(ctx, **details):
     
     battle_log = battles.get_battle_log(player_one=player, player_two=top_dog)
 
-    await imagehelper.battle_screen(ctx.channel, player, top_dog)
+    await imagehelper.battle_screen(ctx, player, top_dog)
     await util.reply(ctx, embed=battle_log.embed)
     if battle_log.winner is None:
         # Both players get the draw battle award
@@ -346,7 +346,7 @@ async def viewtopdog(ctx, **_):
     if top_dog is None:
         raise util.BattleBananaException(ctx.channel, "Sorry there was an error trying to find the topdog!")
 
-    await imagehelper.stats_screen(ctx.channel, top_dog)
+    await imagehelper.stats_screen(ctx, top_dog)
 
 
 async def show_awards(ctx, top_dog, page=0):
