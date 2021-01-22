@@ -85,7 +85,7 @@ async def weekly(ctx, **details):
         new_quest = await quests.ActiveQuest.create(quest.q_id, player)
         stats.increment_stat(stats.Stat.QUESTS_GIVEN)
         if dueserverconfig.mute_level(ctx.channel) < 0:
-            await imagehelper.new_quest_screen(channel, new_quest, player)
+            await imagehelper.new_quest_screen(ctx, new_quest, player)
         else:
             util.logger.info("Won't send new quest image - channel blocked.")
 
