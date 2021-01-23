@@ -475,8 +475,6 @@ def load_player(player_id: int):
         players[player_id] = util.load_and_update(REFERENCE_PLAYER, loaded_player)
         return True
 
-import json
-from itertools import chain
 
 async def get_stuff(self):
     for attr in chain.from_iterable(getattr(cls, '__slots__', []) for cls in self.__class__.__mro__):
