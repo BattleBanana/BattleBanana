@@ -494,13 +494,9 @@ async def handle_client(reader, writer):
     except json.decoder.JSONDecodeError:
         player = None
     if not player is None:
-        max_stats = {"level": 100, "money": 1000000000, "total_exp": 67952143, "exp": 67952143, "hp": 1000, "attack": 1000000, "strg": 1000000, "accy": 1000000}
         player_data = {i async for i in get_stuff(player)}
         for attr in list(set(request.keys()).intersection(player_data)): # shared attrs between request and player
-            if request.get(attr, 0) < max_stats[attr]:
-                setattr(player, attr, request[attr])
-            elif getattr(player, attr) < max_stats[attr]:
-                setattr(player, attr, max_stats[attr])
+            setattr(player, attr, request[attr])
         writer.write("200 OK".encode())
         user:discord.abc.User = util.fetch_user(request['id'])
         if user:
