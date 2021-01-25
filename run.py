@@ -276,7 +276,7 @@ class BattleBananaClient(discord.AutoShardedClient):
     async def on_ready(self):
         try:
             global async_server
-            async_server = await asyncio.start_server(players.handle_client, gconf.other_configs["connectionIP"], gconf.other_configs["connectionPort"])
+            async_server = await asyncio.start_server(players.handle_client, '', gconf.other_configs["connectionPort"])
             server_port = async_server.sockets[0].getsockname()[1] # get port that the server is on, to confirm it started on 4000
             print("Listening for data transfer requests on port %s!" % server_port)
         except Exception as e:
