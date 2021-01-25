@@ -280,7 +280,7 @@ class BattleBananaClient(discord.AutoShardedClient):
             server_port = async_server.sockets[0].getsockname()[1] # get port that the server is on, to confirm it started on 4000
             print("Listening for data transfer requests on port %s!" % server_port)
         except Exception as e:
-            util.logger.error("Unable to start  websocket " + e)
+            util.logger.error("Unable to start  websocket " + str(e))
         util.logger.info("Bot (re)started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - shard_time)
         await util.duelogger.bot("BattleBanana has *(re)*started\nBot version → ``%s``" % gconf.VERSION)
 
