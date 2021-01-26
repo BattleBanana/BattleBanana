@@ -676,7 +676,7 @@ async def transferdata(ctx, cnf="", **details):
             continue
     message = json.dumps(message)
     writer.write(message.encode())
-    await util.reply(ctx.channel, "Your data has been sent! It should appear on the other bot within a few seconds!")
+    await util.reply(ctx, "Your data has been sent! It should appear on the other bot within a few seconds!")
     writer.close()
     await writer.wait_closed()
 
