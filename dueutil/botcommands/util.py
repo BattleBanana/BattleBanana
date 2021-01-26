@@ -703,7 +703,6 @@ async def startsocketserver(ctx, **details):
 
 @commands.command(permission=Permission.BANANA_OWNER, args_pattern="PS?", aliases=['cldr'], hidden=True)
 async def cooldownreset(ctx, player, cooldown=None, **details):
-
     if cooldown is None:
         player.command_rate_limits = {}
     else:
