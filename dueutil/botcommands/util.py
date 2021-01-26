@@ -703,12 +703,12 @@ async def startsocketserver(ctx, **details):
 
 @commands.command(permission=Permission.BANANA_OWNER, args_pattern="PS?", aliases=['cldr'], hidden=True)
 async def cooldownreset(ctx, player, cooldown=None, **details):
-    if not cooldown in player.command_rate_limits:
-        raise util.BattleBananaException("Invalid cooldown")
 
     if cooldown is None:
         player.command_rate_limits = {}
     else:
+        if not cooldown in player.command_rate_limits:
+            raise util.BattleBananaException("Invalid cooldown")
         player.command_rate_limits.pop(cooldown)
     
     player.save()
