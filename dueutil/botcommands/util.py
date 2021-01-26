@@ -676,7 +676,7 @@ async def transferdata(ctx, cnf="", **details):
             continue
     message = json.dumps(message)
     writer.write(message.encode())
-    await util.say(ctx.channel, "Your data has been sent! It should appear on the other bot within a few seconds!")
+    await util.reply(ctx.channel, "Your data has been sent! It should appear on the other bot within a few seconds!")
     writer.close()
     await writer.wait_closed()
 
@@ -699,3 +699,22 @@ async def startsocketserver(ctx, **details):
     async_server = await asyncio.start_server(players.handle_client, '', gconf.other_configs["connectionPort"])
     server_port = async_server.sockets[0].getsockname()[1] # get port that the server is on, to confirm it started on 4000
     await util.say(ctx.channel, "Listening on port %s!" % server_port)
+
+
+@commands.command(permission=Permission.BANANA_OWNER, args_pattern="PS?", aliases=['cldr'], hidden=True)
+async def cooldownreset(ctx, player, cooldown=None, **details):
+    if not cooldown in player.command_rate_limits:
+        raise util.BattleBananaException("Invalid cooldown")
+
+    if cooldown is None:
+        player.command_rate_limits = {}
+    else:
+        player.command_rate_limits.pop(cooldown)
+    
+    player.save()
+    await util.say(ctx.channel, "The target player's cooldowns have been reset!")
+
+
+@commands.command(permission=Permission.BANANA_OWNER, args_pattern="PS?", aliases=['scld'], hidden=True)
+async def showcooldown(ctx, player, **details):
+    await util.say(ctx.channel, ["%s" % cooldown for cooldown in player.command_rate_limits])
