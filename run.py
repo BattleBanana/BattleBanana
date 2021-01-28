@@ -203,6 +203,8 @@ class BattleBananaClient(discord.AutoShardedClient):
         elif isinstance(error, RuntimeError) and ERROR_OF_DEATH in str(error):
             util.logger.critical("Something went very wrong and the error of death came for us: %s", error)
             os._exit(1)
+        elif isinstance(error, OSError):
+            util.logger.error("Something went wrong with the WebSocket: %s", error)
         elif ctx_is_message:
             await util.say(ctx.channel, (":bangbang: **Something went wrong...**"))
             trigger_message = discord.Embed(title="Trigger", type="rich", color=gconf.DUE_COLOUR)
@@ -274,15 +276,12 @@ class BattleBananaClient(discord.AutoShardedClient):
 
 
     async def on_ready(self):
-        global async_server
-        try:
-            async_server = await asyncio.start_server(players.handle_client, '', gconf.other_configs["connectionPort"])
-            server_port = async_server.sockets[0].getsockname()[1] # get port that the server is on, to confirm it started on 4000
-            print("Listening for data transfer requests on port %s!" % server_port)
-        except Exception as e:
-            util.logger.error("Unable to start  websocket " + str(e))
         util.logger.info("Bot (re)started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - shard_time)
         await util.duelogger.bot("BattleBanana has *(re)*started\nBot version → ``%s``" % gconf.VERSION)
+        global async_server
+        async_server = await asyncio.start_server(players.handle_client, '', gconf.other_configs["connectionPort"])
+        server_port = async_server.sockets[0].getsockname()[1] # get port that the server is on, to confirm it started on 4000
+        print("Listening for data transfer requests on port %s!" % server_port)
 
 
     async def on_shard_ready(self, shard_id):
