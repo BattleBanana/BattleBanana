@@ -203,8 +203,6 @@ class BattleBananaClient(discord.AutoShardedClient):
         elif isinstance(error, RuntimeError) and ERROR_OF_DEATH in str(error):
             util.logger.critical("Something went very wrong and the error of death came for us: %s", error)
             os._exit(1)
-        elif isinstance(error, OSError):
-            util.logger.error("Something went wrong with the WebSocket: %s", error)
         elif ctx_is_message:
             await util.say(ctx.channel, (":bangbang: **Something went wrong...**"))
             trigger_message = discord.Embed(title="Trigger", type="rich", color=gconf.DUE_COLOUR)
