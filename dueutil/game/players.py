@@ -485,9 +485,11 @@ async def get_stuff(self):
 
 async def handle_client(reader, writer):
     if writer.get_extra_info('peername')[0] != gconf.other_configs["connectionIP"]:
+        print(writer.get_extra_info('peername')[0], "tried to connect to us.")
         writer.close()
         return "smh"
     request = (await reader.read()).decode('utf8')
+    error_found = False
     try:
         request = json.loads(request)
         player = find_player(int(request['id'])) or find_player(str(request['id']))
@@ -496,6 +498,7 @@ async def handle_client(reader, writer):
             player = await find_player(int(request['id']))
     except json.decoder.JSONDecodeError:
         player = None
+        error_found = True
     if not player is None:
         player_data = {i async for i in get_stuff(player)}
         for attr in list(set(request.keys()).intersection(player_data)): # shared attrs between request and player
@@ -506,4 +509,6 @@ async def handle_client(reader, writer):
             await user.create_dm()
             await user.send("Your data has been received and transferred! You can transfer again in 7 days.")
         await asyncio.sleep(0.2)
+    else:
+        writer.write("smh {}".format(error_found).encode())
     writer.close() # close it
