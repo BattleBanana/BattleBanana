@@ -288,13 +288,6 @@ class BattleBananaClient(discord.AutoShardedClient):
         util.logger.info("\nLogged in shard %d as\n%s\nWith account @%s ID:%s \n-------",
                          shard_id + 1, shard_names[shard_id], self.user.name, self.user.id)
 
-    
-    async def on_connect(self):
-        global async_server
-        async_server = await asyncio.start_server(players.handle_client, '', gconf.other_configs["connectionPort"])
-        server_port = async_server.sockets[0].getsockname()[1] # get port that the server is on, to confirm it started on 4000
-        print("Listening for data transfer requests on port %s!" % server_port)
-
 
 class ClientThread(Thread):
     """
