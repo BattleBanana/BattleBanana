@@ -485,9 +485,10 @@ async def get_stuff(self):
 
 async def handle_client(reader, writer):
     if writer.get_extra_info('peername')[0] != gconf.other_configs["connectionIP"]:
-        print(writer.get_extra_info('peername')[0], "tried to connect to us.")
+        util.logger.info(writer.get_extra_info('peername')[0], "tried to connect to us.")
+        writer.write("smh".encode())
         writer.close()
-        return "smh"
+        return
     request = (await reader.read()).decode('utf8')
     error_found = False
     try:
