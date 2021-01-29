@@ -130,8 +130,8 @@ class BattleBananaClient(discord.AutoShardedClient):
                         break
                     except discord.Forbidden:
                         continue
-        finally:
-            util.logger.warning("Unable to send on join message")
+        except Exception as e:
+            util.logger.warning("Unable to send on join message: %s", e)
         
         # Update stats
         await servercounts.update_server_count(self)
