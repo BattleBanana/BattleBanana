@@ -93,8 +93,8 @@ async def help(ctx, *args, **details):
                                     + ":x: - You don't have the required permissions to use the command."))
         help_embed.add_field(name=":link: Links", value=("**Invite me: %s**\n" % gconf.BOT_INVITE
                                                          + "BattleBanana guide: https://battlebanana.xyz/howto\n"
-                                                         + "Support guild: https://discord.gg/P7DBDEC\n"
-                                                         + "Support me: https://patreon.com/developeranonymous"))
+                                                         + "Support Server: https://discord.gg/P7DBDEC\n"
+                                                         + "Support me (Help hosting): https://patreon.com/developeranonymous"))
         help_embed.set_footer(
             text="To use admin commands you must have the manage guild permission or the 'Banana Commander' role.")
 
