@@ -274,6 +274,7 @@ class BattleBananaClient(discord.AutoShardedClient):
 
 
     async def on_ready(self):
+        global async_server
         util.logger.info("Bot (re)started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - shard_time)
         await util.duelogger.bot("BattleBanana has *(re)*started\nBot version → ``%s``" % gconf.VERSION)
         try:
