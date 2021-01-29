@@ -119,7 +119,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                                      + "channels I or my commands can be used in (along with a bunch of other stuff).")
         except discord.Forbidden:
             for channel in guild.channels:
-                if channel.type == discord.ChannelType.text:
+                if isinstance(channel, discord.TextChannel):
                     try:
                         await channel.send(":wave: __Thanks for adding me!__\n"
                                         + "If you would like to customize me to fit your "
