@@ -18,7 +18,7 @@ async def update_server_count(shard):
     # await _carbon_server(shard)
     await _post_shard_count_bod(DISCORD_LIST, config["discordBotsKey"])
     await _post_shard_count_dbl(BOTS_ORG, config["discordBotsOrgKey"])
-    await _post_shard_count_rovel(RBL_GA, config["rovelStarsKey"])
+    # await _post_shard_count_rovel(RBL_GA, config["rovelStarsKey"])
 
 
 async def _carbon_server(shard):
