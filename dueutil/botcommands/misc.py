@@ -1,3 +1,4 @@
+from asyncio.futures import Future
 import json
 import math
 import os
@@ -5,6 +6,7 @@ import random
 import re
 import platform
 import textwrap
+from threading import Thread
 import time
 import asyncio
 import traceback
@@ -554,12 +556,12 @@ async def updatebot(ctx, **_):
 
     try:
         sys = platform.platform()
-        if "Windows" in sys:
-            update_result = await asyncio.create_subprocess_shell('"C:\\Program Files\\Git\\bin\\bash" update_script.sh',
+        if "Linux" in sys:
+            update_result = await asyncio.create_subprocess_shell('bash update_script.sh',
                                                                     stdout=asyncio.subprocess.PIPE,
                                                                     stderr=asyncio.subprocess.PIPE)
-        elif "Linux" in sys:
-            update_result = await asyncio.create_subprocess_shell('bash update_script.sh',
+        elif "Windows" in sys:
+            update_result = await asyncio.create_subprocess_shell('"C:\\Program Files\\Git\\bin\\bash" update_script.sh',
                                                                     stdout=asyncio.subprocess.PIPE,
                                                                     stderr=asyncio.subprocess.PIPE)
         else:
