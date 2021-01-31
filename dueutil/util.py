@@ -339,9 +339,9 @@ def get_role_by_name(guild, role_name):
 
 def filter_string(string: str) -> str:
     new = ""
-    for i in range(0, len(string)):
-        if (32 <= ord(string[i]) <= 126) or (128 <= ord(string[i]) <= 175) or (224 <= ord(string[i]) <= 253):
-            new = new + string[i]
+    for i in string:
+        if i.isprintable():
+            new = new + i
         else:
             new = new + "?"
     return new
