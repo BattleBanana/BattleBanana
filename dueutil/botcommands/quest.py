@@ -20,9 +20,6 @@ from ..game.helpers import misc
 
 from ..game import emojis as e
 
-quest_Fnames = ["Bob", "Albert", "Rodrigo", "Alfonso", "Ricardo", "Jesus", "Dr.", "Greg", "Tony", "Eugene", "Jack", "Ben", "Phil", "Michael", "John", "Benito", "Joseph", "Abraham", "George"]
-quest_Lnames = ["Christ", "Heffely", "Clark", "McDouglas", "Sear", "Dover", "Cena", "Jackson", "Lincoln", ]
-quest_battle = ["Fight", "Defeat", "Battle"]
 
 @commands.command(permission=Permission.BANANA_MOD, args_pattern="S?P?C?", hidden=True)
 async def spawnquest(ctx, *args, **details):

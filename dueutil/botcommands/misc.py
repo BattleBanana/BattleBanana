@@ -1,4 +1,3 @@
-from asyncio.futures import Future
 import json
 import math
 import os
@@ -6,7 +5,6 @@ import random
 import re
 import platform
 import textwrap
-from threading import Thread
 import time
 import asyncio
 import traceback

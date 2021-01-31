@@ -2,7 +2,6 @@ import asyncio
 import inspect
 import os
 import queue
-import re
 import traceback
 from threading import Thread
 import aiohttp

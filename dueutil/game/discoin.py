@@ -1,6 +1,6 @@
 ﻿import aiohttp
 import generalconfig as gconf
-import json, jsonpickle
+import json
 from discord import Embed
 
 from . import players, stats
