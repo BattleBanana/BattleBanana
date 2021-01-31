@@ -338,7 +338,7 @@ def get_role_by_name(guild, role_name):
 
 
 def filter_string(string: str) -> str:
-    return ''.join([char for char in string if char.isprintable()])
+    return ''.join([char if char.isprintable() else "?" for char in string])
 
 
 SUFFIXES = {1: "st", 2: "nd", 3: "rd", 4: "th"}
