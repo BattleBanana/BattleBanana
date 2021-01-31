@@ -102,7 +102,7 @@ async def mylimit(ctx, **details):
                    % util.format_number(player.item_value_limit, money=True, full_precision=True))
 
 
-@commands.command(args_pattern="S?")
+@commands.command(args_pattern="S?", aliases=["bn"])
 async def battlename(ctx, name="", **details):
     """
     [CMD_KEY]battlename (name)
