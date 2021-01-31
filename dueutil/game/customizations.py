@@ -1,6 +1,7 @@
 import json
 import os
 
+import discord
 from PIL import Image
 
 from .. import permissions, util

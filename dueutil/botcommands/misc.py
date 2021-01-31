@@ -1,14 +1,11 @@
-from asyncio.futures import Future
 import json
 import math
 import os
 import random
 import re
-import platform
+import subprocess
 import textwrap
-from threading import Thread
 import time
-import asyncio
 import traceback
 from contextlib import redirect_stdout
 from io import StringIO
@@ -19,19 +16,17 @@ import generalconfig as gconf
 import objgraph
 
 from .. import commands, util, events, dbconn, loader
-from ..game import customizations, awards, leaderboards, game, emojis
+from ..game import customizations, awards, leaderboards, game, emojis, translations
 from ..game.helpers import imagehelper
 from ..permissions import Permission
 
 
+# Import all game things. This is (bad) but is needed to fully use the eval command
+
+
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def permissions(ctx, **_):
-    """
-    [CMD_KEY]permissions
-    
-    A check command for the permissions system.
-    
-    """
+    """misc:permissions:Help"""
 
     permissions_report = ""
     for permission in dueutil.permissions.permissions:
@@ -69,16 +64,7 @@ async def add(ctx, first_number, second_number, **_):
 
 @commands.command()
 async def wish(*_, **details):
-    """
-    [CMD_KEY]wish
-    
-    Does this increase the chance of a quest spawn?!
-    
-    Who knows?
-    
-    Me.
-    
-    """
+    """misc:wish:Help"""
 
     player = details["author"]
     player.quest_spawn_build_up += 0.005
@@ -252,6 +238,9 @@ async def eval(ctx, body, **details):
     code_in_l = body.split("\n")
     code_in = ""
     for item in code_in_l:
+        if "other_configs" in item.lower():
+            body = body.replace(item, "print('[REDACTED]')")
+            item = "[REDACTED]"
         if item.startswith(" "):
             code_in += f"... {item}\n"
         else:
@@ -274,16 +263,27 @@ async def eval(ctx, body, **details):
         value = stdout.getvalue()
         t2 = time.time()
         timep = f"#{(round((t2 - t1) * 1000000)) / 1000} ms"
+        if gconf.other_configs.get("botToken") in value:
+            value = value.replace(gconf.other_configs.get("botToken"), "[REDACTED]")
         await util.reply(ctx, f'```py\n{code_in}\n{value}{traceback.format_exc()}\n{timep}\n```')
     else:
         value = stdout.getvalue()
-
+        if gconf.other_configs.get("botToken") in value:
+            value = value.replace(gconf.other_configs.get("botToken"), "[REDACTED]")
+        # try:
+        #    successful = await util.reply(ctx, "Eval Successful")
+        #    await asyncio.sleep(3)
+        #    await successful.delete()
+        # except:
+        #    pass
         if ret is None:
             if value:
                 await util.reply(ctx, f'```py\n{code_in}\n{value}\n{timep}\n```')
             else:
                 await util.reply(ctx, f"```py\n{code_in}\n{timep}\n```")
         else:
+            if gconf.other_configs.get("botToken") in ret:
+                ret = ret.replace(gconf.other_configs.get("botToken"), "[REDACTED]")
             await util.reply(ctx, f'```py\n{code_in}\n{value}{ret}\n{timep}\n```')
 
 
@@ -350,11 +350,7 @@ async def codes(ctx, page=1, **details):
 
 @commands.command(args_pattern="S")
 async def redeem(ctx, code, **details):
-    """
-    [CMD_KEY]redeem (code)
-
-    Redeem your code
-    """
+    """misc:redeem:Help"""
 
     with open("dueutil/game/configs/codes.json", "r+") as code_file:
         try:
@@ -364,7 +360,7 @@ async def redeem(ctx, code, **details):
 
         if not codes.get(code):
             code_file.close()
-            raise util.BattleBananaException(ctx.channel, "Code does not exist!")
+            raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "misc:redeem:Invalid"))
 
         user = details["author"]
         money = codes[code]
@@ -378,7 +374,7 @@ async def redeem(ctx, code, **details):
         json.dump(codes, code_file, indent=4)
         code_file.close()
 
-        await util.reply(ctx, "You successfully reclaimed **%s** !!" % (util.format_money(money)))
+        await translations.say(ctx, "misc:redeem:Success", util.format_money(money))
 
 
 @commands.command(permission=Permission.BANANA_OWNER, args_pattern="PS")
@@ -394,7 +390,7 @@ async def sudo(ctx, victim, command, **_):
             raise util.BattleBananaException(ctx.channel, "You cannot sudo DeveloperAnonymous or Firescoutt")
 
     try:
-        ctx.author = await ctx.guild.fetch_member(victim.id)
+        ctx.author = ctx.guild.get_member(victim.id)
         if ctx.author is None:
             # This may not fix all places where author is used.
             ctx.author = victim.to_member(ctx.guild)
@@ -409,7 +405,7 @@ async def sudo(ctx, victim, command, **_):
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PC")
 async def setpermlevel(ctx, player, level, **_):
     if not (ctx.author.id in (115269304705875969, 261799488719552513)):
-        util.logger.info(ctx.author.id + " used the command: setpermlevel\n")
+        util.logger.info(str(ctx.author.id) + " used the command: setpermlevel\n")
         if (player.id in (115269304705875969, 261799488719552513)):
             raise util.BattleBananaException(ctx.channel,
                                              "You cannot change the permissions for DeveloperAnonymous or Firescoutt")
@@ -510,7 +506,7 @@ async def setcash(ctx, player, amount, **_):
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PI")
-async def setprestige(ctx, player, prestige, **_):
+async def setprestige(ctx, player, prestige, **details):
     player.prestige_level = prestige
     player.save()
     await util.reply(ctx, "Set prestige to **%s** for **%s**" % (prestige, player.get_name_possession_clean()))
@@ -555,27 +551,10 @@ async def updatebot(ctx, **_):
     """
 
     try:
-        sys = platform.platform()
-        if "Linux" in sys:
-            update_result = await asyncio.create_subprocess_shell('bash update_script.sh',
-                                                                    stdout=asyncio.subprocess.PIPE,
-                                                                    stderr=asyncio.subprocess.PIPE)
-        elif "Windows" in sys:
-            update_result = await asyncio.create_subprocess_shell('"C:\\Program Files\\Git\\bin\\bash" update_script.sh',
-                                                                    stdout=asyncio.subprocess.PIPE,
-                                                                    stderr=asyncio.subprocess.PIPE)
-        else:
-            raise asyncio.CancelledError()
-    except asyncio.CancelledError as updateexc:
+        update_result = subprocess.check_output(['bash', 'update_script.sh'])
+    except subprocess.CalledProcessError as updateexc:
         update_result = updateexc.output
-    stdout, stderr = await update_result.communicate()
-    if stdout:
-        update_result = stdout.decode("utf-8")
-    elif stderr:
-        update_result = stderr.decode("utf-8")
-    else:
-        update_result = "Something went wrong!"
-
+    update_result = update_result.decode("utf-8")
     if len(update_result.strip()) == 0:
         update_result = "No output."
     update_embed = discord.Embed(title=":gear: Updating BattleBanana!", type="rich", color=gconf.DUE_COLOUR)
@@ -583,7 +562,7 @@ async def updatebot(ctx, **_):
     update_embed.add_field(name='Changes', value='```' + update_result + '```', inline=False)
     await util.reply(ctx, embed=update_embed)
     update_result = update_result.strip()
-    if not (update_result.endswith("is up to date.") or update_result.endswith("up-to-date.") or update_result == "Something went wrong!"):
+    if not (update_result.endswith("is up to date.") or update_result.endswith("up-to-date.")):
         await util.duelogger.concern("BattleBanana updating!")
         os._exit(1)
 
@@ -618,10 +597,7 @@ async def meminfo(ctx, **_):
 
 @commands.command(args_pattern=None)
 async def ping(ctx, **_):
-    """
-    [CMD_KEY]ping
-    pong! Gives you the response time.
-    """
+    """misc:pingpong:PingHelp"""
     message = await util.reply(ctx, ":ping_pong:")
     t1 = time.time()
     dbconn.db.command('ping')
@@ -631,24 +607,21 @@ async def ping(ctx, **_):
     apims = round((message.created_at - ctx.created_at).total_seconds() * 1000)
 
     embed = discord.Embed(title=":ping_pong: Pong!", type="rich", colour=gconf.DUE_COLOUR)
-    embed.add_field(name="Bot Latency:", value="``%sms``" % (apims))
+    embed.add_field(name=translations.translate(ctx, "misc:pingpong:BOT"), value="``%sms``" % (apims))
     try:
         latency = round(util.clients[0].latencies[util.get_shard_index(ctx.guild.id)][1] * 1000)
 
-        embed.add_field(name="API Latency:", value="``%sms``" % (latency))
+        embed.add_field(name=translations.translate(ctx, "misc:pingpong:API"), value="``%sms``" % (latency))
     except OverflowError:
-        embed.add_field(name="API Latency:", value="``NaN``")
+        embed.add_field(name=translations.translate(ctx, "misc:pingpong:API"), value="``NaN``" % (latency))
 
-    embed.add_field(name="Database Latency:", value="``%sms``" % (dbms), inline=False)
+    embed.add_field(name=translations.translate(ctx, "misc:pingpong:DB"), value="``%sms``" % (dbms), inline=False)
     await util.edit_message(message, embed=embed)
 
 
 @commands.command(args_pattern=None, hidden=True)
 async def pong(ctx, **_):
-    """
-    [CMD_KEY]pong
-    pong! Gives you the response time.
-    """
+    """misc:pingpong:PongHelp"""
     message = await util.reply(ctx, ":ping_pong:")
 
     apims = round((message.created_at - ctx.created_at).total_seconds() * 1000)
@@ -660,24 +633,22 @@ async def pong(ctx, **_):
     dbms = round((t2 - t1) * 1000)
 
     embed = discord.Embed(title=":ping_pong: Pong!", type="rich", colour=gconf.DUE_COLOUR)
-    embed.add_field(name="API Latency:", value="``%sms``" % (latency))
-    embed.add_field(name="Bot Latency:", value="``%sms``" % (apims))
-    embed.add_field(name="Database Latency:", value="``%sms``" % (dbms), inline=False)
+    embed.add_field(name=translations.translate(ctx, "misc:pingpong:API"), value="``%sms``" % (latency))
+    embed.add_field(name=translations.translate(ctx, "misc:pingpong:BOT"), value="``%sms``" % (apims))
+    embed.add_field(name=translations.translate(ctx, "misc:pingpong:DB"), value="``%sms``" % (dbms), inline=False)
 
     await util.edit_message(message, embed=embed)
 
 
 @commands.command(args_pattern=None)
-async def vote(ctx, **_):
-    """
-    Obtain up to ¤40'000 for voting
-    """
+async def vote(ctx, **details):
+    """misc:vote:Help"""
 
-    Embed = discord.Embed(title="Vote for your favorite Discord Bot", type="rich", colour=gconf.DUE_COLOUR)
+    Embed = discord.Embed(title=translations.translate(ctx, "misc:vote:Title"), type="rich", colour=gconf.DUE_COLOUR)
     Embed.add_field(name="Vote:", value="[top.gg](https://top.gg/bot/464601463440801792/vote)\n"
                                         "[discordbotlist.com](https://discordbotlist.com/bots/battlebanana/upvote)\n"
                                         "[bots.ondiscord.xyz](https://bots.ondiscord.xyz/bots/464601463440801792)")
-    Embed.set_footer(text="You will receive your reward shortly after voting! (Up to 5 minutes)")
+    Embed.set_footer(text=translations.translate(ctx, "misc:vote:Footer"))
 
     await util.reply(ctx, embed=Embed)
 

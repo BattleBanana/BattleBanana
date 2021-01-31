@@ -6,20 +6,26 @@ import re
 import traceback
 from threading import Thread
 import aiohttp
+import gc
 import time
+start_time = time.time()
+shard_time = 0
+time_shown = False
 import sys
+from itertools import cycle
 import sentry_sdk
-import discord
 
+import discord
 from dueutil.permissions import Permission
+
 import generalconfig as gconf
 from dueutil import loader, servercounts
-from dueutil.game import players
+from dueutil.game import players, stats, emojis
+from dueutil.game.stats import Stat
 from dueutil.game.helpers import imagecache
 from dueutil.game.configs import dueserverconfig
 from dueutil import permissions
 from dueutil import util, events, dbconn
-
 sentry_sdk.init(gconf.other_configs.get("sentryAuth"))
 
 MAX_RECOVERY_ATTEMPTS = 1000
@@ -29,10 +35,6 @@ bot_key = ""
 client:discord.AutoShardedClient = None
 clients = []
 shard_names = []
-
-start_time = time.time()
-shard_time = 0
-time_shown = False
 
 # I'm not sure of the root cause of this error & it only happens once in months.
 ERROR_OF_DEATH = "Timeout context manager should be used inside a task"
@@ -52,14 +54,10 @@ class BattleBananaClient(discord.AutoShardedClient):
     def __init__(self, **details):
         self.queue_tasks = queue.Queue()
         self.start_time = time.time()
-
-        intents = discord.Intents.default()
-        intents.members = True
-
-        super(BattleBananaClient, self).__init__(intents=intents, **details)
+        super(BattleBananaClient, self).__init__(**details)
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
 
-
+    
     async def __check_task_queue(self):
         while True:
             try:
@@ -73,8 +71,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                     task(*args, **kwargs)
             except queue.Empty:
                 pass
-            await asyncio.sleep(1)
-
+            await asyncio.sleep(0.1)
 
     def run_task(self, task, *args, **kwargs):
         """
@@ -89,7 +86,7 @@ class BattleBananaClient(discord.AutoShardedClient):
 
     async def on_guild_join(self, guild):
         server_count = util.get_server_count()
-        if server_count % 250 == 0:
+        if server_count % 100 == 0:
             await util.say(gconf.announcement_channel,
                                 ":confetti_ball: I'm on __**%d SERVERS**__ now!1!111!\n@everyone" % server_count)
 
@@ -101,7 +98,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         server_stats = self.server_stats(guild)
         await util.duelogger.info(("BattleBanana has joined the guild **"
                                         + util.ultra_escape_string(guild.name) + "**!\n"
-                                        + "``Member count →`` " + str(guild.member_count) + "\n"
+                                        + "``Member count →`` " + str(server_stats["member_count"]) + "\n"
                                         + "``Bot members →``" + str(server_stats["bot_count"]) + "\n"
                                         + ("**BOT SERVER**" if server_stats["bot_server"] else "")))
 
@@ -119,7 +116,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                                      + "channels I or my commands can be used in (along with a bunch of other stuff).")
         except discord.Forbidden:
             for channel in guild.channels:
-                if isinstance(channel, discord.TextChannel):
+                if channel.type == discord.ChannelType.text:
                     try:
                         await channel.send(":wave: __Thanks for adding me!__\n"
                                         + "If you would like to customize me to fit your "
@@ -130,12 +127,11 @@ class BattleBananaClient(discord.AutoShardedClient):
                         break
                     except discord.Forbidden:
                         continue
-        except Exception as e:
-            util.logger.warning("Unable to send on join message: %s", e)
+        finally:
+            util.logger.warning("Unable to send on join message")
         
         # Update stats
         await servercounts.update_server_count(self)
-
 
     @staticmethod
     def server_stats(guild):
@@ -146,7 +142,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         return {"member_count": member_count, "bot_percent": bot_percent,
                 "bot_count": bot_count, "bot_server": bot_server}
 
-
+    
     async def on_error(self, event, *args):
         ctx = args[0] if len(args) == 1 else None
         ctx_is_message = isinstance(ctx, discord.Message)
@@ -169,7 +165,7 @@ class BattleBananaClient(discord.AutoShardedClient):
             loader.reload_modules()
             await util.say(error.channel, loader.get_loaded_modules())
             return
-        elif isinstance(error, discord.Forbidden):
+        elif isinstance(error, discord.errors.Forbidden):
             if ctx_is_message:
                 channel = ctx.channel
                 if isinstance(error, util.SendMessagePermMissing):
@@ -190,12 +186,12 @@ class BattleBananaClient(discord.AutoShardedClient):
                                             )
                     except util.SendMessagePermMissing:
                         pass  # They've block sending messages too.
-                    except discord.Forbidden: 
+                    except discord.errors.Forbidden: 
                         pass
                 return
         elif isinstance(error, discord.HTTPException):
             util.logger.error("Discord HTTP error: %s", error)
-        elif isinstance(error, (aiohttp.ClientResponseError, aiohttp.ClientOSError)):
+        elif isinstance(error, aiohttp.ClientResponseError):
             if ctx_is_message:
                 util.logger.error("%s: ctx from %s: %s", error, ctx.author.id, ctx.content)
             else:
@@ -214,7 +210,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         util.sentry_client.captureException()
         traceback.print_exc()
 
-
+    
     async def on_message(self, message):
         if (message.author == self.user
             or message.author.bot
@@ -226,10 +222,11 @@ class BattleBananaClient(discord.AutoShardedClient):
         if owner.id == config["owner"] and not permissions.has_permission(owner, Permission.BANANA_OWNER):
             permissions.give_permission(owner, Permission.BANANA_OWNER)
 
-        # what are you doing daughter - dev
-        # fixing mac's shitty slow regex parser - me, theel
-        message.content = message.content.replace(f"<@!{self.user.id}>", dueserverconfig.server_cmd_key(message.guild), 1) if message.content.startswith(f"<@!{self.user.id}>") else message.content
-        message.content = message.content.replace(f"<@{self.user.id}>", dueserverconfig.server_cmd_key(message.guild), 1) if message.content.startswith(f"<@{self.user.id}>") else message.content
+        mentions_self_regex = f"<@.?{self.user.id}>"
+        if re.match("^"+mentions_self_regex, message.content):
+            message.content = re.sub(mentions_self_regex + "\s*",
+                                    dueserverconfig.server_cmd_key(message.guild),
+                                    message.content)
             
         await events.on_message_event(message)
 
@@ -239,18 +236,18 @@ class BattleBananaClient(discord.AutoShardedClient):
             return
 
         member = after
-        player = players.find_player(before.id)
-        if player is not None:
-            old_image = await player.get_avatar_url(member=before)
-            new_image = await player.get_avatar_url(member=after)
-            if old_image != new_image:
-                imagecache.uncache(old_image)
-                
-            if (member.guild.id == gconf.THE_DEN and any(role.id == gconf.DONOR_ROLE_ID for role in member.roles)):
-                    player.donor = True
-                    player.save()
+        if (member.guild.id == gconf.THE_DEN and any(role.id == gconf.DONOR_ROLE_ID for role in member.roles)):
+            player = players.find_player(before.id)
+            if player is not None:
+                old_image = player.get_avatar_url(member=before)
+                new_image = player.get_avatar_url(member=after)
+                if old_image != new_image:
+                    imagecache.uncache(old_image)
+            
+                player.donor = True
+                player.save()
 
-
+    
     async def on_guild_remove(self, guild):
         for collection in dbconn.db.list_collection_names():
             if collection not in ("Player", "Topdogs"):
@@ -262,7 +259,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         # Update stats
         await servercounts.update_server_count(self)
 
-
+    
     async def change_avatar(self, channel, avatar_name):
         try:
             avatar = open("avatars/" + avatar_name.strip(), "rb")
@@ -272,20 +269,14 @@ class BattleBananaClient(discord.AutoShardedClient):
         except FileNotFoundError:
             await util.say(channel, ":bangbang: **Avatar change failed!**")
 
-
+    
     async def on_ready(self):
-        global async_server
+        # TODO: Show the time it takes to turn on the bot & time it took to start shards
         util.logger.info("Bot (re)started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - shard_time)
+
         await util.duelogger.bot("BattleBanana has *(re)*started\nBot version → ``%s``" % gconf.VERSION)
-        try:
-            loop = asyncio.get_event_loop()
-            async_server = await asyncio.start_server(players.handle_client, '', gconf.other_configs["connectionPort"])
-            server_port = async_server.sockets[0].getsockname()[1] # get port that the server is on, to confirm it started on 4000
-            util.logger.info("Listening for data transfer requests on port %s!" % server_port)
-        except:
-            util.logger.error("Websocket already started")
 
-
+    
     async def on_shard_ready(self, shard_id):
         game = discord.Activity(name="battlebanana.xyz | shard %d/%d" % (shard_id+1, self.shard_count), type=discord.ActivityType.watching)
         try:
@@ -307,15 +298,11 @@ class ClientThread(Thread):
 
     def run(self, level=1):
         asyncio.set_event_loop(self.event_loop)
-
         global client
         client = BattleBananaClient(fetch_offline_members=False)
         clients.append(client)
         try:
             client.loop.run_until_complete(client.start(bot_key))
-        except KeyboardInterrupt:
-            client.loop.run_until_complete(client.logout())
-            util.logger.warning("Bot has been stopped with CTRL + C")
         except Exception as client_exception:
             util.logger.exception(client_exception, exc_info=True)
             if level < MAX_RECOVERY_ATTEMPTS:
@@ -330,7 +317,7 @@ class ClientThread(Thread):
             os._exit(1)
 
 
-def run_bb():
+def run_due():
     if not os.path.exists("assets/imagecache/"):
         os.makedirs("assets/imagecache/")
     loader.load_modules(packages=loader.GAME)
@@ -356,9 +343,9 @@ def run_bb():
 
 
 if __name__ == "__main__":
-    print("Starting BattleBanana!")
+    util.logger.info("Starting BattleBanana!")
     config = gconf.other_configs
     bot_key = config["botToken"]
     shard_names = config["shardNames"]
     util.load(clients)
-    run_bb()
+    run_due()

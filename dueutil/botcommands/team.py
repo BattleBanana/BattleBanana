@@ -1,125 +1,119 @@
 import jsonpickle
+import os
+import re
+import subprocess
+import math
+import time
+from io import StringIO
 
 import discord
+import objgraph
 
 import generalconfig as gconf
-from .. import commands, util, dbconn
-from ..game import players, teams
+import dueutil.permissions
+from ..game.helpers import imagehelper
+from ..permissions import Permission
+from .. import commands, util, events, dbconn
+from ..game import customizations, awards, leaderboards, game, players, emojis, teams, translations
 
 
 @commands.command(args_pattern="SS?B?C?")
 async def createteam(ctx, name, description="This is a new and awesome team!", isOpen=True, level=1, **details):
-    """
-    [CMD_KEY]createteam name (description) (recruiting) (Minimum Level)
-
-    Name: Team's name
-    Description: Describe your team
-    recruiting: Accepts people?
-    Min level: Lowest level for someone to join the team
-
-    Very basic.. isn't it?
-    """
+    """team:createteam:Help"""
     owner = details["author"]
     
     if owner.team != None:
-        raise util.BattleBananaException(ctx.channel, "You are already in a team!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "team:createteam:AlreadyTeam"))
     if len(name) > 32 or len(name) < 4:
-        raise util.BattleBananaException(ctx.channel, "Team Name must be between 4 and 32 characters")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "team:createteam:TeamChars"))
     if len(description) > 1024:
-        raise util.BattleBananaException(ctx.channel, "Description must not exceed 1024 characters!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "team:createteam:BigDesc"))
     if name != util.filter_string(name):
-        raise util.BattleBananaException(ctx.channel, "Invalid team name!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "team:createteam:BadTeamName"))
     if teams.find_team(name.lower()):
-        raise util.BattleBananaException(ctx.channel, "That team already exists!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "team:createteam:TakenName"))
     if level < 1:
-        raise util.BattleBananaException(ctx.channel, "Minimum level cannot be under 1!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "team:createteam:UnderOne"))
     
     teams.Team(details["author"], name, description, level, isOpen)
 
-    await util.reply(ctx, "Successfully created **%s**!" % (name))
+    await translations.say(ctx, "team:createteam:Success", name)
 
 
 @commands.command(args_pattern=None)
 async def deleteteam(ctx, **details):
-    """
-    [CMD_KEY]deleteteam
-
-    Deletes your team
-    """
+    """team:deleteteam:Help"""
     member = details["author"]
     
     if member.team is None:
-        raise util.BattleBananaException(ctx.channel, "You're not in a team!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "team:deleteteam:NoTeam"))
 
     team = teams.find_team(member.team)
     if team is None:
         member.team = None
     
     if member.id != team.owner:
-        raise util.BattleBananaException(ctx.channel, "You need to be the owner to delete the team!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "team:deleteteam:NotOwner"))
     
     name = team.name
     team.Delete()
 
-    await util.reply(ctx, "**%s** successfully deleted!" % (name))
+    await translations.say(ctx, "team:deleteteam:Success",name)
 
 
 @commands.command(args_pattern="P", aliases=["ti"])
 async def teaminvite(ctx, member, **details):
-    """
-    [CMD_KEY]teaminvite (player)
-
-    NOTE: You cannot invite a player that is already in a team!
-    """
+    """team:teaminvite:Help"""
 
     inviter = details["author"]
     
     if inviter == member:
-        raise util.BattleBananaException(ctx.channel, "You cannot invite yourself!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "team:teaminvite:Yourself"))
 
     if inviter.team is None:
-        raise util.BattleBananaException(ctx.channel, "You are not a part of a team!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "team:teaminvite:NoTeam"))
 
     if member.team != None:
-        raise util.BattleBananaException(ctx.channel, "This player is already in a team!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "team:teaminvite:AlreadyInTeam"))
 
     team = teams.find_team(inviter.team)
     if team is None:
         inviter.team = None
-        raise util.BattleBananaException(ctx.channel, "You are not a part of a team!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "team:teaminvite:NotInTeam"))
 
     if not team.isAdmin(inviter):
-        raise util.BattleBananaException(ctx.channel, "You do not have permissions to send invites!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "team:teaminvite:NoPerms"))
 
     if inviter.team in member.team_invites:
-        raise util.BattleBananaException(ctx.channel, "This player has already been invited to join your team!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "team:teaminvite:AlreadyInvited"))
     
     member.team_invites.append(inviter.team)
     member.save()
-    await util.reply(ctx, ":thumbsup: Invite has been sent to **%s**!" % member.name)
+    await translations.say(ctx, "team:teaminvite:Success", member.name)
 
 
 @commands.command(args_pattern=None, aliases=["si"])
 async def showinvites(ctx, **details):
-    """
-    [CMD_KEY]showinvites
-
-    Display any team invites that you have received!
-    """
+    """team:showinvites:Help"""
 
     member = details["author"]
 
-    Embed = discord.Embed(title="Displaying your team invites!", description="You were invited to join these teams!", type="rich", colour=gconf.DUE_COLOUR)
+    Embed = discord.Embed(title=translations.translate(ctx, "team:showinvites:Title"), description=translations.translate(ctx, "team:showinvites:Desc"), type="rich", colour=gconf.DUE_COLOUR)
     if len(member.team_invites) == 0:
         Embed.add_field(name="No invites!", value="You do not have invites!")
     else:
         for id in member.team_invites:
             team = teams.find_team(id)
             if team:
+                Owner = translations.translate(ctx, "other:common:Owner")
+                AverageLevel = translations.translate(ctx, "other:common:AverageLvl")
+                Members = translations.translate(ctx, "other:common:Members")
+                RequiredLevel = translations.translate(ctx, "other:common:RequiredLvl")
+                Recruiting = translations.translate(ctx, "other:common:Recruiting")
                 owner = players.find_player(team.owner)
                 Embed.add_field(name=team.name, 
-                                value="**Owner:** %s (%s)\n**Average level:** %s\n**Members:** %s\n**Required Level:** %s\n**Recruiting:** %s" 
-                                        % (owner.name, owner.id, team.avgLevel, len(team.members), team.level, ("Yes" if team.open else "No")), 
+                                value="**"+Owner+"** %s (%s)\n **"+AverageLevel+"** %s\n**"+Members+"** %s\n**"+RequiredLevel+"** %s\n**"+Recruiting+"** %s"
+                                        % (owner.name, owner.id, team.avgLevel, len(team.members), team.level, (translations.translate(ctx, "other:singleword:Yes") if team.open else translations.translate(ctx, "other:singleword:No"))), 
                                 inline=False)
             else:
                 member.team_invites.remove(id)
@@ -130,55 +124,37 @@ async def showinvites(ctx, **details):
 
 @commands.command(args_pattern="T", aliases=["ai"])
 async def acceptinvite(ctx, team, **details):
-    """
-    [CMD_KEY]acceptinvite (team)
-
-    Accept a team invite.
-    """
+    """team:acceptinvite:Help"""
 
     member = details["author"]
     
     if member.team != None:
-        raise util.BattleBananaException(ctx.channel, "You are already in a team.")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "team:acceptinvite:AlreadyTeam"))
     if team.id not in member.team_invites:
-        raise util.BattleBananaException(ctx.channel, "Invite not found!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "team:acceptinvite:InNotFound"))
 
     team.addMember(ctx, member)
             
-    await util.reply(ctx, "Successfully joined **%s**!" % team)
+    await translations.say(ctx, "team:acceptinvite:Success", team)
 
 
 @commands.command(args_pattern="T", aliases=["di"])
 async def declineinvite(ctx, team, **details):
-    """
-    [CMD_KEY]declineinvite (team index)
-
-    Decline a team invite cuz you're too good for it.
-    """
+    """team:declineinvite:Help"""
 
     member = details["author"]
 
     if team.id not in member.team_invites:
-        raise util.BattleBananaException(ctx.channel, "Team not found!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "team:declineinvite:NotFound"))
 
     member.team_invites.remove(team.id)
     member.save()
-    await util.reply(ctx, "Successfully deleted **%s** invite!" % team.name)
+    await translations.say(ctx, "team:declineinvite:Success", team.name)
 
 
 @commands.command(args_pattern=None, aliases=["mt"])
 async def myteam(ctx, **details):
-    """
-    [CMD_KEY]myteam
-
-    Display your team!
-
-    Couldn't find 
-    a longer description 
-    for this than 
-    that :shrug:
-    So now it is longer
-    """
+    """team:myteam:Help"""
 
     member = details["author"]
     
@@ -186,7 +162,7 @@ async def myteam(ctx, **details):
     if team is None:
         member.team = None
     if member.team is None:
-        raise util.BattleBananaException(ctx.channel, "You're not in any team!")
+        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "team:myteam:NotInTeam"))
     
     team_embed = discord.Embed(title="Team Information", description="Displaying team information", type="rich", colour=gconf.DUE_COLOUR)
     pendings = ""
@@ -204,24 +180,24 @@ async def myteam(ctx, **details):
         else:
             pendings += "%s (%s)\n" % (players.find_player(id).name, str(id))
         
-    team_embed.add_field(name="Name", value=team.name, inline=False)
-    team_embed.add_field(name="Description", value=team.description, inline=False)
-    team_embed.add_field(name="Owner", value="%s (%s)" % (players.find_player(team.owner), team.owner), inline=False)
-    team_embed.add_field(name="Member Count", value=len(team.members), inline=False)
-    team_embed.add_field(name="Average level", value=team.avgLevel, inline=False)
-    team_embed.add_field(name="Required level", value=team.level, inline=False)
-    team_embed.add_field(name="Recruiting", value="Yes" if team.open else "No", inline=False)
+    team_embed.add_field(name=translations.translate(ctx, "other:common:Name"), value=team.name, inline=False)
+    team_embed.add_field(name=translations.translate(ctx, "other:common:Description"), value=team.description, inline=False)
+    team_embed.add_field(name=translations.translate(ctx, "other:common:Owner"), value="%s (%s)" % (players.find_player(team.owner), team.owner), inline=False)
+    team_embed.add_field(name=translations.translate(ctx, "other:common:MemberCount"), value=len(team.members), inline=False)
+    team_embed.add_field(name=translations.translate(ctx, "other:common:AverageLvl"), value=team.avgLevel, inline=False)
+    team_embed.add_field(name=translations.translate(ctx, "other:common:RequiredLvl"), value=team.level, inline=False)
+    team_embed.add_field(name=translations.translate(ctx, "other:common:Recruiting"), value=translations.translate(ctx, "other:singleworlds:Yes") if team.open else translations.translate(ctx, "other:singleworlds:No"), inline=False)
     
     if len(pendings) == 0:
-        pendings = "Nobody is pending!"
+        pendings = translations.translate(ctx, "team:myteam:NoPending")
     if len(members) == 0:
-        members = "There is no member to display!"
+        members = translations.translate(ctx, "team:myteam:NoMembers")
     if len(admins) == 0:
-        admins = "There is no admin to display!"
+        admins = translations.translate(ctx, "team:myteam:NoAdmins")
     
-    team_embed.add_field(name="Admins:", value=admins)
-    team_embed.add_field(name="Members:", value=members)
-    team_embed.add_field(name="Pendings:", value=pendings)
+    team_embed.add_field(name=translations.translate(ctx, "other:common:Admins"), value=admins)
+    team_embed.add_field(name=translations.translate(ctx, "other:common:Members"), value=members)
+    team_embed.add_field(name=translations.translate(ctx, "other:common:Pendings"), value=pendings)
 
     await util.reply(ctx, embed=team_embed)
 
@@ -300,16 +276,7 @@ async def demoteuser(ctx, user, **details):
 
 @commands.command(args_pattern="P", aliases=["tk"])
 async def teamkick(ctx, user, **details):
-    """
-    [CMD_KEY]teamkick (player)
-
-    Allows you to kick a member from your team.
-    You don't like him? Get rid of him!
-
-    NOTE: Team owner & admin are able to kick users from their team!
-        Admins cannot kick other admins or the owner.
-        Only the owner can kick an admin.
-    """
+    """team:teamkick:HELP"""
 
     member = details["author"]
 
@@ -407,7 +374,7 @@ async def showteams(ctx, page=1, **details):
 
 
 @commands.command(args_pattern="T", aliases=["sti"])
-async def showteaminfo(ctx, team, **_):
+async def showteaminfo(ctx, team, **details):
     """
     [CMD_KEY]showteaminfo (team)
 
@@ -616,3 +583,32 @@ async def declinepending(ctx, user, **details):
     team.removePending(ctx, user)
     
     await util.reply(ctx, "Removed **%s** from pendings!" % (user.name))
+    
+# import json
+# @commands.command(args_pattern=None, hidden=True, permission=Permission.BANANA_ADMIN)
+# async def atfjson(ctx, **details):
+#     """
+#     DONT FUCKING USE IT FIRESCOUTT
+#     """
+    
+#     glitchedTeams = ""
+#     with open('dueutil/game/configs/teams.json', 'r+') as team_file:
+#         team_list = json.load(team_file)
+#         for team in team_list:
+#             try:
+#                 team = team_list[team]
+#                 if teams.find_team(team["name"]):
+#                     continue
+#                 teams.Team(players.find_player(team["owner"]), team["name"], "This is a new and awesome team!", team["min_level"], team["open"])
+#                 new_team = teams.find_team(team["name"])
+#                 for member in team["members"]:
+#                     new_team.members.append(member)
+#                 for admin in team["admins"]:
+#                     new_team.admins.append(admin)
+#                 for pending in team["pendings"]:
+#                     new_team.pendings.append(pending)
+#             except:
+#                 glitchedTeams += team["name"] + "\n"
+                
+#     await util.reply(ctx, "Done!")
+#     await util.reply(ctx, "```" + glitchedTeams + "```")

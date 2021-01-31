@@ -1,9 +1,10 @@
 raven
 objgraph
+aiohttp
 validators
 colour
 pymongo
-discord.py
+discord
 cachetools
 numpy
 repoze.timeago

@@ -6,7 +6,7 @@ import discord
 
 import generalconfig as gconf
 from .. import util
-from ..game import weapons, awards
+from ..game import weapons, awards, translations
 from ..game.players import Player
 
 # Some tuples for use within this module.
@@ -61,7 +61,7 @@ async def give_awards_for_battle(channel, battle_log: _BattleLog):
         # if "Duerus" in winner.awards:
         #     await awards.give_award(channel, loser, "Duerus")
         if ("TopDog" in loser.awards):
-            if not (winner.id in (115269304705875969, 261799488719552513, 464601463440801792)):
+            if not (winner.id in (115269304705875969, 261799488719552513)):
                 loser.awards.remove("TopDog")
                 await awards.give_award(channel, winner, "TopDog")
                 awards.update_award_stat("TopDog", "top_dog", str(winner.id))
@@ -75,12 +75,12 @@ async def give_awards_for_battle(channel, battle_log: _BattleLog):
             await awards.give_award(channel, winner, "KillMe")
 
 
-def get_battle_log(**battleargs):
+def get_battle_log(ctx, **battleargs):
     """
     Creates a formatted embed of a battle
     """
 
-    battle_result = battle(**battleargs)
+    battle_result = battle(ctx, **battleargs)
     battle_moves = list(battle_result.moves.values())
     battle_embed = discord.Embed(title=(battleargs.get('player_one').name_clean
                                         + " :vs: " + battleargs.get('player_two').name_clean), type="rich",
@@ -95,19 +95,20 @@ def get_battle_log(**battleargs):
     if len(battle_log) > MAX_BATTLE_LOG_LEN:
         # Too long battle.
         # Mini summary.
+        Hit = translations.translate(ctx, "other:singleword:Hit")
+        And = translations.translate(ctx, "other:singleword:And")
         player_one = battle_result.opponents.p1
         player_two = battle_result.opponents.p2
-        battle_embed.description = ("Oh no! The battle was too long!\n"
-                                    + "Here's a mini summary!")
-        battle_embed.add_field(name="Mini summary",
-                               value="%s**%s** hit **%d** %s and %s**%s** hit **%d** %s!\n"
+        battle_embed.description = translations.translate(ctx, "other:battles:MiniSum")
+        battle_embed.add_field(name=translations.translate(ctx, "other:battles:NMiniSum"),
+                               value="%s**%s**"+Hit+"**%d** %s"+And+"%s**%s**"+Hit+"**%d** %s!\n"
                                      % (player_one.prefix.title(), player_one.player.name_clean, battle_result.p1_hits,
                                         util.s_suffix("time", battle_result.p1_hits),
                                         player_two.prefix, player_two.player.name_clean, battle_result.p2_hits,
                                         util.s_suffix("time", battle_result.p2_hits))
                                      + battle_moves[-1].message)
     else:
-        battle_embed.add_field(name='Battle log', value=battle_log)
+        battle_embed.add_field(name=translations.translate(ctx, "other:battles:BattleLog"), value=battle_log)
     battle_info = battle_result._asdict()
     # Deleted unneeded keys
     del battle_info["moves"], battle_info["opponents"], \
@@ -116,7 +117,7 @@ def get_battle_log(**battleargs):
 
 
 # quest, wager normal
-def battle(**battleargs):
+def battle(ctx, **battleargs):
     """
     Battles two player like things.
     Will return a log of the battle
@@ -253,8 +254,8 @@ def battle(**battleargs):
         # Inconceivable
         winner = loser = None
     turns = current_move - 1
-    moves["winner"] = _Move(message=(":trophy: %s**%s** wins in **%d** %s!"
-                                     % (winner.prefix.title(),
+    moves["winner"] = _Move(message=(translations.translate(ctx, "other:battles:Winner",
+                                        winner.prefix.title(),
                                         winner.player.name_clean,
                                         turns,
                                         util.s_suffix("turn", turns))

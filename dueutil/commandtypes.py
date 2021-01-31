@@ -1,4 +1,5 @@
 import re
+import json
 
 from .game.helpers import misc
 from .game import players, teams
@@ -71,7 +72,7 @@ def parse_player(player_id, called, ctx):
     # A DueUtil Player
     try:
         player = players.find_player(int(player_id))
-        if player is None or not player.is_playing(ctx.author) \
+        if player is None or not player.is_playing(ctx.guild) \
                 and called.permission < Permission.BANANA_MOD:
             return False
         return player

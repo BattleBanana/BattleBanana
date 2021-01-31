@@ -117,6 +117,7 @@ async def download_file(url):
             response.release()
             file_data.seek(0)
             return file_data
+        await session.close()
 
 
 async def reply(ctx, *args, **kwargs):
@@ -176,13 +177,6 @@ async def edit_message(message, **kwargs):
     await message.edit(content=content, embed=embed)
 
 
-async def fetch_user(user_id):
-    user = clients[0].get_user(int(user_id)) # Get user from cache
-    if user is None:
-        # User not in cache
-        user = await clients[0].fetch_user(int(user_id))
-    return user
-
 async def delete_message(message):
     await message.delete()
 
@@ -237,6 +231,13 @@ def get_channel(channel_id):
         return clients[0].get_channel(int(channel_id))
     except ValueError:
         return None
+
+
+def find_channel(channel_name):
+    channels = get_guild(gconf.other_configs['supportServer']).channels
+    for channel in channels:
+        if channel.name == channel_name:
+            return channel
 
 
 def ultra_escape_string(string):
@@ -299,6 +300,8 @@ def format_number_precise(number):
 
 
 def char_is_emoji(character):
+    if len(character) > 1:
+        return False
     emojize = emoji.emojize(character, use_aliases=True)
     demojize = emoji.demojize(emojize)
     return emojize != demojize
@@ -307,17 +310,29 @@ def char_is_emoji(character):
 def is_server_emoji(guild, possible_emoji):
     if guild is None:
         return False
-    
-    possible_emojis = [str(custom_emoji) for custom_emoji in guild.emojis]
-    return possible_emoji in possible_emojis
+    if possible_emoji.startswith("<a:"):
+        possible_emoji = "<" + possible_emoji[2:]
+    possible_emojis = [str(custom_emoji) for custom_emoji in guild.emojis if str(custom_emoji) in possible_emoji]
+    return len(possible_emojis) == 1 and (possible_emojis[0] == possible_emoji)
 
 
-def is_discord_emoji(guild, emoji):
-    return char_is_emoji(emoji) or is_server_emoji(guild, emoji)
+def is_discord_emoji(guild, possible_emoji):
+    return char_is_emoji(possible_emoji) or is_server_emoji(guild, possible_emoji)
+
+
+def get_server_name(guild, user_id):
+    try:
+        return guild.get_member(user_id).name
+    except AttributeError:
+        return "Unknown User"
 
 
 def clamp(number, min_val, max_val):
     return max(min(max_val, number), min_val)
+
+
+def normalize(number, min_val, max_val):
+    return (number - min_val) / (max_val - min_val)
 
 
 async def set_up_roles(guild):
@@ -338,7 +353,13 @@ def get_role_by_name(guild, role_name):
 
 
 def filter_string(string: str) -> str:
-    return ''.join([char if char.isprintable() else "?" for char in string])
+    new = ""
+    for i in range(0, len(string)):
+        if (32 <= ord(string[i]) <= 126) or (128 <= ord(string[i]) <= 175) or (224 <= ord(string[i]) <= 253):
+            new = new + string[i]
+        else:
+            new = new + "?"
+    return new
 
 
 SUFFIXES = {1: "st", 2: "nd", 3: "rd", 4: "th"}

@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 from PIL import Image, ImageDraw, ImageFont
 from colour import Color
 import aiohttp
+import asyncio
 from discord import File
 
 from dueutil import util
@@ -108,6 +109,7 @@ async def url_image(url):
             async with session.head(url=url, allow_redirects=True) as response:
                 return "Content-Type" in response.headers and \
                        response.headers["Content-Type"].lower().startswith("image")
+            await session.close()
     except Exception as exception:
         util.logger.error("Got %s while checking image url.", exception)
         # Do not care about any of the network errors that could occur.
@@ -148,8 +150,8 @@ def resize(image, width, height):
     return image.resize((width, height), Image.ANTIALIAS)
 
 
-async def resize_avatar(player, server, width, height):
-    return await resize_image_url((await player.get_avatar_url(server)), width, height)
+async def resize_avatar(player, guild, width, height):
+    return await resize_image_url(player.get_avatar_url(guild), width, height)
 
 
 async def resize_image_url(url, width, height):
@@ -174,12 +176,11 @@ async def send_image(ctx, image, Type, **kwargs):
     output = BytesIO()
     image.save(output, format="PNG")
     output.seek(0)
-    if Type == "s":
-        await ctx.channel.send(file=File(output, filename=kwargs.pop('file_name')), **kwargs)
-    else:
+    if Type == "r":
         await ctx.reply(file=File(output, filename=kwargs.pop('file_name')), **kwargs)
+    else:
+        await ctx.channel.send(file=File(output, filename=kwargs.pop('file_name')), **kwargs)
     output.close()
-
 
 
 async def level_up_screen(ctx, player, cash):
@@ -257,7 +258,6 @@ async def awards_screen(ctx, player, page, **kwargs):
                        + dueserverconfig.server_cmd_key(ctx.channel.guild) + command
                        + " " + str(page + 2) + " for the next page.")
             break
-    msg = ""
     if player_award == 0:
         msg = "That's all folks!"
     if len(player.awards) == 0:
@@ -321,7 +321,6 @@ async def quests_screen(ctx, player, page):
                        + dueserverconfig.server_cmd_key(ctx.channel.guild)
                        + "myquests " + str(page + 2) + " for the next page.")
             break
-    msg = ""
     if quest_index == 0:
         msg = "That's all your quests!"
     if len(player.quests) == 0:
@@ -564,7 +563,7 @@ async def googly_eyes(ctx, eye_descriptor):
         """
         mods = ["evil", "gay", "snek", "high", "ogre", "emoji", "small"]
         eye_type = ""
-        for _ in range(0, random.randrange(0, len(mods))):
+        for number_of_mods in range(0, random.randrange(0, len(mods))):
             mod = random.choice(mods)
             eye_type += mod
             mods.remove(mod)

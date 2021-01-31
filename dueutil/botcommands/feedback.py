@@ -1,6 +1,7 @@
 import discord
 
 import generalconfig as gconf
+from ..game import translations
 from .. import util, commands
 from ..permissions import Permission
 
@@ -19,6 +20,7 @@ class FeedbackHandler:
         author = ctx.author
         author_name = str(author)
 
+    #maybe an anto translator to english since people are bound to send non english suggestions/bugreports
         trello_link = await util.trello_client.add_card(board_url=gconf.trello_board,
                                                         name=message,
                                                         desc=("Automated %s added by BattleBanana\n" % self.type
@@ -34,8 +36,7 @@ class FeedbackHandler:
         report.add_field(name=ctx.guild.name, value=ctx.guild.id)
         report.add_field(name=ctx.channel.name, value=ctx.channel.id)
         report.set_footer(text="Sent at " + util.pretty_time())
-        await util.reply(ctx,
-                       ":mailbox_with_mail: Sent! You can view your %s here: <%s>" % (self.type, trello_link))
+        await translations.say(ctx, "feedback:misc:Sent", self.type, trello_link)
         await util.reply(ctx, embed=report)
 
         logReport = discord.Embed(color=gconf.DUE_COLOUR)
@@ -50,26 +51,16 @@ suggestion_sender = FeedbackHandler(channel=gconf.feedback_channel, type="sugges
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern="S")
-@commands.ratelimit(cooldown=300, error=":cold_sweat: Please don't submit anymore reports (for a few minutes)!")
+@commands.ratelimit(cooldown=300, error="feedback:bugreport:RateLimit")
 async def bugreport(ctx, report, **_):
-    """
-    [CMD_KEY]bugreport (report)
-    
-    Leaves a bug report on the official BattleBanana server and trello.
-    
-    """
+    """feedback:bugreport:Help"""
 
     await bug_reporter.send_report(ctx, report)
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern="S")
-@commands.ratelimit(cooldown=300, error=":hushed: Please no more suggestions (for a few minutes)!")
+@commands.ratelimit(cooldown=300, error="feedback:suggest:RateLimit")
 async def suggest(ctx, suggestion, **_):
-    """
-    [CMD_KEY]suggest (suggestion)
-    
-    Leaves a suggestion on the official BattleBanana server and trello.
-    
-    """
+    """feedback:suggest:Help"""
 
     await suggestion_sender.send_report(ctx, suggestion)

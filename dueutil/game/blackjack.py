@@ -1,3 +1,5 @@
+import pydealer
+
 equivalents = {
     "Jack": 10,
     "Queen": 10,

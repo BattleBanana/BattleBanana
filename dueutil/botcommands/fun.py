@@ -6,33 +6,27 @@ import asyncio
 
 import generalconfig as gconf
 from .. import commands, util, dbconn
-from ..game import awards, players, leaderboards, battles
+from ..game import awards, players, leaderboards, battles, translations
 from ..game.helpers import misc, imagehelper
 from ..game import emojis
 
 topdogs_per_page = 10
 
 
-async def glitter_text(channel, text):
+async def glitter_text(ctx, text):
     try:
         gif_text = await misc.get_glitter_text(text)
-        await channel.send(file=discord.File(fp=gif_text, filename="glittertext.gif"), content=":sparkles: Your glitter text!")
+        await ctx.channel.send(file=discord.File(fp=gif_text, filename="glittertext.gif"), content=":sparkles: "+translations.translate(ctx, "fun:glitter:Content"))
     except (ValueError, asyncio.TimeoutError):
-        await util.say(channel, ":cry: Could not fetch glitter text!")
+        await translations.say(ctx, "fun:glitter:Error")
 
 
 @commands.command(args_pattern='S', aliases=("gt", "glittertext",))
 @commands.imagecommand()
 async def glitter(ctx, text, **details):
-    """
-    [CMD_KEY]glitter(text)
-    
-    Creates a glitter text gif!
-    
-    (Glitter text from http://www.gigaglitters.com/)
-    """
+    """fun:glitter:Help"""
     details["author"].misc_stats["art_created"] += 1
-    await glitter_text(ctx.channel, text)
+    await glitter_text(ctx, text)
 
 
 @commands.command(args_pattern="S?")
@@ -321,7 +315,7 @@ async def battletopdog(ctx, **details):
     if top_dog == player:
         raise util.BattleBananaException(ctx.channel, "Don't beat yourself up!")
     
-    battle_log = battles.get_battle_log(player_one=player, player_two=top_dog)
+    battle_log = battles.get_battle_log(ctx, player_one=player, player_two=top_dog)
 
     await imagehelper.battle_screen(ctx, player, top_dog)
     await util.reply(ctx, embed=battle_log.embed)
@@ -354,7 +348,7 @@ async def show_awards(ctx, top_dog, page=0):
     if page != 0 and page * 5 >= len(top_dog.awards):
         raise util.BattleBananaException(ctx.channel, "Page not found")
 
-    await imagehelper.awards_screen(ctx, top_dog, page,
+    await imagehelper.awards_screen(ctx.channel, top_dog, page,
                                     is_top_dog_sender=ctx.author.id == top_dog.id)
                        
 
@@ -416,7 +410,7 @@ async def minecraft(ctx, **_):
     await util.reply(ctx, f"{emojis.QUESTER} Official BananaCraft server!", embed=embed)
 
 @commands.command(args_pattern="C?", aliases=["tdh"])
-async def topdoghistory(ctx, page=1, **_):
+async def topdoghistory(ctx, page=1, **details):
     """
     [CMD_KEY]topdoghistory (page)
 
@@ -457,6 +451,16 @@ async def topdoghistory(ctx, page=1, **_):
 
     await util.reply(ctx, embed=embed)
 
+# import aiohttp
+# @commands.command(args_pattern=None)
+# async def darkjoke(ctx, **details):
+#     async with aiohttp.ClientSession() as session:
+#         async with session.get(url="https://sv443.net/jokeapi/category/Dark") as response:
+#             json = await response.json()
+#             if json['type'] == "twopart":
+#                 await util.reply(ctx, f"{json['setup']}\n{json['delivery']}")
+#             else:
+#                 await util.reply(ctx, json["joke"])
 
 # import random
 # @commands.command(args_pattern=None)
