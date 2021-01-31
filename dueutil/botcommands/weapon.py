@@ -136,7 +136,7 @@ async def battle(ctx, *args, **details):
     battle_log = battles.get_battle_log(player_one=player_one, player_two=player_two)
 
     await imagehelper.battle_screen(ctx, player_one, player_two)
-    await util.reply(ctx, embed=battle_log.embed)
+    await util.say(ctx.channel, embed=battle_log.embed)
     if battle_log.winner is None:
         # Both players get the draw battle award
         awards.give_award(ctx.channel, player_one, "InconceivableBattle")
