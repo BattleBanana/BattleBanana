@@ -54,8 +54,7 @@ def command(**command_rules):
             player = players.find_player(ctx.author.id)
             if player is None:
                 if name != "createaccount":
-                    await util.say(ctx.channel, "You are not registered\nUse `"+prefix+"createaccount` to register")
-                    return
+                    return await util.reply(ctx, "You are not registered\nUse `"+prefix+"createaccount` to register")
                 
             # Player has admin perms
             is_admin = permissions.has_permission(ctx.author, Permission.SERVER_ADMIN)
