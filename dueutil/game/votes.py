@@ -1,3 +1,4 @@
+from dueutil.botcommands.player import DAILY_AMOUNT
 import generalconfig as gconf
 from discord import Embed
 
@@ -6,8 +7,6 @@ from dueutil import util, tasks, dbconn
 
 import traceback
 
-VOTE_REWARD = 25000
-WE_VOTE_REWARD = 40000
 
 @tasks.task(timeout=300)
 async def process_votes():
@@ -29,7 +28,7 @@ async def process_votes():
         if type(vote) == dict:
             vote_id = vote.get("_id")
             user_id = int(vote.get("user"))
-            isWeekend = vote.get("weekend")
+            isWeekend = vote.get("weekend", False)
             date = vote.get("date")
 
             player = players.find_player(user_id)
@@ -37,7 +36,9 @@ async def process_votes():
                 dbconn.conn()["Votes"].delete_one({'_id': vote_id})
                 continue
             
-            reward = WE_VOTE_REWARD if isWeekend else VOTE_REWARD
+            reward = DAILY_AMOUNT * player.level * player.prestige_multiplicator()
+            if isWeekend:
+                reward *= 2
             player.money += reward
             player.save()
 
