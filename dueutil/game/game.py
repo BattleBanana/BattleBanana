@@ -11,7 +11,7 @@ import json
 import generalconfig as gconf
 from .. import events
 from .. import util, dbconn
-from ..game import players, blackjack
+from ..game import players
 from ..game import stats, weapons, quests, awards
 from ..game.configs import dueserverconfig
 from ..game.helpers import imagehelper
@@ -24,7 +24,6 @@ SPAM_TOLERANCE = 50
 old_players = open('oldplayers.txt').read()  # For comeback award
 testers = open('testers.txt').read()  # For testers award
 # spelling_lock = Lock()
-
 
 def getResponses():
     return json.load(open("dueutil/game/configs/daily.json", "r"))
@@ -211,7 +210,7 @@ async def check_for_recalls(ctx, player):
     recall_amount = sum([weapons.get_weapon_summary_from_id(weapon_id).price for weapon_id in weapons_to_recall])
     player.money += recall_amount
     player.save()
-    await util.say(ctx.channel, (
+    await util.reply(ctx, (
         ":bangbang: " + ("One" if len(weapons_to_recall) == 1 else "Some") + " of your weapons has been recalled!\n"
         + "You get a refund of ``" + util.format_number(recall_amount, money=True, full_precision=True) + "``"))
 
@@ -247,7 +246,9 @@ async def on_message(message):
     player = players.find_player(message.author.id)
     spam_level = 100
     if player is not None:
-        if not player.is_playing(message.guild):
+        if message.guild.get_member(message.author.id) is None:
+            await message.guild.fetch_member(message.author.id) # Load player into our cache. this way we progressively 
+        if not player.is_playing(message.author):
             return
         if quest_time(player) or progress_time(player):
             spam_level = get_spam_level(player, message.content)

@@ -15,7 +15,6 @@ from ..game import (
     stats,
     awards,
     players,
-    emojis,
     translations)
 from .. import commands, util
 from ..game.helpers import misc
@@ -161,7 +160,7 @@ async def acceptquest(ctx, quest_index, **details):
         quest_results = translations.translate(ctx, "quest:acceptquest:Tie")
     battle_embed.add_field(name=translations.translate(ctx, "quest:acceptquest:QResult"), value=quest_results, inline=False)
     await imagehelper.battle_screen(ctx, player, quest)
-    await util.reply(ctx, embed=battle_embed)
+    await util.say(ctx.channel, embed=battle_embed)
     # Put this here to avoid 'spoiling' results before battle log
     if winner == player:
         await awards.give_award(ctx.channel, player, "QuestDone", "*Saved* the guild!")

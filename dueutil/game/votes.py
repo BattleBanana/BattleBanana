@@ -1,10 +1,7 @@
-import aiohttp, asyncio
 import generalconfig as gconf
-import json, jsonpickle
 from discord import Embed
 
-from . import players, stats
-from .stats import Stat
+from . import players
 from dueutil import util, tasks, dbconn
 
 import traceback

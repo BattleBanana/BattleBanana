@@ -7,8 +7,6 @@ from . import players, stats
 from .stats import Stat
 from dueutil import util, tasks
 
-import traceback
-
 # A quick discoin implementation.
 
 DISCOIN = "https://discoin.zws.im"
@@ -27,7 +25,6 @@ async def get_raw_currencies():
     async with aiohttp.ClientSession() as session:
         async with session.get(CURRENCIES, headers=headers) as response:
             return await response.json()
-        await session.close()
 
 async def get_currencies():
     try:
@@ -54,7 +51,6 @@ async def make_transaction(sender_id, amount, to, cfrom=CURRENCY_CODE):
         async with session.post(TRANSACTIONS,
                                 data=json.dumps(transaction_data), headers=headers) as response:
             return await response.json()
-        await session.close()
 
 
 async def reverse_transaction(user, From, amount, id):
@@ -66,7 +62,6 @@ async def unprocessed_transactions():
     async with aiohttp.ClientSession() as session:
         async with session.get(TRANSACTIONS + FILTER, headers=headers) as response:
             return await response.json()
-        await session.close()
 
 
 async def mark_as_completed(transaction):
@@ -74,7 +69,6 @@ async def mark_as_completed(transaction):
         async with session.patch(url=TRANSACTIONS + "/" + transaction['id'],
                                 data=json.dumps(handled), headers=headers) as response:
             return await response.json()
-        await session.close()
 
 @tasks.task(timeout=150)
 async def process_transactions():
@@ -105,7 +99,6 @@ async def process_transactions():
             
             source = transaction.get('from')
             source_id = source.get('id')
-            source_name = source.get('name')
 
             player = players.find_player(user_id)
             if player is None or payout < 1 :
@@ -143,7 +136,6 @@ async def notify_complete(user_id, transaction, failed=False):
             
             source = transaction.get('from')
             source_id = source.get('id')
-            source_name = source.get('name')
             
             embed.add_field(name="Exchange amount (%s):" % source_id,
                             value="$" + util.format_number_precise(amount))

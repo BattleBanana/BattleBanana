@@ -1,13 +1,12 @@
 import inspect
 from typing import Callable
-import discord
 
 from discord import Message
 
 from . import commands
 from .game.configs import dueserverconfig
 from .game.helpers.misc import DueMap
-from .game.translations import
+from .game.translations import translate
 from itertools import chain
 
 
@@ -111,7 +110,7 @@ def remove_message_listener(listener_function):
 
 def register_command(command_function):
     if commands.has_my_variant(command_function.__name__):
-        command_function.__doc__ += "\n\nNote; [CMD_KEY]{0}"+translation.translate("other:misc:IsAliasFor")+" [CMD_KEY]my{0}".format(command_function.__name__)
+        command_function.__doc__ += "\n\nNote; [CMD_KEY]{0}"+translate("other:misc:IsAliasFor")+" [CMD_KEY]my{0}".format(command_function.__name__)
     command_event[command_function.__name__] = command_function
 
 

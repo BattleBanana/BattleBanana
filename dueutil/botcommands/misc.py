@@ -1,11 +1,14 @@
+from asyncio.futures import Future
 import json
 import math
 import os
 import random
 import re
-import subprocess
+import platform
 import textwrap
+from threading import Thread
 import time
+import asyncio
 import traceback
 from contextlib import redirect_stdout
 from io import StringIO
@@ -19,9 +22,6 @@ from .. import commands, util, events, dbconn, loader
 from ..game import customizations, awards, leaderboards, game, emojis, translations
 from ..game.helpers import imagehelper
 from ..permissions import Permission
-
-
-# Import all game things. This is (bad) but is needed to fully use the eval command
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
@@ -238,9 +238,6 @@ async def eval(ctx, body, **details):
     code_in_l = body.split("\n")
     code_in = ""
     for item in code_in_l:
-        if "other_configs" in item.lower():
-            body = body.replace(item, "print('[REDACTED]')")
-            item = "[REDACTED]"
         if item.startswith(" "):
             code_in += f"... {item}\n"
         else:
@@ -263,27 +260,16 @@ async def eval(ctx, body, **details):
         value = stdout.getvalue()
         t2 = time.time()
         timep = f"#{(round((t2 - t1) * 1000000)) / 1000} ms"
-        if gconf.other_configs.get("botToken") in value:
-            value = value.replace(gconf.other_configs.get("botToken"), "[REDACTED]")
         await util.reply(ctx, f'```py\n{code_in}\n{value}{traceback.format_exc()}\n{timep}\n```')
     else:
         value = stdout.getvalue()
-        if gconf.other_configs.get("botToken") in value:
-            value = value.replace(gconf.other_configs.get("botToken"), "[REDACTED]")
-        # try:
-        #    successful = await util.reply(ctx, "Eval Successful")
-        #    await asyncio.sleep(3)
-        #    await successful.delete()
-        # except:
-        #    pass
+
         if ret is None:
             if value:
                 await util.reply(ctx, f'```py\n{code_in}\n{value}\n{timep}\n```')
             else:
                 await util.reply(ctx, f"```py\n{code_in}\n{timep}\n```")
         else:
-            if gconf.other_configs.get("botToken") in ret:
-                ret = ret.replace(gconf.other_configs.get("botToken"), "[REDACTED]")
             await util.reply(ctx, f'```py\n{code_in}\n{value}{ret}\n{timep}\n```')
 
 
@@ -390,7 +376,7 @@ async def sudo(ctx, victim, command, **_):
             raise util.BattleBananaException(ctx.channel, "You cannot sudo DeveloperAnonymous or Firescoutt")
 
     try:
-        ctx.author = ctx.guild.get_member(victim.id)
+        ctx.author = await ctx.guild.fetch_member(victim.id)
         if ctx.author is None:
             # This may not fix all places where author is used.
             ctx.author = victim.to_member(ctx.guild)
@@ -506,7 +492,7 @@ async def setcash(ctx, player, amount, **_):
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PI")
-async def setprestige(ctx, player, prestige, **details):
+async def setprestige(ctx, player, prestige, **_):
     player.prestige_level = prestige
     player.save()
     await util.reply(ctx, "Set prestige to **%s** for **%s**" % (prestige, player.get_name_possession_clean()))
@@ -551,10 +537,27 @@ async def updatebot(ctx, **_):
     """
 
     try:
-        update_result = subprocess.check_output(['bash', 'update_script.sh'])
-    except subprocess.CalledProcessError as updateexc:
+        sys = platform.platform()
+        if "Linux" in sys:
+            update_result = await asyncio.create_subprocess_shell('bash update_script.sh',
+                                                                    stdout=asyncio.subprocess.PIPE,
+                                                                    stderr=asyncio.subprocess.PIPE)
+        elif "Windows" in sys:
+            update_result = await asyncio.create_subprocess_shell('"C:\\Program Files\\Git\\bin\\bash" update_script.sh',
+                                                                    stdout=asyncio.subprocess.PIPE,
+                                                                    stderr=asyncio.subprocess.PIPE)
+        else:
+            raise asyncio.CancelledError()
+    except asyncio.CancelledError as updateexc:
         update_result = updateexc.output
-    update_result = update_result.decode("utf-8")
+    stdout, stderr = await update_result.communicate()
+    if stdout:
+        update_result = stdout.decode("utf-8")
+    elif stderr:
+        update_result = stderr.decode("utf-8")
+    else:
+        update_result = "Something went wrong!"
+
     if len(update_result.strip()) == 0:
         update_result = "No output."
     update_embed = discord.Embed(title=":gear: Updating BattleBanana!", type="rich", color=gconf.DUE_COLOUR)
@@ -562,7 +565,7 @@ async def updatebot(ctx, **_):
     update_embed.add_field(name='Changes', value='```' + update_result + '```', inline=False)
     await util.reply(ctx, embed=update_embed)
     update_result = update_result.strip()
-    if not (update_result.endswith("is up to date.") or update_result.endswith("up-to-date.")):
+    if not (update_result.endswith("is up to date.") or update_result.endswith("up-to-date.") or update_result == "Something went wrong!"):
         await util.duelogger.concern("BattleBanana updating!")
         os._exit(1)
 

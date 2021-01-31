@@ -348,7 +348,7 @@ async def show_awards(ctx, top_dog, page=0):
     if page != 0 and page * 5 >= len(top_dog.awards):
         raise util.BattleBananaException(ctx.channel, "Page not found")
 
-    await imagehelper.awards_screen(ctx.channel, top_dog, page,
+    await imagehelper.awards_screen(ctx, top_dog, page,
                                     is_top_dog_sender=ctx.author.id == top_dog.id)
                        
 
@@ -410,7 +410,7 @@ async def minecraft(ctx, **_):
     await util.reply(ctx, f"{emojis.QUESTER} Official BananaCraft server!", embed=embed)
 
 @commands.command(args_pattern="C?", aliases=["tdh"])
-async def topdoghistory(ctx, page=1, **details):
+async def topdoghistory(ctx, page=1, **_):
     """
     [CMD_KEY]topdoghistory (page)
 
@@ -451,16 +451,6 @@ async def topdoghistory(ctx, page=1, **details):
 
     await util.reply(ctx, embed=embed)
 
-# import aiohttp
-# @commands.command(args_pattern=None)
-# async def darkjoke(ctx, **details):
-#     async with aiohttp.ClientSession() as session:
-#         async with session.get(url="https://sv443.net/jokeapi/category/Dark") as response:
-#             json = await response.json()
-#             if json['type'] == "twopart":
-#                 await util.reply(ctx, f"{json['setup']}\n{json['delivery']}")
-#             else:
-#                 await util.reply(ctx, json["joke"])
 
 # import random
 # @commands.command(args_pattern=None)

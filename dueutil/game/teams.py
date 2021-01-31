@@ -1,25 +1,9 @@
-import math
-import random
-import time
-from collections import defaultdict
-from copy import copy
-import gc
-
-import discord
 import jsonpickle
-import numpy
 
-import generalconfig as gconf
 from ..util import SlotPickleMixin
-from .. import dbconn, util, tasks, permissions
-from ..permissions import Permission
-from ..game import awards
-from ..game import weapons
-from ..game import gamerules, players
-from ..game.helpers.misc import BattleBananaObject, Ring
-from . import customizations
-from .customizations import Theme
-from . import emojis as e
+from .. import dbconn, util
+from ..game import players
+from ..game.helpers.misc import BattleBananaObject
 
 teams = {}
 

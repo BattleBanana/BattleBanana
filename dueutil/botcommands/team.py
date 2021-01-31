@@ -1,20 +1,10 @@
 import jsonpickle
-import os
-import re
-import subprocess
-import math
-import time
-from io import StringIO
 
 import discord
-import objgraph
 
 import generalconfig as gconf
-import dueutil.permissions
-from ..game.helpers import imagehelper
-from ..permissions import Permission
-from .. import commands, util, events, dbconn
-from ..game import customizations, awards, leaderboards, game, players, emojis, teams, translations
+from .. import commands, util, dbconn
+from ..game import players, teams, translations
 
 
 @commands.command(args_pattern="SS?B?C?")
@@ -374,7 +364,7 @@ async def showteams(ctx, page=1, **details):
 
 
 @commands.command(args_pattern="T", aliases=["sti"])
-async def showteaminfo(ctx, team, **details):
+async def showteaminfo(ctx, team, **_):
     """
     [CMD_KEY]showteaminfo (team)
 
@@ -583,32 +573,3 @@ async def declinepending(ctx, user, **details):
     team.removePending(ctx, user)
     
     await util.reply(ctx, "Removed **%s** from pendings!" % (user.name))
-    
-# import json
-# @commands.command(args_pattern=None, hidden=True, permission=Permission.BANANA_ADMIN)
-# async def atfjson(ctx, **details):
-#     """
-#     DONT FUCKING USE IT FIRESCOUTT
-#     """
-    
-#     glitchedTeams = ""
-#     with open('dueutil/game/configs/teams.json', 'r+') as team_file:
-#         team_list = json.load(team_file)
-#         for team in team_list:
-#             try:
-#                 team = team_list[team]
-#                 if teams.find_team(team["name"]):
-#                     continue
-#                 teams.Team(players.find_player(team["owner"]), team["name"], "This is a new and awesome team!", team["min_level"], team["open"])
-#                 new_team = teams.find_team(team["name"])
-#                 for member in team["members"]:
-#                     new_team.members.append(member)
-#                 for admin in team["admins"]:
-#                     new_team.admins.append(admin)
-#                 for pending in team["pendings"]:
-#                     new_team.pendings.append(pending)
-#             except:
-#                 glitchedTeams += team["name"] + "\n"
-                
-#     await util.reply(ctx, "Done!")
-#     await util.reply(ctx, "```" + glitchedTeams + "```")

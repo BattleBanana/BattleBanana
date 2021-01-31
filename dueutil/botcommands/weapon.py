@@ -117,7 +117,7 @@ async def battle(ctx, *args, **details):
     battle_log = battles.get_battle_log(ctx, player_one=player_one, player_two=player_two)
 
     await imagehelper.battle_screen(ctx, player_one, player_two)
-    await util.reply(ctx, embed=battle_log.embed)
+    await util.say(ctx.channel, embed=battle_log.embed)
     if battle_log.winner is None:
         # Both players get the draw battle award
         awards.give_award(ctx.channel, player_one, "InconceivableBattle")
@@ -153,6 +153,8 @@ async def mywagers(ctx, page=1, **details):
     @misc.paginator
     def wager_page(wagers_embed, current_wager, **extras):
         sender = players.find_player(current_wager.sender_id)
+        if not sender: 
+            return
         wagers_embed.add_field(name="%d. Request from %s" % (extras["index"]+1, sender.name_clean),
                                value="<@%s> ``%s``" % (sender.id, util.format_money(current_wager.wager_amount)))
 

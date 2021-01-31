@@ -48,7 +48,7 @@ Battlebanana has many feature like
 For more information on how to use the bot you can look at our ["how to"](https://battlebanana.xyz/howto/) guide!
 
 ## Join our community
-BattleBanana is still being developed with an active community behind it and supporting its development, you too can help its development by joining [our server](https://discord.gg/xCgnHzW), [contribute](https://github.com/DeveloperAnonymous/BattleBanana#Contribute) towards the source code, or [donating](https://patreon.com/developeranonymous) to help pay for server costs
+BattleBanana is still being developed with an active community behind it and supporting its development, you too can help its development by joining [our server](https://battlebanana.xyz/support), [contribute](https://github.com/DeveloperAnonymous/BattleBanana#Contribute) towards the source code, or [donating](https://patreon.com/developeranonymous) to help pay for server costs
 
 ## Contribute 
 If you have a soild understanding of python you can help BattleBanana by contributing towards the source code by fixing bugs, adding new features, or fixing up the repo.

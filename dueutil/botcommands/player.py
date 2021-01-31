@@ -8,7 +8,7 @@ from ..game import players, customizations
 from ..game import stats, game, gamerules, quests, translations
 from ..game.helpers import misc, playersabstract, imagehelper
 from ..game.configs import dueserverconfig
-from .. import commands, util, dbconn, permissions
+from .. import commands, util, dbconn
 from ..permissions import Permission
 from ..game import emojis as e
 
@@ -30,8 +30,6 @@ async def daily(ctx, **details):
 
 @commands.command(args_pattern=None)
 @commands.ratelimit(cooldown=21600, error="player:train:RateLimit", save=True)
-#cooldown was 21600
-#set to 0 for testing purposes
 async def train(ctx, **details):
     """player:train:Help"""
 
@@ -79,7 +77,7 @@ async def mylimit(ctx, **details):
     await translations.say(ctx, "player:mylimit:Response", util.format_number(player.item_value_limit, money=True, full_precision=True))
 
 
-@commands.command(args_pattern="S?")
+@commands.command(args_pattern="S?", aliases=["bn"])
 async def battlename(ctx, name="", **details):
     """player:battlename:Help"""
 
@@ -154,9 +152,7 @@ async def show_awards(ctx, player, page=0):
 
 @commands.command(args_pattern=None, aliases=["hmw"])
 async def hidemyweapon(ctx, **details):
-    """
-    
-    """
+    """player:hidemyweapon:Help"""
     player = details["author"]
 
     player.weapon_hidden = not player.weapon_hidden
@@ -209,9 +205,9 @@ async def createaccount(ctx, **details):
 async def deleteme(ctx, cnf="", **details):
     """player:deleteme:Help"""
     
-    player = details["author"]
+    user = details["author"]
 
-    dbconn.delete_player(player)
+    dbconn.delete_player(user)
     players.players.pop(ctx.author.id)
     
     await translations.say(ctx, "player:deleteme:Success")
@@ -369,7 +365,6 @@ async def myprestige(ctx, player=None, **details):
     prestige_level = gamerules.get_level_for_prestige(player.prestige_level)
     req_money = gamerules.get_money_for_prestige(player.prestige_level)
 
-    #this is painful to read
     message = "%s prestige **%s**! " % ("**You** are" if player == details["author"] else "**" + player.name + "** is", player.prestige_level)
     message += "**%s** %s & %s" % ("You" if player == details["author"] else player.name, ("satisfy the level requirement" if prestige_level <= player.level else "need **%s** additional level(s)" % (prestige_level - player.level)),
                                     ("satisfy the money requirement" if req_money <= player.money else "need **%s%s** to afford the next prestige." 
@@ -462,7 +457,7 @@ def setbanner():
 
     return {"thing_type": "banner", "thing_inventory_slot": "banners"}
 
-# so uh i need to add the translations later because i need to think -fire
+
 # Part of the shop buy command
 @misc.paginator
 def theme_page(themes_embed, theme, **extras):
@@ -521,7 +516,7 @@ def banner_info(banner_name, **details):
     if banner.donor:
         embed.description = ":star2: This is a __donor__ banner!"
     embed.set_image(url="https://battlebanana.xyz/duefiles/banners/" + banner.image_name)
-    embed.set_footer(text="" + util.format_number(banner.price // price_divisor, money=True,
+    embed.set_footer(text="Buy this banner for " + util.format_number(banner.price // price_divisor, money=True,
                                                                       full_precision=True))
     return embed
 

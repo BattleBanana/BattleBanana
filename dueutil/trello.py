@@ -29,7 +29,6 @@ class TrelloClient:
             async with session.get(self.base_request + url, params=self.key_and_token) as response:
                 json = await response.json()
                 return json
-            await session.close()
 
     async def get_labels(self, board_id):
         return await self.fetch_json('boards/%s/labels' % board_id)
@@ -77,6 +76,5 @@ class TrelloClient:
                                 if "shortUrl" in result:
                                     return result["shortUrl"]
                                 raise Exception("Failed to add card!")
-                            await session.close()
                 raise Exception("List not found")
         raise Exception("Board not found")

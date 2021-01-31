@@ -43,7 +43,7 @@ def item_preview(thing_info_preview):
             thing_embed = things_info["thing_lister"](thing_list, page, title, price_divisor=4 / 3,
                                                       footer_more="But wait there's more! Do " + details["cmd_key"] +
                                                                   things_info["my_command"] + " " + str(page + 2))
-            await util.say(ctx.channel, embed=thing_embed)
+            await util.reply(ctx, embed=thing_embed)
         else:
             thing_name = page.lower()
             thing = things_info["thing_getter"](thing_name)
@@ -53,7 +53,7 @@ def item_preview(thing_info_preview):
                                                     embed=discord.Embed(type="rich", color=gconf.DUE_COLOUR))
             thing_embed.set_footer(text="Do " + details["cmd_key"] + things_info[
                 "set_command"] + " " + thing.name + " to use this " + thing_type + "!")
-            await util.say(ctx.channel, embed=thing_embed)
+            await util.reply(ctx, embed=thing_embed)
 
     return mything
 
@@ -81,7 +81,7 @@ def item_setter(item_info_setter):
             # This should be a property returning the 'thing' object
             thing = getattr(player, thing_type)
             player.save()
-            await util.say(ctx.channel,
+            await util.reply(ctx,
                            ":white_check_mark: " + thing_type.title() + " set to **" + thing.name_clean + "**")
         else:
             raise util.BattleBananaException(ctx.channel, thing_type.title() + " not found!")

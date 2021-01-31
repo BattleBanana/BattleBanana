@@ -1,24 +1,15 @@
-import os
-import re
-import subprocess
 import math
 import time
-from io import StringIO
 import random
 import asyncio
 
 from pydealer import Deck
 
 import discord
-import objgraph
 
 import generalconfig as gconf
-import dueutil.permissions
-from ..game.helpers import imagehelper
-from ..permissions import Permission
-from .. import commands, util, events, dbconn
-from ..game import players, translations, emojis as e
-from ..game import blackjack as blackjackGame
+from .. import commands, util
+from ..game import blackjack as blackjackGame, players, translations
 
 """
 This is a super cool category with some ~~gambling~~ surprise mechanics. 
@@ -31,8 +22,9 @@ Have fun kiddos!
 async def blackjack(ctx, price, **details):
     """gamble:blackjack:Help"""
     user = details["author"]
+    BattleBanana = players.find_player(ctx.guild.me.id)
     
-    if user.money < price:
+    if user.money < price or price > 1000000000:
         raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "gamble:blackjack:HighBet"))
     if price < 1:
         raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "gamble:blackjack:LowBet"))
@@ -128,6 +120,7 @@ async def blackjack(ctx, price, **details):
         result += translations.translate(ctx, "gamble:blackjack:RewardWin", price+gain)
     elif gain < 0:
         result += translations.translate(ctx, "gamble:blackjack:RewardLose", price)
+        BattleBanana.money += price
     else:
         result += translations.translate(ctx, "gamble:blackjack:RewardTie")
     
@@ -141,6 +134,7 @@ async def blackjack(ctx, price, **details):
     user.gamble_play = False
     user.last_played = 0
     user.save()
+    BattleBanana.save()
     
     await util.edit_message(msg, embed=blackjack_embed)
 
@@ -150,8 +144,9 @@ async def russianroulette(ctx, price, **details):
     """gamble:russianroulette:Help"""
 
     user = details["author"]
+    BattleBanana = players.find_player(ctx.guild.me.id)
     
-    if user.money < price:
+    if user.money < price or price > 1000000000:
        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "gamble:russianroulette:TooHigh"))
     if price < 1:
        raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "gamble:russianroulette:TooLow"))
@@ -165,5 +160,7 @@ async def russianroulette(ctx, price, **details):
         await util.edit_message(message, content=message.content + translations.translate(ctx, "gamble:russianroulette:Win", reward))
     else:
         user.money -= price
+        BattleBanana.money += price
         await util.edit_message(message, content=message.content + translations.translate(ctx, "gamble:russianroulette:Lose", price))
     user.save()
+    BattleBanana.save()
