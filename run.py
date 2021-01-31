@@ -330,7 +330,7 @@ class ClientThread(Thread):
             os._exit(1)
 
 
-def run_due():
+def run_bb():
     if not os.path.exists("assets/imagecache/"):
         os.makedirs("assets/imagecache/")
     loader.load_modules(packages=loader.GAME)
@@ -361,4 +361,4 @@ if __name__ == "__main__":
     bot_key = config["botToken"]
     shard_names = config["shardNames"]
     util.load(clients)
-    run_due()
+    run_bb()
