@@ -59,12 +59,12 @@ class Players(dict):
 players = Players()
 
 
-@tasks.task(timeout=Players.PRUNE_INACTIVITY_TIME)
-def prune_task():
-    try:
-        players.prune()
-    except RuntimeError as exception:
-        util.logger.warning("Failed to prune players: %s" % exception)
+# @tasks.task(timeout=Players.PRUNE_INACTIVITY_TIME)
+# def prune_task():
+#     try:
+#         players.prune()
+#     except RuntimeError as exception:
+#         util.logger.warning("Failed to prune players: %s" % exception)
 
 
 class Player(BattleBananaObject, SlotPickleMixin):
