@@ -150,7 +150,7 @@ async def blackjack(ctx, price, **details):
 @commands.ratelimit(cooldown=5, error="You can't use russian roulette again for **[COOLDOWN]**!", save=True)
 async def russianroulette(ctx, price, **details):
     """
-   [CMD_KEY]rusaianroulette ~~(bet)~~
+   [CMD_KEY]russianroulette ~~(bet)~~
     
     Play Russian Roulette with your friends, the gun.
     
