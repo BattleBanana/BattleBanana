@@ -1,8 +1,7 @@
 import discord
 
 import generalconfig as gconf
-from ..game import translations
-from .. import util, commands
+from .. import util, commands, translations
 from ..permissions import Permission
 
 

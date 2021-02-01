@@ -3,10 +3,10 @@ import inspect
 import discord
 
 import generalconfig as gconf
-from .. import commands, util
+from .. import commands, util, translations
 from . import player as player_cmds
 from . import weapon as weap_cmds
-from ..game import weapons, customizations, translations
+from ..game import weapons, customizations
 from ..game.helpers.shopabstract import ShopBuySellItem
 from functools import wraps
 

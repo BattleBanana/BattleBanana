@@ -5,8 +5,8 @@ from collections import namedtuple
 import discord
 
 import generalconfig as gconf
-from .. import util
-from ..game import weapons, awards, translations
+from .. import util, translations
+from ..game import weapons, awards
 from ..game.players import Player
 
 # Some tuples for use within this module.

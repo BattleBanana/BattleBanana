@@ -3,8 +3,8 @@ import jsonpickle
 import discord
 
 import generalconfig as gconf
-from .. import commands, util, dbconn
-from ..game import players, teams, translations
+from .. import commands, util, dbconn, translations
+from ..game import players, teams
 
 
 @commands.command(args_pattern="SS?B?C?")
@@ -169,14 +169,22 @@ async def myteam(ctx, **details):
             team.pendings.remove(id)
         else:
             pendings += "%s (%s)\n" % (players.find_player(id).name, str(id))
+
+    team = translations.translate(ctx, "other:common:Name")
+    description = translations.translate(ctx, "other:common:Description")
+    owner = translations.translate(ctx, "other:common:Owner")
+    memCount = translations.translate(ctx, "other:common:MemberCount")
+    averageLvl = translations.translate(ctx, "other:common:AverageLvl")
+    reqLvl = translations.translate(ctx, "other:common:RequiredLvl")
+    recruiting = translations.translate(ctx, "other:common:Recruiting")
         
-    team_embed.add_field(name=translations.translate(ctx, "other:common:Name"), value=team.name, inline=False)
-    team_embed.add_field(name=translations.translate(ctx, "other:common:Description"), value=team.description, inline=False)
-    team_embed.add_field(name=translations.translate(ctx, "other:common:Owner"), value="%s (%s)" % (players.find_player(team.owner), team.owner), inline=False)
-    team_embed.add_field(name=translations.translate(ctx, "other:common:MemberCount"), value=len(team.members), inline=False)
-    team_embed.add_field(name=translations.translate(ctx, "other:common:AverageLvl"), value=team.avgLevel, inline=False)
-    team_embed.add_field(name=translations.translate(ctx, "other:common:RequiredLvl"), value=team.level, inline=False)
-    team_embed.add_field(name=translations.translate(ctx, "other:common:Recruiting"), value=translations.translate(ctx, "other:singleworlds:Yes") if team.open else translations.translate(ctx, "other:singleworlds:No"), inline=False)
+    team_embed.add_field(name=team, value=team.name, inline=False)
+    team_embed.add_field(name=description, value=team.description, inline=False)
+    team_embed.add_field(name=owner, value="%s (%s)" % (players.find_player(team.owner), team.owner), inline=False)
+    team_embed.add_field(name=memCount, value=len(team.members), inline=False)
+    team_embed.add_field(name=averageLvl, value=team.avgLevel, inline=False)
+    team_embed.add_field(name=reqLvl, value=team.level, inline=False)
+    team_embed.add_field(name=recruiting, value=translations.translate(ctx, "other:singleworlds:Yes") if team.open else translations.translate(ctx, "other:singleworlds:No"), inline=False)
     
     if len(pendings) == 0:
         pendings = translations.translate(ctx, "team:myteam:NoPending")

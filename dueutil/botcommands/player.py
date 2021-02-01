@@ -5,10 +5,10 @@ import time
 import dueutil.game.awards as game_awards
 import generalconfig as gconf
 from ..game import players, customizations
-from ..game import stats, game, gamerules, quests, translations
+from ..game import stats, game, gamerules, quests
 from ..game.helpers import misc, playersabstract, imagehelper
 from ..game.configs import dueserverconfig
-from .. import commands, util, dbconn
+from .. import commands, util, dbconn, translations
 from ..permissions import Permission
 from ..game import emojis as e
 

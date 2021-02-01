@@ -3,12 +3,12 @@ import time
 from functools import wraps
 
 from . import permissions
-from .game import players, emojis, translations
+from .game import players, emojis
 from .game.configs import dueserverconfig
 from . import events, util, commandtypes
 from .permissions import Permission
 from . import commandextras
-from dueutil import dbconn
+from dueutil import dbconn, translations
 
 extras = commandextras
 IMAGE_REQUEST_COOLDOWN = 5

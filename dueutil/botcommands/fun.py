@@ -5,8 +5,8 @@ import repoze.timeago
 import asyncio
 
 import generalconfig as gconf
-from .. import commands, util, dbconn
-from ..game import awards, players, leaderboards, battles, translations
+from .. import commands, util, dbconn, translations
+from ..game import awards, players, leaderboards, battles
 from ..game.helpers import misc, imagehelper
 from ..game import emojis
 

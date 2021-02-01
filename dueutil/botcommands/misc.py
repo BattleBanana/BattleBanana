@@ -18,8 +18,8 @@ import dueutil.permissions
 import generalconfig as gconf
 import objgraph
 
-from .. import commands, util, events, dbconn, loader
-from ..game import customizations, awards, leaderboards, game, emojis, translations
+from .. import commands, util, events, dbconn, loader, translations
+from ..game import customizations, awards, leaderboards, game, emojis
 from ..game.helpers import imagehelper
 from ..permissions import Permission
 

@@ -3,9 +3,9 @@ import discord
 import generalconfig as gconf
 from ..game import players
 from ..permissions import Permission
-from ..game import battles, weapons, stats, awards, translations
+from ..game import battles, weapons, stats, awards
 from ..game.helpers import imagehelper, misc
-from .. import commands, util
+from .. import commands, util, translations
 
 
 @commands.command(args_pattern="M?", aliases=["mw"])

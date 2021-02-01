@@ -6,10 +6,10 @@ import json
 from itertools import chain
 
 import generalconfig as gconf
-from .. import commands, events, util, permissions
+from .. import commands, events, util, permissions, translations
 # Shorthand for emoji as I use gconf to hold emoji constants
 from ..game import emojis as e
-from ..game import stats, awards, discoin, players, translations
+from ..game import stats, awards, discoin, players
 from ..game.configs import dueserverconfig
 from ..game.stats import Stat
 from ..permissions import Permission
@@ -98,8 +98,8 @@ async def invite(ctx, **_):
 
     invite_embed = discord.Embed(title=translations.translate(ctx, "util:invite:Title"), type="rich", color=gconf.DUE_COLOUR)
     invite_embed.description = translations.translate(ctx, "util:invite:Desc")
-    invite_embed.add_field(name=translations.translate(ctx, "util:invite:Invite"), value=("["+translations.translate(ctx, "other:singlewords:Here")+"](%s)" % gconf.BOT_INVITE), inline=True)
-    invite_embed.add_field(name=translations.translate(ctx, "util:invite:Support"), value="["+translations.translate(ctx, "other:singlewords:Here")+"](https://discord.gg/P7DBDEC)", inline=True)
+    invite_embed.add_field(name=translations.translate(ctx, "util:invite:Invite"), value=("["+translations.translate(ctx, "other:singleword:Here")+"](%s)" % gconf.BOT_INVITE), inline=True)
+    invite_embed.add_field(name=translations.translate(ctx, "util:invite:Support"), value="["+translations.translate(ctx, "other:singleword:Here")+"](https://discord.gg/P7DBDEC)", inline=True)
     await util.reply(ctx, embed=invite_embed)
 
 

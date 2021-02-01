@@ -18,11 +18,11 @@ async def say(ctx, path, *args, **kwargs):
         string = str(path).split(":")
         lan = dueserverconfig.get_language(ctx.guild.id)
         try:
-            f = json.load(open("dueutil/game/configs/localization/"+str(lan)+"/"+string[0]+"/"+string[1]+".json", "r"))
+            f = json.load(open("dueutil/localization/"+str(lan)+"/"+string[0]+"/"+string[1]+".json", "r"))
             msg = f[string[2]]
         except (IndexError, FileNotFoundError, KeyError):
             #try:
-            f = json.load(open("dueutil/game/configs/localization/en/"+string[0]+"/"+string[1]+".json", "r"))
+            f = json.load(open("dueutil/localization/en/"+string[0]+"/"+string[1]+".json", "r"))
             msg = f[string[2]]
             #except (IndexError, FileNotFoundError, KeyError):
                 #raise util.BattleBananaException(ctx.channel, "Translation error, missing English translation")
@@ -44,11 +44,11 @@ def translate(ctx, path, *args):
     string = path.split(":")
     lan = dueserverconfig.get_language(ctx.guild.id)
     try:
-        f = json.load(open("dueutil/game/configs/localization/"+str(lan)+"/"+string[0]+"/"+string[1]+".json", "r"))
+        f = json.load(open("dueutil/localization/"+str(lan)+"/"+string[0]+"/"+string[1]+".json", "r"))
         msg = f[string[2]]
     except (IndexError, FileNotFoundError, KeyError):
         #try:
-        f = json.load(open("dueutil/game/configs/localization/en/"+string[0]+"/"+string[1]+".json", "r"))
+        f = json.load(open("dueutil/localization/en/"+string[0]+"/"+string[1]+".json", "r"))
         msg = f[string[2]]
         #except (IndexError, FileNotFoundError, KeyError):
             #raise util.BattleBananaException(ctx.channel, "Translation error, missing English translation")
@@ -66,10 +66,10 @@ def translate_help(ctx, path, *args):
     string = path.split(":")
     lan = dueserverconfig.get_language(ctx.guild.id)
     try:
-        f = json.load(open("dueutil/game/configs/localization/"+str(lan)+"/"+string[0]+"/"+string[1]+".json", "r"))
+        f = json.load(open("dueutil/localization/"+str(lan)+"/"+string[0]+"/"+string[1]+".json", "r"))
     except (IndexError, FileNotFoundError, KeyError):
         try:
-            f = json.load(open("dueutil/game/configs/localization/en/"+string[0]+"/"+string[1]+".json", "r"))
+            f = json.load(open("dueutil/localization/en/"+string[0]+"/"+string[1]+".json", "r"))
         except (IndexError, FileNotFoundError, KeyError):
             if "[CMD_KEY]" in path:
                 prefix = dueserverconfig.server_cmd_key(ctx.guild)
@@ -94,7 +94,7 @@ def translate_help(ctx, path, *args):
 #    string = path.split(":")
 #    lan = dueserverconfig.get_language(ctx.guild.id)
 #    try:
-#        f = json.load(open("dueutil/game/configs/localization/"+str(lan)+"/"+string[0]+"/"+string[1]+".json", "r"))
+#        f = json.load(open("dueutil/localization/"+str(lan)+"/"+string[0]+"/"+string[1]+".json", "r"))
 #    except (IndexError, FileNotFoundError):
 #        return "n/a"
 #    msg = f[string[2]]
