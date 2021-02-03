@@ -249,11 +249,13 @@ async def eval(ctx, body, **details):
 
     code_in_l = body.split("\n")
     code_in = ""
+    line = 1
     for item in code_in_l:
         if item.startswith(" "):
-            code_in += f"... {item}\n"
+            code_in += f"{line}... {item}\n"
         else:
-            code_in += f">>> {item}\n"
+            code_in += f"{line}>>> {item}\n"
+        line += 1
 
     to_compile = f'async def func():\n{textwrap.indent(body, "  ")}'
 

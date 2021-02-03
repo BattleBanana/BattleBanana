@@ -112,7 +112,7 @@ async def invite(ctx, **_):
     invite_embed = discord.Embed(title="BattleBanana's invites", type="rich", color=gconf.DUE_COLOUR)
     invite_embed.description = "Here are 2 important links about me! :smiley:"
     invite_embed.add_field(name="Invite me:", value=("[Here](%s)" % gconf.BOT_INVITE), inline=True)
-    invite_embed.add_field(name="Support guild:", value="[Here](https://discord.gg/P7DBDEC)", inline=True)
+    invite_embed.add_field(name="Support server:", value="[Here](https://discord.gg/P7DBDEC)", inline=True)
     await util.reply(ctx, embed=invite_embed)
 
 
