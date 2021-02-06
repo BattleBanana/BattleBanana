@@ -3,6 +3,7 @@ import time
 
 from .. import events, util, dbconn
 from ..game import players
+from ... import generalconfig as gconf
 from collections import namedtuple
 from cachetools.func import ttl_cache
 
@@ -14,7 +15,7 @@ _LocalLeaderboard = namedtuple("LocalLeaderboard", ["updated", "data"])
 
 
 def calculate_player_rankings(rank_name, sort_function, reverse=True):
-    ranked_players = sorted(players.players.values(), key=sort_function, reverse=reverse)
+    ranked_players = sorted(filter(lambda player: player.id!= gconf.DEAD_BOT_ID, players.players.values()), key=sort_function, reverse=reverse)
     # ranked_players = []
     leaderboards[rank_name] = (tuple(player.id for player in ranked_players), sort_function, reverse)
     db = dbconn.conn()
@@ -36,7 +37,7 @@ def get_leaderboard(rank_name):
 def get_local_leaderboard(guild, rank_name):
     rankings = get_leaderboard(rank_name)
     if rankings is not None:
-        rankings = list(filter(lambda player_id: guild.get_member(player_id) is not None, rankings))
+        rankings = list(filter(lambda player_id: guild.get_member(player_id) is not None and player_id != gconf.DEAD_BOT_ID, rankings))
         return _LocalLeaderboard(updated=last_leaderboard_update, data=rankings)
 
 
