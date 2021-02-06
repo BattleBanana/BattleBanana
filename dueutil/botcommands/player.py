@@ -485,7 +485,7 @@ def banner_page(banners_embed, banner, **extras):
                                                         money=True, full_precision=True) + "``"))
 
 
-def theme_info(theme_name, **details):
+def theme_info(ctx, theme_name, **details):
     embed = details["embed"]
     price_divisor = details.get('price_divisor', 1)
     theme = details.get('theme', customizations.get_theme(theme_name))
@@ -496,7 +496,7 @@ def theme_info(theme_name, **details):
     return embed
 
 
-def background_info(background_name, **details):
+def background_info(ctx, background_name, **details):
     embed = details["embed"]
     price_divisor = details.get('price_divisor', 1)
     background = customizations.get_background(background_name)
@@ -508,7 +508,7 @@ def background_info(background_name, **details):
     return embed
 
 
-def banner_info(banner_name, **details):
+def banner_info(ctx, banner_name, **details):
     embed = details["embed"]
     price_divisor = details.get('price_divisor', 1)
     banner = customizations.get_banner(banner_name)

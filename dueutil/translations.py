@@ -54,14 +54,15 @@ def translate(ctx, path, *args):
             #raise util.BattleBananaException(ctx.channel, "Translation error, missing English translation")
         #TODO other translations for non commands
         #raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "util:setlanguage:ERROR"))
-    
+
     if "[CMD_KEY]" in msg:
             prefix = dueserverconfig.server_cmd_key(ctx.guild)
             msg = msg.replace("[CMD_KEY]", prefix)
     
     return (msg % args)
 
-
+#dont ask me why i have this 
+#i dont know either
 def translate_help(ctx, path, *args):
     string = path.split(":")
     lan = dueserverconfig.get_language(ctx.guild.id)
