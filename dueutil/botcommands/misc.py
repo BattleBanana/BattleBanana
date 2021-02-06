@@ -458,13 +458,16 @@ async def unban(ctx, player, **_):
     await util.duelogger.info("**%s** has been unbanned" % player.name_clean)
 
 
-@commands.command(permission=Permission.BANANA_ADMIN, args_pattern=None, hidden=True)
-async def bans(ctx, **_):
+@commands.command(permission=Permission.BANANA_ADMIN, args_pattern="C?", hidden=True)
+async def bans(ctx, page=1, **_):
     bans_embed = discord.Embed(title="Ban list", type="rich", color=gconf.DUE_COLOUR)
     string = ""
-    for k, v in dueutil.permissions.special_permissions.items():
-        if v == "banned":
-            string += "<@%s> (%s)\n" % (k, k)
+    start = (page - 1) * 10
+    end = page * 10
+    
+    for cursor in dbconn.conn()['permissions'].find({'permission': "banned"}, {'_id': 1}).skip(start).limit(end):
+        string += "<@%s> (%s)\n" % (cursor['_id'], cursor['_id'])
+    
     bans_embed.add_field(name="There is what I collected about bad people:", value=string or "Nobody is banned!")
 
     await util.reply(ctx, embed=bans_embed)
