@@ -462,9 +462,9 @@ async def unban(ctx, player, **_):
 async def bans(ctx, page=1, **_):
     bans_embed = discord.Embed(title="Ban list", type="rich", color=gconf.DUE_COLOUR)
     string = ""
+    
     start = (page - 1) * 10
     end = page * 10
-    
     for cursor in dbconn.conn()['permissions'].find({'permission': "banned"}, {'_id': 1}).skip(start).limit(end):
         string += "<@%s> (%s)\n" % (cursor['_id'], cursor['_id'])
     
