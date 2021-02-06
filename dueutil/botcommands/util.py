@@ -544,7 +544,7 @@ async def cooldownreset(ctx, player, cooldown=None, **details):
         player.command_rate_limits = {}
     else:
         if not cooldown in player.command_rate_limits:
-            raise util.BattleBananaException("Invalid cooldown")
+            raise util.BattleBananaException(ctx.channel, "Invalid cooldown")
         player.command_rate_limits.pop(cooldown)
     
     player.save()
