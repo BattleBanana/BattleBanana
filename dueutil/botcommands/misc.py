@@ -465,7 +465,7 @@ async def bans(ctx, page=1, **_):
     
     start = (page - 1) * 10
     end = page * 10
-    for cursor in dbconn.conn()['permissions'].find({'permission': "banned"}, {'_id': 1}).skip(start).limit(end):
+    for cursor in dbconn.conn()['permissions'].find({'permission': "banned"}, {'_id': 1}).skip(start).limit(10):
         string += "<@%s> (%s)\n" % (cursor['_id'], cursor['_id'])
     
     bans_embed.add_field(name="There is what I collected about bad people:", value=string or "Nobody is banned!")
