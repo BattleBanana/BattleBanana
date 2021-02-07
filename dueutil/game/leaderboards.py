@@ -58,7 +58,7 @@ async def update_leaderboards(_):
         last_leaderboard_update = time.time()
         leaderboard_thread = threading.Thread(target=calculate_updates)
         leaderboard_thread.start()
-        await util.logger.info("Global leaderboard updated!")
+        util.logger.info("Global leaderboard updated!")
 
 
 def calculate_updates():
