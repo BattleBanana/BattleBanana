@@ -34,8 +34,7 @@ def loader(action, packages=BOT_PACKAGES):
     # if packages == BOT_PACKAGES:
     dbconn.drop_and_insert("commands", events.command_event.to_dict())
     if COMMANDS in packages:
-        util.logger.info('Bot extensions loaded with %d commands\n%s', len(events.command_event),
-                         ', '.join(events.command_event.command_list()))
+        util.logger.info('Bot extensions loaded with %d commands', len(events.command_event))
 
 
 def load_module(module_name):

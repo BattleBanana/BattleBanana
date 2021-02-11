@@ -87,7 +87,7 @@ class BattleBananaClient(discord.AutoShardedClient):
 
 
     async def on_guild_join(self, guild):
-        guild.chunk()
+        await guild.chunk()
         server_count = util.get_server_count()
         if server_count % 250 == 0:
             await util.say(gconf.announcement_channel,
