@@ -3,6 +3,7 @@ import os
 import random
 import re
 from io import BytesIO
+import mimetypes, urllib3
 from urllib.parse import urlparse
 from PIL import Image, ImageDraw, ImageFont
 from colour import Color
@@ -100,28 +101,54 @@ def paste_alpha(background, image, position):
     mask = Image.merge("L", (a,))
     background.paste(image, position, mask)
 
+    
+def is_url_image(url):    
+    mimetype,encoding = mimetypes.guess_type(url)
+    return (mimetype and mimetype.startswith('image'))
 
-async def url_image(url):
-    # Checks headers only
+
+def check_url(url):
+    """Returns True if the url returns a response code between 200-300,
+       otherwise return False.
+    """
     try:
-        async with aiohttp.ClientSession(conn_timeout=3) as session:
-            async with session.head(url=url, allow_redirects=True) as response:
-                return "Content-Type" in response.headers and \
-                       response.headers["Content-Type"].lower().startswith("image")
-    except Exception as exception:
-        util.logger.error("Got %s while checking image url.", exception)
-        # Do not care about any of the network errors that could occur.
-        pass
-    return False
+        headers = {
+            "Range": "bytes=0-10",
+            "User-Agent": "BattleBanana",
+            "Accept": "*/*"
+        }
+
+        req = urllib3.Request(url, headers=headers)
+        response = urllib3.urlopen(req)
+        return response.code in range(200, 209)
+    except Exception:
+        return False
 
 
-async def warn_on_invalid_image(channel, url):
+def url_image(url):
+    return is_url_image(url) and check_url(url)
+
+
+# async def url_image(url):
+#     # Checks headers only
+#     try:
+#         async with aiohttp.ClientSession(conn_timeout=3) as session:
+#             async with session.head(url=url, allow_redirects=True) as response:
+#                 return "Content-Type" in response.headers and \
+#                        response.headers["Content-Type"].lower().startswith("image")
+#     except Exception as exception:
+#         util.logger.error("Got %s while checking image url.", exception)
+#         # Do not care about any of the network errors that could occur.
+#         pass
+#     return False
+
+
+async def warn_on_invalid_image(channel):
     # A generic warning.
-    if not await url_image(url):
-        await util.say(channel,
-                       (":warning: The image url provided does not seem to be correct!\n"
-                        + "The url must point directly to an image file such as <https://battlebanana.xyz/img/slime.png>."))
-
+    await util.say(channel,
+                    (":warning: The image url provided does not seem to be correct!\n"
+                    + "The url must point directly to an image file such as <https://battlebanana.xyz/img/slime.png>."))
+                    
 
 async def load_image_url(url, **kwargs):
     if url is None:

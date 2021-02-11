@@ -1,3 +1,4 @@
+from dueutil.game.helpers import imagehelper
 import re
 
 from .game.helpers import misc
@@ -11,6 +12,12 @@ MAX_NUMBER = 9223372036854775807
 MIN_NUMBER = -MAX_NUMBER
 STRING_TYPES = ('S', 'M')
 THOUSANDS_REGEX = re.compile(r'(\,)([0-9][0-9][0-9])')
+
+
+def parse_link(url):
+    if (imagehelper.is_url_image(url)):
+        return url
+    return False
 
 def strip_thousands_separators(value):
     # Will strip 1000s without crazy 1,,,,,,,,,,000
@@ -89,5 +96,6 @@ def parse_type(arg_type, value, **extras):
         # This one is for page selectors that could be a page number or a string like a weapon name.
         'M': parse_count(value) if parse_count(value) else value,
         'B': value.lower() in misc.POSITIVE_BOOLS,
-        '%': parse_float(value.rstrip("%"))
+        '%': parse_float(value.rstrip("%")),
+        'L': parse_link(value)
     }.get(arg_type)

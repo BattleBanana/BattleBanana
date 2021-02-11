@@ -352,9 +352,9 @@ async def declineallquests(ctx, **details):
     await util.reply(ctx, "Declined %s quests!" % quests)
 
 
-@commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SRRRRS?S?S?%?')
+@commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SRRRRS?S?L?%?')
 async def createquest(ctx, name, attack, strg, accy, hp,
-                      task=None, weapon=None, image_url=None, spawn_chane=25, **_):
+                      task=None, weapon=None, image_url=None, spawn_chance=25, **_):
     """
     [CMD_KEY]createquest name (base attack) (base strg) (base accy) (base hp)
     
@@ -381,7 +381,7 @@ async def createquest(ctx, name, attack, strg, accy, hp,
         raise util.BattleBananaException(ctx.guild, "Whoa, you've reached the limit of %d quests!"
                                     % gconf.THING_AMOUNT_CAP)
 
-    extras = {"spawn_chance": spawn_chane}
+    extras = {"spawn_chance": spawn_chance}
     if task is not None:
         extras['task'] = task
     if weapon is not None:
@@ -393,17 +393,19 @@ async def createquest(ctx, name, attack, strg, accy, hp,
     if image_url is not None:
         extras['image_url'] = image_url
 
+        
+    if "image_url" in extras and not imagehelper.is_url_image(image_url):
+        return await imagehelper.warn_on_invalid_image(ctx.channel, url=extras["image_url"])
+
     new_quest = quests.Quest(name, attack, strg, accy, hp, **extras, ctx=ctx)
     await util.reply(ctx, ":white_check_mark: " + util.ultra_escape_string(
         new_quest.task) + " **" + new_quest.name_clean + "** is now active!")
-    if "image_url" in extras:
-        await imagehelper.warn_on_invalid_image(ctx.channel, url=extras["image_url"])
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SS*')
 @commands.extras.dict_command(optional={"attack/atk": "R", "strg/strength": "R", "hp": "R",
                                         "accy/accuracy": "R", "spawn": "%", "weapon/weap": "S",
-                                        "image": "S", "task": "S", "channel": "S"})
+                                        "image": "L", "task": "S", "channel": "S"})
 async def editquest(ctx, quest_name, updates, **_):
     """
     [CMD_KEY]editquest name (property value)+

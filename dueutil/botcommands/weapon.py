@@ -319,7 +319,7 @@ async def declinewager(ctx, wager_index, **details):
         raise util.BattleBananaException(ctx.channel, "Request not found!")
 
 
-@commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SSC%B?S?S?')
+@commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SSC%B?S?L?')
 async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon='🔫', image_url=None, **_):
     """
     [CMD_KEY]createweapon "weapon name" "hit message" damage accy
@@ -349,16 +349,17 @@ async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon=
     if image_url is not None:
         extras["image_url"] = image_url
 
+    if "image_url" in extras and not imagehelper.is_url_image(image_url):
+        return await imagehelper.warn_on_invalid_image(ctx.channel, url=extras["image_url"])
+        
     weapon = weapons.Weapon(name, hit_message, damage, accy, **extras, ctx=ctx)
     await util.reply(ctx, (weapon.icon + " **" + weapon.name_clean + "** is available in the shop for "
                                  + util.format_number(weapon.price, money=True) + "!"))
-    if "image_url" in extras:
-        await imagehelper.warn_on_invalid_image(ctx.channel, url=extras["image_url"])
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern="SS*")
 @commands.extras.dict_command(optional={"message/hit/hit_message": "S", "ranged": "B",
-                                        "icon": "S", "image": "S"})
+                                        "icon": "S", "image": "L"})
 async def editweapon(ctx, weapon_name, updates, **_):
 
     """
