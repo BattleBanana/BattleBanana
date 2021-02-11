@@ -2,6 +2,7 @@ import asyncio
 import io
 import logging
 import math
+from os import utime
 import time
 from datetime import datetime
 from itertools import chain
@@ -130,7 +131,9 @@ async def reply(ctx, *args, **kwargs):
     else:
         try:
             return await ctx.reply(*args, **kwargs)
-        except discord.Forbidden as send_error:
+        except discord.errors.HTTPException:
+            return await say(ctx.channel, *args, **kwargs)
+        except discord.errors.Forbidden as send_error:
             raise SendMessagePermMissing(send_error)
 
 

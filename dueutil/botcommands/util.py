@@ -149,7 +149,7 @@ async def botinfo(ctx, **_):
                                % discord.__version__)
     info_embed.add_field(name="Version", value=gconf.VERSION),
     info_embed.add_field(name="Invite BB!", value="%s" % gconf.BOT_INVITE, inline=False)
-    info_embed.add_field(name="Support guild",
+    info_embed.add_field(name="Support server",
                          value="For help with the bot or a laugh join **https://discord.gg/P7DBDEC**!")
     await util.reply(ctx, embed=info_embed)
 
