@@ -127,7 +127,7 @@ async def reply(ctx, *args, **kwargs):
         ctx.channel = get_guild(int(server_id)).get_channel(int(channel_id))
     if asyncio.get_event_loop() != clients[0].loop:
         # Allows it to speak across shards
-        clients[0].run_task(say, *((ctx.channel,) + args), **kwargs)
+        clients[0].run_task(reply, *((ctx.channel,) + args), **kwargs)
     else:
         try:
             return await ctx.reply(*args, **kwargs)
