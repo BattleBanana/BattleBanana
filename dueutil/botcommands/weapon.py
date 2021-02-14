@@ -407,13 +407,16 @@ async def editweapon(ctx, weapon_name, updates, **_):
     if len(updates) == 0:
         await util.reply(ctx, "You need to provide a list of valid changes for the weapon!")
     else:
-        weapon.save()
         result = weapon.icon+" **%s** updates!\n" % weapon.name_clean
         for weapon_property, update_result in updates.items():
             result += "``%s`` → %s\n" % (weapon_property, update_result)
+            
+        if not imagehelper.is_url_image(new_image_url):
+            weapon.image_url = weapons.Weapon.DEFAULT_IMAGE
+            await imagehelper.warn_on_invalid_image(ctx.channel, url=new_image_url)
+
+        weapon.save()
         await util.reply(ctx, result)
-        if new_image_url is not None:
-            await imagehelper.warn_on_invalid_image(ctx.channel, new_image_url)
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='S')
