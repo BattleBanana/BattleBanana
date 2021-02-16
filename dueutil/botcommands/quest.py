@@ -487,9 +487,13 @@ async def editquest(ctx, quest_name, updates, **_):
         result = e.QUEST + " **%s** updates!\n" % quest.name_clean
         for quest_property, update_result in updates.items():
             result += ("``%s`` → %s\n" % (quest_property, update_result))
+
+        if new_image_url is not None and not imagehelper.is_url_image(new_image_url):
+            quest.image_url = quests.Quest.DEFAULT_IMAGE
+            await imagehelper.warn_on_invalid_image(ctx.channel, url=new_image_url)
+
+        quest.save()
         await util.reply(ctx, result)
-        if new_image_url is not None:
-            await imagehelper.warn_on_invalid_image(ctx.channel, new_image_url)
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='S')
