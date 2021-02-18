@@ -8,7 +8,7 @@ from functools import total_ordering
 special_permissions = dict()
 
 """
-DueUtil permissions
+BattleBanana permissions
 """
 
 

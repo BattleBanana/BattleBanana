@@ -23,7 +23,7 @@ Summary = namedtuple("Summary", ["price", "damage", "accy"])
 
 
 class Weapon(BattleBananaObject, SlotPickleMixin):
-    """A simple weapon that can be used by a monster or player in DueUtil"""
+    """A simple weapon that can be used by a monster or player in BattleBanana"""
 
     PRICE_CONSTANT = 0.04375
     DEFAULT_IMAGE = "http://i.imgur.com/QFyiU6O.png"

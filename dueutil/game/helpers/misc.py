@@ -35,7 +35,7 @@ class AutoReply:
 
 class BattleBananaObject:
     """
-    Base object for DueUtil items
+    Base object for BattleBanana items
     """
 
     __slots__ = ["no_save", "id", "name"]

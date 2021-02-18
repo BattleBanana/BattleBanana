@@ -9,7 +9,7 @@ from ..game.configs import dueserverconfig
 awards = dict()
 
 """
-DueUtil awards
+BattleBanana awards
 """
 
 

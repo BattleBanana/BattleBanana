@@ -106,7 +106,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
             super().__init__(args[0].id, args[0].name, **kwargs)
             players[self.id] = self
         else:
-            super().__init__("NO_ID", "DueUtil Player", **kwargs)
+            super().__init__("NO_ID", "BattleBanana Player", **kwargs)
         self.reset()
 
     def prestige(self, discord_user=None):
