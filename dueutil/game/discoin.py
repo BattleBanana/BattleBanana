@@ -72,52 +72,56 @@ async def mark_as_completed(transaction):
 
 @tasks.task(timeout=150)
 async def process_transactions():
-    if not util.clients[0].is_ready():
-        return
-    await get_currencies()
-    util.logger.info("Processing Discoin transactions.")
     try:
-        unprocessed = await unprocessed_transactions()
-    except Exception as exception:
-        util.logger.error("Failed to fetch Discoin transactions: %s", exception)
-        return
+        if not util.clients[0].is_ready():
+            return
+        await get_currencies()
+        util.logger.info("Processing Discoin transactions.")
+        try:
+            unprocessed = await unprocessed_transactions()
+        except Exception as exception:
+            util.logger.error("Failed to fetch Discoin transactions: %s", exception)
+            return
 
-    if unprocessed is None:
-        return
-    
-    client = util.clients[0]
+        if unprocessed is None:
+            return
+        
+        client = util.clients[0]
 
-    for transaction in unprocessed:
-        if type(transaction) == dict:
-            transaction_id = transaction.get('id')
-            user_id = int(transaction.get('user'))
-            payout = transaction.get('payout')
-            if payout is None:
-                continue
-            payout = int(payout)
-            amount = float(transaction.get('amount'))
-            
-            source = transaction.get('from')
-            source_id = source.get('id')
+        for transaction in unprocessed:
+            if type(transaction) == dict:
+                transaction_id = transaction.get('id')
+                user_id = int(transaction.get('user'))
+                payout = transaction.get('payout')
+                if payout is None:
+                    continue
+                payout = int(payout)
+                amount = float(transaction.get('amount'))
+                
+                source = transaction.get('from')
+                source_id = source.get('id')
 
-            player = players.find_player(user_id)
-            if player is None or payout < 1 :
-                await reverse_transaction(user_id, source_id, payout, transaction_id)
-                client.run_task(notify_complete, user_id, transaction, failed=True)
-                continue
+                player = players.find_player(user_id)
+                if player is None or payout < 1 :
+                    await reverse_transaction(user_id, source_id, payout, transaction_id)
+                    client.run_task(notify_complete, user_id, transaction, failed=True)
+                    continue
 
-            stats.increment_stat(Stat.DISCOIN_RECEIVED, payout)
-            player.money += payout
-            player.save()
-            client.run_task(notify_complete, user_id, transaction)
+                stats.increment_stat(Stat.DISCOIN_RECEIVED, payout)
+                player.money += payout
+                player.save()
+                client.run_task(notify_complete, user_id, transaction)
 
-            embed = Embed(title="Discion Transaction", description="Receipt ID: [%s](%s)" % (transaction["id"], f"{DISCOINDASH}/{transaction['id']}/show"), 
-                type="rich", colour=gconf.DUE_COLOUR)
-            embed.add_field(name="User:", value=f"{user_id}")
-            embed.add_field(name="Exchange", value="%.2f %s => %s %s" % (amount, source_id, payout, CURRENCY_CODE), inline=False)
+                embed = Embed(title="Discion Transaction", description="Receipt ID: [%s](%s)" % (transaction["id"], f"{DISCOINDASH}/{transaction['id']}/show"), 
+                    type="rich", colour=gconf.DUE_COLOUR)
+                embed.add_field(name="User:", value=f"{user_id}")
+                embed.add_field(name="Exchange", value="%.2f %s => %s %s" % (amount, source_id, payout, CURRENCY_CODE), inline=False)
 
-            util.logger.info("Processed discoin transaction %s", transaction_id)
-            await util.say(gconf.discoin_channel, embed=embed)
+                util.logger.info("Processed discoin transaction %s", transaction_id)
+                await util.say(gconf.discoin_channel, embed=embed)
+    except Exception as e:
+        util.logging.warn(e)
+
 
 
 async def notify_complete(user_id, transaction, failed=False):
