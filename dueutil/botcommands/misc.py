@@ -259,11 +259,12 @@ async def eval(ctx, body, **details):
 
     to_compile = f'async def func():\n{textwrap.indent(body, "  ")}'
 
+    msg = await util.say(ctx.channel, "Evaluating")
     t1 = time.time()
     try:
         exec(to_compile, env)
     except Exception as e:
-        return await util.reply(ctx, f'```py\n{code_in}\n{e.__class__.__name__}: {e}\n```')
+        return await util.edit_message(msg, content=f'```py\n{code_in}\n{e.__class__.__name__}: {e}\n```')
     func = env['func']
     try:
         with redirect_stdout(stdout):
@@ -274,17 +275,17 @@ async def eval(ctx, body, **details):
         value = stdout.getvalue()
         t2 = time.time()
         timep = f"#{(round((t2 - t1) * 1000000)) / 1000} ms"
-        await util.reply(ctx, f'```py\n{code_in}\n{value}{traceback.format_exc()}\n{timep}\n```')
+        await util.edit_message(msg, content=f'```py\n{code_in}\n{value}{traceback.format_exc()}\n{timep}\n```')
     else:
         value = stdout.getvalue()
 
         if ret is None:
             if value:
-                await util.reply(ctx, f'```py\n{code_in}\n{value}\n{timep}\n```')
+                await util.edit_message(msg, content=f'```py\n{code_in}\n{value}\n{timep}\n```')
             else:
-                await util.reply(ctx, f"```py\n{code_in}\n{timep}\n```")
+                await util.edit_message(msg, content=f"```py\n{code_in}\n{timep}\n```")
         else:
-            await util.reply(ctx, f'```py\n{code_in}\n{value}{ret}\n{timep}\n```')
+            await util.edit_message(msg, content=f'```py\n{code_in}\n{value}{ret}\n{timep}\n```')
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="CC?B?", hidden=True)
