@@ -110,7 +110,7 @@ class BattleBananaObject:
 
 
 #### MacDue's wacky data clases (monkey patches)
-class DueMap(collections.MutableMapping):
+class DueMap(collections.abc.MutableMapping):
     """
     
     A 2D Mapping for things & items
