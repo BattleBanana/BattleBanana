@@ -8,3 +8,4 @@ generalconfig.py
 dueutil/game/configs/codes.json
 .vscode/
 .idea/
+dueutil/localization

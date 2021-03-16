@@ -303,14 +303,14 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
 
     if sender.money - transaction_amount < 0:
         if sender.money > 0:
-            await translations.say(ctx, sender, "player:sendcash:Higher", amount_string, util.format_number(sender.money, money=True, full_precision=True))
+            await translations.say(ctx, "player:sendcash:Higher", amount_string, util.format_number(sender.money, money=True, full_precision=True))
         else:
-            await translations.say(ctx, sender, "player:sendcash:Broke")
+            await translations.say(ctx, "player:sendcash:Broke")
         return
 
     max_receive = int(receiver.item_value_limit * 10)
     if transaction_amount > max_receive:
-        await translations.say(ctx, sender, "player:sendcash:CantAfford", amount_string, receiver.name_clean, receiver.name_clean, util.format_number(max_receive, money=True, full_precision=True))
+        await translations.say(ctx, "player:sendcash:CantAfford", amount_string, receiver.name_clean, receiver.name_clean, util.format_number(max_receive, money=True, full_precision=True))
         return
 
     sender.money -= transaction_amount
