@@ -1,7 +1,9 @@
 import json
 import jsonpickle
 import pymongo
+import inspect
 from pymongo import MongoClient
+from dueutil.game import commandstats
 
 db = None
 config = {}
@@ -21,10 +23,17 @@ def conn():
     else:
         return db
 
+command_stats = commandstats.CommandRecords() if len(commandstats.commandstat_instances) == 0 else commandstats.commandstat_instances[0]
 
 def insert_object(id, pickleable_object):
     if isinstance(id, str) and id.strip() == "":
         return
+
+    call = inspect.getframeinfo(inspect.currentframe())
+    for i in range(len(command_stats.records)):
+        command_stats.records[i][str(call[0]) + "." + str(call[2])] = command_stats.records[i].get(str(call[0]) + "." + str(call[2]), 0) + 1
+        call = call.f_back
+    
     #todo
     # jsonpickle_data = json.loads(jsonpickle.encode(pickleable_object))
     conn()[type(pickleable_object).__name__].update({'_id': id},
