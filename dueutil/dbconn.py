@@ -58,7 +58,7 @@ def command_used(command):
 def update_guild_joined(count):
     month = datetime.now().strftime("%Y-%m")
     update_query = {'$inc': {'joined': 1} if count > 0 else {'left': 1}}
-    conn()["GuildStats"].update({'date': month}, update_query, upsert=True)
+    conn()["GuildStats"].update({'_id': month}, update_query, upsert=True)
 
 def _load_config():
     global config
