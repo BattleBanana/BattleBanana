@@ -52,7 +52,7 @@ def delete_player(player):
 
 def command_used(command):
     month = datetime.now().strftime("%Y-%m")
-    conn()["CommandUsage"].update({'_id': command}, {'dates': {'$inc': {month: 1}}}, upsert=True)
+    conn()["CommandUsage"].update({'_id': command}, {'$inc': {'dates.'+month: 1}}, upsert=True)
 
 
 def update_guild_joined(count):
