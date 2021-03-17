@@ -90,6 +90,7 @@ class BattleBananaClient(discord.AutoShardedClient):
     async def on_guild_join(self, guild):
         await guild.chunk()
         server_count = util.get_server_count()
+        dbconn.update_guild_joined(1)
         if server_count % 250 == 0:
             await util.say(gconf.announcement_channel,
                                 ":confetti_ball: I'm on __**%d SERVERS**__ now!1!111!\n@everyone" % server_count)
@@ -271,6 +272,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         await util.duelogger.info("BattleBanana has been removed from the guild **%s** (%s members)"
                                        % (util.ultra_escape_string(guild.name), guild.member_count))
         # Update stats
+        dbconn.update_guild_joined(-1)
         await servercounts.update_server_count(self)
 
 

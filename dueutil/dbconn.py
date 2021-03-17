@@ -52,8 +52,13 @@ def delete_player(player):
 
 def command_used(command):
     month = datetime.now().strftime("%Y-%m")
-    conn()["CommandUsage"].update({'_id': command}, {'$inc': {month: 1}}, upsert=True)
+    conn()["CommandUsage"].update({'_id': command}, {'dates': {'$inc': {month: 1}}}, upsert=True)
 
+
+def update_guild_joined(count):
+    month = datetime.now().strftime("%Y-%m")
+    update_query = {'$inc': {'joined': 1} if count > 0 else {'left': 1}}
+    conn()["GuildStats"].update({'date': month}, update_query, upsert=True)
 
 def _load_config():
     global config
