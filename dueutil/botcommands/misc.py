@@ -425,16 +425,16 @@ async def setpermlevel(ctx, player, level, **_):
                        "**" + player.name_clean + "** permission level set to ``" + permission.value[1] + "``.")
         if permission == Permission.BANANA_MOD:
             await awards.give_award(ctx.channel, player, "Mod", "Become an mod!")
-            await util.duelogger.info("**%s** is now a BattleBanana mod!" % player.name_clean)
+            await util.duelogger.info("**%s** is now a BattleBanana mod! (%s)" % (player.name_clean, str(player.id)))
         elif "Mod" in player.awards:
             player.awards.remove("Mod")
         if permission == Permission.BANANA_ADMIN:
             await awards.give_award(ctx.channel, player, "Admin", "Become an admin!")
-            await util.duelogger.info("**%s** is now a BattleBanana admin!" % player.name_clean)
+            await util.duelogger.info("**%s** is now a BattleBanana admin! (%s)" % (player.name_clean, str(player.id)))
         elif "Admin" in player.awards:
             player.awards.remove("Admin")
         if permission == Permission.BANANA_OWNER:
-            await util.duelogger.info("**%s** is now a BattleBanana Owner!" % player.name_clean)
+            await util.duelogger.info("**%s** is now a BattleBanana Owner! (%s)" % (player.name_clean, str(player.id)))
     else:
         raise util.BattleBananaException(ctx.channel, "Permission not found")
 
@@ -445,7 +445,7 @@ async def ban(ctx, player, **_):
         raise util.BattleBananaException(ctx.channel, "You cannot ban DeveloperAnonymous or Firescoutt")
     dueutil.permissions.give_permission(player.to_member(ctx.guild), Permission.BANNED)
     await util.reply(ctx, emojis.MACBAN + " **" + player.name_clean + "** banned!")
-    await util.duelogger.concern("**%s** has been banned!" % player.name_clean)
+    await util.duelogger.concern("**%s** has been banned! (%s)" % (player.name_clean, str(player.id)))
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="P", aliases=["pardon"])
@@ -456,7 +456,7 @@ async def unban(ctx, player, **_):
         return
     dueutil.permissions.give_permission(member, Permission.PLAYER)
     await util.reply(ctx, ":unicorn: **" + player.name_clean + "** has been unbanned!")
-    await util.duelogger.info("**%s** has been unbanned" % player.name_clean)
+    await util.duelogger.info("**%s** has been unbanned (%s)" % (player.name_clean, str(player.id)))
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="C?", hidden=True)

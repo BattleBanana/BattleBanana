@@ -42,6 +42,7 @@ class FeedbackHandler:
         logReport.set_author(name=author_name, icon_url=author_icon_url)
         logReport.add_field(name=self.type.title(), value="%s\n\n[Trello card](%s)" % (message, trello_link), inline=False)
         logReport.add_field(name=ctx.guild.name, value=ctx.guild.id)
+        logReport.add_field(name="author" , value=ctx.author.id)
         logReport.set_footer(text="Received at " + util.pretty_time())
         await util.say(gconf.bug_channel if self.type == "bug report" else gconf.feedback_channel, embed=logReport)
 

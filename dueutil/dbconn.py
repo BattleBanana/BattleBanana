@@ -22,7 +22,6 @@ def conn():
     else:
         return db
 
-
 def insert_object(id, pickleable_object):
     if isinstance(id, str) and id.strip() == "":
         return
