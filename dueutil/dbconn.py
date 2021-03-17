@@ -1,6 +1,7 @@
 import json
 import jsonpickle
 import pymongo
+from datetime import datetime
 from pymongo import MongoClient
 
 db = None
@@ -48,6 +49,11 @@ def delete_objects(object_class, id_pattern):
 
 def delete_player(player):
     conn()["Player"].delete_one({'_id': player.id})
+
+
+def command_used(command):
+    month = datetime.now().strftime("%Y-%m")
+    conn()["CommandUsage"].update({'_id': command}, {'$inc': {month: 1}}, upsert=True)
 
 
 def _load_config():
