@@ -125,6 +125,11 @@ async def reply(ctx, *args, **kwargs):
         # Guild/Channel id
         server_id, channel_id = ctx.channel.split("/")
         ctx.channel = get_guild(int(server_id)).get_channel(int(channel_id))
+    if type(args[0]) is str:
+        text = args[0]
+        if "|" in text:
+            # args[0] = Translated text
+            pass
     if asyncio.get_event_loop() != clients[0].loop:
         # Allows it to speak across shards
         clients[0].run_task(reply, *((ctx.channel,) + args), **kwargs)
@@ -142,6 +147,11 @@ async def say(channel, *args, **kwargs):
         # Guild/Channel id
         server_id, channel_id = channel.split("/")
         channel = get_guild(int(server_id)).get_channel(int(channel_id))
+    if type(args[0]) is str:
+        text = args[0]
+        if "|" in text:
+            # args[0] = Translated text
+            pass
     if asyncio.get_event_loop() != clients[0].loop:
         # Allows it to speak across shards
         clients[0].run_task(say, *((channel,) + args), **kwargs)
