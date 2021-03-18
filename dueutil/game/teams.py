@@ -9,8 +9,7 @@ teams = {}
 
 class Team(BattleBananaObject, SlotPickleMixin):
     """
-    Class about teams.. Update to make it save
-    in the database instead of a JSON file
+    The BattleBanana Team class
     """
     __slots__ = ["name", "description", "level", "open", 
                 "owner", "admins", "members", "pendings", "id"]
