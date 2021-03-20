@@ -468,7 +468,11 @@ REFERENCE_PLAYER = Player(no_save=True)
 
 
 def load_player(player_id: int):
-    response = dbconn.get_collection_for_object(Player).find_one({"_id": player_id})
+    # Slow try/except to prevent overflows
+    try:
+        response = dbconn.get_collection_for_object(Player).find_one({"_id": player_id})
+    except OverflowError:
+        return None
     if response is not None and 'data' in response:
         player_data = response['data']
         loaded_player = jsonpickle.decode(player_data)

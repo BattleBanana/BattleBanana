@@ -75,7 +75,7 @@ def parse_float(value):
 
 
 def parse_player(player_id, called, ctx):
-    # A DueUtil Player
+    # A BattleBanana Player
     try:
         player = players.find_player(int(player_id))
         if player is None or not player.is_playing(ctx.author) \
