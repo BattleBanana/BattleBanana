@@ -87,7 +87,7 @@ async def myquests(ctx, page=1, **details):
         raise util.BattleBananaException(ctx.channel, "Page not found")
     start_time = time.time()
     await imagehelper.quests_screen(ctx, player, page)
-    await util.say(f"Rendering quest images took {round(time.time() - start_time, 4)}!")
+    await util.say(ctx.channel, f"Rendering quest images took {round(time.time() - start_time, 4)} seconds!")
 
 
 @commands.command(args_pattern='C', aliases=['aq'])
