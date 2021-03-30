@@ -213,7 +213,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         elif isinstance(error, RuntimeError) and ERROR_OF_DEATH in str(error):
             util.logger.critical("Something went very wrong and the error of death came for us: %s", error)
             os._exit(1)
-        elif isinstance(error, (OSError, aiohttp.ClientConnectionError)): # 99% of time its just network errors
+        elif isinstance(error, (OSError, aiohttp.ClientConnectionError, asyncio.exceptions.TimeoutError)): # 99% of time its just network errors
             util.logger.error(error.message)
         elif ctx_is_message:
             await util.say(ctx.channel, (":bangbang: **Something went wrong...**"))
