@@ -202,9 +202,9 @@ async def send_image(ctx, image, Type, **kwargs):
     image.save(output, format="PNG")
     output.seek(0)
     if Type == "s":
-        await ctx.channel.send(file=File(output, filename=kwargs.pop('file_name')), **kwargs)
+        await util.say(ctx.channel, file=File(output, filename=kwargs.pop('file_name')), **kwargs)
     else:
-        await ctx.reply(file=File(output, filename=kwargs.pop('file_name')), **kwargs)
+        await util.reply(ctx, file=File(output, filename=kwargs.pop('file_name')), **kwargs)
     output.close()
 
 
