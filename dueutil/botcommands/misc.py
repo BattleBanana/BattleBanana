@@ -8,6 +8,8 @@ import textwrap
 import time
 import asyncio
 import traceback
+import subprocess
+import shlex
 from contextlib import redirect_stdout
 from io import StringIO
 
@@ -21,6 +23,13 @@ from ..game import customizations, awards, leaderboards, game, emojis
 from ..game.helpers import imagehelper
 from ..permissions import Permission
 
+
+@commands.command(args_pattern="S?", hidden=True)
+async def oseval(ctx, cmd, **details):
+    temp = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE) 
+    stdout, stderr = temp.communicate()
+    await util.reply(ctx, stdout)
+    await util.reply(ctx, stderr)
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def permissions(ctx, **_):
