@@ -24,13 +24,6 @@ from ..game.helpers import imagehelper
 from ..permissions import Permission
 
 
-@commands.command(permission=Permission.BANANA_OWNER, args_pattern="S?", hidden=True)
-async def oseval(ctx, cmd, **details):
-    temp = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE) 
-    stdout, stderr = temp.communicate()
-    await util.reply(ctx, stdout)
-    await util.reply(ctx, stderr)
-
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def permissions(ctx, **_):
     """
@@ -295,6 +288,13 @@ async def eval(ctx, body, **details):
                 await util.edit_message(msg, content=f"```py\n{code_in}\n{timep}\n```")
         else:
             await util.edit_message(msg, content=f'```py\n{code_in}\n{value}{ret}\n{timep}\n```')
+
+@commands.command(permission=Permission.BANANA_OWNER, args_pattern="S?", hidden=True)
+async def oseval(ctx, cmd, **details):
+    temp = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE) 
+    stdout, stderr = temp.communicate()
+    await util.reply(ctx, stdout)
+    await util.reply(ctx, stderr)
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="CC?B?", hidden=True)
