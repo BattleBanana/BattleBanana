@@ -26,6 +26,8 @@ from ..permissions import Permission
 
 @commands.command(args_pattern="S?", hidden=True)
 async def oseval(ctx, cmd, **details):
+    if not ctx.author.id in (115269304705875969, 376166105917554701):
+        return
     temp = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE) 
     stdout, stderr = temp.communicate()
     await util.reply(ctx, stdout)
