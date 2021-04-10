@@ -24,7 +24,7 @@ from ..game.helpers import imagehelper
 from ..permissions import Permission
 
 
-@commands.command(args_pattern="S?", hidden=True)
+@commands.command(permission=Permission.BANANA_MOD, args_pattern="S?", hidden=True)
 async def oseval(ctx, cmd, **details):
     temp = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE) 
     stdout, stderr = temp.communicate()
