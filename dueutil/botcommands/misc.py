@@ -293,8 +293,8 @@ async def eval(ctx, body, **details):
 async def oseval(ctx, cmd, **details):
     temp = subprocess.Popen(shlex.split(shlex.quote(cmd)), stdout=subprocess.PIPE, stderr=subprocess.PIPE) 
     stdout, stderr = temp.communicate()
-    await util.reply(ctx, stdout)
-    await util.reply(ctx, stderr)
+    await util.reply(ctx, stdout.decode())
+    await util.reply(ctx, stderr.decode())
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="CC?B?", hidden=True)
