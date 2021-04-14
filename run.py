@@ -7,7 +7,6 @@ from threading import Thread
 import aiohttp
 import time
 import sys
-from aiohttp.client_exceptions import ClientConnectionError
 import sentry_sdk
 import discord
 
@@ -20,7 +19,7 @@ from dueutil.game.configs import dueserverconfig
 from dueutil import permissions
 from dueutil import util, events, dbconn
 
-sentry_sdk.init(gconf.other_configs.get("sentryAuth"))
+sentry_sdk.init(gconf.other_configs.get("sentryAuth"), ignore_errors=["KeyboardInterrupt"])
 
 MAX_RECOVERY_ATTEMPTS = 1000
 
@@ -223,7 +222,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                                              + "__Stack trace:__ ```" + traceback.format_exc()[-1500:] + "```"),
                                             embed=trigger_message)
         # Log exception on sentry.
-        util.sentry_client.captureException()
+        sentry_sdk.capture_exception(error)
         traceback.print_exc()
 
 
