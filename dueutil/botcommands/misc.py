@@ -289,12 +289,16 @@ async def eval(ctx, body, **details):
         else:
             await util.edit_message(msg, content=f'```py\n{code_in}\n{value}{ret}\n{timep}\n```')
 
+
 @commands.command(permission=Permission.BANANA_OWNER, args_pattern="S?", hidden=True)
 async def oseval(ctx, cmd, **details):
-    temp = subprocess.Popen(shlex.split(shlex.quote(cmd)), stdout=subprocess.PIPE, stderr=subprocess.PIPE) 
+    temp = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     stdout, stderr = temp.communicate()
-    await util.reply(ctx, stdout.decode())
-    await util.reply(ctx, stderr.decode())
+
+    if temp.returncode == 0:
+        await util.reply(ctx, f"```\n{stdout.encode('utf-8').decode('utf-8')}```")
+    else:
+        await util.reply(ctx, f"```\n{stderr.encode('utf-8').decode('utf-8')}```")
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="CC?B?", hidden=True)
