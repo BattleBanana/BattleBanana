@@ -3,7 +3,7 @@ from typing import Callable
 
 from discord import Message
 
-from . import commands, dbconn
+from . import commands
 from .game.configs import dueserverconfig
 from .game.helpers.misc import DueMap
 from itertools import chain
@@ -70,7 +70,6 @@ class CommandEvent(dict):
         args = commands.parse(ctx)
         command = get_command(args[1])
         if command is not None:
-            dbconn.command_used(command.__name__)
             await command(ctx, *args)
 
     def to_dict(self):
