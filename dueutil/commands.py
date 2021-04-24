@@ -11,7 +11,7 @@ from . import commandextras
 from dueutil import dbconn
 
 extras = commandextras
-IMAGE_REQUEST_COOLDOWN = 2
+IMAGE_REQUEST_COOLDOWN = 3
 
 """
 DueUtils random command system.

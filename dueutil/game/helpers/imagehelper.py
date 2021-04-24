@@ -64,6 +64,7 @@ def set_opacity(image, opacity_level):
     return image
 
 
+@profile
 def colourize(image, colours, intensity, **extras):
     image = image.copy()
     pixel_data = list(image.getdata())
@@ -168,7 +169,7 @@ async def load_image_url(url, **kwargs):
     else:
         return await imagecache.cache_image(url)
 
-
+@profile
 def resize(image, width, height):
     if image is None:
         return None
@@ -295,7 +296,7 @@ async def awards_screen(ctx, player, page, **kwargs):
     await send_image(ctx, image, "r", file_name="awards_list.png",
                      content=":trophy: **" + player.get_name_possession_clean() + "** Awards!")
 
-
+@profile
 async def quests_screen(ctx, player, page):
     image = awards_screen_template.copy()
     draw = ImageDraw.Draw(image)
@@ -358,7 +359,7 @@ async def quests_screen(ctx, player, page):
     await send_image(ctx, image, "r", file_name="myquests.png",
                      content=e.QUEST+" **" + player.get_name_possession_clean() + "** Quests!")
 
-
+@profile
 async def stats_screen(ctx, player):
     theme = player.theme
 
