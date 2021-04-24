@@ -173,7 +173,7 @@ async def load_image_url(url, **kwargs):
 def resize(image, width, height):
     if image is None:
         return None
-    return image.resize((width, height), Image.ANTIALIAS)
+    return image.resize((width, height), Image.NEAREST)
 
 
 async def resize_avatar(player, server, width, height):
@@ -188,7 +188,7 @@ def rescale_image(image, scale):
     if image is None:
         return None
     width, height = image.size
-    return image.resize((int(width * scale), int(height * scale)), Image.ANTIALIAS)
+    return resize(image, int(width * scale), int(height * scale))
 
 
 def has_dimensions(image, dimensions):
