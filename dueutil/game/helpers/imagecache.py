@@ -25,7 +25,7 @@ def image_used(url):
         else:
             repeated_usages[url] += 1
 
-@profile
+
 async def cache_image(url):
     filename = get_cached_filename(url)
     try:
