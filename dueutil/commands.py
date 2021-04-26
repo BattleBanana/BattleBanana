@@ -90,7 +90,6 @@ def command(**command_rules):
                     details["cmd_key"] = prefix
                     details["command_name"] = name
                     dbconn.conn()["stats"].update({"stat": "commandsused"}, {"$inc": {"count": 1}}, upsert=True)
-                    dbconn.command_used(command)
                     if name in ("eval", "evaluate"):
                         key = dueserverconfig.server_cmd_key(ctx.guild)
                         command_string = ctx.content.replace(key, '', 1).replace(name, '').strip()
@@ -180,10 +179,7 @@ def ratelimit(**command_info):
                 return
             else:
                 player.command_rate_limits[command_name] = now
-            t1 = time.time()
             await command_func(ctx, *args, **details)
-            t2 = time.time()
-            dbconn.record_command_speed(command_func, t1, t2)
 
         return wrapped_command
 

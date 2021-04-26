@@ -50,21 +50,6 @@ def delete_player(player):
     conn()["Player"].delete_one({'_id': player.id})
 
 
-def command_used(command):
-    month = datetime.now().strftime("%Y-%m")
-    conn()["CommandUsage"].update({'_id': command.__name__}, {'$inc': {'dates.'+month: 1}}, upsert=True)
-
-
-def record_command_speed(command, t1, t2):
-    today = datetime.now().strftime("%Y-%m-%d")
-    data = {
-        '$push': {
-            'dates.'+ today: round((t2 - t1) * 1000)
-        }
-    }
-    conn()["CommandSpeed"].update({'_id': command.__name__}, data, upsert=True)
-
-
 def update_guild_joined(count):
     month = datetime.now().strftime("%Y-%m")
     update_query = {'$inc': {'joined': 1} if count > 0 else {'left': 1}}
