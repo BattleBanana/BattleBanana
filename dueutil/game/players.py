@@ -497,10 +497,11 @@ async def handle_client(reader, writer):
     error_found = False
     try:
         request = json.loads(request)
-        player = find_player(int(request['id'])) or find_player(str(request['id']))
+        id = int(request['id'])
+        player = find_player(id)
         if player is None: # no account on BattleBanana
-            Player(FakeMember(int(request['id'])))
-            player = await find_player(int(request['id']))
+            Player(FakeMember(id))
+            player = await find_player(id)
     except json.decoder.JSONDecodeError:
         player = None
         error_found = True
