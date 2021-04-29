@@ -72,7 +72,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                     task(*args, **kwargs)
             except queue.Empty:
                 pass
-            await asyncio.sleep(1)
+            await asyncio.sleep(5)
 
 
     def run_task(self, task, *args, **kwargs):
