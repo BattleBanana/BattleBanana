@@ -1,0 +1,16 @@
+objgraph
+validators
+colour
+pymongo
+discord.py
+cachetools
+numpy
+repoze.timeago
+jsonpickle
+emoji
+Pillow
+beautifulsoup4
+typing
+sentry_sdk
+pydealer
+requests
