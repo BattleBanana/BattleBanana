@@ -197,7 +197,6 @@ class BattleBananaClient(discord.AutoShardedClient):
         elif isinstance(error, discord.HTTPException):
             util.logger.error("Discord HTTP error: %s", error)
             if ctx_is_message:
-                await util.say(ctx.channel, (":bangbang: **Something went wrong...**"))
                 trigger_message = discord.Embed(title="Trigger", type="rich", color=gconf.DUE_COLOUR)
                 trigger_message.add_field(name="Message", value=ctx.author.mention + ":\n" + ctx.content)
                 await util.duelogger.error(("**Message/command triggred error!**\n"
