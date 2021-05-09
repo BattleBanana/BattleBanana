@@ -1,12 +1,11 @@
-import math
-import time
-import random
-
 import discord
+import math
+import random
+import time
 
 import generalconfig as gconf
-from ..game.helpers import imagehelper
-from ..permissions import Permission
+from .. import commands, util
+from ..game import emojis as e
 from ..game import (
     quests,
     game,
@@ -15,10 +14,9 @@ from ..game import (
     stats,
     awards,
     players)
-from .. import commands, util
+from ..game.helpers import imagehelper
 from ..game.helpers import misc
-
-from ..game import emojis as e
+from ..permissions import Permission
 
 
 @commands.command(permission=Permission.BANANA_MOD, args_pattern="S?P?C?", hidden=True)

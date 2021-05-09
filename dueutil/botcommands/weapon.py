@@ -1,11 +1,11 @@
 import discord
 
 import generalconfig as gconf
-from ..game import players
-from ..permissions import Permission
-from ..game import battles, weapons, stats, awards
-from ..game.helpers import imagehelper, misc
 from .. import commands, util
+from ..game import battles, weapons, stats, awards
+from ..game import players
+from ..game.helpers import imagehelper, misc
+from ..permissions import Permission
 
 
 @commands.command(args_pattern="M?", aliases=["mw"])

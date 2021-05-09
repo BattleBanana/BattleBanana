@@ -1,4 +1,7 @@
+import aiohttp
 import asyncio
+import discord
+import emoji  # The emoji list in this is outdated/not complete.
 import io
 import logging
 import math
@@ -6,14 +9,9 @@ import time
 from datetime import datetime
 from itertools import chain
 
-import aiohttp
-import discord
-import emoji  # The emoji list in this is outdated/not complete.
-
 import generalconfig as gconf
-from .trello import TrelloClient
-
 from dueutil import dbconn
+from .trello import TrelloClient
 
 """
 A random jumble of classes & functions that are some how

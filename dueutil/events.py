@@ -1,12 +1,11 @@
 import inspect
-from typing import Callable
-
 from discord import Message
+from itertools import chain
+from typing import Callable
 
 from . import commands
 from .game.configs import dueserverconfig
 from .game.helpers.misc import DueMap
-from itertools import chain
 
 
 class MessageEvent(list):

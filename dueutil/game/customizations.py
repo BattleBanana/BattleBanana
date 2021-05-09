@@ -1,13 +1,11 @@
 import json
 import os
-
 from PIL import Image
+from typing import Dict
 
 from .. import permissions, util
 from ..game.helpers.misc import BattleBananaObject
 from ..permissions import Permission
-
-from typing import Dict
 
 """
 

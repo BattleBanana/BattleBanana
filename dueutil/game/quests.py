@@ -1,23 +1,22 @@
-import json
+import asyncio
+import discord
+import jsonpickle
+import math
 import random
 from collections import defaultdict, namedtuple
 from typing import Dict, List
-import math
-import asyncio
 
-import discord
-import jsonpickle
-
-from ..util import SlotPickleMixin
+from . import gamerules
+from .players import Player
 from .. import dbconn
 from .. import util
 from ..game import players
 from ..game import weapons
 from ..game.helpers.misc import BattleBananaObject, DueMap
-from .players import Player
-from . import gamerules
+from ..util import SlotPickleMixin
 
 quest_map = DueMap()
+loaded_guilds = set() 
 
 MIN_QUEST_IV = 0
 QUEST_DAY = 86400
@@ -286,7 +285,7 @@ def add_default_quest_to_server(guild):
           no_save=False)
 
 
-def remove_all_quests(guild):
+def remove_all_quests(guild: discord):
     if guild in quest_map:
         result = dbconn.delete_objects(Quest, '%s/.*' % guild.id)
         del quest_map[guild]
@@ -306,25 +305,12 @@ def has_quests(place):
 REFERENCE_QUEST = Quest('Reference', 1, 1, 1, 1, server_id="", no_save=True)
 
 
-def _load():
-    def load_default_quests():
-        with open('dueutil/game/configs/defaultquests.json') as defaults_file:
-            defaults = json.load(defaults_file)
-            for quest_data in defaults.values():
-                Quest(quest_data["name"],
-                      quest_data["baseAttack"],
-                      quest_data["baseStrg"],
-                      quest_data["baseAccy"],
-                      quest_data["baseHP"],
-                      task=quest_data["task"],
-                      weapon_id=weapons.stock_weapon(quest_data["weapon"]),
-                      image_url=quest_data["image"],
-                      spawn_chance=quest_data["spawnChance"],
-                      no_save=True)
+def _load(server_id):
+    if server_id in loaded_guilds:
+        return 
 
-    load_default_quests()
-
-    for quest in dbconn.get_collection_for_object(Quest).find():
+    quests = list(dbconn.conn()['Quest'].find({'_id': {'$regex': '%s.*' % server_id}}))
+    for quest in quests:
         loaded_quest = jsonpickle.decode(quest['data'])
 
         if isinstance(loaded_quest.channel, str) and loaded_quest.channel not in ("ALL", None, "NONE"):
@@ -333,7 +319,5 @@ def _load():
             loaded_quest.server_id = int(loaded_quest.server_id)
 
         quest_map[loaded_quest.id] = util.load_and_update(REFERENCE_QUEST, loaded_quest)
-    util.logger.info("Loaded %s quests", len(quest_map))
 
-
-_load()
+    loaded_guilds.add(server_id)

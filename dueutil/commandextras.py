@@ -1,9 +1,10 @@
 import inspect
-from inspect import Parameter
-from .game import emojis
-from . import commandtypes
-from functools import wraps
 import itertools
+from functools import wraps
+from inspect import Parameter
+
+from . import commandtypes
+from .game import emojis
 
 
 def dict_command(**spec):

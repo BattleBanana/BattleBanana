@@ -1,9 +1,9 @@
 import jsonpickle
 
-from ..util import SlotPickleMixin
 from .. import dbconn, util
 from ..game import players
 from ..game.helpers.misc import BattleBananaObject
+from ..util import SlotPickleMixin
 
 teams = {}
 

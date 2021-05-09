@@ -1,11 +1,11 @@
 ﻿import aiohttp
-import generalconfig as gconf
 import json
 from discord import Embed
 
+import generalconfig as gconf
+from dueutil import util, tasks
 from . import players, stats
 from .stats import Stat
-from dueutil import util, tasks
 
 # A quick discoin implementation.
 

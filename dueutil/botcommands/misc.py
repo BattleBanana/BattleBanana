@@ -1,23 +1,22 @@
+import asyncio
+import discord
 import json
 import math
+import objgraph
 import os
+import platform
 import random
 import re
-import platform
+import shlex
+import subprocess
 import textwrap
 import time
-import asyncio
 import traceback
-import subprocess
-import shlex
 from contextlib import redirect_stdout
 from io import StringIO
 
-import discord
 import dueutil.permissions
 import generalconfig as gconf
-import objgraph
-
 from .. import commands, util, events, dbconn, loader
 from ..game import customizations, awards, leaderboards, game, emojis
 from ..game.helpers import imagehelper

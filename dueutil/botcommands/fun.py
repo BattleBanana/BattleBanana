@@ -1,14 +1,13 @@
-from datetime import datetime
-
+import asyncio
 import discord
 import repoze.timeago
-import asyncio
+from datetime import datetime
 
 import generalconfig as gconf
 from .. import commands, util, dbconn
 from ..game import awards, players, leaderboards, battles
-from ..game.helpers import misc, imagehelper
 from ..game import emojis
+from ..game.helpers import misc, imagehelper
 
 topdogs_per_page = 10
 

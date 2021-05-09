@@ -1,6 +1,5 @@
-import jsonpickle
-
 import discord
+import jsonpickle
 
 import generalconfig as gconf
 from .. import commands, util, dbconn

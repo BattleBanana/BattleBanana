@@ -1,9 +1,8 @@
 from enum import Enum
+from functools import total_ordering
 
 import generalconfig as gconf
-
 from . import dbconn, util
-from functools import total_ordering
 
 special_permissions = dict()
 

@@ -1,21 +1,20 @@
+import json
 import random
 import re
 import time
 
-# import enchant
-# import ssdeep
-# from guess_language import guess_language
-
-import json
-
 import generalconfig as gconf
+from . import gamerules
 from .. import events
 from .. import util, dbconn
 from ..game import players
 from ..game import stats, weapons, quests, awards
 from ..game.configs import dueserverconfig
 from ..game.helpers import imagehelper
-from . import gamerules
+
+# import enchant
+# import ssdeep
+# from guess_language import guess_language
 
 # from threading import Lock
 

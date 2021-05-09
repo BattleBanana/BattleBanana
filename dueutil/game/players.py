@@ -1,28 +1,25 @@
+import asyncio
+import discord
+import gc
+import json
+import jsonpickle
 import math
+import numpy
 import random
 import time
 from collections import defaultdict
 from copy import copy
 from itertools import chain
-import gc
-
-import discord
-import jsonpickle
-import numpy
-import json
-import asyncio
 
 import generalconfig as gconf
-from ..util import SlotPickleMixin
-from .. import dbconn, util, permissions
-from ..permissions import Permission
-from ..game import awards
-from ..game import weapons
-from ..game import gamerules
-from ..game.helpers.misc import BattleBananaObject, Ring
 from . import customizations
-from .customizations import Theme
 from . import emojis as e
+from .customizations import Theme
+from .. import dbconn, permissions, util
+from ..game import awards, gamerules, weapons
+from ..game.helpers.misc import BattleBananaObject, Ring
+from ..permissions import Permission
+from ..util import SlotPickleMixin
 
 """ Player related classes & functions """
 
@@ -510,7 +507,7 @@ async def handle_client(reader, writer):
         for attr in list(set(request.keys()).intersection(player_data)): # shared attrs between request and player
             setattr(player, attr, request[attr])
         writer.write("200 OK".encode())
-        user:discord.abc.User = util.fetch_user(request['id'])
+        user:discord.abc.User = await util.fetch_user(request['id'])
         if user:
             await user.create_dm()
             await user.send("Your data has been received and transferred! You can transfer again in 7 days.")

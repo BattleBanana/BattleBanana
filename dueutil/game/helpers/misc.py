@@ -1,11 +1,10 @@
-import collections
-import urllib
-from abc import ABC
-import threading
-
-import validators
 import aiohttp
+import collections
 import discord
+import threading
+import urllib
+import validators
+from abc import ABC
 from bs4 import BeautifulSoup
 
 import generalconfig as gconf

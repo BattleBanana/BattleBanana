@@ -1,5 +1,5 @@
-from ... import dbconn, util
 from ..helpers.misc import DueMap
+from ... import dbconn, util
 
 muted_channels = DueMap()
 command_whitelist = DueMap()

@@ -1,11 +1,10 @@
-from dueutil.game.helpers import imagehelper
 import re
 
-from .game.helpers import misc
-from .game import players, teams
-from .permissions import Permission
+from dueutil.game.helpers import imagehelper
 from . import util
-
+from .game import players, teams
+from .game.helpers import misc
+from .permissions import Permission
 
 # The max number the bot will accept. To avoid issues with crazy big numbers.
 MAX_NUMBER = 9223372036854775807

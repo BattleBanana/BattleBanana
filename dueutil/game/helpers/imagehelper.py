@@ -1,21 +1,22 @@
+import aiohttp
 import math
+import mimetypes
 import os
 import random
 import re
-from io import BytesIO
-import mimetypes, urllib3
-from urllib.parse import urlparse
+import urllib3
 from PIL import Image, ImageDraw, ImageFont
 from colour import Color
-import aiohttp
 from discord import File
+from io import BytesIO
+from urllib.parse import urlparse
 
 from dueutil import util
-from .. import awards, gamerules, stats, weapons, customizations
-from ..customizations import _Themes
-from ..configs import dueserverconfig
 from . import imagecache
+from .. import awards, gamerules, stats, weapons, customizations
 from .. import emojis as e
+from ..configs import dueserverconfig
+from ..customizations import _Themes
 
 """
 Worst code in the bot.

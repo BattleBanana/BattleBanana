@@ -1,11 +1,10 @@
-from dueutil.botcommands.player import DAILY_AMOUNT
-import generalconfig as gconf
+import traceback
 from discord import Embed
 
-from . import players
+import generalconfig as gconf
 from dueutil import util, tasks, dbconn
-
-import traceback
+from dueutil.botcommands.player import DAILY_AMOUNT
+from . import players
 
 
 @tasks.task(timeout=300)

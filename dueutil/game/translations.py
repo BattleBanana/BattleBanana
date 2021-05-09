@@ -1,8 +1,9 @@
-import json
 import discord
+import json
 
-from dueutil.game.configs import dueserverconfig
 from dueutil import util
+from dueutil.game.configs import dueserverconfig
+
 
 async def say(ctx, path, *args, **kwargs):
     #print(args)

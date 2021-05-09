@@ -1,7 +1,8 @@
+import json
 import os
 import re
-import json
 from PIL import Image
+
 from ... import dbconn, util, tasks
 
 

@@ -3,11 +3,10 @@ import json
 import logging
 import multiprocessing
 import os
+import requests
 import signal
 import sys
 import time
-
-import requests
 
 from run import BattleBananaClient
 
