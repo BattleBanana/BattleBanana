@@ -1,4 +1,5 @@
 import asyncio
+from dueutil.game import stats
 import time
 from functools import wraps
 
@@ -11,7 +12,7 @@ from . import commandextras
 from dueutil import dbconn
 
 extras = commandextras
-IMAGE_REQUEST_COOLDOWN = 5
+IMAGE_REQUEST_COOLDOWN = 3
 
 """
 DueUtils random command system.
@@ -86,16 +87,17 @@ def command(**command_rules):
                         personal_command_name = "my" + name
                         await events.command_event[personal_command_name](ctx, prefix, _, args, **details)
                 elif not is_spam_command(ctx, wrapped_command, *args):
+                    stats.increment_stat(stats.Stat.COMMANDS_USED)
+
                     # Run command
                     details["cmd_key"] = prefix
                     details["command_name"] = name
-                    dbconn.conn()["stats"].update({"stat": "commandsused"}, {"$inc": {"count": 1}}, upsert=True)
-                    if name in ("eval", "evaluate"):
+                    if name not in ("eval", "evaluate"):
+                        await command_func(ctx, *command_args, **get_command_details(ctx, **details))
+                    else:
                         key = dueserverconfig.server_cmd_key(ctx.guild)
                         command_string = ctx.content.replace(key, '', 1).replace(name, '').strip()
                         await command_func(ctx, command_string, **get_command_details(ctx, **details))
-                    else:
-                        await command_func(ctx, *command_args, **get_command_details(ctx, **details))
                 else:
                     raise util.BattleBananaException(ctx.channel, "Please don't include spam mentions in commands.")
             else:

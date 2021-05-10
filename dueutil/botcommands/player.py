@@ -379,7 +379,7 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
     
     Example usage:
     
-    [CMD_KEY]sendcash @MacDue 1000000 "for the lit bot fam"
+    [CMD_KEY]sendcash @MrAwais 1000000 "for the lit bot fam"
     
     or
     

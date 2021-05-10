@@ -9,3 +9,5 @@ dueutil/game/configs/codes.json
 .vscode/
 .idea/
 localization/
+start_fixed.sh
+run.py.lprof

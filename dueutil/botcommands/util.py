@@ -186,7 +186,9 @@ async def botstats(ctx, **_):
                           value=(e.MYINFO + " **%s** images served.\n"
                                  % util.format_number_precise(game_stats[Stat.IMAGES_SERVED])
                                  + e.DISCOIN + " **Đ%s** Discoin received.\n"
-                                 % util.format_number_precise(game_stats[Stat.DISCOIN_RECEIVED])))
+                                 % util.format_number_precise(game_stats[Stat.DISCOIN_RECEIVED]))
+                                 + e.CHANNEL + " **%s** commands used.\n"
+                                 % util.format_number_precise(game_stats[Stat.COMMANDS_USED]))
     # Game
     stats_embed.add_field(name="Game",
                           value=(e.QUESTER + " **%s** players.\n"

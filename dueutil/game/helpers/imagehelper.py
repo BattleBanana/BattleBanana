@@ -172,7 +172,7 @@ async def load_image_url(url, **kwargs):
 def resize(image, width, height):
     if image is None:
         return None
-    return image.resize((width, height), Image.ANTIALIAS)
+    return image.resize((width, height), Image.BILINEAR)
 
 
 async def resize_avatar(player, server, width, height):
@@ -187,7 +187,7 @@ def rescale_image(image, scale):
     if image is None:
         return None
     width, height = image.size
-    return image.resize((int(width * scale), int(height * scale)), Image.ANTIALIAS)
+    return resize(image, int(width * scale), int(height * scale))
 
 
 def has_dimensions(image, dimensions):
@@ -202,9 +202,9 @@ async def send_image(ctx, image, Type, **kwargs):
     image.save(output, format="PNG")
     output.seek(0)
     if Type == "s":
-        await ctx.channel.send(file=File(output, filename=kwargs.pop('file_name')), **kwargs)
+        await util.say(ctx.channel, file=File(output, filename=kwargs.pop('file_name')), **kwargs)
     else:
-        await ctx.reply(file=File(output, filename=kwargs.pop('file_name')), **kwargs)
+        await util.reply(ctx, file=File(output, filename=kwargs.pop('file_name')), **kwargs)
     output.close()
 
 

@@ -7,7 +7,6 @@ from threading import Thread
 import aiohttp
 import time
 import sys
-from aiohttp.client_exceptions import ClientConnectionError
 import sentry_sdk
 import discord
 
@@ -20,7 +19,7 @@ from dueutil.game.configs import dueserverconfig
 from dueutil import permissions
 from dueutil import util, events, dbconn
 
-sentry_sdk.init(gconf.other_configs.get("sentryAuth"))
+sentry_sdk.init(gconf.other_configs.get("sentryAuth"), ignore_errors=["KeyboardInterrupt"])
 
 MAX_RECOVERY_ATTEMPTS = 1000
 
@@ -73,7 +72,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                     task(*args, **kwargs)
             except queue.Empty:
                 pass
-            await asyncio.sleep(1)
+            await asyncio.sleep(5)
 
 
     def run_task(self, task, *args, **kwargs):
@@ -198,7 +197,6 @@ class BattleBananaClient(discord.AutoShardedClient):
         elif isinstance(error, discord.HTTPException):
             util.logger.error("Discord HTTP error: %s", error)
             if ctx_is_message:
-                await util.say(ctx.channel, (":bangbang: **Something went wrong...**"))
                 trigger_message = discord.Embed(title="Trigger", type="rich", color=gconf.DUE_COLOUR)
                 trigger_message.add_field(name="Message", value=ctx.author.mention + ":\n" + ctx.content)
                 await util.duelogger.error(("**Message/command triggred error!**\n"
@@ -213,7 +211,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         elif isinstance(error, RuntimeError) and ERROR_OF_DEATH in str(error):
             util.logger.critical("Something went very wrong and the error of death came for us: %s", error)
             os._exit(1)
-        elif isinstance(error, (OSError, aiohttp.ClientConnectionError)): # 99% of time its just network errors
+        elif isinstance(error, (OSError, aiohttp.ClientConnectionError, asyncio.exceptions.TimeoutError)): # 99% of time its just network errors
             util.logger.error(error.message)
         elif ctx_is_message:
             await util.say(ctx.channel, (":bangbang: **Something went wrong...**"))
@@ -223,7 +221,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                                              + "__Stack trace:__ ```" + traceback.format_exc()[-1500:] + "```"),
                                             embed=trigger_message)
         # Log exception on sentry.
-        util.sentry_client.captureException()
+        sentry_sdk.capture_exception(error)
         traceback.print_exc()
 
 

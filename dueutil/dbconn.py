@@ -50,11 +50,6 @@ def delete_player(player):
     conn()["Player"].delete_one({'_id': player.id})
 
 
-def command_used(command):
-    month = datetime.now().strftime("%Y-%m")
-    conn()["CommandUsage"].update({'_id': command}, {'$inc': {'dates.'+month: 1}}, upsert=True)
-
-
 def update_guild_joined(count):
     month = datetime.now().strftime("%Y-%m")
     update_query = {'$inc': {'joined': 1} if count > 0 else {'left': 1}}
