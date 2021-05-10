@@ -132,10 +132,10 @@ async def reply(ctx, *args, **kwargs):
     #        pass
     if asyncio.get_event_loop() != clients[0].loop:
         # Allows it to speak across shards
-        clients[0].run_task(reply, *((ctx.channel,) + args), **kwargs)
+        clients[0].run_task(reply, *((ctx.channel,) + args), mention_author=False, **kwargs)
     else:
         try:
-            return await ctx.reply(*args, **kwargs)
+            return await ctx.reply(*args, mention_author=False, **kwargs)
         except discord.errors.HTTPException:
             return await say(ctx.channel, *args, **kwargs)
         except discord.errors.Forbidden as send_error:
