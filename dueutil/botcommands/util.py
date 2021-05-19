@@ -572,7 +572,7 @@ async def exchange(ctx, amount, currency, **details):
 
     Exchange your BBT (BattleBanana Tokens) for other bot currencies!
     For more information go to: https://dash.discoin.zws.im/#/
-    
+
     Note: Exchanges can take a few minutes to process!
     """
 
@@ -644,7 +644,7 @@ async def exchange(ctx, amount, currency, **details):
     await util.say(gconf.discoin_channel, embed=logs_embed)
 
 
-@commands.command(args_pattern="S?", permission=Permission.BANANA_ADMIN)
+@commands.command(args_pattern="S?", permission=Permission.BANANA_ADMIN, hidden=True)
 async def status(ctx, message=None, **details):
     """
     If message is none the status will be reset to the default one.
