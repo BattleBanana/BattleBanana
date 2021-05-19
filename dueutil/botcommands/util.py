@@ -555,7 +555,7 @@ async def currencies(ctx, **_):
     embed = discord.Embed(title=e.DISCOIN + " Current currencies!", type="rich", color=gconf.DUE_COLOUR)
     for id in discoin.CODES:
         currency = discoin.CODES[id]
-        embed.add_field(name=id, value=currency['name'], inline=False)
+        embed.add_field(name=id, value=currency['name'])
 
     if len(embed.fields) == 0:
         embed.add_field(name="An error occured!", value="There was an error retrieving Discoin's currencies.")
