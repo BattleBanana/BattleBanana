@@ -20,9 +20,16 @@ def parse_link(url):
     return False
 
 def strip_thousands_separators(value):
+    # allow numbers like 100k
+    # why put it in the "strip_thousands_separators"? why the fuck not, you fix it then
+    if value[-1] is "k":
+        value = value.replace("k", "") + "000"
+    if value[-1] is "m":
+        value = value.replace("m", "") + "000000"
     # Will strip 1000s without crazy 1,,,,,,,,,,000
     # Allowed will also allow incorrect formatting.
-    return re.sub(THOUSANDS_REGEX, r'\2', value)
+    value = re.sub(THOUSANDS_REGEX, r'\2', value)
+    return value
 
 def parse_team(value):
     team = teams.find_team(value.lower())
@@ -34,7 +41,7 @@ def parse_team(value):
 def parse_int(value):
     # An int limited between min and max number
     try:
-        return util.clamp(int(strip_thousands_separators(value)), MIN_NUMBER, MAX_NUMBER)
+        return util.clamp(int(strip_thousands_separators(value)), MIN_NUMBER, MAX_NUMBER) 
     except ValueError:
         return False
 
