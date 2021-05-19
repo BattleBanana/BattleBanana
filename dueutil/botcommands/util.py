@@ -569,8 +569,10 @@ async def currencies(ctx, **_):
 async def exchange(ctx, amount, currency, **details):
     """
     [CMD_KEY]exchange (amount) (currency)
+
     Exchange your BBT (BattleBanana Tokens) for other bot currencies!
     For more information go to: https://dash.discoin.zws.im/#/
+    
     Note: Exchanges can take a few minutes to process!
     """
 
