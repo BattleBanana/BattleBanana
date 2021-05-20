@@ -28,15 +28,15 @@ class Currency:
 
 
 class Bot:
-    def __init__(self, name: str, currencies: list[Currency]):
+    def __init__(self, name: str, currencies):
         self.name = name
 
         sorted_currencies = sorted(currencies, key = lambda k: k.code)
         self.currencies = sorted_currencies
 
 
-bots: list[Bot] = []
-currencies: list[Currency] = []
+bots = []
+currencies = []
 codes = []
 
 async def get_raw_bots():
@@ -62,7 +62,7 @@ async def update_discoin():
             new_bots.append(Bot(bot_name, bot_currencies))
 
         sorted_bots = sorted(new_bots, key = lambda k: k.name)
-        
+
         global bots, currencies, codes
         bots = sorted_bots
         currencies = new_currencies
