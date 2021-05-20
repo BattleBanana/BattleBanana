@@ -14,26 +14,59 @@ DISCOINDASH = "https://dash.discoin.zws.im/#/transactions"
 CURRENCY_CODE = "BBT"
 # Endpoints
 TRANSACTIONS = DISCOIN + "/transactions"
-CURRENCIES = DISCOIN + "/currencies"
+BOTS = DISCOIN + "/bots"
 FILTER = f"?filter=to.id||eq||{CURRENCY_CODE}&filter=handled||eq||false"
 headers = {"Authorization": gconf.other_configs["discoinKey"], "Content-Type": "application/json"}
 handled = {"handled": True}
-CODES = {}
 MAX_TRANSACTION = 500000
 
-async def get_raw_currencies():
+class Currency:
+    def __init__(self, code: str, name: str, bot_name: str):
+        self.code = code
+        self.name = name
+        self.bot_name = bot_name
+
+
+class Bot:
+    def __init__(self, name: str, currencies: list[Currency]):
+        self.name = name
+
+        sorted_currencies = sorted(currencies, key = lambda k: k.code)
+        self.currencies = sorted_currencies
+
+
+bots: list[Bot] = []
+currencies: list[Currency] = []
+codes = []
+
+async def get_raw_bots():
     async with aiohttp.ClientSession() as session:
-        async with session.get(CURRENCIES, headers=headers) as response:
+        async with session.get(BOTS) as response:
             return await response.json()
 
-async def get_currencies():
+async def update_discoin():
     try:
-        currencies = await get_raw_currencies()
-        sorted_currencies = sorted(currencies, key = lambda k: k['name'])
-        CODES.clear()
+        raw_bots = await get_raw_bots()
+        new_bots = []
+        new_currencies = []
+
+        for raw_bot in raw_bots:
+            bot_currencies = []
+            bot_name = raw_bot["name"]
+            for raw_currency in raw_bot["currencies"]:
+                currency = Currency(raw_currency["id"], raw_currency["name"], bot_name)
+
+                bot_currencies.append(currency)
+                new_currencies.append(currency)
+            
+            new_bots.append(Bot(bot_name, bot_currencies))
+
+        sorted_bots = sorted(new_bots, key = lambda k: k.name)
         
-        for currency in sorted_currencies:
-            CODES[currency['id']] = {'id': currency['id'], 'name': currency['name']}
+        global bots, currencies, codes
+        bots = sorted_bots
+        currencies = new_currencies
+        codes = [currency.code for currency in currencies]
     except:
         pass
         
@@ -75,7 +108,7 @@ async def process_transactions():
     try:
         if not util.clients[0].is_ready():
             return
-        await get_currencies()
+        await update_discoin()
         util.logger.info("Processing Discoin transactions.")
         try:
             unprocessed = await unprocessed_transactions()

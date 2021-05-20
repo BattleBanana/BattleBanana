@@ -553,9 +553,9 @@ async def currencies(ctx, **_):
     """
 
     embed = discord.Embed(title=e.DISCOIN + " Current currencies!", type="rich", color=gconf.DUE_COLOUR)
-    for id in discoin.CODES:
-        currency = discoin.CODES[id]
-        embed.add_field(name=id, value=currency['name'])
+    for bot in discoin.bots:
+        for currency in bot.currencies:
+            embed.add_field(name=currency.code, value=currency.bot_name)
 
     if len(embed.fields) == 0:
         embed.add_field(name="An error occured!", value="There was an error retrieving Discoin's currencies.")
@@ -582,7 +582,7 @@ async def exchange(ctx, amount, currency, **details):
     if currency == discoin.CURRENCY_CODE:
         raise util.BattleBananaException(ctx.channel, "There is no reason to exchange %s for %s!" % (
             discoin.CURRENCY_CODE, discoin.CURRENCY_CODE))
-    if not currency in discoin.CODES:
+    if not currency in discoin.codes:
         raise util.BattleBananaException(ctx.channel,
                                          "Not a valid currency! Use `%scurrencies` to know which currency is available." %
                                          details['cmd_key'])
