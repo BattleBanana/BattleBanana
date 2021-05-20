@@ -20,11 +20,9 @@ def parse_link(url):
     return False
 
 def strip_thousands_separators(value):
-    # allow numbers like 100k
-    # why put it in the "strip_thousands_separators"? why the fuck not, you fix it then
-    if value[-1] is "k":
+    if value[-1] == "k":
         value = value.replace("k", "") + "000"
-    if value[-1] is "m":
+    if value[-1] == "m":
         value = value.replace("m", "") + "000000"
     # Will strip 1000s without crazy 1,,,,,,,,,,000
     # Allowed will also allow incorrect formatting.

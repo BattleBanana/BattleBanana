@@ -169,7 +169,7 @@ async def wait_for_message(ctx, author, timeout=120):
     
     def check(message):
         msg = message.content.lower()
-        return (msg.startswith("hit") or msg.startswith("stand")) and message.author == author and message.channel == channel
+        return msg in ("hit", "stand") and message.author == author and message.channel == channel
     
     try:
         return await clients[0].wait_for('message', timeout=timeout, check=check)

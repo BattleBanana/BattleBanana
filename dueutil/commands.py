@@ -178,10 +178,9 @@ def ratelimit(**command_info):
                     time_to_wait = command_info["cooldown"] - time_since_last_used
                     error = error.replace("[COOLDOWN]", util.display_time(time_to_wait))
                 await util.reply(ctx, error)
-                return
             else:
                 player.command_rate_limits[command_name] = now
-            await command_func(ctx, *args, **details)
+                await command_func(ctx, *args, **details)
 
         return wrapped_command
 
