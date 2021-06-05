@@ -39,7 +39,7 @@ async def blackjack(ctx, price, **details):
     
     # Create new deck, make player playing
     deck = Deck() + Deck() + Deck() + Deck()
-    deck.shuffle()
+    deck.shuffle(5)
     user.gamble_play = True
     user.last_played = time.time()
     
@@ -55,39 +55,42 @@ async def blackjack(ctx, price, **details):
     blackjack_embed.set_footer(text="Reply with \"hit\" or \"stand\". This prompt will close in 120 seconds")
     
     msg = await util.reply(ctx, embed=blackjack_embed)
-    # Player's play
-    while True:
+
+    player_play = dealer_value < 21
+    while player_play:
         user.last_played = time.time()
-        user_value, dealer_value = blackjackGame.compare_decks(user_hand, dealer_hand)
-        if user_value >= 21 or dealer_value >= 21:
+        user_value = blackjackGame.get_deck_value(user_hand)
+        if user_value >= 21:
             break
+
         user_msg = await util.wait_for_message(ctx, ctx.author)
+        content = user_msg.content.lower() if user_msg != None else None
+
+        if user_msg:
+            await util.delete_message(user_msg)
         
-        if user_msg != None and user_msg.content.lower() == "hit":
+        if content != None and content == "hit":
             user_hand += deck.deal(1)
-            user_value, dealer_value = blackjackGame.compare_decks(user_hand, dealer_hand)
+            user_value = blackjackGame.get_deck_value(user_hand)
             
             blackjack_embed.clear_fields()
             blackjack_embed.add_field(name="Your hand (%s)" % (user_value), value=user_hand)
             blackjack_embed.add_field(name="Dealer's hand (%s)" % (dealer_value), value=dealer_hand)
             
             await util.edit_message(msg, embed=blackjack_embed)
-            
-            await util.delete_message(user_msg)
-        else:
-            if user_msg:
-                await util.delete_message(user_msg)
-            break
+            continue
+
+        break
         
+    dealer_play = dealer_value < 17 and (user_value < 21 or (user_value == 21 and len(user_hand) > 2))
     # Dealer's turn
-    while True:
-        user_value, dealer_value = blackjackGame.compare_decks(user_hand, dealer_hand)
-        if dealer_value >= 21 or user_value > 21 or dealer_value > user_value:
+    while dealer_play:
+        dealer_value = blackjackGame.get_deck_value(dealer_hand)
+        if dealer_value >= 17:
             break
-        if dealer_value < 17: # Make him pick a card
-            dealer_hand += deck.deal(1)
-        else:
-            break
+
+        # Make him pick a card
+        dealer_hand += deck.deal(1)
     
 
     # Manage who wins/loses
@@ -126,7 +129,9 @@ async def blackjack(ctx, price, **details):
         result += " You were rewarded with `¤%s`" % (price+gain)
     elif gain < 0:
         result += " You lost `¤%s`." % (price)
-        BattleBanana.money += price
+        if BattleBanana != None:
+            BattleBanana.money += price
+            BattleBanana.save()
     else:
         result += " You got your bet back!"
     

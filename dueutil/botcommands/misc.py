@@ -7,11 +7,13 @@ import os
 import platform
 import random
 import re
-import shlex
-import subprocess
+import platform
 import textwrap
 import time
+import asyncio
 import traceback
+import subprocess
+import shlex
 from contextlib import redirect_stdout
 from io import StringIO
 

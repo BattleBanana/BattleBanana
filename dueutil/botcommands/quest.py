@@ -15,8 +15,11 @@ from ..game import (
     awards,
     players)
 from ..game.helpers import imagehelper
+from .. import commands, util
 from ..game.helpers import misc
 from ..permissions import Permission
+
+from ..game import emojis as e
 
 
 @commands.command(permission=Permission.BANANA_MOD, args_pattern="S?P?C?", hidden=True)

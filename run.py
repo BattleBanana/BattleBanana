@@ -8,8 +8,10 @@ import sentry_sdk
 import sys
 import time
 import traceback
+
 from threading import Thread
 
+from dueutil.permissions import Permission
 import generalconfig as gconf
 from dueutil import dbconn, events, loader, permissions, servercounts, util
 from dueutil.game import players, quests, weapons
@@ -141,9 +143,10 @@ class BattleBananaClient(discord.AutoShardedClient):
                         continue
         except Exception as e:
             util.logger.warning("Unable to send on join message: %s", e)
-
+        
         # Update stats
         await servercounts.update_server_count(self)
+
 
     @staticmethod
     def server_stats(guild):
@@ -153,6 +156,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         bot_server = bot_percent > 70
         return {"member_count": member_count, "bot_percent": bot_percent,
                 "bot_count": bot_count, "bot_server": bot_server}
+
 
     async def on_error(self, event, *args):
         ctx = args[0] if len(args) == 1 else None
@@ -203,13 +207,12 @@ class BattleBananaClient(discord.AutoShardedClient):
         elif isinstance(error, discord.HTTPException):
             util.logger.error("Discord HTTP error: %s", error)
             if ctx_is_message:
-                await util.say(ctx.channel, ":bangbang: **Something went wrong...**")
                 trigger_message = discord.Embed(title="Trigger", type="rich", color=gconf.DUE_COLOUR)
                 trigger_message.add_field(name="Message", value=ctx.author.mention + ":\n" + ctx.content)
                 await util.duelogger.error(("**Message/command triggred error!**\n"
-                                            + "__Stack trace:__ ```" + traceback.format_exc()[-1500:] + "```"),
-                                           embed=trigger_message)
-
+                                                + "__Stack trace:__ ```" + traceback.format_exc()[-1500:] + "```"),
+                                                embed=trigger_message)
+                 
         elif isinstance(error, (aiohttp.ClientResponseError, aiohttp.ClientOSError)):
             if ctx_is_message:
                 util.logger.error("%s: ctx from %s: %s", error, ctx.author.id, ctx.content)
@@ -231,6 +234,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         sentry_sdk.capture_exception(error)
         traceback.print_exc()
 
+
     async def on_message(self, message):
         if (message.author == self.user
                 or message.author.bot
@@ -251,6 +255,7 @@ class BattleBananaClient(discord.AutoShardedClient):
 
         await events.on_message_event(message)
 
+
     async def on_member_update(self, before, after):
         if not self.is_ready():
             return
@@ -267,6 +272,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                 player.donor = True
                 player.save()
 
+
     async def on_guild_remove(self, guild):
         for collection in dbconn.db.list_collection_names():
             if collection not in ("Player", "Topdogs"):
@@ -279,6 +285,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         dbconn.update_guild_joined(-1)
         await servercounts.update_server_count(self)
 
+
     async def change_avatar(self, channel, avatar_name):
         try:
             avatar = open("avatars/" + avatar_name.strip(), "rb")
@@ -287,6 +294,7 @@ class BattleBananaClient(discord.AutoShardedClient):
             await util.say(channel, ":white_check_mark: Avatar now **" + avatar_name + "**!")
         except FileNotFoundError:
             await util.say(channel, ":bangbang: **Avatar change failed!**")
+
 
     async def on_ready(self):
         global async_server
@@ -299,6 +307,7 @@ class BattleBananaClient(discord.AutoShardedClient):
             util.logger.info("Listening for data transfer requests on port %s!" % server_port)
         except:
             util.logger.error("Websocket already started")
+
 
     async def on_shard_ready(self, shard_id):
         game = discord.Activity(name="battlebanana.xyz | shard %d/%d" % (shard_id + 1, self.shard_count), type=discord.ActivityType.watching)

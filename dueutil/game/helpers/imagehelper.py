@@ -4,9 +4,12 @@ import mimetypes
 import os
 import random
 import re
-import urllib3
+from io import BytesIO
+import mimetypes, urllib3
+from urllib.parse import urlparse
 from PIL import Image, ImageDraw, ImageFont
 from colour import Color
+import aiohttp
 from discord import File
 from io import BytesIO
 from urllib.parse import urlparse

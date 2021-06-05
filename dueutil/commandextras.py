@@ -5,6 +5,9 @@ from inspect import Parameter
 
 from . import commandtypes
 from .game import emojis
+from . import commandtypes
+from functools import wraps
+import itertools
 
 
 def dict_command(**spec):

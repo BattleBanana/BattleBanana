@@ -1,8 +1,8 @@
+import time
 import asyncio
 import discord
 import json
 import repoze.timeago
-import time
 from itertools import chain
 
 import generalconfig as gconf
@@ -186,7 +186,9 @@ async def botstats(ctx, **_):
                           value=(e.MYINFO + " **%s** images served.\n"
                                  % util.format_number_precise(game_stats[Stat.IMAGES_SERVED])
                                  + e.DISCOIN + " **Đ%s** Discoin received.\n"
-                                 % util.format_number_precise(game_stats[Stat.DISCOIN_RECEIVED])))
+                                 % util.format_number_precise(game_stats[Stat.DISCOIN_RECEIVED]))
+                                 + e.CHANNEL + " **%s** commands used.\n"
+                                 % util.format_number_precise(game_stats[Stat.COMMANDS_USED]))
     # Game
     stats_embed.add_field(name="Game",
                           value=(e.QUESTER + " **%s** players.\n"
@@ -551,9 +553,9 @@ async def currencies(ctx, **_):
     """
 
     embed = discord.Embed(title=e.DISCOIN + " Current currencies!", type="rich", color=gconf.DUE_COLOUR)
-    for id in discoin.CODES:
-        currency = discoin.CODES[id]
-        embed.add_field(name=id, value=currency['name'], inline=False)
+    for bot in discoin.bots:
+        for currency in bot.currencies:
+            embed.add_field(name=currency.code, value=currency.bot_name)
 
     if len(embed.fields) == 0:
         embed.add_field(name="An error occured!", value="There was an error retrieving Discoin's currencies.")
@@ -567,8 +569,10 @@ async def currencies(ctx, **_):
 async def exchange(ctx, amount, currency, **details):
     """
     [CMD_KEY]exchange (amount) (currency)
+
     Exchange your BBT (BattleBanana Tokens) for other bot currencies!
     For more information go to: https://dash.discoin.zws.im/#/
+
     Note: Exchanges can take a few minutes to process!
     """
 
@@ -578,7 +582,7 @@ async def exchange(ctx, amount, currency, **details):
     if currency == discoin.CURRENCY_CODE:
         raise util.BattleBananaException(ctx.channel, "There is no reason to exchange %s for %s!" % (
             discoin.CURRENCY_CODE, discoin.CURRENCY_CODE))
-    if not currency in discoin.CODES:
+    if not currency in discoin.codes:
         raise util.BattleBananaException(ctx.channel,
                                          "Not a valid currency! Use `%scurrencies` to know which currency is available." %
                                          details['cmd_key'])
@@ -640,7 +644,7 @@ async def exchange(ctx, amount, currency, **details):
     await util.say(gconf.discoin_channel, embed=logs_embed)
 
 
-@commands.command(args_pattern="S?", permission=Permission.BANANA_ADMIN)
+@commands.command(args_pattern="S?", permission=Permission.BANANA_ADMIN, hidden=True)
 async def status(ctx, message=None, **details):
     """
     If message is none the status will be reset to the default one.

@@ -1,4 +1,5 @@
 import inspect
+
 from discord import Message
 from itertools import chain
 from typing import Callable
