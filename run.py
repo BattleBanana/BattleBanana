@@ -48,14 +48,27 @@ class BattleBananaClient(discord.AutoShardedClient):
     """
 
     def __init__(self, **details):
+        global clients
+        clients.append(self)
+
         self.queue_tasks = queue.Queue()
         self.start_time = time.time()
 
         intents = discord.Intents.default()
         intents.members = True
-
+        
+        pipe = details.pop('pipe')
+        pipe.send(1)
+        pipe.close()
+        
         super(BattleBananaClient, self).__init__(intents=intents, **details)
+        
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
+        try:
+            self.run(bot_key)
+        except KeyError:
+            pass
+        
 
     async def __check_task_queue(self):
         while True:
@@ -356,6 +369,21 @@ def run_bb():
             asyncio.ensure_future(task(), loop=loop)
         loop.run_forever()
 
+def _load():
+    print("Starting BattleBanana!")
+    global config, bot_key, shard_names
+    config = gconf.other_configs
+    bot_key = config["botToken"]
+    shard_names = config["shardNames"]
+    util.load(clients)
+
+    if not os.path.exists("assets/imagecache/"):
+        os.makedirs("assets/imagecache/")
+        
+    loader.load_modules(packages=loader.GAME)
+
+    loader.load_modules(packages=loader.COMMANDS)
+
 
 if __name__ == "__main__":
     print("Starting BattleBanana!")
@@ -364,3 +392,5 @@ if __name__ == "__main__":
     shard_names = config["shardNames"]
     util.load(clients)
     run_bb()
+else:
+    _load()

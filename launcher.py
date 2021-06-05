@@ -45,12 +45,12 @@ class Launcher:
     def get_shard_count(self):
         data = requests.get('https://discordapp.com/api/v9/gateway/bot', headers={
             "Authorization": "Bot "+TOKEN,
-            "User-Agent": "DiscordBot (https://github.com/Rapptz/discord.py 1.7.1) Python/3.9 aiohttp/3.7.3"
+            "User-Agent": "DiscordBot (https://github.com/Rapptz/discord.py 1.7.2) Python/3.9 aiohttp/3.7.3"
         })
         data.raise_for_status()
         content = data.json()
         log.info(f"Successfully got shard count of {content['shards']} ({data.status_code, data.reason})")
-        # return 16
+        
         return content['shards']
 
     def start(self):
