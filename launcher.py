@@ -3,10 +3,11 @@ import json
 import logging
 import multiprocessing
 import os
-import requests
 import signal
 import sys
 import time
+
+import requests
 
 from run import BattleBananaClient
 
@@ -19,7 +20,6 @@ hdlr.setFormatter(logging.Formatter("[%(asctime)s %(name)s/%(levelname)s] %(mess
 fhdlr = logging.FileHandler("cluster-Launcher.log", encoding='utf-8')
 fhdlr.setFormatter(logging.Formatter("[%(asctime)s %(name)s/%(levelname)s] %(message)s"))
 log.handlers = [hdlr, fhdlr]
-
 
 CLUSTER_NAMES = (
     'Alpha', 'Beta', 'Charlie', 'Delta', 'Echo', 'Foxtrot', 'Golf', 'Hotel',
@@ -44,13 +44,13 @@ class Launcher:
 
     def get_shard_count(self):
         data = requests.get('https://discordapp.com/api/v9/gateway/bot', headers={
-            "Authorization": "Bot "+TOKEN,
+            "Authorization": "Bot " + TOKEN,
             "User-Agent": "DiscordBot (https://github.com/Rapptz/discord.py 1.7.2) Python/3.9 aiohttp/3.7.3"
         })
         data.raise_for_status()
         content = data.json()
         log.info(f"Successfully got shard count of {content['shards']} ({data.status_code, data.reason})")
-        
+
         return content['shards']
 
     def start(self):
@@ -85,7 +85,7 @@ class Launcher:
         await self.start_cluster()
         self.keep_alive = self.loop.create_task(self.rebooter())
         self.keep_alive.add_done_callback(self.task_complete)
-        log.info(f"Startup completed in {time.perf_counter()-self.init}s")
+        log.info(f"Startup completed in {time.perf_counter() - self.init}s")
 
     async def shutdown(self):
         log.info("Shutting down clusters")

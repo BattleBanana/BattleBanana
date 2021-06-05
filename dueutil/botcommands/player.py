@@ -1,6 +1,7 @@
-import discord
 import random
 import time
+
+import discord
 
 import dueutil.game.awards as game_awards
 import generalconfig as gconf
@@ -14,6 +15,7 @@ from ..permissions import Permission
 
 DAILY_AMOUNT = 50
 TRAIN_RANGE = (0.1, 0.3)
+
 
 @commands.command(args_pattern=None)
 @commands.ratelimit(cooldown=86400, error="You can't collect your daily reward again for **[COOLDOWN]**!", save=True)
@@ -29,13 +31,17 @@ async def daily(ctx, **details):
     responses = game.getResponses()
 
     BALANCED_AMOUNT = DAILY_AMOUNT * player.level * player.prestige_multiplicator()
-    
+
     player.money += BALANCED_AMOUNT
     player.save()
-    await util.reply(ctx, e.BBT + f' {random.choice(responses).format(user=f"**{player}**", daily=f"¤{BALANCED_AMOUNT}")}')
+    await util.reply(ctx,
+                     e.BBT + f' {random.choice(responses).format(user=f"**{player}**", daily=f"¤{BALANCED_AMOUNT}")}')
+
 
 @commands.command(args_pattern=None)
-@commands.ratelimit(cooldown=21600, error="You've done all the training you can for now! You can train again in **[COOLDOWN]**!", save=True)
+@commands.ratelimit(cooldown=21600,
+                    error="You've done all the training you can for now! You can train again in **[COOLDOWN]**!",
+                    save=True)
 async def train(ctx, **details):
     """
     [CMD_KEY]train
@@ -58,13 +64,16 @@ async def train(ctx, **details):
                     max_exp=maxstats, max_attr=maxstats)
     progress_message = players.STAT_GAIN_FORMAT % (attack_increase, strg_increase, accy_increase)
 
-    train_embed = discord.Embed(title="You trained like a mad man!", description="After a hard moment, you feel stronger!", type="rich", color=gconf.DUE_COLOUR)
+    train_embed = discord.Embed(title="You trained like a mad man!",
+                                description="After a hard moment, you feel stronger!", type="rich",
+                                color=gconf.DUE_COLOUR)
     train_embed.add_field(name="Training result:", value=progress_message, inline=True)
     train_embed.set_footer(text='You feel exhausted and may train again in 6 hours!')
 
     await game.check_for_level_up(ctx, player)
     player.save()
     await util.reply(ctx, "**%s** training complete!\n" % player, embed=train_embed)
+
 
 @commands.command(args_pattern=None)
 @commands.ratelimit(cooldown=604800, error="You can't collect your weekly reward again for **[COOLDOWN]**!", save=True)
@@ -89,6 +98,7 @@ async def weekly(ctx, **details):
         else:
             util.logger.info("Won't send new quest image - channel blocked.")
 
+
 @commands.command(args_pattern=None)
 async def mylimit(ctx, **details):
     """
@@ -99,7 +109,7 @@ async def mylimit(ctx, **details):
 
     player = details["author"]
     await util.reply(ctx, "You're currently limited to weapons with a value up to **%s**!"
-                   % util.format_number(player.item_value_limit, money=True, full_precision=True))
+                     % util.format_number(player.item_value_limit, money=True, full_precision=True))
 
 
 @commands.command(args_pattern="S?", aliases=["bn"])
@@ -117,7 +127,7 @@ async def battlename(ctx, name="", **details):
         name_len_range = players.Player.NAME_LENGTH_RANGE
         if len(name) not in name_len_range:
             raise util.BattleBananaException(ctx.channel, "Battle name must be between **%d-%d** characters long!"
-                                                     % (min(name_len_range), max(name_len_range)))
+                                             % (min(name_len_range), max(name_len_range)))
         player.name = util.filter_string(name)
     else:
         player.name = details["author_name"]
@@ -157,8 +167,8 @@ async def myprofile(ctx, **details):
 
     if profile_url is None:
         await util.reply(ctx, (":lock: Your profile is currently set to private!\n"
-                                     + "If you want a public profile login to <https://battlebanana.xyz/>"
-                                     + " and make your profile public in the settings."))
+                               + "If you want a public profile login to <https://battlebanana.xyz/>"
+                               + " and make your profile public in the settings."))
     else:
         await util.reply(ctx, "Your profile is at %s" % profile_url)
 
@@ -212,7 +222,8 @@ async def hidemyweapon(ctx, **details):
     player.weapon_hidden = not player.weapon_hidden
     player.save()
 
-    await util.reply(ctx, "Your weapon is now hidden!" if player.weapon_hidden else "Your weapon is not hidden anymore!")
+    await util.reply(ctx,
+                     "Your weapon is now hidden!" if player.weapon_hidden else "Your weapon is not hidden anymore!")
 
 
 @commands.command(args_pattern='C?')
@@ -238,19 +249,20 @@ async def awards(ctx, player, page=1, **_):
 
     await show_awards(ctx, player, page - 1)
 
+
 @commands.command(args_pattern="S?")
 @commands.require_cnf(warning="This will **__permanently__** reset your user!")
 async def resetme(ctx, cnf="", **details):
-   """
-   [CMD_KEY]resetme
-   
-   Resets all your stats & any customization.
-   This cannot be reversed!
-   """
+    """
+    [CMD_KEY]resetme
 
-   player = details["author"]
-   player.reset(ctx.author)
-   await util.reply(ctx, "Your user has been reset.")
+    Resets all your stats & any customization.
+    This cannot be reversed!
+    """
+
+    player = details["author"]
+    player.reset(ctx.author)
+    await util.reply(ctx, "Your user has been reset.")
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None, aliases=["start"])
@@ -268,7 +280,8 @@ async def createaccount(ctx, **details):
 
     players.Player(ctx.author)
     stats.increment_stat(stats.Stat.NEW_PLAYERS_JOINED)
-    await util.reply(ctx, "Welcome to the BattleBanana club! Make sure you head to <https://battlebanana.xyz/howto> for a starter guide!\n\nHave fun! :D")
+    await util.reply(ctx,
+                     "Welcome to the BattleBanana club! Make sure you head to <https://battlebanana.xyz/howto> for a starter guide!\n\nHave fun! :D")
 
 
 @commands.command(args_pattern="S?")
@@ -280,13 +293,14 @@ async def deleteme(ctx, cnf="", **details):
     Deletes all your stats & any customization.
     This cannot be reversed!
     """
-    
+
     user = details["author"]
 
     dbconn.delete_player(user)
     players.players.pop(ctx.author.id)
-    
+
     await util.reply(ctx, "Your user has been deleted.")
+
 
 @commands.command(args_pattern='PCS?', aliases=["sq"])
 async def sendquest(ctx, receiver, quest_index, message="", **details):
@@ -306,7 +320,9 @@ async def sendquest(ctx, receiver, quest_index, message="", **details):
         raise util.BattleBananaException(ctx.channel, "Quest not found!")
     plr_quest = plr.quests[quest_index]
     if plr_quest.level > (receiver.level + 10):
-        raise util.BattleBananaException(ctx.channel, "The quest is too strong for the player! Highest quest level for this player is " + str(receiver.level + 10) + "!")
+        raise util.BattleBananaException(ctx.channel,
+                                         "The quest is too strong for the player! Highest quest level for this player is " + str(
+                                             receiver.level + 10) + "!")
 
     quest_name = plr_quest.name
     quest_level = str(plr_quest.level)
@@ -320,7 +336,7 @@ async def sendquest(ctx, receiver, quest_index, message="", **details):
 
     receiver.save()
     plr.save()
-    
+
     transaction_log = discord.Embed(title=e.QUESTER + " Transaction complete!", type="rich",
                                     color=gconf.DUE_COLOUR)
     transaction_log.add_field(name="Sender:", value=plr.name_clean)
@@ -329,7 +345,8 @@ async def sendquest(ctx, receiver, quest_index, message="", **details):
     if message != "":
         transaction_log.add_field(name=":pencil: Attached note:", value=message, inline=False)
     transaction_log.set_footer(text="Please keep this receipt for your records.")
-    util.logger.info("%s (%s) sent %s to %s (%s)", plr.name, plr.id, quest_name + ", level " + quest_level, receiver.name, receiver.id)
+    util.logger.info("%s (%s) sent %s to %s (%s)", plr.name, plr.id, quest_name + ", level " + quest_level,
+                     receiver.name, receiver.id)
 
     await util.reply(ctx, embed=transaction_log)
 
@@ -343,13 +360,14 @@ async def compare(ctx, player1, player2=None, **details):
     
     If the "Player2" argument is not given, it will compare you to the "Player1"
     """
-    
+
     plr = details["author"]
     if player2 is None and player1 == plr:
-        raise util.BattleBananaException(ctx.channel, "There is no reason to compare yourself! You are as good as yourself (:")
+        raise util.BattleBananaException(ctx.channel,
+                                         "There is no reason to compare yourself! You are as good as yourself (:")
     if player1 == player2:
         raise util.BattleBananaException(ctx.channel, "There is no reason to compare the same player!")
-    
+
     compare_Embed = discord.Embed()
 
     if player2 is None:
@@ -358,16 +376,21 @@ async def compare(ctx, player1, player2=None, **details):
     compare_Embed.title = "Comparing **%s** with **%s**!" % (player1.name_clean, player2.name_clean)
     compare_Embed.add_field(
         name=player1.name_clean,
-        value=("Prestige: %s\nLevel: %s\nHealth: %.2f\nAttack: %.2f\nStrength: %.2f\nAccuracy: %.2f" % (player1.prestige_level, player1.level, player1.hp * player1.strg, player1.attack, player1.strg, player1.accy)), 
+        value=("Prestige: %s\nLevel: %s\nHealth: %.2f\nAttack: %.2f\nStrength: %.2f\nAccuracy: %.2f" % (
+            player1.prestige_level, player1.level, player1.hp * player1.strg, player1.attack, player1.strg,
+            player1.accy)),
         inline=True
     )
     compare_Embed.add_field(
         name=player2.name_clean,
-        value=("Prestige: %s\nLevel: %s\nHealth: %.2f\nAttack: %.2f\nStrength: %.2f\nAccuracy: %.2f" % (player2.prestige_level, player2.level, player2.hp * player2.strg, player2.attack, player2.strg, player2.accy)), 
+        value=("Prestige: %s\nLevel: %s\nHealth: %.2f\nAttack: %.2f\nStrength: %.2f\nAccuracy: %.2f" % (
+            player2.prestige_level, player2.level, player2.hp * player2.strg, player2.attack, player2.strg,
+            player2.accy)),
         inline=True
     )
 
     await util.reply(ctx, embed=compare_Embed)
+
 
 @commands.command(args_pattern='PCS?', aliases=["sc"])
 async def sendcash(ctx, receiver, transaction_amount, message="", **details):
@@ -395,8 +418,8 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
     if sender.money - transaction_amount < 0:
         if sender.money > 0:
             await util.reply(ctx, ("You do not have **" + amount_string + "**!\n"
-                                                                                "The maximum you can transfer is **"
-                                         + util.format_number(sender.money, money=True, full_precision=True) + "**"))
+                                                                          "The maximum you can transfer is **"
+                                   + util.format_number(sender.money, money=True, full_precision=True) + "**"))
         else:
             await util.reply(ctx, "You do not have any money to transfer!")
         return
@@ -404,10 +427,10 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
     max_receive = int(receiver.item_value_limit * 10)
     if transaction_amount > max_receive:
         await util.reply(ctx, ("**" + amount_string
-                                     + "** is more than ten times **" + receiver.name_clean
-                                     + "**'s limit!\nThe maximum **" + receiver.name_clean
-                                     + "** can receive is **"
-                                     + util.format_number(max_receive, money=True, full_precision=True) + "**!"))
+                               + "** is more than ten times **" + receiver.name_clean
+                               + "**'s limit!\nThe maximum **" + receiver.name_clean
+                               + "** can receive is **"
+                               + util.format_number(max_receive, money=True, full_precision=True) + "**!"))
         return
 
     sender.money -= transaction_amount
@@ -432,6 +455,7 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
 
     await util.reply(ctx, embed=transaction_log)
 
+
 @commands.command(args_pattern="S?")
 @commands.require_cnf(warning="This action cannot be reverted, are you sure you want to prestige?")
 async def prestige(ctx, cnf="", **details):
@@ -448,9 +472,11 @@ async def prestige(ctx, cnf="", **details):
     req_money = gamerules.get_money_for_prestige(user.prestige_level)
 
     if user.level < prestige_level:
-        raise util.BattleBananaException(ctx.channel, "You need to be level %s or higher to go to the next prestige!" % prestige_level)
+        raise util.BattleBananaException(ctx.channel,
+                                         "You need to be level %s or higher to go to the next prestige!" % prestige_level)
     if user.money < req_money:
-        raise util.BattleBananaException(ctx.channel, "You need atleast %s %s to afford the next prestige!" % (util.format_number_precise(req_money), e.BBT))
+        raise util.BattleBananaException(ctx.channel, "You need atleast %s %s to afford the next prestige!" % (
+            util.format_number_precise(req_money), e.BBT))
 
     user.money -= req_money
     user.prestige()
@@ -458,6 +484,7 @@ async def prestige(ctx, cnf="", **details):
     if prestige_level > 0:
         await game.awards.give_award(ctx.channel, user, 'Prestige')
     await util.reply(ctx, "You successfully prestiged! You are now at prestige %s, congrats!" % user.prestige_level)
+
 
 @commands.command(args_pattern="P?", aliases=["mp", "showprestige", "sp"])
 async def myprestige(ctx, player=None, **details):
@@ -472,12 +499,20 @@ async def myprestige(ctx, player=None, **details):
     prestige_level = gamerules.get_level_for_prestige(player.prestige_level)
     req_money = gamerules.get_money_for_prestige(player.prestige_level)
 
-    message = "%s prestige **%s**! " % ("**You** are" if player == details["author"] else "**" + player.name + "** is", player.prestige_level)
-    message += "**%s** %s & %s" % ("You" if player == details["author"] else player.name, ("satisfy the level requirement" if prestige_level <= player.level else "need **%s** additional level(s)" % (prestige_level - player.level)),
-                                    ("satisfy the money requirement" if req_money <= player.money else "need **%s%s** to afford the next prestige." 
-                                    % (util.format_number_precise(req_money - player.money), e.BBT)))
-    
+    message = "%s prestige **%s**! " % (
+        "**You** are" if player == details["author"] else "**" + player.name + "** is", player.prestige_level)
+    message += "**%s** %s & %s" % ("You" if player == details["author"] else player.name, (
+        "satisfy the level requirement" if prestige_level <= player.level else "need **%s** additional level(s)" % (
+                prestige_level - player.level)),
+                                   (
+                                       "satisfy the money requirement" if req_money <= player.money else "need **%s%s** to afford the next prestige."
+                                                                                                         % (
+                                                                                                             util.format_number_precise(
+                                                                                                                 req_money - player.money),
+                                                                                                             e.BBT)))
+
     await util.reply(ctx, message)
+
 
 @commands.command(hidden=True, args_pattern=None)
 async def benfont(ctx, **details):
@@ -494,6 +529,7 @@ async def benfont(ctx, **details):
         await ctx.channel.send(discord.File('assets/images/nod.gif'))
         await game_awards.give_award(ctx.channel, player, "BenFont", "ONE TRUE *type* FONT")
 
+
 """
 WARNING: Setter & my commands use decorators to be lazy
 
@@ -502,6 +538,7 @@ the decorators but setters must be fucntions anyway to be commands)
 
 This is part of my quest in finding lazy ways to do things I cba.
 """
+
 
 # Think about clean up & reuse
 @commands.command(args_pattern='M?')
@@ -600,7 +637,7 @@ def theme_page(themes_embed, theme, **extras):
     price_divisor = extras.get('price_divisor', 1)
     themes_embed.add_field(name=theme["icon"] + " | " + theme["name"], value=(theme["description"] + "\n ``"
                                                                               + util.format_number(
-        theme["price"] // price_divisor, money=True, full_precision=True) + "``"))
+                theme["price"] // price_divisor, money=True, full_precision=True) + "``"))
 
 
 @misc.paginator
@@ -655,4 +692,3 @@ def banner_info(banner_name, **details):
     embed.set_footer(text="Buy this banner for " + util.format_number(banner.price // price_divisor, money=True,
                                                                       full_precision=True))
     return embed
-

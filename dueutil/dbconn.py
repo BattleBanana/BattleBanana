@@ -1,13 +1,15 @@
 import json
+from datetime import datetime
+
 import jsonpickle
 import pymongo
-from datetime import datetime
 from pymongo import MongoClient
 
 db = None
 config = {}
 ASCENDING = pymongo.ASCENDING
 DESCENDING = pymongo.DESCENDING
+
 
 def conn():
     global db
@@ -17,15 +19,16 @@ def conn():
         uri = "mongodb://" + config['user'] + ":" + config['pwd'] + "@" + config[
             'host'] + "/admin?authMechanism=SCRAM-SHA-1"
         db = MongoClient(uri).dueutil
-        
+
         return db
     else:
         return db
 
+
 def insert_object(id, pickleable_object):
     if isinstance(id, str) and id.strip() == "":
         return
-    #todo
+    # todo
     # jsonpickle_data = json.loads(jsonpickle.encode(pickleable_object))
     conn()[type(pickleable_object).__name__].update({'_id': id},
                                                     {"$set": {'data': jsonpickle.encode(pickleable_object)}},
@@ -54,6 +57,7 @@ def update_guild_joined(count):
     month = datetime.now().strftime("%Y-%m")
     update_query = {'$inc': {'joined': 1} if count > 0 else {'left': 1}}
     conn()["GuildStats"].update({'_id': month}, update_query, upsert=True)
+
 
 def _load_config():
     global config

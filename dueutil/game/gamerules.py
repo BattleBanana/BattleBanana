@@ -53,4 +53,5 @@ def get_level_for_prestige(prestige):
 def get_money_for_prestige(prestige):
     return 5000000 + 1000000 * prestige
 
+
 _load_game_rules()

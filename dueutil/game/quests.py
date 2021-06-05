@@ -1,10 +1,11 @@
 import asyncio
-import discord
-import jsonpickle
 import math
 import random
 from collections import defaultdict, namedtuple
 from typing import Dict, List
+
+import discord
+import jsonpickle
 
 from . import gamerules
 from .players import Player
@@ -16,7 +17,7 @@ from ..game.helpers.misc import BattleBananaObject, DueMap
 from ..util import SlotPickleMixin
 
 quest_map = DueMap()
-loaded_guilds = set() 
+loaded_guilds = set()
 
 MIN_QUEST_IV = 0
 QUEST_DAY = 86400
@@ -44,7 +45,8 @@ class Quest(BattleBananaObject, SlotPickleMixin):
         if message is not None:
             if message.guild in quest_map:
                 if name.lower() in quest_map[message.guild]:
-                    raise util.BattleBananaException(message.channel, "A foe with that name already exists on this guild!")
+                    raise util.BattleBananaException(message.channel,
+                                                     "A foe with that name already exists on this guild!")
 
             if base_accy < 1 or base_attack < 1 or base_strg < 1:
                 raise util.BattleBananaException(message.channel, "No quest stats can be less than 1!")
@@ -151,7 +153,7 @@ class ActiveQuest(Player, util.SlotPickleMixin):
         active_quest.equipped = defaultdict(lambda: "default",
                                             weapon=base_quest.w_id)
 
-        target_exp = random.uniform(quester.total_exp, quester.total_exp*1.8)
+        target_exp = random.uniform(quester.total_exp, quester.total_exp * 1.8)
         active_quest.level = gamerules.get_level_from_exp(target_exp)
         active_quest.total_exp = active_quest.exp = 0
         await active_quest._calculate_stats()
@@ -307,7 +309,7 @@ REFERENCE_QUEST = Quest('Reference', 1, 1, 1, 1, server_id="", no_save=True)
 
 def _load(server_id):
     if server_id in loaded_guilds:
-        return 
+        return
 
     quests = list(dbconn.conn()['Quest'].find({'_id': {'$regex': '%s.*' % server_id}}))
     for quest in quests:

@@ -1,17 +1,16 @@
-import aiohttp
 import asyncio
-import discord
 import inspect
 import os
 import queue
-import sentry_sdk
 import sys
 import time
 import traceback
-
 from threading import Thread
 
-from dueutil.permissions import Permission
+import aiohttp
+import discord
+import sentry_sdk
+
 import generalconfig as gconf
 from dueutil import dbconn, events, loader, permissions, servercounts, util
 from dueutil.game import players, quests, weapons
@@ -58,19 +57,18 @@ class BattleBananaClient(discord.AutoShardedClient):
 
         intents = discord.Intents.default()
         intents.members = True
-        
+
         pipe = details.pop('pipe')
         pipe.send(1)
         pipe.close()
-        
+
         super(BattleBananaClient, self).__init__(intents=intents, **details)
-        
+
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
         try:
             self.run(bot_key)
         except KeyError:
             pass
-        
 
     async def __check_task_queue(self):
         while True:
@@ -143,10 +141,9 @@ class BattleBananaClient(discord.AutoShardedClient):
                         continue
         except Exception as e:
             util.logger.warning("Unable to send on join message: %s", e)
-        
+
         # Update stats
         await servercounts.update_server_count(self)
-
 
     @staticmethod
     def server_stats(guild):
@@ -156,7 +153,6 @@ class BattleBananaClient(discord.AutoShardedClient):
         bot_server = bot_percent > 70
         return {"member_count": member_count, "bot_percent": bot_percent,
                 "bot_count": bot_count, "bot_server": bot_server}
-
 
     async def on_error(self, event, *args):
         ctx = args[0] if len(args) == 1 else None
@@ -191,12 +187,17 @@ class BattleBananaClient(discord.AutoShardedClient):
                         perms = ctx.guild.me.permissions_in(ctx.channel)
                         await util.say(ctx.channel,
                                        "The action could not be performed as I'm **missing permissions**! Make sure I have the following permissions:\n"
-                                       + "- Manage Roles %s;\n" % (":white_check_mark:" if perms.manage_roles else ":x:")
-                                       + "- Manage messages %s;\n" % (":white_check_mark:" if perms.manage_messages else ":x:")
+                                       + "- Manage Roles %s;\n" % (
+                                           ":white_check_mark:" if perms.manage_roles else ":x:")
+                                       + "- Manage messages %s;\n" % (
+                                           ":white_check_mark:" if perms.manage_messages else ":x:")
                                        + "- Embed links %s;\n" % (":white_check_mark:" if perms.embed_links else ":x:")
-                                       + "- Attach files %s;\n" % (":white_check_mark:" if perms.attach_files else ":x:")
-                                       + "- Read Message History %s;\n" % (":white_check_mark:" if perms.read_message_history else ":x:")
-                                       + "- Use external emojis %s;\n" % (":white_check_mark:" if perms.external_emojis else ":x:")
+                                       + "- Attach files %s;\n" % (
+                                           ":white_check_mark:" if perms.attach_files else ":x:")
+                                       + "- Read Message History %s;\n" % (
+                                           ":white_check_mark:" if perms.read_message_history else ":x:")
+                                       + "- Use external emojis %s;\n" % (
+                                           ":white_check_mark:" if perms.external_emojis else ":x:")
                                        + "- Add reactions%s" % (":white_check_mark:" if perms.add_reactions else ":x:")
                                        )
                     except util.SendMessagePermMissing:
@@ -210,9 +211,9 @@ class BattleBananaClient(discord.AutoShardedClient):
                 trigger_message = discord.Embed(title="Trigger", type="rich", color=gconf.DUE_COLOUR)
                 trigger_message.add_field(name="Message", value=ctx.author.mention + ":\n" + ctx.content)
                 await util.duelogger.error(("**Message/command triggred error!**\n"
-                                                + "__Stack trace:__ ```" + traceback.format_exc()[-1500:] + "```"),
-                                                embed=trigger_message)
-                 
+                                            + "__Stack trace:__ ```" + traceback.format_exc()[-1500:] + "```"),
+                                           embed=trigger_message)
+
         elif isinstance(error, (aiohttp.ClientResponseError, aiohttp.ClientOSError)):
             if ctx_is_message:
                 util.logger.error("%s: ctx from %s: %s", error, ctx.author.id, ctx.content)
@@ -221,19 +222,19 @@ class BattleBananaClient(discord.AutoShardedClient):
         elif isinstance(error, RuntimeError) and ERROR_OF_DEATH in str(error):
             util.logger.critical("Something went very wrong and the error of death came for us: %s", error)
             os._exit(1)
-        elif isinstance(error, (OSError, aiohttp.ClientConnectionError, asyncio.exceptions.TimeoutError)): # 99% of time its just network errors
+        elif isinstance(error, (OSError, aiohttp.ClientConnectionError,
+                                asyncio.exceptions.TimeoutError)):  # 99% of time its just network errors
             util.logger.error(error.message)
         elif ctx_is_message:
             await util.say(ctx.channel, ":bangbang: **Something went wrong...**")
             trigger_message = discord.Embed(title="Trigger", type="rich", color=gconf.DUE_COLOUR)
             trigger_message.add_field(name="Message", value=ctx.author.mention + ":\n" + ctx.content)
             await util.duelogger.error("**Message/command triggered error!**\n"
-                                        + "__Stack trace:__ ```" + traceback.format_exc()[-1500:] + "```",
+                                       + "__Stack trace:__ ```" + traceback.format_exc()[-1500:] + "```",
                                        embed=trigger_message)
         # Log exception on sentry.
         sentry_sdk.capture_exception(error)
         traceback.print_exc()
-
 
     async def on_message(self, message):
         if (message.author == self.user
@@ -243,18 +244,23 @@ class BattleBananaClient(discord.AutoShardedClient):
             return
 
         owner = message.author
-        owner.id == config["owner"] and not permissions.has_permission(owner, Permission.BANANA_OWNER) and permissions.give_permission(owner, Permission.BANANA_OWNER)
+        owner.id == config["owner"] and not permissions.has_permission(owner,
+                                                                       Permission.BANANA_OWNER) and permissions.give_permission(
+            owner, Permission.BANANA_OWNER)
 
         # what are you doing daughter - dev
         # fixing mac's shitty slow regex parser - me, theel
-        message.content = message.content.replace(f"<@!{self.user.id}>", dueserverconfig.server_cmd_key(message.guild), 1) if message.content.startswith(f"<@!{self.user.id}>") else message.content
-        message.content = message.content.replace(f"<@{self.user.id}>", dueserverconfig.server_cmd_key(message.guild), 1) if message.content.startswith(f"<@{self.user.id}>") else message.content
+        message.content = message.content.replace(f"<@!{self.user.id}>", dueserverconfig.server_cmd_key(message.guild),
+                                                  1) if message.content.startswith(
+            f"<@!{self.user.id}>") else message.content
+        message.content = message.content.replace(f"<@{self.user.id}>", dueserverconfig.server_cmd_key(message.guild),
+                                                  1) if message.content.startswith(
+            f"<@{self.user.id}>") else message.content
 
         quests._load(message.guild.id)
         weapons._load(message.guild.id)
 
         await events.on_message_event(message)
-
 
     async def on_member_update(self, before, after):
         if not self.is_ready():
@@ -272,7 +278,6 @@ class BattleBananaClient(discord.AutoShardedClient):
                 player.donor = True
                 player.save()
 
-
     async def on_guild_remove(self, guild):
         for collection in dbconn.db.list_collection_names():
             if collection not in ("Player", "Topdogs"):
@@ -285,7 +290,6 @@ class BattleBananaClient(discord.AutoShardedClient):
         dbconn.update_guild_joined(-1)
         await servercounts.update_server_count(self)
 
-
     async def change_avatar(self, channel, avatar_name):
         try:
             avatar = open("avatars/" + avatar_name.strip(), "rb")
@@ -295,22 +299,23 @@ class BattleBananaClient(discord.AutoShardedClient):
         except FileNotFoundError:
             await util.say(channel, ":bangbang: **Avatar change failed!**")
 
-
     async def on_ready(self):
         global async_server
-        util.logger.info("Bot (re)started after %.2fs & Shards started after %.2fs", time.time() - start_time, time.time() - shard_time)
+        util.logger.info("Bot (re)started after %.2fs & Shards started after %.2fs", time.time() - start_time,
+                         time.time() - shard_time)
         await util.duelogger.bot("BattleBanana has *(re)*started\nBot version → ``%s``" % gconf.VERSION)
         try:
             loop = asyncio.get_event_loop()
             async_server = await asyncio.start_server(players.handle_client, '', gconf.other_configs["connectionPort"])
-            server_port = async_server.sockets[0].getsockname()[1] # get port that the server is on, to confirm it started on 4000
+            server_port = async_server.sockets[0].getsockname()[
+                1]  # get port that the server is on, to confirm it started on 4000
             util.logger.info("Listening for data transfer requests on port %s!" % server_port)
         except:
             util.logger.error("Websocket already started")
 
-
     async def on_shard_ready(self, shard_id):
-        game = discord.Activity(name="battlebanana.xyz | shard %d/%d" % (shard_id + 1, self.shard_count), type=discord.ActivityType.watching)
+        game = discord.Activity(name="battlebanana.xyz | shard %d/%d" % (shard_id + 1, self.shard_count),
+                                type=discord.ActivityType.watching)
         try:
             await self.change_presence(activity=game, shard_id=shard_id)
         except Exception as e:
@@ -378,6 +383,7 @@ def run_bb():
             asyncio.ensure_future(task(), loop=loop)
         loop.run_forever()
 
+
 def _load():
     print("Starting BattleBanana!")
     global config, bot_key, shard_names
@@ -388,7 +394,7 @@ def _load():
 
     if not os.path.exists("assets/imagecache/"):
         os.makedirs("assets/imagecache/")
-        
+
     loader.load_modules(packages=loader.GAME)
 
     loader.load_modules(packages=loader.COMMANDS)

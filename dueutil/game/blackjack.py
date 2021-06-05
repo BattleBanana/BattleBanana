@@ -1,12 +1,12 @@
 from pydealer.deck import Deck
 
-
 equivalents = {
     "Jack": 10,
     "Queen": 10,
     "King": 10,
     "Ace": 11
 }
+
 
 def get_deck_value(deck: Deck):
     value = 0
@@ -28,6 +28,7 @@ def get_deck_value(deck: Deck):
             break
 
     return value
+
 
 def compare_decks(deck1: Deck, deck2: Deck):
     """

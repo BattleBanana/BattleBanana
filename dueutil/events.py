@@ -1,8 +1,8 @@
 import inspect
-
-from discord import Message
 from itertools import chain
 from typing import Callable
+
+from discord import Message
 
 from . import commands
 from .game.configs import dueserverconfig
@@ -109,7 +109,8 @@ def remove_message_listener(listener_function):
 
 def register_command(command_function):
     if commands.has_my_variant(command_function.__name__):
-        command_function.__doc__ += "\nNote: [CMD_KEY]{0} is an alias for [CMD_KEY]my{0}".format(command_function.__name__)
+        command_function.__doc__ += "\nNote: [CMD_KEY]{0} is an alias for [CMD_KEY]my{0}".format(
+            command_function.__name__)
     command_event[command_function.__name__] = command_function
 
 

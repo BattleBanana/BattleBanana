@@ -1,6 +1,7 @@
 import json
 import os
 import re
+
 from PIL import Image
 
 from ... import dbconn, util, tasks
@@ -11,6 +12,7 @@ class _CacheStats:
     # (since it's easier than getting a namedturple to serialize)
     def __init__(self):
         self.repeated_usages = dict()
+
 
 stats = _CacheStats()
 # Imaged used in more than 1 quest or weapon

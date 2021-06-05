@@ -71,7 +71,7 @@ def load_dueutil_roles():
         special_permissions[permission["_id"]] = permission["permission"]
 
 
-def get_special_permission(member) ->Permission:
+def get_special_permission(member) -> Permission:
     if member.id not in special_permissions:
         return Permission.PLAYER
     return get_permission_from_name(special_permissions[member.id])

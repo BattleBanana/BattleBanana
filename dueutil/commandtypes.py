@@ -1,4 +1,3 @@
-from dueutil.game.helpers import imagehelper
 import re
 
 from dueutil.game.helpers import imagehelper
@@ -19,6 +18,7 @@ def parse_link(url):
         return url
     return False
 
+
 def strip_thousands_separators(value):
     if value[-1] == "k":
         value = value.replace("k", "") + "000"
@@ -28,6 +28,7 @@ def strip_thousands_separators(value):
     # Allowed will also allow incorrect formatting.
     value = re.sub(THOUSANDS_REGEX, r'\2', value)
     return value
+
 
 def parse_team(value):
     team = teams.find_team(value.lower())
@@ -39,7 +40,7 @@ def parse_team(value):
 def parse_int(value):
     # An int limited between min and max number
     try:
-        return util.clamp(int(strip_thousands_separators(value)), MIN_NUMBER, MAX_NUMBER) 
+        return util.clamp(int(strip_thousands_separators(value)), MIN_NUMBER, MAX_NUMBER)
     except ValueError:
         return False
 
@@ -90,7 +91,10 @@ def parse_player(player_id, called, ctx):
     except ValueError:
         return False
 
+
 base_func_dict = {'T': parse_team, 'S': parse_string, 'I': parse_int, 'C': parse_count, 'R': parse_float}
+
+
 def parse_type(arg_type, value, **extras):
     called = extras.get("called")
     ctx = extras.get("ctx")

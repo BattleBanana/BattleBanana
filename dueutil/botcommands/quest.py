@@ -1,7 +1,8 @@
-import discord
 import math
 import random
 import time
+
+import discord
 
 import generalconfig as gconf
 from .. import commands, util
@@ -15,11 +16,8 @@ from ..game import (
     awards,
     players)
 from ..game.helpers import imagehelper
-from .. import commands, util
 from ..game.helpers import misc
 from ..permissions import Permission
-
-from ..game import emojis as e
 
 
 @commands.command(permission=Permission.BANANA_MOD, args_pattern="S?P?C?", hidden=True)
@@ -50,7 +48,8 @@ async def spawnquest(ctx, *args, **details):
             await active_quest._calculate_stats()
         player.save()
         await util.reply(ctx,
-                       ":cloud_lightning: Spawned **" + quest.name_clean + "** [Level " + str(active_quest.level) + "]")
+                         ":cloud_lightning: Spawned **" + quest.name_clean + "** [Level " + str(
+                             active_quest.level) + "]")
     except:
         raise util.BattleBananaException(ctx.channel, "Failed to spawn quest!")
 
@@ -106,7 +105,7 @@ async def acceptquest(ctx, quest_index, **details):
         raise util.BattleBananaException(ctx.channel, "You can't afford the risk!")
     if player.quests_completed_today >= quests.MAX_DAILY_QUESTS:
         raise util.BattleBananaException(ctx.channel,
-                                    "You can't do more than " + str(quests.MAX_DAILY_QUESTS) + " quests a day!")
+                                         "You can't do more than " + str(quests.MAX_DAILY_QUESTS) + " quests a day!")
 
     quest = player.quests.pop(quest_index)
     battle_log = battles.get_battle_log(player_one=player, player_two=quest, p2_prefix="the ")
@@ -132,8 +131,8 @@ async def acceptquest(ctx, quest_index, **details):
         player.quests_won += 1
 
         reward = (
-            ":sparkles: **" + player.name_clean + "** defeated the **" + quest.name + "** and was rewarded with ``"
-            + util.format_number(quest.money, full_precision=True, money=True) + "`` ")
+                ":sparkles: **" + player.name_clean + "** defeated the **" + quest.name + "** and was rewarded with ``"
+                + util.format_number(quest.money, full_precision=True, money=True) + "`` ")
         quest_scale = quest.get_quest_scale()
         avg_player_stat = player.get_avg_stat()
 
@@ -155,8 +154,9 @@ async def acceptquest(ctx, quest_index, **details):
         stats_reward = players.STAT_GAIN_FORMAT % (add_attack, add_strg, add_accy)
         quest_results = reward + stats_reward
 
-        prevExp = player.total_exp 
-        player.progress(add_attack, add_strg, add_accy, max_attr=max_stats_gain, max_exp=10000 * player.prestige_multiplicator())
+        prevExp = player.total_exp
+        player.progress(add_attack, add_strg, add_accy, max_attr=max_stats_gain,
+                        max_exp=10000 * player.prestige_multiplicator())
         expGain = player.total_exp - prevExp
         quest_results = (reward + "and `" + str(round(expGain)) + "` EXP\n" + stats_reward)
 
@@ -183,9 +183,10 @@ async def acceptquest(ctx, quest_index, **details):
         await awards.give_award(ctx.channel, player, "InconceivableQuest")
     player.save()
 
-#@commands.command(args_pattern=None, aliases=['aaq'])
-#@commands.imagecommand()
-#async def acceptallquests(ctx, **details):
+
+# @commands.command(args_pattern=None, aliases=['aaq'])
+# @commands.imagecommand()
+# async def acceptallquests(ctx, **details):
 #    """
 #    [CMD_KEY]acceptallquests
 #
@@ -327,10 +328,11 @@ async def declinequest(ctx, quest_index, **details):
         else:
             quest_task = "do a long forgotten quest:"
         await util.reply(ctx, ("**" + player.name_clean + "** declined to "
-                                     + quest_task + " **" + quest.name_clean
-                                     + " [Level " + str(math.trunc(quest.level)) + "]**!"))
+                               + quest_task + " **" + quest.name_clean
+                               + " [Level " + str(math.trunc(quest.level)) + "]**!"))
     else:
         raise util.BattleBananaException(ctx.channel, "Quest not found!")
+
 
 @commands.command(aliases=["daq"])
 @commands.require_cnf(warning="This will **__permanently__** delete **__all__** your quests!")
@@ -342,14 +344,14 @@ async def declineallquests(ctx, **details):
     """
 
     player = details["author"]
-    
+
     quests = len(player.quests)
     if quests == 0:
         raise util.BattleBananaException(ctx.channel, "You have no quests to decline!")
 
     player.quests.clear()
     player.save()
-    
+
     await util.reply(ctx, "Declined %s quests!" % quests)
 
 
@@ -380,7 +382,7 @@ async def createquest(ctx, name, attack, strg, accy, hp,
     """
     if len(quests.get_server_quest_list(ctx.guild)) >= gconf.THING_AMOUNT_CAP:
         raise util.BattleBananaException(ctx.guild, "Whoa, you've reached the limit of %d quests!"
-                                    % gconf.THING_AMOUNT_CAP)
+                                         % gconf.THING_AMOUNT_CAP)
 
     extras = {"spawn_chance": spawn_chance}
     if task is not None:
@@ -394,7 +396,6 @@ async def createquest(ctx, name, attack, strg, accy, hp,
     if image_url is not None:
         extras['image_url'] = image_url
 
-        
     if "image_url" in extras and not imagehelper.is_url_image(image_url):
         return await imagehelper.warn_on_invalid_image(ctx.channel, url=extras["image_url"])
 
@@ -528,7 +529,7 @@ async def resetquests(ctx, **_):
     quests_deleted = quests.remove_all_quests(ctx.guild)
     if quests_deleted > 0:
         await util.reply(ctx, ":wastebasket: Your quests have been reset—**%d %s** deleted."
-                                    % (quests_deleted, util.s_suffix("quest", quests_deleted)))
+                         % (quests_deleted, util.s_suffix("quest", quests_deleted)))
     else:
         await util.reply(ctx, "There's no quests to delete!")
 
@@ -551,7 +552,7 @@ async def serverquests(ctx, page=1, **details):
                                value="Completed %s time" % current_quest.times_beaten
                                      + ("s" if current_quest.times_beaten != 1 else "") + "\n"
                                      + "Active channel: %s"
-                                       % current_quest.get_channel_mention(ctx.guild))
+                                     % current_quest.get_channel_mention(ctx.guild))
 
     if type(page) is int:
         page -= 1
@@ -560,8 +561,9 @@ async def serverquests(ctx, page=1, **details):
         quests_list.sort(key=lambda server_quest: server_quest.times_beaten, reverse=True)
 
         # misc.paginator handles all the messy checks.
-        quest_list_embed = quest_list(quests_list, page, e.QUEST+" Quests on " + details["server_name_clean"],
-                                      footer_more="But wait there more! Do %sserverquests %d" % (details["cmd_key"], page+2),
+        quest_list_embed = quest_list(quests_list, page, e.QUEST + " Quests on " + details["server_name_clean"],
+                                      footer_more="But wait there more! Do %sserverquests %d" % (
+                                          details["cmd_key"], page + 2),
                                       empty_list="There are no quests on this guild!\nHow sad.")
 
         await util.reply(ctx, embed=quest_list_embed)

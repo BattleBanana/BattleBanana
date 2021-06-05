@@ -1,7 +1,8 @@
-import discord
 import random
 from collections import OrderedDict
 from collections import namedtuple
+
+import discord
 
 import generalconfig as gconf
 from .. import util

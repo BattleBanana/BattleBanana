@@ -1,7 +1,8 @@
 import json
 import os
-from PIL import Image
 from typing import Dict
+
+from PIL import Image
 
 from .. import permissions, util
 from ..game.helpers.misc import BattleBananaObject
@@ -140,9 +141,9 @@ class _Backgrounds(dict):
 
     def _load_backgrounds(self):
         self.clear()
-        with open(self.BASE_PATH+'stockbackgrounds.json') as stock_backgrounds_file:
+        with open(self.BASE_PATH + 'stockbackgrounds.json') as stock_backgrounds_file:
             background_details = json.load(stock_backgrounds_file)
-            added_backgrounds_path = self.BASE_PATH+'backgrounds.json'
+            added_backgrounds_path = self.BASE_PATH + 'backgrounds.json'
             if os.path.isfile(added_backgrounds_path):
                 with open(added_backgrounds_path) as uploaded_backgrounds_file:
                     try:

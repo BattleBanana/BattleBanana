@@ -1,18 +1,15 @@
-import aiohttp
 import math
 import mimetypes
 import os
 import random
 import re
 from io import BytesIO
-import mimetypes, urllib3
 from urllib.parse import urlparse
+
+import urllib3
 from PIL import Image, ImageDraw, ImageFont
 from colour import Color
-import aiohttp
 from discord import File
-from io import BytesIO
-from urllib.parse import urlparse
 
 from dueutil import util
 from . import imagecache
@@ -105,9 +102,9 @@ def paste_alpha(background, image, position):
     mask = Image.merge("L", (a,))
     background.paste(image, position, mask)
 
-    
-def is_url_image(url):    
-    mimetype,encoding = mimetypes.guess_type(url)
+
+def is_url_image(url):
+    mimetype, encoding = mimetypes.guess_type(url)
     return (mimetype and mimetype.startswith('image'))
 
 
@@ -150,9 +147,9 @@ def url_image(url):
 async def warn_on_invalid_image(channel):
     # A generic warning.
     await util.say(channel,
-                    (":warning: The image url provided does not seem to be correct!\n"
+                   (":warning: The image url provided does not seem to be correct!\n"
                     + "The url must point directly to an image file such as <https://battlebanana.xyz/img/slime.png>."))
-                    
+
 
 async def load_image_url(url, **kwargs):
     if url is None:
@@ -160,7 +157,7 @@ async def load_image_url(url, **kwargs):
     parsed_url = urlparse(url)
     do_not_compress = kwargs.get("raw", False)
     if (parsed_url.hostname is not None
-        and "battlebanana.xyz" in parsed_url.hostname
+            and "battlebanana.xyz" in parsed_url.hostname
             and parsed_url.path.startswith("/imagecache/")):
         # We don't want to download imagecache images again.
         filename = "assets" + parsed_url.path
@@ -201,7 +198,7 @@ def has_dimensions(image, dimensions):
 
 async def send_image(ctx, image, Type, **kwargs):
     stats.increment_stat(stats.Stat.IMAGES_SERVED)
-    #kwargs["filename"] = kwargs.pop('file_name', "")
+    # kwargs["filename"] = kwargs.pop('file_name', "")
     output = BytesIO()
     image.save(output, format="PNG")
     output.seek(0)
@@ -210,7 +207,6 @@ async def send_image(ctx, image, Type, **kwargs):
     else:
         await util.reply(ctx, file=File(output, filename=kwargs.pop('file_name')), **kwargs)
     output.close()
-
 
 
 async def level_up_screen(ctx, player, cash):
@@ -225,7 +221,7 @@ async def level_up_screen(ctx, player, cash):
     draw.text((159, 18), str(level), "white", font=font_big)
     draw.text((127, 40), util.format_number(cash, money=True), "white", font=font_big)
     await send_image(ctx, image, "s", file_name="level_up.png",
-                     content=e.LEVEL_UP+" **" + player.name_clean + "** Level Up!")
+                     content=e.LEVEL_UP + " **" + player.name_clean + "** Level Up!")
 
 
 async def new_quest_screen(ctx, quest, player):
@@ -251,7 +247,7 @@ async def new_quest_screen(ctx, quest, player):
         fill="#2a52be", outline="#a1caf1")
     draw.text((9, quest_bubble_position[1]), quest_index_text, "white", font=font_small)
     await send_image(ctx, image, "s", file_name="new_quest.png",
-                     content=e.QUEST+" **" + player.name_clean + "** New Quest!")
+                     content=e.QUEST + " **" + player.name_clean + "** New Quest!")
 
 
 async def awards_screen(ctx, player, page, **kwargs):
@@ -360,7 +356,7 @@ async def quests_screen(ctx, player, page):
     width = draw.textsize(msg, font=font_small)[0]
     draw.text(((256 - width) / 2, 42 + 44 * count), msg, "white", font=font_small)
     await send_image(ctx, image, "r", file_name="myquests.png",
-                     content=e.QUEST+" **" + player.get_name_possession_clean() + "** Quests!")
+                     content=e.QUEST + " **" + player.get_name_possession_clean() + "** Quests!")
 
 
 async def stats_screen(ctx, player):
@@ -449,7 +445,9 @@ async def stats_screen(ctx, player):
     draw.text((241 - width, 253), str(player.quests_won), main_colour, font=font)
     width = draw.textsize(str(player.wagers_won), font=font)[0]
     draw.text((241 - width, 267), str(player.wagers_won), main_colour, font=font)
-    wep = get_text_limit_len(draw, player.weapon.name if not hasattr(player, "weapon_hidden") or not player.weapon_hidden else "Hidden", font, 95)
+    wep = get_text_limit_len(draw, player.weapon.name if not hasattr(player,
+                                                                     "weapon_hidden") or not player.weapon_hidden else "Hidden",
+                             font, 95)
     width = draw.textsize(wep, font=font)[0]
     draw.text((241 - width, 232), wep, main_colour, font=font)
 
@@ -716,7 +714,6 @@ def get_text_limit_len(draw, text, given_font, length):
 
 
 def _load_profile_parts():
-
     """
     Loads the images that make up themes
     (so they don't need to be constantly reloaded)

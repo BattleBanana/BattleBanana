@@ -1,5 +1,6 @@
-import discord
 from functools import wraps
+
+import discord
 
 import generalconfig as gconf
 from dueutil import util
@@ -38,7 +39,7 @@ def item_preview(thing_info_preview):
         if type(page) is int:
             page -= 1
             thing_list = things_info["thing_list"]
-            title = player.get_name_possession_clean() + " " + thing_type.title()+"s"
+            title = player.get_name_possession_clean() + " " + thing_type.title() + "s"
             thing_embed = things_info["thing_lister"](thing_list, page, title, price_divisor=4 / 3,
                                                       footer_more="But wait there's more! Do " + details["cmd_key"] +
                                                                   things_info["my_command"] + " " + str(page + 2))
@@ -81,7 +82,7 @@ def item_setter(item_info_setter):
             thing = getattr(player, thing_type)
             player.save()
             await util.reply(ctx,
-                           ":white_check_mark: " + thing_type.title() + " set to **" + thing.name_clean + "**")
+                             ":white_check_mark: " + thing_type.title() + " set to **" + thing.name_clean + "**")
         else:
             raise util.BattleBananaException(ctx.channel, thing_type.title() + " not found!")
 

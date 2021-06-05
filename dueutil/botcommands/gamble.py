@@ -1,8 +1,9 @@
 import asyncio
-import discord
 import math
 import random
 import time
+
+import discord
 from pydealer import Deck
 
 import generalconfig as gconf
@@ -14,6 +15,7 @@ This is a super cool category with some ~~gambling~~ surprise mechanics.
 
 Have fun kiddos!
 """
+
 
 @commands.command(args_pattern="I", aliases=["bj"])
 @commands.ratelimit(cooldown=5, error="You can't use blackjack again for **[COOLDOWN]**!", save=True)
@@ -28,32 +30,32 @@ async def blackjack(ctx, price, **details):
     """
     user = details["author"]
     BattleBanana = players.find_player(ctx.guild.me.id)
-    
+
     if user.money < price or price > 1000000000:
         raise util.BattleBananaException(ctx.channel, "You cannot bet that much!")
     if price < 1:
         raise util.BattleBananaException(ctx.channel, "You cannot bet under ¤1")
     if (user.gamble_play and int(time.time() - user.last_played) < 120) or int(time.time() - user.last_played) < 120:
         raise util.BattleBananaException(ctx.channel, "You are already playing!")
-    
-    
+
     # Create new deck, make player playing
     deck = Deck() + Deck() + Deck() + Deck()
     deck.shuffle(5)
     user.gamble_play = True
     user.last_played = time.time()
-    
+
     # Hands out 2 cards to each & calculate the count
     dealer_hand = deck.deal(2)
     user_hand = deck.deal(2)
     user_value, dealer_value = blackjackGame.compare_decks(user_hand, dealer_hand)
-    
-    blackjack_embed = discord.Embed(title="Blackjack dealer", description="%s game. Current bet: ¤%s" 
-                                    % (user.get_name_possession(), price), type="rich", colour=gconf.DUE_COLOUR)
+
+    blackjack_embed = discord.Embed(title="Blackjack dealer", description="%s game. Current bet: ¤%s"
+                                                                          % (user.get_name_possession(), price),
+                                    type="rich", colour=gconf.DUE_COLOUR)
     blackjack_embed.add_field(name="Your hand (%s)" % (user_value), value=user_hand)
     blackjack_embed.add_field(name="Dealer's hand (%s)" % (dealer_value), value=dealer_hand)
     blackjack_embed.set_footer(text="Reply with \"hit\" or \"stand\". This prompt will close in 120 seconds")
-    
+
     msg = await util.reply(ctx, embed=blackjack_embed)
 
     player_play = dealer_value < 21
@@ -68,20 +70,20 @@ async def blackjack(ctx, price, **details):
 
         if user_msg:
             await util.delete_message(user_msg)
-        
+
         if content != None and content == "hit":
             user_hand += deck.deal(1)
             user_value = blackjackGame.get_deck_value(user_hand)
-            
+
             blackjack_embed.clear_fields()
             blackjack_embed.add_field(name="Your hand (%s)" % (user_value), value=user_hand)
             blackjack_embed.add_field(name="Dealer's hand (%s)" % (dealer_value), value=dealer_hand)
-            
+
             await util.edit_message(msg, embed=blackjack_embed)
             continue
 
         break
-        
+
     dealer_play = dealer_value < 17 and (user_value < 21 or (user_value == 21 and len(user_hand) > 2))
     # Dealer's turn
     while dealer_play:
@@ -91,7 +93,6 @@ async def blackjack(ctx, price, **details):
 
         # Make him pick a card
         dealer_hand += deck.deal(1)
-    
 
     # Manage who wins/loses
     user_value, dealer_value = blackjackGame.compare_decks(user_hand, dealer_hand)
@@ -108,7 +109,7 @@ async def blackjack(ctx, price, **details):
             result = "You win with an hand of %s against %s." % (user_value, dealer_value)
     elif user_value < dealer_value:
         if dealer_value > 21:
-            if user_value == 21: # If you have 21 and dealer busted
+            if user_value == 21:  # If you have 21 and dealer busted
                 gain += price * 1.5
             else:
                 gain += price
@@ -121,12 +122,12 @@ async def blackjack(ctx, price, **details):
             result = "Dealer win with an hand of %s against %s." % (dealer_value, user_value)
     else:
         result = "This is a tie! %s-%s" % (user_value, dealer_value)
-    
+
     # Manage the message
     gain = math.floor(gain)
     user.money += gain
     if gain > 0:
-        result += " You were rewarded with `¤%s`" % (price+gain)
+        result += " You were rewarded with `¤%s`" % (price + gain)
     elif gain < 0:
         result += " You lost `¤%s`." % (price)
         if BattleBanana != None:
@@ -134,20 +135,21 @@ async def blackjack(ctx, price, **details):
             BattleBanana.save()
     else:
         result += " You got your bet back!"
-    
+
     blackjack_embed.clear_fields()
     blackjack_embed.add_field(name="Your hand (%s)" % (user_value), value=user_hand)
     blackjack_embed.add_field(name="Dealer's hand (%s)" % (dealer_value), value=dealer_hand)
     blackjack_embed.add_field(name="Result", value=result, inline=False)
     blackjack_embed.set_footer()
-    
+
     user.command_rate_limits['blackjack_saved_cooldown'] = int(time.time())
     user.gamble_play = False
     user.last_played = 0
     user.save()
     BattleBanana.save()
-    
+
     await util.edit_message(msg, embed=blackjack_embed)
+
 
 @commands.command(args_pattern="I", aliases=["rr"])
 @commands.ratelimit(cooldown=5, error="You can't use russian roulette again for **[COOLDOWN]**!", save=True)
@@ -162,12 +164,12 @@ async def russianroulette(ctx, price, **details):
 
     user = details["author"]
     BattleBanana = players.find_player(ctx.guild.me.id)
-    
+
     if user.money < price or price > 1000000000:
-       raise util.BattleBananaException(ctx.channel, "You cannot bet that much!")
+        raise util.BattleBananaException(ctx.channel, "You cannot bet that much!")
     if price < 1:
-       raise util.BattleBananaException(ctx.channel, "You cannot bet under ¤1")
-    
+        raise util.BattleBananaException(ctx.channel, "You cannot bet under ¤1")
+
     message = await util.reply(ctx, "Click...")
     rnd = random.randint(1, 6)
     await asyncio.sleep(random.random() * 2)

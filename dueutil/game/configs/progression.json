@@ -1,6 +1,6 @@
 {
   "dueutil-ranks": {
-    "1,10":{ 
+    "1,10": {
       "expForNextLevel": "1000*oldLevel"
     },
     "11,14": {
@@ -12,7 +12,7 @@
     "16,18": {
       "expForNextLevel": 20000
     },
-   "19,1000": {
+    "19,1000": {
       "expForNextLevel": "20000+3000**((oldLevel)**1/50)+3000*(oldLevel)"
     }
   },
@@ -26,6 +26,6 @@
     "70": "Rank7",
     "80": "Rank8",
     "90": "Rank9",
-    "100":"Rank10"
+    "100": "Rank10"
   }
 }

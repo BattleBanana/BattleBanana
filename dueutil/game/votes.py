@@ -1,13 +1,11 @@
-from dueutil.botcommands.player import DAILY_AMOUNT
-import generalconfig as gconf
+import traceback
+
 from discord import Embed
 
-from . import players
+import generalconfig as gconf
 from dueutil import util, tasks, dbconn
 from dueutil.botcommands.player import DAILY_AMOUNT
 from . import players
-
-import traceback
 
 
 @tasks.task(timeout=300)
@@ -38,7 +36,7 @@ async def process_votes():
                 if player is None:
                     dbconn.conn()["Votes"].delete_one({'_id': vote_id})
                     continue
-                
+
                 reward = DAILY_AMOUNT * player.level * player.prestige_multiplicator()
                 if isWeekend:
                     reward *= 2
@@ -46,7 +44,7 @@ async def process_votes():
                 player.save()
 
                 client.run_task(notify_complete, user_id, vote, reward)
-                
+
                 dbconn.conn()["Votes"].delete_one({'_id': vote_id})
 
                 embed = Embed(title="New vote", type="rich", colour=gconf.DUE_COLOUR)
@@ -69,7 +67,7 @@ async def notify_complete(user_id, vote, reward):
 
         embed = Embed(title="Vote notification", type="rich", colour=gconf.DUE_COLOUR)
         embed.set_footer(text="Thank you for voting!")
-        
+
         embed.add_field(name="Reward: ", value=util.format_number(reward, money=True))
         embed.add_field(name="Date: ", value=vote.get("date"))
 

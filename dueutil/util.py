@@ -1,14 +1,14 @@
-import aiohttp
 import asyncio
-import discord
-import emoji  # The emoji list in this is outdated/not complete.
 import io
 import logging
 import math
-from os import utime
 import time
 from datetime import datetime
 from itertools import chain
+
+import aiohttp
+import discord
+import emoji  # The emoji list in this is outdated/not complete.
 
 import generalconfig as gconf
 from dueutil import dbconn
@@ -118,7 +118,7 @@ async def reply(ctx, *args, **kwargs):
         # Guild/Channel id
         server_id, channel_id = ctx.channel.split("/")
         ctx.channel = get_guild(int(server_id)).get_channel(int(channel_id))
-    #if type(args[0]) is str:
+    # if type(args[0]) is str:
     #    text = args[0]
     #    if "|" in text:
     #        # args[0] = Translated text
@@ -140,7 +140,7 @@ async def say(channel, *args, **kwargs):
         # Guild/Channel id
         server_id, channel_id = channel.split("/")
         channel = get_guild(int(server_id)).get_channel(int(channel_id))
-    #if type(args[0]) is str:
+    # if type(args[0]) is str:
     #    text = args[0]
     #    if "|" in text:
     #        # args[0] = Translated text
@@ -159,16 +159,18 @@ async def save_old_topdog(player):
     topdogs = dbconn.conn()["Topdogs"]
     topdogs.insert_one({'user_id': player.id, 'date': datetime.utcnow()})
 
+
 async def typing(channel):
     await channel.trigger_typing()
 
+
 async def wait_for_message(ctx, author, timeout=120):
     channel = ctx.channel
-    
+
     def check(message):
         msg = message.content.lower()
         return msg in ("hit", "stand") and message.author == author and message.channel == channel
-    
+
     try:
         return await clients[0].wait_for('message', timeout=timeout, check=check)
     except asyncio.exceptions.TimeoutError:
@@ -183,11 +185,12 @@ async def edit_message(message, **kwargs):
 
 
 async def fetch_user(user_id):
-    user = clients[0].get_user(int(user_id)) # Get user from cache
+    user = clients[0].get_user(int(user_id))  # Get user from cache
     if user is None:
         # User not in cache
         user = await clients[0].fetch_user(int(user_id))
     return user
+
 
 async def delete_message(message):
     await message.delete()
@@ -230,7 +233,8 @@ def get_guild(server_id: int):
 def is_today(date: datetime):
     today = datetime.today()
     return (today.day == date.day and today.month == date.month and today.year == date.year)
-    
+
+
 def is_yesterday(date: datetime):
     today = datetime.today()
     return ((today.day - 1) == date.day and today.month == date.month and today.year == date.year)
@@ -239,7 +243,7 @@ def is_yesterday(date: datetime):
 def get_channel(channel_id):
     if isinstance(channel_id, int):
         return clients[0].get_channel(channel_id)
-    try: 
+    try:
         return clients[0].get_channel(int(channel_id))
     except ValueError:
         return None
@@ -313,7 +317,7 @@ def char_is_emoji(character):
 def is_server_emoji(guild, possible_emoji):
     if guild is None:
         return False
-    
+
     possible_emojis = [str(custom_emoji) for custom_emoji in guild.emojis]
     return possible_emoji in possible_emojis
 
