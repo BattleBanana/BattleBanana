@@ -23,7 +23,7 @@ def loader(action, packages=BOT_PACKAGES):
     for package_name in packages:
         package = importlib.import_module(package_name)
         for _, modname, ispkg in pkgutil.walk_packages(path=package.__path__,
-                                                              prefix=package.__name__ + '.'):
+                                                       prefix=package.__name__ + '.'):
             if not ispkg:
                 action(modname)
                 # else:

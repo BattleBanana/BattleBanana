@@ -1,14 +1,14 @@
+import asyncio
 from datetime import datetime
 
 import discord
 import repoze.timeago
-import asyncio
 
 import generalconfig as gconf
 from .. import commands, util, dbconn
 from ..game import awards, players, leaderboards, battles
-from ..game.helpers import misc, imagehelper
 from ..game import emojis
+from ..game.helpers import misc, imagehelper
 
 topdogs_per_page = 10
 
@@ -16,7 +16,8 @@ topdogs_per_page = 10
 async def glitter_text(channel, text):
     try:
         gif_text = await misc.get_glitter_text(text)
-        await channel.send(file=discord.File(fp=gif_text, filename="glittertext.gif"), content=":sparkles: Your glitter text!")
+        await channel.send(file=discord.File(fp=gif_text, filename="glittertext.gif"),
+                           content=":sparkles: Your glitter text!")
     except (ValueError, asyncio.TimeoutError):
         await util.say(channel, ":cry: Could not fetch glitter text!")
 
@@ -119,7 +120,7 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
 
     if leaderboard_data is None or len(leaderboard_data) == 0:
         await util.reply(ctx, "The %s leaderboard has yet to be calculated!\n" % ranks
-                       + "Check again soon!")
+                         + "Check again soon!")
         return
 
     leaderboard_embed = discord.Embed(title="%s %s" % (emojis.QUESTER, title),
@@ -178,15 +179,15 @@ async def rank_command(ctx, player, ranks="", **details):
     if position != -1:
         page = position // 10 + (1 * position % 10 != 0)
         await util.reply(ctx, (":sparkles: " + ("You're" if player_is_author else player_name + " is")
-                                     + (" **{0}** on the{4}{3} leaderboard!\n"
-                                        + "That's on page {1} (``{2}leaderboard{4}{3} {5}``)!")
-                                     .format(util.int_to_ordinal(position), page,
-                                             details["cmd_key"], ranks, padding, page if page > 1 else "")))
+                               + (" **{0}** on the{4}{3} leaderboard!\n"
+                                  + "That's on page {1} (``{2}leaderboard{4}{3} {5}``)!")
+                               .format(util.int_to_ordinal(position), page,
+                                       details["cmd_key"], ranks, padding, page if page > 1 else "")))
     else:
         await util.reply(ctx, (":confounded: I can't find "
-                                     + ("you" if player_is_author else player_name)
-                                     + " on the {}{}leaderboard!?\n".format(ranks, padding)
-                                     + "You'll need to wait till it next updates!" * player_is_author))
+                               + ("you" if player_is_author else player_name)
+                               + " on the {}{}leaderboard!?\n".format(ranks, padding)
+                               + "You'll need to wait till it next updates!" * player_is_author))
 
 
 @commands.command(args_pattern="S?")
@@ -261,7 +262,8 @@ async def giveemoji(ctx, receiver, emoji, **details):
         await awards.give_award(ctx.channel, sender, "Sauce", "*Saucy*")
     if sender.misc_stats["emojis_given"] >= 100:
         if not "EmojiKing" in sender.awards:
-            await awards.give_award(ctx.channel, sender, "EmojiKing", ":biohazard: **__WIPEOUT HUMANITY__** :radioactive:")
+            await awards.give_award(ctx.channel, sender, "EmojiKing",
+                                    ":biohazard: **__WIPEOUT HUMANITY__** :radioactive:")
 
 
 @commands.command(args_pattern='P', aliases=("potato",))
@@ -282,7 +284,8 @@ async def givepotato(ctx, receiver, **details):
     await awards.give_award(ctx.channel, sender, "Potato", ":potato: Bringer Of Potatoes :potato:")
     if sender.misc_stats["potatoes_given"] >= 100:
         if not "KingTat" in sender.awards:
-            await awards.give_award(ctx.channel, sender, "KingTat", ":crown: :potato: **Potato King!** :potato: :crown:")
+            await awards.give_award(ctx.channel, sender, "KingTat",
+                                    ":crown: :potato: **Potato King!** :potato: :crown:")
 
 
 @commands.command(args_pattern=None)
@@ -296,12 +299,12 @@ async def topdog(ctx, **_):
     if top_dog_stats is not None and "top_dog" in top_dog_stats:
         top_dog = players.find_player(int(top_dog_stats["top_dog"]))
         await util.reply(ctx, (":dog: The current top dog is **%s** (%s)!\n"
-                                     + "They are the **%s** to earn the rank of top dog!")
-                       % (top_dog, top_dog.id, util.int_to_ordinal(top_dog_stats["times_given"])))
+                               + "They are the **%s** to earn the rank of top dog!")
+                         % (top_dog, top_dog.id, util.int_to_ordinal(top_dog_stats["times_given"])))
     else:
         await util.reply(ctx, "There is not a top dog yet!")
-        
-        
+
+
 @commands.command(args_pattern=None, aliases=["btd"])
 @commands.imagecommand()
 async def battletopdog(ctx, **details):
@@ -320,7 +323,7 @@ async def battletopdog(ctx, **details):
     player = details["author"]
     if top_dog == player:
         raise util.BattleBananaException(ctx.channel, "Don't beat yourself up!")
-    
+
     battle_log = battles.get_battle_log(player_one=player, player_two=top_dog)
 
     await imagehelper.battle_screen(ctx, player, top_dog)
@@ -330,7 +333,8 @@ async def battletopdog(ctx, **details):
         awards.give_award(ctx.channel, player, "InconceivableBattle")
         awards.give_award(ctx.channel, top_dog, "InconceivableBattle")
     await battles.give_awards_for_battle(ctx.channel, battle_log)
-        
+
+
 @commands.command(args_pattern=None, aliases=["vtd"])
 @commands.imagecommand()
 async def viewtopdog(ctx, **_):
@@ -356,7 +360,7 @@ async def show_awards(ctx, top_dog, page=0):
 
     await imagehelper.awards_screen(ctx, top_dog, page,
                                     is_top_dog_sender=ctx.author.id == top_dog.id)
-                       
+
 
 @commands.command(args_pattern=None)
 async def pandemic(ctx, **_):
@@ -401,6 +405,7 @@ async def pandemic(ctx, **_):
 
     await util.reply(ctx, embed=pandemic_embed)
 
+
 @commands.command(args_pattern=None)
 async def minecraft(ctx, **_):
     """
@@ -415,6 +420,7 @@ async def minecraft(ctx, **_):
 
     await util.reply(ctx, f"{emojis.QUESTER} Official BananaCraft server!", embed=embed)
 
+
 @commands.command(args_pattern="C?", aliases=["tdh"])
 async def topdoghistory(ctx, page=1, **_):
     """
@@ -428,11 +434,12 @@ async def topdoghistory(ctx, page=1, **_):
     if topdogs_per_page * page > count:
         raise util.BattleBananaException(ctx.channel, "Page not found!")
 
-    topdogs = dbconn.conn()["Topdogs"].find({}, {'_id': 0}).sort([('date', -1)]).skip(topdogs_per_page*page).limit(topdogs_per_page)
-    
+    topdogs = dbconn.conn()["Topdogs"].find({}, {'_id': 0}).sort([('date', -1)]).skip(topdogs_per_page * page).limit(
+        topdogs_per_page)
+
     embed = discord.Embed(title="Topdog History", type="rich", color=gconf.DUE_COLOUR)
     embed.set_footer(text="Times are in UTC.")
-    
+
     topdog = awards.get_award_stat("TopDog")
     if topdog is None or not "top_dog" in topdog:
         embed.add_field(name="Current topdog:", value=":bangbang: Failed to parse current topdog")
@@ -444,7 +451,7 @@ async def topdoghistory(ctx, page=1, **_):
     for topdog in topdogs:
         player = players.find_player(topdog.get('user_id'))
         if player is not None:
-            date:datetime = topdog.get('date')
+            date: datetime = topdog.get('date')
 
             if util.is_today(date):
                 tdstring += f"- **{player.name}**, today at {date.strftime('%H:%M')}\n"
@@ -452,11 +459,10 @@ async def topdoghistory(ctx, page=1, **_):
                 tdstring += f"- **{player.name}**, yesterday at {date.strftime('%H:%M')}\n"
             else:
                 tdstring += f"- **{player.name}**, at {date.strftime('%d/%m/%Y')}\n"
-    
+
     embed.add_field(name="Previous topdogs:", value=tdstring, inline=False)
 
     await util.reply(ctx, embed=embed)
-
 
 # import random
 # @commands.command(args_pattern=None)

@@ -1,23 +1,23 @@
+import asyncio
 import json
 import math
 import os
+import platform
 import random
 import re
-import platform
+import shlex
+import subprocess
 import textwrap
 import time
-import asyncio
 import traceback
-import subprocess
-import shlex
 from contextlib import redirect_stdout
 from io import StringIO
 
 import discord
-import dueutil.permissions
-import generalconfig as gconf
 import objgraph
 
+import dueutil.permissions
+import generalconfig as gconf
 from .. import commands, util, events, dbconn, loader
 from ..game import customizations, awards, leaderboards, game, emojis
 from ..game.helpers import imagehelper
@@ -50,7 +50,7 @@ async def test(ctx, *args, **_):
     # args[0].save()
     # await imagehelper.test(ctx.channel)
     await util.reply(ctx, ("Yo!!! What up dis be my test command fo show.\n"
-                                 "I got deedz args ```" + str(args) + "```!"))
+                           "I got deedz args ```" + str(args) + "```!"))
 
 
 @commands.command(args_pattern="RR", hidden=True)
@@ -165,12 +165,12 @@ async def testbg(ctx, url, **_):
     if not imagehelper.has_dimensions(image, (256, 299)):
         width, height = image.size
         await util.reply(ctx, (":thumbsdown: **That does not meet the requirements!**\n"
-                                     + "The tested image had the dimensions ``" + str(width)
-                                     + "*" + str(height) + "``!\n"
-                                     + "It should be ``256*299``!"))
+                               + "The tested image had the dimensions ``" + str(width)
+                               + "*" + str(height) + "``!\n"
+                               + "It should be ``256*299``!"))
     else:
         await util.reply(ctx, (":thumbsup: **That looks good to me!**\n"
-                                     + "P.s. I can't check for low quality images!"))
+                               + "P.s. I can't check for low quality images!"))
 
 
 @commands.command(permission=Permission.BANANA_MOD, args_pattern="S")
@@ -435,7 +435,7 @@ async def setpermlevel(ctx, player, level, **_):
         permission = permission_list[permission_index]
         dueutil.permissions.give_permission(member, permission)
         await util.reply(ctx,
-                       "**" + player.name_clean + "** permission level set to ``" + permission.value[1] + "``.")
+                         "**" + player.name_clean + "** permission level set to ``" + permission.value[1] + "``.")
         if permission == Permission.BANANA_MOD:
             await awards.give_award(ctx.channel, player, "Mod", "Become an mod!")
             await util.duelogger.info("**%s** is now a BattleBanana mod! (%s)" % (player.name_clean, str(player.id)))
@@ -476,12 +476,12 @@ async def unban(ctx, player, **_):
 async def bans(ctx, page=1, **_):
     bans_embed = discord.Embed(title="Ban list", type="rich", color=gconf.DUE_COLOUR)
     string = ""
-    
+
     start = (page - 1) * 10
     end = page * 10
     for cursor in dbconn.conn()['permissions'].find({'permission': "banned"}, {'_id': 1}).skip(start).limit(10):
         string += "<@%s> (%s)\n" % (cursor['_id'], cursor['_id'])
-    
+
     bans_embed.add_field(name="There is what I collected about bad people:", value=string or "Nobody is banned!")
 
     await util.reply(ctx, embed=bans_embed)
@@ -550,7 +550,7 @@ async def giveexp(ctx, player, exp, **_):
     player.progress(increase_stat, increase_stat, increase_stat,
                     max_exp=math.inf, max_attr=math.inf)
     await util.reply(ctx, "**%s** has been given **%s** exp!"
-                   % (player.name_clean, util.format_number(exp, full_precision=True)))
+                     % (player.name_clean, util.format_number(exp, full_precision=True)))
     await game.check_for_level_up(ctx, player)
     player.save()
 
@@ -575,12 +575,13 @@ async def updatebot(ctx, **_):
         sys = platform.platform()
         if "Linux" in sys:
             update_result = await asyncio.create_subprocess_shell('bash update_script.sh',
-                                                                    stdout=asyncio.subprocess.PIPE,
-                                                                    stderr=asyncio.subprocess.PIPE)
+                                                                  stdout=asyncio.subprocess.PIPE,
+                                                                  stderr=asyncio.subprocess.PIPE)
         elif "Windows" in sys:
-            update_result = await asyncio.create_subprocess_shell('"C:\\Program Files\\Git\\bin\\bash" update_script.sh',
-                                                                    stdout=asyncio.subprocess.PIPE,
-                                                                    stderr=asyncio.subprocess.PIPE)
+            update_result = await asyncio.create_subprocess_shell(
+                '"C:\\Program Files\\Git\\bin\\bash" update_script.sh',
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE)
         else:
             raise asyncio.CancelledError()
     except asyncio.CancelledError as updateexc:
@@ -600,7 +601,8 @@ async def updatebot(ctx, **_):
     update_embed.add_field(name='Changes', value='```' + update_result + '```', inline=False)
     await util.reply(ctx, embed=update_embed)
     update_result = update_result.strip()
-    if not (update_result.endswith("is up to date.") or update_result.endswith("up-to-date.") or update_result == "Something went wrong!"):
+    if not (update_result.endswith("is up to date.") or update_result.endswith(
+            "up-to-date.") or update_result == "Something went wrong!"):
         await util.duelogger.concern("BattleBanana updating!")
         os._exit(1)
 
@@ -644,7 +646,7 @@ async def ping(ctx, **_):
     dbconn.db.command('ping')
     t2 = time.time()
     dbms = round((t2 - t1) * 1000)
-    
+
     apims = round((message.created_at - ctx.created_at).total_seconds() * 1000)
 
     embed = discord.Embed(title=":ping_pong: Pong!", type="rich", colour=gconf.DUE_COLOUR)

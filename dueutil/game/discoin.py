@@ -1,11 +1,12 @@
-﻿import aiohttp
-import generalconfig as gconf
-import json
+﻿import json
+
+import aiohttp
 from discord import Embed
 
+import generalconfig as gconf
+from dueutil import util, tasks
 from . import players, stats
 from .stats import Stat
-from dueutil import util, tasks
 
 # A quick discoin implementation.
 
@@ -20,6 +21,7 @@ headers = {"Authorization": gconf.other_configs["discoinKey"], "Content-Type": "
 handled = {"handled": True}
 MAX_TRANSACTION = 500000
 
+
 class Currency:
     def __init__(self, code: str, name: str, bot_name: str):
         self.code = code
@@ -31,7 +33,7 @@ class Bot:
     def __init__(self, name: str, currencies):
         self.name = name
 
-        sorted_currencies = sorted(currencies, key = lambda k: k.code)
+        sorted_currencies = sorted(currencies, key=lambda k: k.code)
         self.currencies = sorted_currencies
 
 
@@ -39,10 +41,12 @@ bots = []
 currencies = []
 codes = []
 
+
 async def get_raw_bots():
     async with aiohttp.ClientSession() as session:
         async with session.get(BOTS) as response:
             return await response.json()
+
 
 async def update_discoin():
     try:
@@ -58,10 +62,10 @@ async def update_discoin():
 
                 bot_currencies.append(currency)
                 new_currencies.append(currency)
-            
+
             new_bots.append(Bot(bot_name, bot_currencies))
 
-        sorted_bots = sorted(new_bots, key = lambda k: k.name)
+        sorted_bots = sorted(new_bots, key=lambda k: k.name)
 
         global bots, currencies, codes
         bots = sorted_bots
@@ -69,10 +73,9 @@ async def update_discoin():
         codes = [currency.code for currency in currencies]
     except:
         pass
-        
+
 
 async def make_transaction(sender_id, amount, to, cfrom=CURRENCY_CODE):
-
     transaction_data = {
         "amount": amount,
         "from": cfrom,
@@ -100,8 +103,9 @@ async def unprocessed_transactions():
 async def mark_as_completed(transaction):
     async with aiohttp.ClientSession() as session:
         async with session.patch(url=TRANSACTIONS + "/" + transaction['id'],
-                                data=json.dumps(handled), headers=headers) as response:
+                                 data=json.dumps(handled), headers=headers) as response:
             return await response.json()
+
 
 @tasks.task(timeout=150)
 async def process_transactions():
@@ -118,7 +122,7 @@ async def process_transactions():
 
         if unprocessed is None:
             return
-        
+
         client = util.clients[0]
 
         for transaction in unprocessed:
@@ -130,12 +134,12 @@ async def process_transactions():
                     continue
                 payout = int(payout)
                 amount = float(transaction.get('amount'))
-                
+
                 source = transaction.get('from')
                 source_id = source.get('id')
 
                 player = players.find_player(user_id)
-                if player is None or payout < 1 :
+                if player is None or payout < 1:
                     await reverse_transaction(user_id, source_id, payout, transaction_id)
                     client.run_task(notify_complete, user_id, transaction, failed=True)
                     continue
@@ -145,16 +149,17 @@ async def process_transactions():
                 player.save()
                 client.run_task(notify_complete, user_id, transaction)
 
-                embed = Embed(title="Discion Transaction", description="Receipt ID: [%s](%s)" % (transaction["id"], f"{DISCOINDASH}/{transaction['id']}/show"), 
-                    type="rich", colour=gconf.DUE_COLOUR)
+                embed = Embed(title="Discion Transaction", description="Receipt ID: [%s](%s)" % (
+                    transaction["id"], f"{DISCOINDASH}/{transaction['id']}/show"),
+                              type="rich", colour=gconf.DUE_COLOUR)
                 embed.add_field(name="User:", value=f"{user_id}")
-                embed.add_field(name="Exchange", value="%.2f %s => %s %s" % (amount, source_id, payout, CURRENCY_CODE), inline=False)
+                embed.add_field(name="Exchange", value="%.2f %s => %s %s" % (amount, source_id, payout, CURRENCY_CODE),
+                                inline=False)
 
                 util.logger.info("Processed discoin transaction %s", transaction_id)
                 await util.say(gconf.discoin_channel, embed=embed)
     except Exception as e:
         util.logging.warn(e)
-
 
 
 async def notify_complete(user_id, transaction, failed=False):
@@ -164,31 +169,33 @@ async def notify_complete(user_id, transaction, failed=False):
     user = await client.fetch_user(user_id)
     try:
         await user.create_dm()
-        embed = Embed(title="Discion Transaction", description="Receipt ID: %s" % (transaction["id"]), type="rich", colour=gconf.DUE_COLOUR)
+        embed = Embed(title="Discion Transaction", description="Receipt ID: %s" % (transaction["id"]), type="rich",
+                      colour=gconf.DUE_COLOUR)
         embed.set_footer(text="Keep the receipt in case something goes wrong!")
-        
+
         if not failed:
             payout = int(transaction.get('payout'))
             amount = float(transaction.get('amount'))
-            
+
             source = transaction.get('from')
             source_id = source.get('id')
-            
+
             embed.add_field(name="Exchange amount (%s):" % source_id,
                             value="$" + util.format_number_precise(amount))
             embed.add_field(name=f"Result amount ({CURRENCY_CODE}):",
                             value=util.format_number(payout, money=True, full_precision=True))
-            embed.add_field(name="Receipt:", 
-                            value="%s/%s/show" % (DISCOINDASH, transaction['id']), 
+            embed.add_field(name="Receipt:",
+                            value="%s/%s/show" % (DISCOINDASH, transaction['id']),
                             inline=False)
         elif failed:
-            embed.add_field(name=":warning: Your Discoin exchange has been reversed", 
+            embed.add_field(name=":warning: Your Discoin exchange has been reversed",
                             value="To exchange to BattleBanana you must be a player and the amount has to be worth at least 1 BBT.")
 
         try:
             await user.send(embed=embed)
         except Exception as error:
-            util.logger.error(f"Could not notify the {'successful' if not failed else 'failed'} transaction to the user: %s", error)
-            
+            util.logger.error(
+                f"Could not notify the {'successful' if not failed else 'failed'} transaction to the user: %s", error)
+
     except Exception as error:
         util.logger.error("Could not notify discoin complete %s", error)

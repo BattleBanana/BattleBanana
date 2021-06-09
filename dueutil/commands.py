@@ -1,15 +1,14 @@
 import asyncio
-from dueutil.game import stats
 import time
 from functools import wraps
 
+from dueutil.game import stats
+from . import commandextras
+from . import events, util, commandtypes
 from . import permissions
 from .game import players, emojis
 from .game.configs import dueserverconfig
-from . import events, util, commandtypes
 from .permissions import Permission
-from . import commandextras
-from dueutil import dbconn
 
 extras = commandextras
 IMAGE_REQUEST_COOLDOWN = 3
@@ -35,7 +34,7 @@ def command(**command_rules):
         return False
 
     def get_command_details(ctx, **details):
-        details["timestamp"] = ctx.created_at 
+        details["timestamp"] = ctx.created_at
         details["author"] = players.find_player(ctx.author.id)
         details["server_id"] = ctx.guild.id
         details["server_name"] = ctx.guild.name
@@ -55,8 +54,9 @@ def command(**command_rules):
             player = players.find_player(ctx.author.id)
             if player is None:
                 if name != "createaccount":
-                    return await util.reply(ctx, "You are not registered\nUse `"+prefix+"createaccount` to register")
-                
+                    return await util.reply(ctx,
+                                            "You are not registered\nUse `" + prefix + "createaccount` to register")
+
             # Player has admin perms
             is_admin = permissions.has_permission(ctx.author, Permission.SERVER_ADMIN)
             if not is_admin and dueserverconfig.mute_level(ctx.channel) == 1:
@@ -66,8 +66,8 @@ def command(**command_rules):
             if command_whitelist is not None and not is_admin and name not in command_whitelist:
                 if "is_blacklist" not in command_whitelist:
                     await util.reply(ctx, (":anger: That command is not whitelisted in this channel!\n"
-                                                 + " You can only use the following commands: ``"
-                                                 + ', '.join(command_whitelist) + "``."))
+                                           + " You can only use the following commands: ``"
+                                           + ', '.join(command_whitelist) + "``."))
                 else:
                     await util.reply(ctx, ":anger: That command is blacklisted in this channel!")
                 return True
@@ -102,7 +102,8 @@ def command(**command_rules):
                     raise util.BattleBananaException(ctx.channel, "Please don't include spam mentions in commands.")
             else:
                 # React X
-                if not (permissions.has_permission(ctx.author, Permission.PLAYER) or permissions.has_special_permission(ctx.author, Permission.BANNED)):
+                if not (permissions.has_permission(ctx.author, Permission.PLAYER) or permissions.has_special_permission(
+                        ctx.author, Permission.BANNED)):
                     player = players.find_player(ctx.author.id)
                     local_optout = not player.is_playing(ctx.author, local=True)
                     if local_optout:
@@ -178,6 +179,7 @@ def ratelimit(**command_info):
                     time_to_wait = command_info["cooldown"] - time_since_last_used
                     error = error.replace("[COOLDOWN]", util.display_time(time_to_wait))
                 await util.reply(ctx, error)
+                return
             else:
                 player.command_rate_limits[command_name] = now
                 await command_func(ctx, *args, **details)
@@ -195,8 +197,8 @@ def require_cnf(warning):
         async def wrapped_command(ctx, cnf="", **details):
             if cnf.lower() != "cnf":
                 await util.reply(ctx, ("Are you sure?! %s\n"
-                                             + "Do ``%s%s cnf`` if you're sure!")
-                               % (warning, details["cmd_key"], command_func.__name__))
+                                       + "Do ``%s%s cnf`` if you're sure!")
+                                 % (warning, details["cmd_key"], command_func.__name__))
                 return
             await command_func(ctx, **details)
 

@@ -1,14 +1,14 @@
 import inspect
+from functools import wraps
 
 import discord
 
 import generalconfig as gconf
-from .. import commands, util
 from . import player as player_cmds
 from . import weapon as weap_cmds
+from .. import commands, util
 from ..game import weapons, customizations
 from ..game.helpers.shopabstract import ShopBuySellItem
-from functools import wraps
 
 ### Fill in the blanks buy/sell functions
 DEPARTMENT_NOT_FOUND = "Department not found"
@@ -239,24 +239,24 @@ departments = {
                                               and customizations.get_banner(name).can_use_banner(details["author"])),
         "item_exists_sell": lambda details, name: name.lower() in details["author"].inventory["banners"]
     }
-#    "shields": {
-#        "alias": [
-#            "shields",
-#            "shield",
-#            "armors",
-#            "armor"
-#        ],
-#        "actions": {
-#            "info_action": player_cmds.banner_info,
-#            "list_action": shop_banner_list,
-#            "buy_action": buy_sell_banners.buy_item,
-#            "sell_action": buy_sell_banners.sell_item
-#        },
-#        "item_exists": lambda details, name: (name.lower() != "discord blue"
-#                                              and name.lower() in customizations.banners
-#                                              and customizations.get_banner(name).can_use_banner(details["author"])),
-#        "item_exists_sell": lambda details, name: name.lower() in details["author"].inventory["banners"]
-#     }
+    #    "shields": {
+    #        "alias": [
+    #            "shields",
+    #            "shield",
+    #            "armors",
+    #            "armor"
+    #        ],
+    #        "actions": {
+    #            "info_action": player_cmds.banner_info,
+    #            "list_action": shop_banner_list,
+    #            "buy_action": buy_sell_banners.buy_item,
+    #            "sell_action": buy_sell_banners.sell_item
+    #        },
+    #        "item_exists": lambda details, name: (name.lower() != "discord blue"
+    #                                              and name.lower() in customizations.banners
+    #                                              and customizations.get_banner(name).can_use_banner(details["author"])),
+    #        "item_exists_sell": lambda details, name: name.lower() in details["author"].inventory["banners"]
+    #     }
 }
 
 

@@ -1,43 +1,43 @@
+import asyncio
+import gc
+import json
 import math
 import random
 import time
 from collections import defaultdict
 from copy import copy
 from itertools import chain
-import gc
 
 import discord
 import jsonpickle
 import numpy
-import json
-import asyncio
 
 import generalconfig as gconf
-from ..util import SlotPickleMixin
-from .. import dbconn, util, permissions
-from ..permissions import Permission
-from ..game import awards
-from ..game import weapons
-from ..game import gamerules
-from ..game.helpers.misc import BattleBananaObject, Ring
 from . import customizations
-from .customizations import Theme
 from . import emojis as e
+from .customizations import Theme
+from .. import dbconn, permissions, util
+from ..game import awards, gamerules, weapons
+from ..game.helpers.misc import BattleBananaObject, Ring
+from ..permissions import Permission
+from ..util import SlotPickleMixin
 
 """ Player related classes & functions """
 
 STAT_GAIN_FORMAT = (e.ATK + ": +%.2f " + e.STRG + ": +%.2f " + e.ACCY + ": +%.2f")
 
+
 class FakeMember:
-    def __init__(self, user_id: int, name:str, roles=[]):
+    def __init__(self, user_id: int, name: str, roles=[]):
         self.id = user_id
         self.mention = f"<@{user_id}>"
         self.name = "<Dummy>"
         self.roles = roles
 
+
 class Players(dict):
     # Amount of time before the bot will prune a player.
-    PRUNE_INACTIVITY_TIME = 3600*6
+    PRUNE_INACTIVITY_TIME = 3600 * 6
 
     def prune(self):
 
@@ -89,12 +89,12 @@ class Player(BattleBananaObject, SlotPickleMixin):
                  "wagers_won", "quests_won",
                  "quest_day_start", "benfont",
                  "quests_completed_today",
-                 "quests", "received_wagers", 
-                 "awards", "quest_spawn_build_up", 
-                 "donor", "misc_stats", "equipped", 
-                 "inventory", "last_message_hashes", 
-                 "command_rate_limits", "team", 
-                 "team_invites", "prestige_level", 
+                 "quests", "received_wagers",
+                 "awards", "quest_spawn_build_up",
+                 "donor", "misc_stats", "equipped",
+                 "inventory", "last_message_hashes",
+                 "command_rate_limits", "team",
+                 "team_invites", "prestige_level",
                  "weapon_hidden", "gamble_play", "last_played"]
 
     # I expect new types of quests/weapons to be subclasses.
@@ -296,7 +296,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
 
         if member is None:
             return ""
-    
+
         return str(member.avatar_url)
 
     def get_avg_stat(self):
@@ -449,11 +449,11 @@ class Player(BattleBananaObject, SlotPickleMixin):
         return object_state
 
     def __iter__(self):
-     for attr in chain.from_iterable(getattr(cls, '__slots__', []) for cls in self.__class__.__mro__):
-        try:
-            yield attr, getattr(self, attr)
-        except AttributeError:
-            continue
+        for attr in chain.from_iterable(getattr(cls, '__slots__', []) for cls in self.__class__.__mro__):
+            try:
+                yield attr, getattr(self, attr)
+            except AttributeError:
+                continue
 
 
 def find_player(user_id: int) -> Player:
@@ -463,6 +463,7 @@ def find_player(user_id: int) -> Player:
         player = players[user_id]
         player.id = user_id
         return player
+
 
 REFERENCE_PLAYER = Player(no_save=True)
 
@@ -487,6 +488,7 @@ async def get_stuff(self):
         except AttributeError:
             continue
 
+
 async def handle_client(reader, writer):
     if writer.get_extra_info('peername')[0] != gconf.other_configs["connectionIP"]:
         util.logger.info(writer.get_extra_info('peername')[0], "tried to connect to us.")
@@ -499,7 +501,7 @@ async def handle_client(reader, writer):
         request = json.loads(request)
         id = int(request['id'])
         player = find_player(id)
-        if player is None: # no account on BattleBanana
+        if player is None:  # no account on BattleBanana
             Player(FakeMember(id))
             player = await find_player(id)
     except json.decoder.JSONDecodeError:
@@ -507,14 +509,14 @@ async def handle_client(reader, writer):
         error_found = True
     if not player is None:
         player_data = {i async for i in get_stuff(player)}
-        for attr in list(set(request.keys()).intersection(player_data)): # shared attrs between request and player
+        for attr in list(set(request.keys()).intersection(player_data)):  # shared attrs between request and player
             setattr(player, attr, request[attr])
         writer.write("200 OK".encode())
-        user:discord.abc.User = util.fetch_user(request['id'])
+        user: discord.abc.User = util.fetch_user(request['id'])
         if user:
             await user.create_dm()
             await user.send("Your data has been received and transferred! You can transfer again in 7 days.")
         await asyncio.sleep(0.2)
     else:
         writer.write("smh {}".format(error_found).encode())
-    writer.close() # close it
+    writer.close()  # close it

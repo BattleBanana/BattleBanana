@@ -1,9 +1,10 @@
-import time
 import asyncio
+import json
+import time
+from itertools import chain
+
 import discord
 import repoze.timeago
-import json
-from itertools import chain
 
 import generalconfig as gconf
 from .. import commands, events, util, permissions
@@ -94,7 +95,8 @@ async def help(ctx, *args, **details):
         help_embed.add_field(name=":link: Links", value=("**Invite me: %s**\n" % gconf.BOT_INVITE
                                                          + "BattleBanana guide: https://battlebanana.xyz/howto\n"
                                                          + "Support Server: https://discord.gg/P7DBDEC\n"
-                                                         + "Support me (Help hosting): https://patreon.com/developeranonymous"), inline=False)
+                                                         + "Support me (Help hosting): https://patreon.com/developeranonymous"),
+                             inline=False)
         help_embed.set_footer(
             text="To use admin commands you must have the manage guild permission or the 'Banana Commander' role.")
 
@@ -187,8 +189,8 @@ async def botstats(ctx, **_):
                                  % util.format_number_precise(game_stats[Stat.IMAGES_SERVED])
                                  + e.DISCOIN + " **Đ%s** Discoin received.\n"
                                  % util.format_number_precise(game_stats[Stat.DISCOIN_RECEIVED]))
-                                 + e.CHANNEL + " **%s** commands used.\n"
-                                 % util.format_number_precise(game_stats[Stat.COMMANDS_USED]))
+                                + e.CHANNEL + " **%s** commands used.\n"
+                                % util.format_number_precise(game_stats[Stat.COMMANDS_USED]))
     # Game
     stats_embed.add_field(name="Game",
                           value=(e.QUESTER + " **%s** players.\n"
@@ -228,7 +230,7 @@ async def servers(ctx, **_):
 
     server_count = util.get_server_count()
     await util.reply(ctx, "BattleBanana is active on **" + str(server_count) + " guild"
-                   + ("s" if server_count != 1 else "") + "**")
+                     + ("s" if server_count != 1 else "") + "**")
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern="S", aliases=("setprefix",))
@@ -245,7 +247,7 @@ async def setcmdkey(ctx, new_key, **details):
     if len(new_key) in (1, 2):
         dueserverconfig.server_cmd_key(ctx.guild, new_key)
         await util.reply(ctx,
-                       "Command prefix on **" + details["server_name_clean"] + "** set to ``" + new_key + "``!")
+                         "Command prefix on **" + details["server_name_clean"] + "** set to ``" + new_key + "``!")
     else:
         raise util.BattleBananaException(ctx.channel, "Command prefixes can only be one or two characters!")
 
@@ -266,13 +268,13 @@ async def shutup(ctx, *args, **details):
         mute_success = dueserverconfig.mute_channel(ctx.channel)
         if mute_success:
             await util.reply(ctx, (":mute: I won't send any alerts in this channel!\n"
-                                         + "If you meant to disable commands too do ``" + details[
-                                             "cmd_key"] + "shutup all``."))
+                                   + "If you meant to disable commands too do ``" + details[
+                                       "cmd_key"] + "shutup all``."))
         else:
             await util.reply(ctx, (":mute: I've already been set not to send alerts in this channel!\n"
-                                         + "If you want to disable commands too do ``" + details["cmd_key"]
-                                         + "shutup all``.\n"
-                                         + "To unmute me do ``" + details["cmd_key"] + "unshutup``."))
+                                   + "If you want to disable commands too do ``" + details["cmd_key"]
+                                   + "shutup all``.\n"
+                                   + "To unmute me do ``" + details["cmd_key"] + "unshutup``."))
     else:
         mute_level = args[0].lower()
         if mute_level == "all":
@@ -281,8 +283,8 @@ async def shutup(ctx, *args, **details):
                 await util.reply(ctx, ":mute: Disabled all commands in this channel for non-admins!")
             else:
                 await util.reply(ctx, (":mute: Already mute af in this channel!.\n"
-                                             + "To allow commands & alerts again do ``" + details[
-                                                 "cmd_key"] + "unshutup``."))
+                                       + "To allow commands & alerts again do ``" + details[
+                                           "cmd_key"] + "unshutup``."))
         else:
             await util.reply(ctx, ":thinking: If you wanted to mute all the command is ``" + details[
                 "cmd_key"] + "shutup all``.")
@@ -323,7 +325,7 @@ async def unshutup(ctx, **_):
     """
     if dueserverconfig.unmute_channel(ctx.channel):
         await util.reply(ctx,
-                       ":speaker: Okay! I'll once more send alerts and listen for commands in this channel!")
+                         ":speaker: Okay! I'll once more send alerts and listen for commands in this channel!")
     else:
         await util.reply(ctx, ":thinking: Okay... I'm unmuted but I was not muted anyway.")
 
@@ -352,11 +354,11 @@ async def whitelist(ctx, *args, **_):
         if whitelisted_commands.issubset(due_commands):
             dueserverconfig.set_command_whitelist(ctx.channel, list(whitelisted_commands))
             await util.reply(ctx, (":notepad_spiral: Whitelist in this channel set to the following commands: ``"
-                                         + ', '.join(whitelisted_commands) + "``"))
+                                   + ', '.join(whitelisted_commands) + "``"))
         else:
             incorrect_commands = whitelisted_commands.difference(due_commands)
             await util.reply(ctx, (":confounded: Cannot set whitelist! The following commands don't exist: ``"
-                                         + ', '.join(incorrect_commands) + "``"))
+                                   + ', '.join(incorrect_commands) + "``"))
     else:
         dueserverconfig.set_command_whitelist(ctx.channel, [])
         await util.reply(ctx, ":pencil: Command whitelist set back to all commands.")
@@ -389,11 +391,11 @@ async def blacklist(ctx, *args, **_):
             whitelisted_commands.append("is_blacklist")
             dueserverconfig.set_command_whitelist(ctx.channel, whitelisted_commands)
             await util.reply(ctx, (":notepad_spiral: Blacklist in this channel set to the following commands: ``"
-                                         + ', '.join(blacklisted_commands) + "``"))
+                                   + ', '.join(blacklisted_commands) + "``"))
         else:
             incorrect_commands = blacklisted_commands.difference(due_commands)
             await util.reply(ctx, (":confounded: Cannot set blacklist! The following commands don't exist: ``"
-                                         + ', '.join(incorrect_commands) + "``"))
+                                   + ', '.join(incorrect_commands) + "``"))
     else:
         dueserverconfig.set_command_whitelist(ctx.channel, [])
         await util.reply(ctx, ":pencil: Command blacklist removed.")
@@ -455,10 +457,10 @@ async def optout(ctx, **details):
                                              "You cannot optout everywhere and stay a BattleBanana mod or admin!")
         permissions.give_permission(ctx.author, Permission.DISCORD_USER)
         await util.reply(ctx, (":ok_hand: You've opted out of BattleBanana everywhere.\n"
-                                     + "You won't get exp, quests, and other players can't use you in commands."))
+                               + "You won't get exp, quests, and other players can't use you in commands."))
     else:
         await util.reply(ctx, ("You've already opted out everywhere!\n"
-                                     + "You can join the fun again with ``%soptin``." % details["cmd_key"]))
+                               + "You can join the fun again with ``%soptin``." % details["cmd_key"]))
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
@@ -479,12 +481,12 @@ async def optin(ctx, **details):
             await util.reply(ctx, "You've already opted in everywhere!")
         else:
             await util.reply(ctx, ("You've only opted out on this guild!\n"
-                                         + "To optin here do ``%soptinhere``" % details["cmd_key"]))
+                                   + "To optin here do ``%soptinhere``" % details["cmd_key"]))
     else:
         permissions.give_permission(ctx.author, Permission.PLAYER)
         await util.reply(ctx, ("You've opted in everywhere"
-                                     + (" (does not override your guild level optout)" * local_optout) + "!\n"
-                                     + "Glad to have you back."))
+                               + (" (does not override your guild level optout)" * local_optout) + "!\n"
+                               + "Glad to have you back."))
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
@@ -506,16 +508,16 @@ async def optouthere(ctx, **details):
         optout_role = util.get_role_by_name(ctx.guild, gconf.OPTOUT_ROLE)
         if optout_role is None:
             await util.reply(ctx, ("There is no optout role on this guild!\n"
-                                         + "Ask an admin to run ``%ssetuproles``" % details["cmd_key"]))
+                                   + "Ask an admin to run ``%ssetuproles``" % details["cmd_key"]))
         else:
             if await optout_is_topdog_check(ctx.channel, player):
                 return
             await ctx.author.add_roles(optout_role)
             await util.reply(ctx, (":ok_hand: You've opted out of BattleBanana on this guild!\n"
-                                         + "You won't get exp, quests or be able to use commands here."))
+                                   + "You won't get exp, quests or be able to use commands here."))
     else:
         await util.reply(ctx, ("You've already opted out on this sever!\n"
-                                     + "Join the fun over here do ``%soptinhere``" % details["cmd_key"]))
+                               + "Join the fun over here do ``%soptinhere``" % details["cmd_key"]))
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
@@ -533,13 +535,13 @@ async def optinhere(ctx, **details):
     if optout_role is not None and not player.is_playing(ctx.author, local=True):
         await ctx.author.remove_roles(optout_role)
         await util.reply(ctx, ("You've opted in on this guild!\n"
-                                     + ("However this is overridden by your global optout.\n"
-                                        + "To optin everywhere to ``%soptin``" % details["cmd_key"])
-                                     * globally_opted_out))
+                               + ("However this is overridden by your global optout.\n"
+                                  + "To optin everywhere to ``%soptin``" % details["cmd_key"])
+                               * globally_opted_out))
     else:
         if globally_opted_out:
             await util.reply(ctx, ("You've opted out of BattleBanana everywhere!\n"
-                                         + "To use BattleBanana do ``%soptin``" % details["cmd_key"]))
+                                   + "To use BattleBanana do ``%soptin``" % details["cmd_key"]))
         else:
             await util.reply(ctx, "You've not opted out on this guild.")
 
@@ -594,9 +596,9 @@ async def exchange(ctx, amount, currency, **details):
     amount = int(amount)
     if player.money - amount < 0:
         await util.reply(ctx, "You do not have **%s**!\n"
-                       % util.format_number(amount, full_precision=True, money=True)
-                       + "The maximum you can exchange is **%s**"
-                       % util.format_number(player.money, full_precision=True, money=True))
+                         % util.format_number(amount, full_precision=True, money=True)
+                         + "The maximum you can exchange is **%s**"
+                         % util.format_number(player.money, full_precision=True, money=True))
         return
 
     try:
@@ -666,11 +668,14 @@ async def status(ctx, message=None, **details):
 
 
 @commands.command(args_pattern='S?', aliases=['transdata', 'td'])
-@commands.require_cnf(warning="Transferring your data will override your current data, assuming you have any, on TheelUtil!")
+@commands.require_cnf(
+    warning="Transferring your data will override your current data, assuming you have any, on TheelUtil!")
 @commands.ratelimit(cooldown=604800, error="You can't transfer your data again for **[COOLDOWN]**!", save=True)
 async def transferdata(ctx, cnf="", **details):
-    reader, writer = await asyncio.open_connection(gconf.other_configs["connectionIP"], gconf.other_configs["connectionPort"])
-    attributes_to_remove = ['inventory', 'quests', 'equipped', 'received_wagers', 'awards', 'team', 'donor', 'quest_spawn_build_up']
+    reader, writer = await asyncio.open_connection(gconf.other_configs["connectionIP"],
+                                                   gconf.other_configs["connectionPort"])
+    attributes_to_remove = ['inventory', 'quests', 'equipped', 'received_wagers', 'awards', 'team', 'donor',
+                            'quest_spawn_build_up']
     message = dict(details["author"])
     for attr in attributes_to_remove:
         try:
@@ -683,12 +688,14 @@ async def transferdata(ctx, cnf="", **details):
     writer.close()
     await writer.wait_closed()
 
+
 async def get_stuff(self):
     for attr in chain.from_iterable(getattr(cls, '__slots__', []) for cls in self.__class__.__mro__):
         try:
             yield attr
         except AttributeError:
             continue
+
 
 @commands.command(permission=Permission.BANANA_OWNER, args_pattern=None, aliases=['sss'], hidden=True)
 async def startsocketserver(ctx, **details):
@@ -700,7 +707,8 @@ async def startsocketserver(ctx, **details):
     global async_server
     loop = asyncio.get_event_loop()
     async_server = await asyncio.start_server(players.handle_client, '', gconf.other_configs["connectionPort"])
-    server_port = async_server.sockets[0].getsockname()[1] # get port that the server is on, to confirm it started on 4000
+    server_port = async_server.sockets[0].getsockname()[
+        1]  # get port that the server is on, to confirm it started on 4000
     await util.say(ctx.channel, "Listening on port %s!" % server_port)
 
 
@@ -712,7 +720,7 @@ async def cooldownreset(ctx, player, cooldown=None, **details):
         if not cooldown in player.command_rate_limits:
             raise util.BattleBananaException("Invalid cooldown")
         player.command_rate_limits.pop(cooldown)
-    
+
     player.save()
     await util.say(ctx.channel, "The target player's cooldowns have been reset!")
 

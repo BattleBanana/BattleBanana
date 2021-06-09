@@ -1,26 +1,28 @@
 import threading
 import time
+from collections import namedtuple
+
+from cachetools.func import ttl_cache
 
 from .. import events, util, dbconn
 from ..game import players
-from collections import namedtuple
-from cachetools.func import ttl_cache
 
 leaderboards = dict()
 last_leaderboard_update = 0
-UPDATE_INTERVAL = 3600/12
+UPDATE_INTERVAL = 3600 / 12
 
 _LocalLeaderboard = namedtuple("LocalLeaderboard", ["updated", "data"])
 
 
 def calculate_player_rankings(rank_name, sort_function, reverse=True):
-    ranked_players = sorted(filter(lambda player: player.id!= util.gconf.DEAD_BOT_ID, players.players.values()), key=sort_function, reverse=reverse)
+    ranked_players = sorted(filter(lambda player: player.id != util.gconf.DEAD_BOT_ID, players.players.values()),
+                            key=sort_function, reverse=reverse)
     # ranked_players = []
     leaderboards[rank_name] = (tuple(player.id for player in ranked_players), sort_function, reverse)
     db = dbconn.conn()
     db.drop_collection(rank_name)
     for rank, player_id in enumerate(leaderboards[rank_name][0]):
-        db[rank_name].insert({"rank": rank+1, "player_id": player_id})
+        db[rank_name].insert({"rank": rank + 1, "player_id": player_id})
 
 
 def calculate_level_leaderboard():
@@ -36,7 +38,9 @@ def get_leaderboard(rank_name):
 def get_local_leaderboard(guild, rank_name):
     rankings = get_leaderboard(rank_name)
     if rankings is not None:
-        rankings = list(filter(lambda player_id: guild.get_member(player_id) is not None and player_id != util.gconf.DEAD_BOT_ID, rankings))
+        rankings = list(
+            filter(lambda player_id: guild.get_member(player_id) is not None and player_id != util.gconf.DEAD_BOT_ID,
+                   rankings))
         return _LocalLeaderboard(updated=last_leaderboard_update, data=rankings)
 
 

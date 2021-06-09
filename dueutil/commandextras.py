@@ -1,13 +1,13 @@
 import inspect
-from inspect import Parameter
-from .game import emojis
-from . import commandtypes
-from functools import wraps
 import itertools
+from functools import wraps
+from inspect import Parameter
+
+from . import commandtypes
+from .game import emojis
 
 
 def dict_command(**spec):
-
     def wrap(command_func):
 
         expected = expand_spec(spec.get("expected", {}))
@@ -42,7 +42,6 @@ def dict_command(**spec):
 
 
 def determine_dict_args(args, called, ctx, **spec):
-
     """
     A simple function to convert an array of args into
     a dict with correctly parsed types (or false)

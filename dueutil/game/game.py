@@ -1,21 +1,20 @@
+import json
 import random
 import re
 import time
 
-# import enchant
-# import ssdeep
-# from guess_language import guess_language
-
-import json
-
 import generalconfig as gconf
+from . import gamerules
 from .. import events
 from .. import util, dbconn
 from ..game import players
 from ..game import stats, weapons, quests, awards
 from ..game.configs import dueserverconfig
 from ..game.helpers import imagehelper
-from . import gamerules
+
+# import enchant
+# import ssdeep
+# from guess_language import guess_language
 
 # from threading import Lock
 
@@ -23,10 +22,13 @@ SPAM_TOLERANCE = 50
 # For awards in the first week. Not permanent.
 old_players = open('oldplayers.txt').read()  # For comeback award
 testers = open('testers.txt').read()  # For testers award
+
+
 # spelling_lock = Lock()
 
 def getResponses():
     return json.load(open("dueutil/game/configs/daily.json", "r"))
+
 
 def get_spam_level(player, message_content):
     """
@@ -129,9 +131,9 @@ async def player_message(message, player, spam_level):
             await check_for_level_up(message, player)
             player.save()
 
-    #else:
-        #players.Player(message.author)
-        #stats.increment_stat(stats.Stat.NEW_PLAYERS_JOINED)
+    # else:
+    # players.Player(message.author)
+    # stats.increment_stat(stats.Stat.NEW_PLAYERS_JOINED)
 
 
 async def check_for_level_up(ctx, player):
@@ -211,8 +213,9 @@ async def check_for_recalls(ctx, player):
     player.money += recall_amount
     player.save()
     await util.reply(ctx, (
-        ":bangbang: " + ("One" if len(weapons_to_recall) == 1 else "Some") + " of your weapons has been recalled!\n"
-        + "You get a refund of ``" + util.format_number(recall_amount, money=True, full_precision=True) + "``"))
+            ":bangbang: " + ("One" if len(weapons_to_recall) == 1 else "Some") + " of your weapons has been recalled!\n"
+            + "You get a refund of ``" + util.format_number(recall_amount, money=True, full_precision=True) + "``"))
+
 
 async def check_for_missing_new_stats(player):
     """
@@ -230,7 +233,8 @@ async def check_for_missing_new_stats(player):
         player.__setstate__({'gamble_play': False})
     if not hasattr(player, "last_played"):
         player.__setstate__({'last_played': 0})
-        
+
+
 async def check_for_removed_stats(player):
     """
     Removes stats that were removed
@@ -241,6 +245,7 @@ async def check_for_removed_stats(player):
         delattr(player, "additional_attributes")
     if hasattr(player, "language"):
         delattr(player, "language")
+
 
 async def on_message(message):
     player = players.find_player(message.author.id)
