@@ -1,6 +1,7 @@
 import asyncio
 import math
 import random
+import json
 from collections import defaultdict, namedtuple
 from typing import Dict, List
 
@@ -303,15 +304,34 @@ def has_quests(place):
             return len(get_channel_quests(place)) > 0
     return False
 
-
+# what the fuck
+# https://github.com/Theelgirl/theeldue/blob/master/dueutil/game/quests.py#L387
+# You have a load default quest?
 REFERENCE_QUEST = Quest('Reference', 1, 1, 1, 1, server_id="", no_save=True)
 
+def load_default_quests():
+   with open('dueutil/game/configs/defaultquests.json') as defaults_file:
+        defaults = json.load(defaults_file)
+        for quest_data in defaults.values():
+            Quest(quest_data["name"],
+                  quest_data["baseAttack"],
+                  quest_data["baseStrg"],
+                  quest_data["baseAccy"],
+                  quest_data["baseHP"],
+                  task=quest_data["task"],
+                  weapon_id=weapons.stock_weapon(quest_data["weapon"]),
+                  image_url=quest_data["image"],
+                  spawn_chance=quest_data["spawnChance"],
+                  no_save=True)
 
 def _load(server_id):
     if server_id in loaded_guilds:
         return
 
     quests = list(dbconn.conn()['Quest'].find({'_id': {'$regex': '%s.*' % server_id}}))
+    if len(quests) == 0:
+        load_default_quests()
+
     for quest in quests:
         loaded_quest = jsonpickle.decode(quest['data'])
 
