@@ -1,4 +1,6 @@
 import asyncio
+import nest_asyncio
+nest_asyncio.apply()
 import json
 import logging
 import multiprocessing
