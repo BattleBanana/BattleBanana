@@ -167,6 +167,7 @@ class Cluster:
         stdout, stdin = multiprocessing.Pipe()
         kw = self.kwargs
         kw['pipe'] = stdin
+        kw['chunk_guilds_at_startup'] = False
         self.process = multiprocessing.Process(target=BattleBananaClient, kwargs=kw, daemon=True)
         self.process.start()
         self.log.info(f"Process started with PID {self.process.pid}")
