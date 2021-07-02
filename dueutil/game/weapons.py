@@ -229,8 +229,6 @@ def _load(server_id):
     for weapon in weapons:
         loaded_weapon = jsonpickle.decode(weapon['data'])
 
-        print(loaded_weapon, dir(loaded_weapon))
-
         if isinstance(loaded_weapon.server_id, str):
             loaded_weapon.server_id = int(loaded_weapon.server_id)
 
