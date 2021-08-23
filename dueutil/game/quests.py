@@ -304,9 +304,6 @@ def has_quests(place):
             return len(get_channel_quests(place)) > 0
     return False
 
-# what the fuck
-# https://github.com/Theelgirl/theeldue/blob/master/dueutil/game/quests.py#L387
-# You have a load default quest?
 REFERENCE_QUEST = Quest('Reference', 1, 1, 1, 1, server_id="", no_save=True)
 
 def load_default_quests():
