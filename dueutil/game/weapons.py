@@ -1,6 +1,7 @@
 from collections import namedtuple
 from typing import Dict, Union
 
+import json
 import discord
 import jsonpickle
 
@@ -203,17 +204,31 @@ def remove_all_weapons(guild):
         return result.deleted_count
     return 0
 
+def load_default_weapons():
+    with open('dueutil/game/configs/defaultweapons.json') as defaults_file:
+        defaults = json.load(defaults_file)
+        for weapon_name, weapon_data in defaults.items():
+            stock_weapons.append(weapon_name)
+            Weapon(weapon_data["name"],
+                    weapon_data["useText"],
+                    weapon_data["damage"],
+                    weapon_data["accy"],
+                    icon=weapon_data["icon"],
+                    image_url=weapon_data["image"],
+                    melee=weapon_data["melee"],
+                    no_save=True)
 
 def _load(server_id):
     if server_id in loaded_guilds:
         return
 
     weapons = list(dbconn.conn()['Weapon'].find({'_id': {'$regex': '%s.*' % server_id}}))
+    if len(weapons) == 0:
+        load_default_weapons()
+
     for weapon in weapons:
         loaded_weapon = jsonpickle.decode(weapon['data'])
 
-        if isinstance(loaded_weapon.channel, str) and loaded_weapon.channel not in ("ALL", None, "NONE"):
-            loaded_weapon.channel = int(loaded_weapon.channel)
         if isinstance(loaded_weapon.server_id, str):
             loaded_weapon.server_id = int(loaded_weapon.server_id)
 
