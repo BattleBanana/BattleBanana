@@ -16,8 +16,7 @@ topdogs_per_page = 10
 async def glitter_text(channel, text):
     try:
         gif_text = await misc.get_glitter_text(text)
-        await channel.send(file=discord.File(fp=gif_text, filename="glittertext.gif"),
-                           content=":sparkles: Your glitter text!")
+        await util.say(channel, ":sparkles: Your glitter text!", file=discord.File(fp=gif_text, filename="glittertext.gif"))
     except (ValueError, asyncio.TimeoutError):
         await util.say(channel, ":cry: Could not fetch glitter text!")
 

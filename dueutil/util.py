@@ -135,7 +135,7 @@ async def reply(ctx, *args, **kwargs):
             raise SendMessagePermMissing(send_error)
 
 
-async def say(channel, *args, **kwargs):
+async def say(channel: discord.TextChannel, *args, **kwargs):
     if type(channel) is str:
         # Guild/Channel id
         server_id, channel_id = channel.split("/")

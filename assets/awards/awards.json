@@ -7,7 +7,7 @@
       },
       "QuestDone":{
          "icon":"questDone.png",
-         "name":"Save The Guild",
+         "name":"Save The Server",
          "message":"Complete a quest"
       },
       "CameBack":{

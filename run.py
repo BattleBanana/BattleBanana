@@ -7,6 +7,7 @@ import time
 import traceback
 from threading import Thread
 
+import pymongo
 import aiohttp
 import discord
 import sentry_sdk
@@ -49,26 +50,15 @@ class BattleBananaClient(discord.AutoShardedClient):
     """
 
     def __init__(self, **details):
-        global clients
-        clients.append(self)
-
         self.queue_tasks = queue.Queue()
         self.start_time = time.time()
 
         intents = discord.Intents.default()
         intents.members = True
 
-        pipe = details.pop('pipe')
-        pipe.send(1)
-        pipe.close()
-
         super(BattleBananaClient, self).__init__(intents=intents, **details)
 
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
-        try:
-            self.run(bot_key)
-        except KeyError:
-            pass
 
     async def __check_task_queue(self):
         while True:
@@ -232,6 +222,10 @@ class BattleBananaClient(discord.AutoShardedClient):
             await util.duelogger.error("**Message/command triggered error!**\n"
                                        + "__Stack trace:__ ```" + traceback.format_exc()[-1500:] + "```",
                                        embed=trigger_message)
+        elif isinstance(error, pymongo.errors.ServerSelectionTimeoutError):
+            util.logger.critical("Something went wrong and we disconnected from database")
+            os._exit(1)
+
         # Log exception on sentry.
         sentry_sdk.capture_exception(error)
         traceback.print_exc()
@@ -305,10 +299,8 @@ class BattleBananaClient(discord.AutoShardedClient):
                          time.time() - shard_time)
         await util.duelogger.bot("BattleBanana has *(re)*started\nBot version → ``%s``" % gconf.VERSION)
         try:
-            loop = asyncio.get_event_loop()
             async_server = await asyncio.start_server(players.handle_client, '', gconf.other_configs["connectionPort"])
-            server_port = async_server.sockets[0].getsockname()[
-                1]  # get port that the server is on, to confirm it started on 4000
+            server_port = async_server.sockets[0].getsockname()[1]  # get port that the server is on, to confirm it started on 4000
             util.logger.info("Listening for data transfer requests on port %s!" % server_port)
         except:
             util.logger.error("Websocket already started")
@@ -384,22 +376,6 @@ def run_bb():
         loop.run_forever()
 
 
-def _load():
-    print("Starting BattleBanana!")
-    global config, bot_key, shard_names
-    config = gconf.other_configs
-    bot_key = config["botToken"]
-    shard_names = config["shardNames"]
-    util.load(clients)
-
-    if not os.path.exists("assets/imagecache/"):
-        os.makedirs("assets/imagecache/")
-
-    loader.load_modules(packages=loader.GAME)
-
-    loader.load_modules(packages=loader.COMMANDS)
-
-
 if __name__ == "__main__":
     print("Starting BattleBanana!")
     config = gconf.other_configs
@@ -407,5 +383,3 @@ if __name__ == "__main__":
     shard_names = config["shardNames"]
     util.load(clients)
     run_bb()
-else:
-    _load()

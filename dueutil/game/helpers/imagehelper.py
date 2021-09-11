@@ -173,7 +173,7 @@ async def load_image_url(url, **kwargs):
 def resize(image, width, height):
     if image is None:
         return None
-    return image.resize((width, height), Image.BILINEAR)
+    return image.resize((width, height), Image.LANCZOS)
 
 
 async def resize_avatar(player, server, width, height):
