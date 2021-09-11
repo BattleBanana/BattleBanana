@@ -2,7 +2,7 @@ objgraph
 validators
 colour
 pymongo
-discord.py
+nextcord[speed]
 cachetools
 numpy
 repoze.timeago

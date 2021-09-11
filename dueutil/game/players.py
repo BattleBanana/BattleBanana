@@ -297,7 +297,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
         if member is None:
             return ""
 
-        return str(member.avatar_url)
+        return str(member.display_avatar)
 
     def get_avg_stat(self):
         return sum((self.attack, self.strg, self.accy)) / 4
