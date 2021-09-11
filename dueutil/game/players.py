@@ -291,13 +291,11 @@ class Player(BattleBananaObject, SlotPickleMixin):
             member = extras.get("member")
         elif guild is not None:
             member = await guild.fetch_member(self.id)
-        else:
-            raise ValueError("Invalid arguments")
 
         if member is None:
             return ""
 
-        return str(member.display_avatar)
+        return member.display_avatar.url
 
     def get_avg_stat(self):
         return sum((self.attack, self.strg, self.accy)) / 4

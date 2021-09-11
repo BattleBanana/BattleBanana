@@ -84,7 +84,7 @@ async def help(ctx, *args, **details):
                 help_embed.add_field(name='Guild managers only', value=', '.join(server_op_commands), inline=False)
     else:
 
-        help_embed.set_thumbnail(url=util.clients[0].user.avatar_url)
+        help_embed.set_thumbnail(url=util.clients[0].user.display_avatar.url)
 
         help_embed.description = 'Welcome to the help!\n Simply do ' + server_key + 'help (category) or (command name).'
         help_embed.add_field(name=':file_folder: Command categories', value=', '.join(categories))
