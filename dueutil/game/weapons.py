@@ -181,10 +181,12 @@ def remove_weapon_from_shop(guild: discord.Guild, weapon_name: str) -> bool:
 
 
 def get_weapons_for_server(guild: discord.Guild) -> Dict[str, Weapon]:
+    _load(guild.id)
     return dict(weapons_map[guild], **weapons_map["STOCK"])
 
 
 def find_weapon(guild: discord.Guild, weapon_name_or_id: str) -> Union[Weapon, None]:
+    _load(guild.id)
     weapon = get_weapon_for_server(guild.id, weapon_name_or_id)
     if weapon is None:
         weapon_id = weapon_name_or_id.lower()
