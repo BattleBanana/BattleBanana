@@ -611,8 +611,7 @@ async def updatebot(ctx, **_):
 async def stopbot(ctx, **_):
     await util.reply(ctx, ":wave: Stopping BattleBanana!")
     await util.duelogger.concern("BattleBanana shutting down!")
-    await util.clients[0].change_presence(activity=discord.Activity(name="restarting"), status=discord.Status.do_not_disturb,
-                                          afk=True)
+    await util.clients[0].change_presence(activity=discord.Activity(name="restarting"), status=discord.Status.idle)
     os._exit(0)
 
 
@@ -620,8 +619,7 @@ async def stopbot(ctx, **_):
 async def restartbot(ctx, **_):
     await util.reply(ctx, ":ferris_wheel: Restarting BattleBanana!")
     await util.duelogger.concern("BattleBanana restarting!!")
-    await util.clients[0].change_presence(activity=discord.Activity(name="restarting"), status=discord.Status.do_not_disturb,
-                                          afk=True)
+    await util.clients[0].change_presence(activity=discord.Activity(name="restarting"), status=discord.Status.idle)
     os._exit(1)
 
 
