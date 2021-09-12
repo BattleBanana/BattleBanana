@@ -146,7 +146,6 @@ async def blackjack(ctx, price, **details):
     user.gamble_play = False
     user.last_played = 0
     user.save()
-    BattleBanana.save()
 
     await util.edit_message(msg, embed=blackjack_embed)
 
@@ -163,7 +162,6 @@ async def russianroulette(ctx, price, **details):
     """
 
     user = details["author"]
-    BattleBanana = players.find_player(ctx.guild.me.id)
 
     if user.money < price or price > 1000000000:
         raise util.BattleBananaException(ctx.channel, "You cannot bet that much!")
@@ -179,7 +177,8 @@ async def russianroulette(ctx, price, **details):
         await util.edit_message(message, content=message.content + "\nYou survived and won `¤%s`!" % (reward))
     else:
         user.money -= price
+        BattleBanana = players.find_player(ctx.guild.me.id)
         BattleBanana.money += price
+        BattleBanana.save()
         await util.edit_message(message, content=message.content + "\nYou died and lost `¤%s`!" % (price))
     user.save()
-    BattleBanana.save()
