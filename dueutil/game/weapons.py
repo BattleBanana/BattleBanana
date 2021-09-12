@@ -146,6 +146,9 @@ def get_weapon_from_id(weapon_id: str) -> Weapon:
         # We must compare here to ensure the meta data is the same.
         if weapon.id == weapon_id:
             return weapon
+    guild_id = weapon_id.split("+")[0]
+    _load(guild_id)
+
     return weapons_map[NO_WEAPON_ID]
 
 
@@ -165,6 +168,8 @@ def get_weapon_for_server(server_id: int, weapon_name: str) -> Weapon:
 
 
 def get_weapon_summary_from_id(weapon_id: str) -> Summary:
+    guild_id = weapon_id.split("+")[0]
+    _load(guild_id)
     summary = weapon_id.split('/', 1)[0].split('+')[1].split('|')
     return Summary(price=int(summary[0]),
                    damage=int(summary[1]),
