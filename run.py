@@ -330,7 +330,7 @@ class ClientThread(Thread):
         asyncio.set_event_loop(self.event_loop)
 
         global client
-        client = BattleBananaClient(fetch_offline_members=False)
+        client = BattleBananaClient(chunk_guilds_at_startup=False)
         clients.append(client)
         try:
             client.loop.run_until_complete(client.start(bot_key))
