@@ -36,6 +36,7 @@ def command(**command_rules):
     def get_command_details(ctx, **details):
         details["timestamp"] = ctx.created_at
         details["author"] = players.find_player(ctx.author.id)
+        details["server"] = ctx.guild
         details["server_id"] = ctx.guild.id
         details["server_name"] = ctx.guild.name
         details["server_name_clean"] = util.ultra_escape_string(ctx.guild.name)

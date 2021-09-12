@@ -80,7 +80,7 @@ def filter_customizations(customization_items):
 
 
 def shop_weapons_list(page, **details):
-    shop_weapons = list(weapons.get_weapons_for_server(details["server_id"]).values())
+    shop_weapons = list(weapons.get_weapons_for_server(details["server"]).values())
     shop_weapons.remove(weapons.NO_WEAPON)
     shop_weapons.sort(key=lambda weapon: weapon.price)
     shop_list = weap_cmds.weapons_page(shop_weapons, page, "BattleBanana's Weapon Shop!",
