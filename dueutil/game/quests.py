@@ -247,10 +247,12 @@ class ActiveQuest(Player, util.SlotPickleMixin):
 
 
 def get_server_quest_list(guild: discord.Guild) -> Dict[str, Quest]:
+    _load(guild.id)
     return quest_map[guild]
 
 
 def get_quest_on_server(guild: discord.Guild, quest_name: str) -> Quest:
+    _load(guild.id)
     return quest_map[f"{guild.id}/{quest_name.lower()}"]
 
 
@@ -304,9 +306,6 @@ def has_quests(place):
             return len(get_channel_quests(place)) > 0
     return False
 
-# what the fuck
-# https://github.com/Theelgirl/theeldue/blob/master/dueutil/game/quests.py#L387
-# You have a load default quest?
 REFERENCE_QUEST = Quest('Reference', 1, 1, 1, 1, server_id="", no_save=True)
 
 def load_default_quests():
@@ -343,3 +342,5 @@ def _load(server_id):
         quest_map[loaded_quest.id] = util.load_and_update(REFERENCE_QUEST, loaded_quest)
 
     loaded_guilds.add(server_id)
+
+load_default_quests()

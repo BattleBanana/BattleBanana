@@ -157,8 +157,11 @@ def get_weapon_for_server(server_id: int, weapon_name: str) -> Weapon:
     if weapon_name.lower() in stock_weapons:
         return weapons_map["STOCK/" + weapon_name.lower()]
     weapon_id = f"{server_id}/{weapon_name.lower()}"
-    if weapon_id in weapons_map:
-        return weapons_map[weapon_id]
+
+    if not weapon_id in weapons_map:
+        _load(server_id)
+
+    return weapons_map[weapon_id]
 
 
 def get_weapon_summary_from_id(weapon_id: str) -> Summary:
@@ -235,3 +238,5 @@ def _load(server_id):
         weapons_map[loaded_weapon.id] = util.load_and_update(NO_WEAPON, loaded_weapon)
 
     loaded_guilds.add(server_id)
+
+load_default_weapons()
