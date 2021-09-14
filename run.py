@@ -174,7 +174,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                 else:
                     try:
                         # Attempt to warn user
-                        perms = ctx.guild.me.permissions_in(ctx.channel)
+                        perms = ctx.channel.permissions_for(ctx.guild.me)
                         await util.say(ctx.channel,
                                        "The action could not be performed as I'm **missing permissions**! Make sure I have the following permissions:\n"
                                        + "- Manage Roles %s;\n" % (

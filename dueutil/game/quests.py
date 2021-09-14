@@ -1,24 +1,23 @@
-import asyncio
-import math
-import random
 import json
+import random
 from collections import defaultdict, namedtuple
 from typing import Dict, List
+import math
+import asyncio
 
 import discord
 import jsonpickle
 
-from . import gamerules
-from .players import Player
+from ..util import SlotPickleMixin
 from .. import dbconn
 from .. import util
 from ..game import players
 from ..game import weapons
 from ..game.helpers.misc import BattleBananaObject, DueMap
-from ..util import SlotPickleMixin
+from .players import Player
+from . import gamerules
 
 quest_map = DueMap()
-loaded_guilds = set()
 
 MIN_QUEST_IV = 0
 QUEST_DAY = 86400
@@ -46,8 +45,7 @@ class Quest(BattleBananaObject, SlotPickleMixin):
         if message is not None:
             if message.guild in quest_map:
                 if name.lower() in quest_map[message.guild]:
-                    raise util.BattleBananaException(message.channel,
-                                                     "A foe with that name already exists on this guild!")
+                    raise util.BattleBananaException(message.channel, "A foe with that name already exists on this guild!")
 
             if base_accy < 1 or base_attack < 1 or base_strg < 1:
                 raise util.BattleBananaException(message.channel, "No quest stats can be less than 1!")
@@ -154,7 +152,7 @@ class ActiveQuest(Player, util.SlotPickleMixin):
         active_quest.equipped = defaultdict(lambda: "default",
                                             weapon=base_quest.w_id)
 
-        target_exp = random.uniform(quester.total_exp, quester.total_exp * 1.8)
+        target_exp = random.uniform(quester.total_exp, quester.total_exp*1.8)
         active_quest.level = gamerules.get_level_from_exp(target_exp)
         active_quest.total_exp = active_quest.exp = 0
         await active_quest._calculate_stats()
@@ -247,12 +245,10 @@ class ActiveQuest(Player, util.SlotPickleMixin):
 
 
 def get_server_quest_list(guild: discord.Guild) -> Dict[str, Quest]:
-    _load(guild.id)
     return quest_map[guild]
 
 
 def get_quest_on_server(guild: discord.Guild, quest_name: str) -> Quest:
-    _load(guild.id)
     return quest_map[f"{guild.id}/{quest_name.lower()}"]
 
 
@@ -290,7 +286,7 @@ def add_default_quest_to_server(guild):
           no_save=False)
 
 
-def remove_all_quests(guild: discord):
+def remove_all_quests(guild):
     if guild in quest_map:
         result = dbconn.delete_objects(Quest, '%s/.*' % guild.id)
         del quest_map[guild]
@@ -306,32 +302,29 @@ def has_quests(place):
             return len(get_channel_quests(place)) > 0
     return False
 
+
 REFERENCE_QUEST = Quest('Reference', 1, 1, 1, 1, server_id="", no_save=True)
 
-def load_default_quests():
-   with open('dueutil/game/configs/defaultquests.json') as defaults_file:
-        defaults = json.load(defaults_file)
-        for quest_data in defaults.values():
-            Quest(quest_data["name"],
-                  quest_data["baseAttack"],
-                  quest_data["baseStrg"],
-                  quest_data["baseAccy"],
-                  quest_data["baseHP"],
-                  task=quest_data["task"],
-                  weapon_id=weapons.stock_weapon(quest_data["weapon"]),
-                  image_url=quest_data["image"],
-                  spawn_chance=quest_data["spawnChance"],
-                  no_save=True)
 
-def _load(server_id):
-    if server_id in loaded_guilds:
-        return
+def _load():
+    def load_default_quests():
+        with open('dueutil/game/configs/defaultquests.json') as defaults_file:
+            defaults = json.load(defaults_file)
+            for quest_data in defaults.values():
+                Quest(quest_data["name"],
+                      quest_data["baseAttack"],
+                      quest_data["baseStrg"],
+                      quest_data["baseAccy"],
+                      quest_data["baseHP"],
+                      task=quest_data["task"],
+                      weapon_id=weapons.stock_weapon(quest_data["weapon"]),
+                      image_url=quest_data["image"],
+                      spawn_chance=quest_data["spawnChance"],
+                      no_save=True)
 
-    quests = list(dbconn.conn()['Quest'].find({'_id': {'$regex': '%s.*' % server_id}}))
-    if len(quests) == 0:
-        load_default_quests()
+    load_default_quests()
 
-    for quest in quests:
+    for quest in dbconn.get_collection_for_object(Quest).find():
         loaded_quest = jsonpickle.decode(quest['data'])
 
         if isinstance(loaded_quest.channel, str) and loaded_quest.channel not in ("ALL", None, "NONE"):
@@ -340,7 +333,7 @@ def _load(server_id):
             loaded_quest.server_id = int(loaded_quest.server_id)
 
         quest_map[loaded_quest.id] = util.load_and_update(REFERENCE_QUEST, loaded_quest)
+    util.logger.info("Loaded %s quests", len(quest_map))
 
-    loaded_guilds.add(server_id)
 
-load_default_quests()
+_load()
