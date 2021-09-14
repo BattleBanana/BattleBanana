@@ -271,6 +271,7 @@ class BattleBananaClient(discord.AutoShardedClient):
     async def on_guild_remove(self, guild):
         if not self.is_ready():
             return
+
         for collection in dbconn.db.list_collection_names():
             if collection not in ("Player", "Topdogs"):
                 dbconn.db[collection].delete_many({'_id': {'$regex': '%s.*' % guild.id}})
@@ -281,15 +282,6 @@ class BattleBananaClient(discord.AutoShardedClient):
         # Update stats
         dbconn.update_guild_joined(-1)
         await servercounts.update_server_count(self)
-
-    async def change_avatar(self, channel, avatar_name):
-        try:
-            avatar = open("avatars/" + avatar_name.strip(), "rb")
-            avatar_object = avatar.read()
-            await self.edit(avatar=avatar_object)
-            await util.say(channel, ":white_check_mark: Avatar now **" + avatar_name + "**!")
-        except FileNotFoundError:
-            await util.say(channel, ":bangbang: **Avatar change failed!**")
 
     async def on_ready(self):
         global async_server
