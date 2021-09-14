@@ -1,6 +1,5 @@
-import json
-
 import aiohttp
+import json
 
 import generalconfig
 from . import util

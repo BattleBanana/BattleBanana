@@ -1,8 +1,7 @@
 import json
-from datetime import datetime
-
 import jsonpickle
 import pymongo
+from datetime import datetime
 from pymongo import MongoClient
 
 db = None

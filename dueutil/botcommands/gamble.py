@@ -1,9 +1,8 @@
 import asyncio
+import discord
 import math
 import random
 import time
-
-import discord
 from pydealer import Deck
 
 import generalconfig as gconf

@@ -1,8 +1,7 @@
+import discord
 import math
 import random
 import time
-
-import discord
 
 import generalconfig as gconf
 from .. import commands, util

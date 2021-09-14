@@ -1,21 +1,20 @@
+import asyncio
+import discord
 import json
+import jsonpickle
+import math
 import random
 from collections import defaultdict, namedtuple
 from typing import Dict, List
-import math
-import asyncio
 
-import discord
-import jsonpickle
-
-from ..util import SlotPickleMixin
+from . import gamerules
+from .players import Player
 from .. import dbconn
 from .. import util
 from ..game import players
 from ..game import weapons
 from ..game.helpers.misc import BattleBananaObject, DueMap
-from .players import Player
-from . import gamerules
+from ..util import SlotPickleMixin
 
 quest_map = DueMap()
 

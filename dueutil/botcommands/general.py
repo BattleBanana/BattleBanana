@@ -1,7 +1,6 @@
+import discord
 import inspect
 from functools import wraps
-
-import discord
 
 import generalconfig as gconf
 from . import player as player_cmds

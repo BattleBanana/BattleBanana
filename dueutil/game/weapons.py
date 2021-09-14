@@ -1,17 +1,14 @@
+import discord
 import json
+import jsonpickle
 from collections import namedtuple
 from typing import Union, Dict
 
-import discord
-import jsonpickle
-
-from ..util import SlotPickleMixin
+from . import emojis
 from .. import dbconn
 from .. import util
 from ..game.helpers.misc import BattleBananaObject, DueMap
-
-from . import emojis
-
+from ..util import SlotPickleMixin
 
 stock_weapons = ["none"]
 weapons = DueMap()

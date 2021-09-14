@@ -1,5 +1,4 @@
 import traceback
-
 from discord import Embed
 
 import generalconfig as gconf

@@ -1,8 +1,7 @@
 import threading
 import time
-from collections import namedtuple
-
 from cachetools.func import ttl_cache
+from collections import namedtuple
 
 from .. import events, util, dbconn
 from ..game import players

@@ -1,16 +1,15 @@
+import aiohttp
 import asyncio
+import discord
 import inspect
 import os
+import pymongo
 import queue
+import sentry_sdk
 import sys
 import time
 import traceback
 from threading import Thread
-
-import pymongo
-import aiohttp
-import discord
-import sentry_sdk
 
 import generalconfig as gconf
 from dueutil import dbconn, events, loader, permissions, servercounts, util

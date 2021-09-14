@@ -1,7 +1,6 @@
+import discord
 import random
 import time
-
-import discord
 
 import dueutil.game.awards as game_awards
 import generalconfig as gconf

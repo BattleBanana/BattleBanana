@@ -1,6 +1,8 @@
 import asyncio
+import discord
 import json
 import math
+import objgraph
 import os
 import platform
 import random
@@ -12,9 +14,6 @@ import time
 import traceback
 from contextlib import redirect_stdout
 from io import StringIO
-
-import discord
-import objgraph
 
 import dueutil.permissions
 import generalconfig as gconf

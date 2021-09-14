@@ -1,7 +1,6 @@
 import json
 import os
 import re
-
 from PIL import Image
 
 from ... import dbconn, util, tasks

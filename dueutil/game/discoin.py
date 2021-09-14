@@ -1,6 +1,5 @@
-﻿import json
-
-import aiohttp
+﻿import aiohttp
+import json
 from discord import Embed
 
 import generalconfig as gconf

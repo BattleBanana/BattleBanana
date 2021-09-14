@@ -3,13 +3,12 @@ import mimetypes
 import os
 import random
 import re
-from io import BytesIO
-from urllib.parse import urlparse
-
 import urllib3
 from PIL import Image, ImageDraw, ImageFont
 from colour import Color
 from discord import File
+from io import BytesIO
+from urllib.parse import urlparse
 
 from dueutil import util
 from . import imagecache

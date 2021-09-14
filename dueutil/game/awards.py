@@ -1,6 +1,5 @@
-import json
-
 import discord
+import json
 from PIL import Image
 
 from .. import util, dbconn

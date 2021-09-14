@@ -1,10 +1,9 @@
 import asyncio
+import discord
 import json
+import repoze.timeago
 import time
 from itertools import chain
-
-import discord
-import repoze.timeago
 
 import generalconfig as gconf
 from .. import commands, events, util, permissions

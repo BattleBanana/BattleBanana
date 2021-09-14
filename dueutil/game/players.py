@@ -1,16 +1,15 @@
 import asyncio
+import discord
 import gc
 import json
+import jsonpickle
 import math
+import numpy
 import random
 import time
 from collections import defaultdict
 from copy import copy
 from itertools import chain
-
-import discord
-import jsonpickle
-import numpy
 
 import generalconfig as gconf
 from . import customizations

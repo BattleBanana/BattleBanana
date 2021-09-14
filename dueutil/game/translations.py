@@ -1,6 +1,5 @@
-import json
-
 import discord
+import json
 
 from dueutil import util
 from dueutil.game.configs import dueserverconfig

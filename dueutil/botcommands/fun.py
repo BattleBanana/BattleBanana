@@ -1,8 +1,7 @@
 import asyncio
-from datetime import datetime
-
 import discord
 import repoze.timeago
+from datetime import datetime
 
 import generalconfig as gconf
 from .. import commands, util, dbconn

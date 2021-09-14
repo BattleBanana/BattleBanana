@@ -1,8 +1,7 @@
 import json
 import os
-from typing import Dict
-
 from PIL import Image
+from typing import Dict
 
 from .. import permissions, util
 from ..game.helpers.misc import BattleBananaObject
