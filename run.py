@@ -251,9 +251,6 @@ class BattleBananaClient(discord.AutoShardedClient):
                                                   1) if message.content.startswith(
             f"<@{self.user.id}>") else message.content
 
-        quests._load(message.guild.id)
-        weapons._load(message.guild.id)
-
         await events.on_message_event(message)
 
     async def on_member_update(self, before, after):
