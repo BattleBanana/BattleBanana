@@ -219,7 +219,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         elif isinstance(error, pymongo.errors.ServerSelectionTimeoutError):
             util.duelogger.error("Something went wrong and we disconnected from database " + "<@115269304705875969>")
             util.logger.critical("Something went wrong and we disconnected from database")
-            os._exit(0)
+            os._exit(1)
         elif ctx_is_message:
             await util.say(ctx.channel, ":bangbang: **Something went wrong...**")
             trigger_message = discord.Embed(title="Trigger", type="rich", color=gconf.DUE_COLOUR)
