@@ -118,8 +118,8 @@ def check_url(url):
             "Accept": "*/*"
         }
 
-        req = urllib3.Request(url, headers=headers)
-        response = urllib3.urlopen(req)
+        req = urllib3.Request(url, headers=headers, timeout=3)
+        response = urllib3.urlopen(req, timeout=3)
         return response.code in range(200, 209)
     except Exception:
         return False
@@ -127,20 +127,6 @@ def check_url(url):
 
 def url_image(url):
     return is_url_image(url) and check_url(url)
-
-
-# async def url_image(url):
-#     # Checks headers only
-#     try:
-#         async with aiohttp.ClientSession(conn_timeout=3) as session:
-#             async with session.head(url=url, allow_redirects=True) as response:
-#                 return "Content-Type" in response.headers and \
-#                        response.headers["Content-Type"].lower().startswith("image")
-#     except Exception as exception:
-#         util.logger.error("Got %s while checking image url.", exception)
-#         # Do not care about any of the network errors that could occur.
-#         pass
-#     return False
 
 
 async def warn_on_invalid_image(channel):
