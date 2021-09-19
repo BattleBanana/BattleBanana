@@ -45,6 +45,8 @@ profile_parts = dict()
 
 DUE_BLACK = (48, 48, 48)
 
+REQUEST_TIMEOUT = 5
+
 traffic_lights = list(Color("red").range_to(Color("#ffbf00"), 5)) + list(Color("#ffbf00").range_to(Color("green"), 5))
 
 
@@ -118,8 +120,8 @@ def check_url(url):
             "Accept": "*/*"
         }
 
-        req = urllib3.Request(url, headers=headers, timeout=3)
-        response = urllib3.urlopen(req, timeout=3)
+        req = urllib3.Request(url, headers=headers, timeout=REQUEST_TIMEOUT)
+        response = urllib3.urlopen(req, timeout=REQUEST_TIMEOUT)
         return response.code in range(200, 209)
     except Exception:
         return False

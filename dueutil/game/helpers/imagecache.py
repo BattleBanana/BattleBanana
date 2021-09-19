@@ -28,7 +28,7 @@ def image_used(url):
             repeated_usages[url] += 1
 
 
-async def cache_resized_image(image: Image.Image, url):
+async def cache_resized_image(image, url):
     filename = get_resized_cached_filename(url, image.width, image.height)
     try:
         # cache image
@@ -70,7 +70,7 @@ async def cache_image(url):
         image_data = await util.download_file(url)
         image = Image.open(image_data)
         # cache image
-        image.convert('RGB').save(filename, optimize=True, quality=20)
+        image.convert('RGB').save(filename, optimize=True, quality=100)
         return image
     except:
         # We don't care what went wrong
