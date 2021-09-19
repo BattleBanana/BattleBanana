@@ -45,7 +45,7 @@ profile_parts = dict()
 
 DUE_BLACK = (48, 48, 48)
 
-REQUEST_TIMEOUT = 3
+REQUEST_TIMEOUT = 1
 
 traffic_lights = list(Color("red").range_to(Color("#ffbf00"), 5)) + list(Color("#ffbf00").range_to(Color("green"), 5))
 
