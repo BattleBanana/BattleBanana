@@ -29,6 +29,9 @@ def image_used(url):
 
 
 async def cache_resized_image(image, url):
+    if image is None:
+        return None
+
     filename = get_resized_cached_filename(url, image.width, image.height)
     try:
         # cache image

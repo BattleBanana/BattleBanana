@@ -45,7 +45,7 @@ profile_parts = dict()
 
 DUE_BLACK = (48, 48, 48)
 
-REQUEST_TIMEOUT = 5
+REQUEST_TIMEOUT = 3
 
 traffic_lights = list(Color("red").range_to(Color("#ffbf00"), 5)) + list(Color("#ffbf00").range_to(Color("green"), 5))
 
@@ -105,7 +105,7 @@ def paste_alpha(background, image, position):
 
 
 def is_url_image(url):
-    mimetype, encoding = mimetypes.guess_type(url)
+    mimetype, _ = mimetypes.guess_type(url)
     return (mimetype and mimetype.startswith('image'))
 
 
