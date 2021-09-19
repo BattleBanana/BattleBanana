@@ -13,7 +13,7 @@ from threading import Thread
 
 import generalconfig as gconf
 from dueutil import dbconn, events, loader, permissions, servercounts, util
-from dueutil.game import players, quests, weapons
+from dueutil.game import players
 from dueutil.game.configs import dueserverconfig
 from dueutil.game.helpers import imagecache
 from dueutil.permissions import Permission
