@@ -28,6 +28,42 @@ def image_used(url):
             repeated_usages[url] += 1
 
 
+async def cache_resized_image(image: Image.Image, url):
+    filename = get_resized_cached_filename(url, image.width, image.height)
+    try:
+        # cache image
+        image.convert('RGB').save(filename, optimize=True, quality=100)
+        return image
+    except:
+        # We don't care what went wrong
+        if os.path.isfile(filename):
+            os.remove(filename)
+        return None
+
+
+def get_cached_resized_image(url, width, height):
+    filename = get_resized_cached_filename(url, width, height)
+    try:
+        image = Image.open(filename)
+        return image
+    except:
+        # We don't care what went wrong
+        if os.path.isfile(filename):
+            os.remove(filename)
+        return None
+
+
+def get_resized_cached_filename(name, width, height):
+    filename = 'assets/imagecache/' + re.sub(r'\W+', '', name)
+    if len(filename) > 128:
+        filename = filename[:128]
+
+    if None not in (width, height):
+        filename += f"{width}_{height}"
+
+    return filename + '.jpg'
+
+
 async def cache_image(url):
     filename = get_cached_filename(url)
     try:

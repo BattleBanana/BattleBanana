@@ -180,14 +180,13 @@ async def resize_avatar(player, server, width, height):
 
 
 async def resize_image_url(url, width, height):
-    return resize(await load_image_url(url), width, height)
+    resized_image = imagecache.get_cached_resized_image(url, width, height)
 
+    if resized_image is None:
+        resized_image = resize(await load_image_url(url), width, height)
+        await imagecache.cache_resized_image(resized_image, url)
 
-def rescale_image(image, scale):
-    if image is None:
-        return None
-    width, height = image.size
-    return resize(image, int(width * scale), int(height * scale))
+    return resized_image
 
 
 def has_dimensions(image, dimensions):
