@@ -10,6 +10,7 @@ import sys
 import time
 import traceback
 from threading import Thread
+from dueutil.game import configs
 
 import generalconfig as gconf
 from dueutil import dbconn, events, loader, permissions, servercounts, util
@@ -54,6 +55,7 @@ class BattleBananaClient(discord.AutoShardedClient):
 
         intents = discord.Intents.default()
         intents.members = True
+        intents.guilds = True
 
         super(BattleBananaClient, self).__init__(intents=intents, **details)
 
@@ -214,6 +216,10 @@ class BattleBananaClient(discord.AutoShardedClient):
         elif isinstance(error, (OSError, aiohttp.ClientConnectionError,
                                 asyncio.exceptions.TimeoutError)):  # 99% of time its just network errors
             util.logger.error(error.message)
+        elif isinstance(error, pymongo.errors.ServerSelectionTimeoutError):
+            util.duelogger.error("Something went wrong and we disconnected from database " + "<@115269304705875969>")
+            util.logger.critical("Something went wrong and we disconnected from database")
+            os._exit(0)
         elif ctx_is_message:
             await util.say(ctx.channel, ":bangbang: **Something went wrong...**")
             trigger_message = discord.Embed(title="Trigger", type="rich", color=gconf.DUE_COLOUR)
@@ -221,9 +227,6 @@ class BattleBananaClient(discord.AutoShardedClient):
             await util.duelogger.error("**Message/command triggered error!**\n"
                                        + "__Stack trace:__ ```" + traceback.format_exc()[-1500:] + "```",
                                        embed=trigger_message)
-        elif isinstance(error, pymongo.errors.ServerSelectionTimeoutError):
-            util.logger.critical("Something went wrong and we disconnected from database")
-            os._exit(1)
 
         # Log exception on sentry.
         sentry_sdk.capture_exception(error)
