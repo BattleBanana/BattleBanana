@@ -1,3 +1,4 @@
+import asyncio
 import math
 import mimetypes
 import os
@@ -172,7 +173,7 @@ async def resize_image_url(url, width, height):
 
     if resized_image is None:
         resized_image = resize(await load_image_url(url), width, height)
-        await imagecache.cache_resized_image(resized_image, url)
+        asyncio.ensure_future(imagecache.cache_resized_image(resized_image, url))
 
     return resized_image
 
