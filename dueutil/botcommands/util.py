@@ -145,7 +145,7 @@ async def botinfo(ctx, **_):
     info_embed.description = "BattleBanana is customizable bot to add fun commands, quests and battles to your guild."
     info_embed.add_field(name="Owner", value="[DeveloperAnonymous#9830](https://battlebanana.xyz/)")
     info_embed.add_field(name="Framework",
-                         value="[nextcord %s :two_hearts:](http://nextcord.readthedocs.io/en/latest/)"
+                         value="[discord.py %s :two_hearts:](http://discordpy.readthedocs.io/en/latest/)"
                                % (discord.__version__))
     info_embed.add_field(name="Version", value=gconf.VERSION),
     info_embed.add_field(name="Invite BB!", value="%s" % gconf.BOT_INVITE, inline=False)
