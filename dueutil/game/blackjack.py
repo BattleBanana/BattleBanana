@@ -1,5 +1,4 @@
 import discord
-from aiohttp.client import DEFAULT_TIMEOUT
 from discord import ui, ButtonStyle
 from pydealer.deck import Deck
 
