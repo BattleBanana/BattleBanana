@@ -3,7 +3,7 @@ from aiohttp.client import DEFAULT_TIMEOUT
 from discord import ui, ButtonStyle
 from pydealer.deck import Deck
 
-DEFAULT_TIMEOUT = 10
+DEFAULT_TIMEOUT = 120
 
 EQUIVALENTS = {
     "Jack": 10,
