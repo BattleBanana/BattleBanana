@@ -66,13 +66,13 @@ async def blackjack(ctx, price, **details):
         if user_value >= 21:
             break
 
-        user_msg = await blackjack_buttons.wait()
+        has_timed_out = await blackjack_buttons.wait()
+
+        if has_timed_out:
+            break
+
         content = blackjack_buttons.value
-
-        if user_msg:
-            await util.delete_message(user_msg)
-
-        if content != None and content == "hit":
+        if content == "hit":
             user_hand += deck.deal(1)
             user_value = blackjackGame.get_deck_value(user_hand)
 
@@ -82,8 +82,6 @@ async def blackjack(ctx, price, **details):
 
             blackjack_buttons = blackjackGame.Blackjack_Interactions(ctx.author)
             await util.edit_message(msg, embed=blackjack_embed, view=blackjack_buttons)
-        else:
-            break
 
     dealer_play = dealer_value < 17 and (user_value < 21 or (user_value == 21 and len(user_hand) > 2))
     # Dealer's turn
