@@ -57,6 +57,8 @@ def get_cached_resized_image(url, width, height):
 
 
 def get_resized_cached_filename(name, width, height):
+    if name is None:
+        return None
     filename = 'assets/imagecache/' + re.sub(r'\W+', '', name)
     if len(filename) > 128:
         filename = filename[:128]
