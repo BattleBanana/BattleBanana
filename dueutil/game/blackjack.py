@@ -11,7 +11,7 @@ EQUIVALENTS = {
     "Ace": 11
 }
 
-class Blackjack_Interactions(ui.View):
+class Interactions(ui.View):
     def __init__(self, author = None, timeout = DEFAULT_TIMEOUT):
         self._author = author
         super().__init__(timeout=timeout)

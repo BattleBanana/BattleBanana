@@ -1,5 +1,6 @@
 import asyncio
 import discord
+import gc
 import math
 import random
 import time
@@ -28,6 +29,7 @@ async def blackjack(ctx, price, **details):
     Game objective: Obtain 21 or the closest to win!
     [Card Values](https://battlebanana.xyz/img/21Values.png)
     """
+    raise util.BattleBananaException(ctx.channel, "Blackjack is temporarily disabled!")
     user = details["author"]
     BattleBanana = players.find_player(ctx.guild.me.id)
 
@@ -56,18 +58,18 @@ async def blackjack(ctx, price, **details):
     blackjack_embed.add_field(name=f"Dealer's hand ({dealer_value})", value=dealer_hand)
     blackjack_embed.set_footer(text="Click on \"hit\" or \"stand\". This prompt will close in 120 seconds")
 
-    blackjack_buttons: ui.View = blackjackGame.Blackjack_Interactions(ctx.author)
+    blackjack_buttons: ui.View = blackjackGame.Interactions(ctx.author)
     msg = await util.reply(ctx, embed=blackjack_embed, view=blackjack_buttons)
 
     player_play = dealer_value < 21
     while player_play:
         user.last_played = time.time()
-        user_value = blackjackGame.get_deck_value(user_hand)
         if user_value >= 21:
             break
 
         has_timed_out = await blackjack_buttons.wait()
 
+        blackjack_buttons.clear_items()
         if has_timed_out:
             break
 
@@ -80,7 +82,7 @@ async def blackjack(ctx, price, **details):
             blackjack_embed.add_field(name="Your hand (%s)" % (user_value), value=user_hand)
             blackjack_embed.add_field(name="Dealer's hand (%s)" % (dealer_value), value=dealer_hand)
 
-            blackjack_buttons = blackjackGame.Blackjack_Interactions(ctx.author)
+            blackjack_buttons = blackjackGame.Interactions(ctx.author)
             await util.edit_message(msg, embed=blackjack_embed, view=blackjack_buttons)
 
     dealer_play = dealer_value < 17 and (user_value < 21 or (user_value == 21 and len(user_hand) > 2))
@@ -146,8 +148,10 @@ async def blackjack(ctx, price, **details):
     user.last_played = 0
     user.save()
 
-    blackjack_buttons.clear_items()
-    await util.edit_message(msg, embed=blackjack_embed, view=blackjack_buttons)
+    blackjack_buttons = None
+    gc.collect()
+
+    await util.edit_message(msg, embed=blackjack_embed, view=None)
 
 
 @commands.command(args_pattern="I", aliases=["rr"])
