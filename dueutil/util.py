@@ -180,7 +180,7 @@ async def edit_message(message, **kwargs):
     content = kwargs.pop("content", " ")
     embed = kwargs.pop("embed", None)
 
-    await message.edit(content=content, embed=embed)
+    await message.edit(content=content, embed=embed, **kwargs)
 
 
 async def fetch_user(user_id):

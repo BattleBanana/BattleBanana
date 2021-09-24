@@ -3,6 +3,7 @@ import discord
 import math
 import random
 import time
+from discord import ui
 from pydealer import Deck
 
 import generalconfig as gconf
@@ -51,11 +52,12 @@ async def blackjack(ctx, price, **details):
     blackjack_embed = discord.Embed(title="Blackjack dealer", description="%s game. Current bet: ¤%s"
                                                                           % (user.get_name_possession(), price),
                                     type="rich", colour=gconf.DUE_COLOUR)
-    blackjack_embed.add_field(name="Your hand (%s)" % (user_value), value=user_hand)
-    blackjack_embed.add_field(name="Dealer's hand (%s)" % (dealer_value), value=dealer_hand)
-    blackjack_embed.set_footer(text="Reply with \"hit\" or \"stand\". This prompt will close in 120 seconds")
+    blackjack_embed.add_field(name=f"Your hand ({user_value})", value=user_hand)
+    blackjack_embed.add_field(name=f"Dealer's hand ({dealer_value})", value=dealer_hand)
+    blackjack_embed.set_footer(text="Click on \"hit\" or \"stand\". This prompt will close in 120 seconds")
 
-    msg = await util.reply(ctx, embed=blackjack_embed)
+    blackjack_buttons: ui.View = blackjackGame.Blackjack_Interactions(ctx.author)
+    msg = await util.reply(ctx, embed=blackjack_embed, view=blackjack_buttons)
 
     player_play = dealer_value < 21
     while player_play:
@@ -64,8 +66,8 @@ async def blackjack(ctx, price, **details):
         if user_value >= 21:
             break
 
-        user_msg = await util.wait_for_message(ctx, ctx.author)
-        content = user_msg.content.lower() if user_msg != None else None
+        user_msg = await blackjack_buttons.wait()
+        content = blackjack_buttons.value
 
         if user_msg:
             await util.delete_message(user_msg)
@@ -78,10 +80,10 @@ async def blackjack(ctx, price, **details):
             blackjack_embed.add_field(name="Your hand (%s)" % (user_value), value=user_hand)
             blackjack_embed.add_field(name="Dealer's hand (%s)" % (dealer_value), value=dealer_hand)
 
-            await util.edit_message(msg, embed=blackjack_embed)
-            continue
-
-        break
+            blackjack_buttons = blackjackGame.Blackjack_Interactions(ctx.author)
+            await util.edit_message(msg, embed=blackjack_embed, view=blackjack_buttons)
+        else:
+            break
 
     dealer_play = dealer_value < 17 and (user_value < 21 or (user_value == 21 and len(user_hand) > 2))
     # Dealer's turn
@@ -146,7 +148,8 @@ async def blackjack(ctx, price, **details):
     user.last_played = 0
     user.save()
 
-    await util.edit_message(msg, embed=blackjack_embed)
+    blackjack_buttons.clear_items()
+    await util.edit_message(msg, embed=blackjack_embed, view=blackjack_buttons)
 
 
 @commands.command(args_pattern="I", aliases=["rr"])

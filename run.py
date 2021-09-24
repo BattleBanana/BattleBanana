@@ -10,7 +10,6 @@ import sys
 import time
 import traceback
 from threading import Thread
-from dueutil.game import configs
 
 import generalconfig as gconf
 from dueutil import dbconn, events, loader, permissions, servercounts, util

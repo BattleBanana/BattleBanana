@@ -1,11 +1,40 @@
+import discord
+from aiohttp.client import DEFAULT_TIMEOUT
+from discord import ui, ButtonStyle
 from pydealer.deck import Deck
 
-equivalents = {
+DEFAULT_TIMEOUT = 120
+
+EQUIVALENTS = {
     "Jack": 10,
     "Queen": 10,
     "King": 10,
     "Ace": 11
 }
+
+class Blackjack_Interactions(ui.View):
+    def __init__(self, author = None, timeout = DEFAULT_TIMEOUT):
+        self._author = author
+        super().__init__(timeout=timeout)
+
+    def _check(self, interaction_author):
+        return interaction_author.id == self._author.id
+    
+    @ui.button(label='Hit', style=ButtonStyle.primary)
+    async def hit(self, button: ui.Button, interaction: discord.Interaction):
+        if self._check(interaction.user):
+            self.value = "hit"
+            self.stop()
+        else:
+            await interaction.response.send_message('This is not your game!', ephemeral=True)
+
+    @ui.button(label='Stand', style=ButtonStyle.primary)
+    async def stand(self, button: ui.Button, interaction: discord.Interaction):
+        if self._check(interaction.user):
+            self.value = "stand"
+            self.stop()
+        else:
+            await interaction.response.send_message('This is not your game!', ephemeral=True)
 
 
 def get_deck_value(deck: Deck):
@@ -13,10 +42,10 @@ def get_deck_value(deck: Deck):
     aces = 0
 
     for card in deck:
-        if card.value not in equivalents:
+        if card.value not in EQUIVALENTS:
             value += int(card.value)
         else:
-            value += equivalents[card.value]
+            value += EQUIVALENTS[card.value]
 
         if card.value == "Ace":
             aces += 1
