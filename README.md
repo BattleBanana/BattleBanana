@@ -65,6 +65,6 @@ or [donating](https://patreon.com/developeranonymous) to help pay for server cos
 If you have a soild understanding of python you can help BattleBanana by contributing towards the source code by fixing
 bugs, adding new features, or fixing up the repo. Active contributers can receive perks like (TBD)
 
-## Licence
+## License
 
-Licenced under [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.en.html)
+Licensed under [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.en.html)
