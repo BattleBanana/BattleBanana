@@ -11,13 +11,19 @@ EQUIVALENTS = {
     "Ace": 11
 }
 
-class Interactions(ui.View):
+class Interaction(ui.View):
     def __init__(self, author = None, timeout = DEFAULT_TIMEOUT):
         self._author = author
         super().__init__(timeout=timeout)
 
     def _check(self, interaction_author):
         return interaction_author.id == self._author.id
+
+    async def start(self):
+        has_timed_out = await self.wait()
+        if has_timed_out:
+            return "stand"
+        return self.value
     
     @ui.button(label='Hit', style=ButtonStyle.primary)
     async def hit(self, button: ui.Button, interaction: discord.Interaction):

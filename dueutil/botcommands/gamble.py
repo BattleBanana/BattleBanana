@@ -29,9 +29,7 @@ async def blackjack(ctx, price, **details):
     Game objective: Obtain 21 or the closest to win!
     [Card Values](https://battlebanana.xyz/img/21Values.png)
     """
-    raise util.BattleBananaException(ctx.channel, "Blackjack is temporarily disabled!")
     user = details["author"]
-    BattleBanana = players.find_player(ctx.guild.me.id)
 
     if user.money < price or price > 1000000000:
         raise util.BattleBananaException(ctx.channel, "You cannot bet that much!")
@@ -58,7 +56,7 @@ async def blackjack(ctx, price, **details):
     blackjack_embed.add_field(name=f"Dealer's hand ({dealer_value})", value=dealer_hand)
     blackjack_embed.set_footer(text="Click on \"hit\" or \"stand\". This prompt will close in 120 seconds")
 
-    blackjack_buttons: ui.View = blackjackGame.Interactions(ctx.author)
+    blackjack_buttons: ui.View = blackjackGame.Interaction(ctx.author)
     msg = await util.reply(ctx, embed=blackjack_embed, view=blackjack_buttons)
 
     player_play = dealer_value < 21
@@ -67,13 +65,7 @@ async def blackjack(ctx, price, **details):
         if user_value >= 21:
             break
 
-        has_timed_out = await blackjack_buttons.wait()
-
-        blackjack_buttons.clear_items()
-        if has_timed_out:
-            break
-
-        content = blackjack_buttons.value
+        content = await blackjack_buttons.start()
         if content == "hit":
             user_hand += deck.deal(1)
             user_value = blackjackGame.get_deck_value(user_hand)
@@ -82,8 +74,13 @@ async def blackjack(ctx, price, **details):
             blackjack_embed.add_field(name="Your hand (%s)" % (user_value), value=user_hand)
             blackjack_embed.add_field(name="Dealer's hand (%s)" % (dealer_value), value=dealer_hand)
 
-            blackjack_buttons = blackjackGame.Interactions(ctx.author)
+            blackjack_buttons = blackjackGame.Interaction(ctx.author)
             await util.edit_message(msg, embed=blackjack_embed, view=blackjack_buttons)
+        elif content == "stand":
+            break
+        else:
+            util.logger.warning(f"Got an unexpected action during blackjack: {content}")
+            break
 
     dealer_play = dealer_value < 17 and (user_value < 21 or (user_value == 21 and len(user_hand) > 2))
     # Dealer's turn
@@ -126,14 +123,22 @@ async def blackjack(ctx, price, **details):
 
     # Manage the message
     gain = math.floor(gain)
+
     user.money += gain
+    user.command_rate_limits['blackjack_saved_cooldown'] = int(time.time())
+    user.gamble_play = False
+    user.last_played = 0
+    user.save()
+
     if gain > 0:
         result += " You were rewarded with `¤%s`" % (price + gain)
     elif gain < 0:
         result += " You lost `¤%s`." % (price)
-        if BattleBanana != None:
-            BattleBanana.money += price
-            BattleBanana.save()
+
+        battle_banana = players.find_player(ctx.guild.me.id)
+        if battle_banana is not None:
+            battle_banana.money += price
+            battle_banana.save()
     else:
         result += " You got your bet back!"
 
@@ -143,14 +148,7 @@ async def blackjack(ctx, price, **details):
     blackjack_embed.add_field(name="Result", value=result, inline=False)
     blackjack_embed.set_footer()
 
-    user.command_rate_limits['blackjack_saved_cooldown'] = int(time.time())
-    user.gamble_play = False
-    user.last_played = 0
-    user.save()
-
-    blackjack_buttons = None
-    gc.collect()
-
+    blackjack_buttons.clear_items()
     await util.edit_message(msg, embed=blackjack_embed, view=None)
 
 
@@ -181,8 +179,9 @@ async def russianroulette(ctx, price, **details):
         await util.edit_message(message, content=message.content + "\nYou survived and won `¤%s`!" % (reward))
     else:
         user.money -= price
-        BattleBanana = players.find_player(ctx.guild.me.id)
-        BattleBanana.money += price
-        BattleBanana.save()
+        battle_banana = players.find_player(ctx.guild.me.id)
+        if battle_banana is not None:
+            battle_banana.money += price
+            battle_banana.save()
         await util.edit_message(message, content=message.content + "\nYou died and lost `¤%s`!" % (price))
     user.save()
