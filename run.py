@@ -271,7 +271,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                 player.save()
 
     async def on_guild_remove(self, guild):
-        if not self.is_ready():
+        if not self.is_ready() or guild is None:
             return
 
         for collection in dbconn.db.list_collection_names():
