@@ -45,7 +45,7 @@ This bot is not well structured...
 
 class BattleBananaClient(discord.AutoShardedClient):
     """
-    BattleBanana shard client
+    BattleBanana client
     """
 
     def __init__(self, **details):
@@ -56,7 +56,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         intents.members = True
         intents.guilds = True
 
-        super(BattleBananaClient, self).__init__(intents=intents, **details)
+        super(BattleBananaClient, self).__init__(intents=intents, max_messages=None, heartbeat_timeout=10, **details)
 
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
 
@@ -271,7 +271,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                 player.save()
 
     async def on_guild_remove(self, guild):
-        if not self.is_ready():
+        if not self.is_ready() or guild is None:
             return
 
         for collection in dbconn.db.list_collection_names():
