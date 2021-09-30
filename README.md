@@ -32,6 +32,10 @@
   <a href="https://battlebanana.xyz/">
       <img src="https://img.shields.io/website?down_color=lightgrey&down_message=offline&up_color=blue&up_message=online&url=https%3A%2F%2Fbattlebanana.xyz" alt="website">
   </a>
+  <br>
+  <a href="https://www.digitalocean.com/?refcode=4e8f4d74dfa5&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge">
+    <img src="https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%201.svg" alt="DigitalOcean Referral Badge" />
+  </a>
 </p>
 
 ## Overview
