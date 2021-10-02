@@ -670,7 +670,7 @@ async def status(ctx, message=None, **details):
 @commands.require_cnf(
     warning="Transferring your data will override your current data, assuming you have any, on TheelUtil!")
 @commands.ratelimit(cooldown=604800, error="You can't transfer your data again for **[COOLDOWN]**!", save=True)
-async def transferdata(ctx, cnf="", **details):
+async def transferdata(ctx, **details):
     reader, writer = await asyncio.open_connection(gconf.other_configs["connectionIP"],
                                                    gconf.other_configs["connectionPort"])
     attributes_to_remove = ['inventory', 'quests', 'equipped', 'received_wagers', 'awards', 'team', 'donor',

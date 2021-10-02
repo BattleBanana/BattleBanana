@@ -251,7 +251,7 @@ async def awards(ctx, player, page=1, **_):
 
 @commands.command(args_pattern="S?")
 @commands.require_cnf(warning="This will **__permanently__** reset your user!")
-async def resetme(ctx, cnf="", **details):
+async def resetme(ctx, **details):
     """
     [CMD_KEY]resetme
 
@@ -285,7 +285,7 @@ async def createaccount(ctx, **details):
 
 @commands.command(args_pattern="S?")
 @commands.require_cnf(warning="This will **__permanently__** delete your account!")
-async def deleteme(ctx, cnf="", **details):
+async def deleteme(ctx, **details):
     """
     [CMD_KEY]deleteme
     
@@ -457,7 +457,7 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
 
 @commands.command(args_pattern="S?")
 @commands.require_cnf(warning="This action cannot be reverted, are you sure you want to prestige?")
-async def prestige(ctx, cnf="", **details):
+async def prestige(ctx, **details):
     """
     [CMD_KEY]prestige
 

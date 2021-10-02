@@ -1,6 +1,9 @@
 import asyncio
 import time
 from functools import wraps
+import discord
+
+from discord.enums import ButtonStyle
 
 from dueutil.game import stats
 from . import commandextras
@@ -9,6 +12,8 @@ from . import permissions
 from .game import players, emojis
 from .game.configs import dueserverconfig
 from .permissions import Permission
+
+from discord import ui
 
 extras = commandextras
 IMAGE_REQUEST_COOLDOWN = 3
@@ -190,18 +195,51 @@ def ratelimit(**command_info):
     return wrap
 
 
+DEFAULT_TIMEOUT = 10
+class ConfirmInteraction(ui.View):
+    def __init__(self, author = None, timeout = DEFAULT_TIMEOUT):
+        self._author = author
+        super().__init__(timeout=timeout)
+
+    def _check(self, interaction_author):
+        return interaction_author.id == self._author.id
+
+    async def start(self):
+        has_timed_out = await self.wait()
+        if has_timed_out:
+            return "cancel"
+        return self.value
+    
+    @ui.button(label='Confirm', style=ButtonStyle.green)
+    async def confirm(self, button: ui.Button, interaction: discord.Interaction):
+        if self._check(interaction.user):
+            self.value = "confirm"
+            await interaction.response.send_message("Gotcha! Doing it chief.", ephemeral=True)
+            self.stop()
+
+    @ui.button(label='Cancel', style=ButtonStyle.red)
+    async def cancel(self, button: ui.Button, interaction: discord.Interaction):
+        if self._check(interaction.user):
+            self.value = "cancel"
+            await interaction.response.send_message("Understood! I won't do it.", ephemeral=True)
+            self.stop()
+
 def require_cnf(warning):
     # Checks the user confirms the command.
-    # Only from commands with no args.
     def wrap(command_func):
         @wraps(command_func)
-        async def wrapped_command(ctx, cnf="", **details):
-            if cnf.lower() != "cnf":
-                await util.reply(ctx, ("Are you sure?! %s\n"
-                                       + "Do ``%s%s cnf`` if you're sure!")
-                                 % (warning, details["cmd_key"], command_func.__name__))
-                return
-            await command_func(ctx, **details)
+        async def wrapped_command(ctx, *args, **details):
+            interaction = ConfirmInteraction(ctx.author)
+            message = await util.reply(ctx, f"Are you sure?! {warning}", view=interaction)
+
+            response = await interaction.start()
+            if response == "confirm":
+                if args is None:
+                    await command_func(ctx, *args, **details)
+                else:
+                    await command_func(ctx, **details)
+            
+            await util.delete_message(message)
 
         return wrapped_command
 
