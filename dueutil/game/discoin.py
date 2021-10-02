@@ -1,4 +1,4 @@
-﻿import aiohttp
+import aiohttp
 import json
 from discord import Embed
 
