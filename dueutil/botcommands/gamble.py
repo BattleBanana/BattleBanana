@@ -35,7 +35,7 @@ async def blackjack(ctx, price, **details):
         raise util.BattleBananaException(ctx.channel, "You cannot bet that much!")
     if price < 1:
         raise util.BattleBananaException(ctx.channel, "You cannot bet under ¤1")
-    if (user.gamble_play and int(time.time() - user.last_played) < 120) or int(time.time() - user.last_played) < 120:
+    if (user.gamble_play and (time.time() - user.last_played) < 120) or (time.time() - user.last_played) < 120:
         raise util.BattleBananaException(ctx.channel, "You are already playing!")
 
     # Create new deck, make player playing
@@ -59,7 +59,7 @@ async def blackjack(ctx, price, **details):
     blackjack_buttons: ui.View = blackjackGame.Interaction(ctx.author)
     msg = await util.reply(ctx, embed=blackjack_embed, view=blackjack_buttons)
 
-    player_play = dealer_value < 21
+    player_play = dealer_value < 21 or user_value > 21
     while player_play:
         user.last_played = time.time()
         if user_value >= 21:

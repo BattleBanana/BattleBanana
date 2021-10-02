@@ -249,19 +249,16 @@ async def giveemoji(ctx, receiver, emoji, **details):
     """
     sender = details["author"]
 
-    try:
-        await give_emoji(ctx.channel, sender, receiver, emoji)
-        sender.misc_stats["emojis_given"] += 1
-        receiver.misc_stats["emojis"] += 1
-    except util.BattleBananaException as command_error:
-        raise command_error
+    await give_emoji(ctx.channel, sender, receiver, emoji)
+    sender.misc_stats["emojis_given"] += 1
+    receiver.misc_stats["emojis"] += 1
+
     await awards.give_award(ctx.channel, sender, "Emoji", ":fire: __Breakdown Of Society__ :city_dusk:")
     if emoji == "🍆":
         await awards.give_award(ctx.channel, sender, "Sauce", "*Saucy*")
-    if sender.misc_stats["emojis_given"] >= 100:
-        if not "EmojiKing" in sender.awards:
-            await awards.give_award(ctx.channel, sender, "EmojiKing",
-                                    ":biohazard: **__WIPEOUT HUMANITY__** :radioactive:")
+    if sender.misc_stats["emojis_given"] >= 100 and not "EmojiKing" in sender.awards:
+        await awards.give_award(ctx.channel, sender, "EmojiKing",
+                                ":biohazard: **__WIPEOUT HUMANITY__** :radioactive:")
 
 
 @commands.command(args_pattern='P', aliases=("potato",))
@@ -273,17 +270,14 @@ async def givepotato(ctx, receiver, **details):
     """
     sender = details["author"]
 
-    try:
-        await give_emoji(ctx.channel, sender, receiver, '🥔')
-        sender.misc_stats["potatoes_given"] += 1
-        receiver.misc_stats["potatoes"] += 1
-    except util.BattleBananaException as command_error:
-        raise command_error
+    await give_emoji(ctx.channel, sender, receiver, '🥔')
+    sender.misc_stats["potatoes_given"] += 1
+    receiver.misc_stats["potatoes"] += 1
+
     await awards.give_award(ctx.channel, sender, "Potato", ":potato: Bringer Of Potatoes :potato:")
-    if sender.misc_stats["potatoes_given"] >= 100:
-        if not "KingTat" in sender.awards:
-            await awards.give_award(ctx.channel, sender, "KingTat",
-                                    ":crown: :potato: **Potato King!** :potato: :crown:")
+    if sender.misc_stats["potatoes_given"] >= 100 and not "KingTat" in sender.awards:
+        await awards.give_award(ctx.channel, sender, "KingTat",
+                                ":crown: :potato: **Potato King!** :potato: :crown:")
 
 
 @commands.command(args_pattern=None)
@@ -391,9 +385,9 @@ async def pandemic(ctx, **_):
     pandemic_embed.description = "Monitoring the spread of the __loser__ pandemic."
     pandemic_embed.add_field(name="Pandemic stats", value=("Out of a total of **%s** players:\n"
                                                            + ":biohazard: **%s** "
-                                                           + ("is" if total_infected == 1 else "are") + " infected.\n"
+                                                           + ("are" if total_infected > 1 else "is") + " infected.\n"
                                                            + ":pill: **%s** "
-                                                           + ("is" if total_uninfected == 1 else "are")
+                                                           + ("are" if total_uninfected > 1 else "is")
                                                            + " uninfected.\n\n"
                                                            + "This means **%.2g**%% of all players are infected!")
                                                           % (total_players, total_infected,
@@ -413,8 +407,9 @@ async def minecraft(ctx, **_):
     """
 
     embed = discord.Embed(title="BananaCraft", type="rich", color=gconf.DUE_COLOUR)
-    embed.add_field(name="Minecraft version:", value="1.16.1")
-    embed.add_field(name="Server address:", value="mc.battlebanana.xyz")
+    embed.add_field(name="Status:", value="Currently down, awaiting 1.18")
+    # embed.add_field(name="Minecraft version:", value="1.16.1")
+    # embed.add_field(name="Server address:", value="mc.battlebanana.xyz")
 
     await util.reply(ctx, f"{emojis.QUESTER} Official BananaCraft server!", embed=embed)
 

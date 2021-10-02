@@ -68,7 +68,7 @@ def compare_decks(deck1: Deck, deck2: Deck):
     """
     return deck's value
     """
-    deck1Value = get_deck_value(deck1)
-    deck2Value = get_deck_value(deck2)
+    deck1_value = get_deck_value(deck1)
+    deck2_value = get_deck_value(deck2)
 
-    return deck1Value, deck2Value
+    return deck1_value, deck2_value
