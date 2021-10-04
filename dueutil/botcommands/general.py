@@ -12,6 +12,7 @@ from ..game.helpers.shopabstract import ShopBuySellItem
 ### Fill in the blanks buy/sell functions
 DEPARTMENT_NOT_FOUND = "Department not found"
 ITEM_NOT_FOUND = "Item not found!"
+DEFAULT_BANNER = "discord blue"
 
 
 class BuySellTheme(ShopBuySellItem):
@@ -31,10 +32,10 @@ class BuySellTheme(ShopBuySellItem):
 class BuySellBanner(ShopBuySellItem):
     item_type = "banner"
     inventory_slot = "banners"
-    default_item = "discord blue"
+    default_item = DEFAULT_BANNER
 
     def item_equipped_on_buy(self, player, item_name):
-        if player.equipped["banner"] == "discord blue":
+        if player.equipped["banner"] == DEFAULT_BANNER:
             player.banner = item_name
             return True
         return False
@@ -113,7 +114,7 @@ def shop_background_list(page, **details):
 
 def shop_banner_list(page, **details):
     banners = list(customizations.banners.values())
-    banners = [banner for banner in banners if banner.can_use_banner(details["author"]) and banner.id != "discord blue"]
+    banners = [banner for banner in banners if banner.can_use_banner(details["author"]) and banner.id != DEFAULT_BANNER]
     banners.sort(key=_shop_sort)
     shop_list = player_cmds.banner_page(banners, page, "BattleBanana's Banner Shop!",
                                         footer_more="But wait there's more! Do " + details[
@@ -233,7 +234,7 @@ departments = {
             "buy_action": buy_sell_banners.buy_item,
             "sell_action": buy_sell_banners.sell_item
         },
-        "item_exists": lambda details, name: (name.lower() != "discord blue"
+        "item_exists": lambda details, name: (name.lower() != DEFAULT_BANNER
                                               and name.lower() in customizations.banners
                                               and customizations.get_banner(name).can_use_banner(details["author"])),
         "item_exists_sell": lambda details, name: name.lower() in details["author"].inventory["banners"]
@@ -251,7 +252,7 @@ departments = {
     #            "buy_action": buy_sell_banners.buy_item,
     #            "sell_action": buy_sell_banners.sell_item
     #        },
-    #        "item_exists": lambda details, name: (name.lower() != "discord blue"
+    #        "item_exists": lambda details, name: (name.lower() != DEFAULT_BANNER
     #                                              and name.lower() in customizations.banners
     #                                              and customizations.get_banner(name).can_use_banner(details["author"])),
     #        "item_exists_sell": lambda details, name: name.lower() in details["author"].inventory["banners"]

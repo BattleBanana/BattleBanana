@@ -13,7 +13,7 @@ from threading import Thread
 
 import generalconfig as gconf
 from dueutil import dbconn, events, loader, permissions, servercounts, util
-from dueutil.game import players
+from dueutil.game import players, emojis as e
 from dueutil.game.configs import dueserverconfig
 from dueutil.game.helpers import imagecache
 from dueutil.permissions import Permission
@@ -159,7 +159,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                     await util.say(error.channel, error.get_message())
                 else:
                     await util.say(ctx.channel, error.get_message())
-            except:
+            except util.SendMessagePermMissing:
                 util.logger.warning("Unable to send Exception message")
             return
         elif isinstance(error, util.DueReloadException):
@@ -178,17 +178,17 @@ class BattleBananaClient(discord.AutoShardedClient):
                         await util.say(ctx.channel,
                                        "The action could not be performed as I'm **missing permissions**! Make sure I have the following permissions:\n"
                                        + "- Manage Roles %s;\n" % (
-                                           ":white_check_mark:" if perms.manage_roles else ":x:")
+                                           e.CHECK_REACT if perms.manage_roles else e.CROSS_REACT)
                                        + "- Manage messages %s;\n" % (
-                                           ":white_check_mark:" if perms.manage_messages else ":x:")
-                                       + "- Embed links %s;\n" % (":white_check_mark:" if perms.embed_links else ":x:")
+                                           e.CHECK_REACT if perms.manage_messages else e.CROSS_REACT)
+                                       + "- Embed links %s;\n" % (e.CHECK_REACT if perms.embed_links else e.CROSS_REACT)
                                        + "- Attach files %s;\n" % (
-                                           ":white_check_mark:" if perms.attach_files else ":x:")
+                                           e.CHECK_REACT if perms.attach_files else e.CROSS_REACT)
                                        + "- Read Message History %s;\n" % (
-                                           ":white_check_mark:" if perms.read_message_history else ":x:")
+                                           e.CHECK_REACT if perms.read_message_history else e.CROSS_REACT)
                                        + "- Use external emojis %s;\n" % (
-                                           ":white_check_mark:" if perms.external_emojis else ":x:")
-                                       + "- Add reactions%s" % (":white_check_mark:" if perms.add_reactions else ":x:")
+                                           e.CHECK_REACT if perms.external_emojis else e.CROSS_REACT)
+                                       + "- Add reactions%s" % (e.CHECK_REACT if perms.add_reactions else e.CROSS_REACT)
                                        )
                     except util.SendMessagePermMissing:
                         pass  # They've block sending messages too.
@@ -358,7 +358,7 @@ def run_bb():
         client_thread.start()
 
         while client is None:
-            pass
+            continue
 
         ### Tasks
         loop = asyncio.get_event_loop()
