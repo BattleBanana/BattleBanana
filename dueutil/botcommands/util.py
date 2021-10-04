@@ -660,8 +660,7 @@ async def status(ctx, message=None, **details):
                                     type=discord.ActivityType.watching)
             await client.change_presence(activity=game, shard_id=shardID)
     else:
-        await client.change_presence(activity=discord.Activity(name=message, type=discord.ActivityType.watching),
-                                     afk=False)
+        await client.change_presence(activity=discord.Activity(name=message, type=discord.ActivityType.watching))
 
     await util.reply(ctx, "All done!")
 
