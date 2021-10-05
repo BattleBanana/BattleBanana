@@ -56,7 +56,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         intents.members = True
         intents.guilds = True
 
-        super(BattleBananaClient, self).__init__(intents=intents, max_messages=None, heartbeat_timeout=10, **details)
+        super(BattleBananaClient, self).__init__(intents=intents, max_messages=None, **details)
 
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
 
