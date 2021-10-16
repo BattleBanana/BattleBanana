@@ -21,7 +21,8 @@ try:
     from .speedup import quest_colorize_helper
 except (ImportError, ModuleNotFoundError):
     def quest_colorize_helper(*args):
-        raise ImportError("use linux bruh")
+        raise ImportError("Something broke, please tell Theelx#4980")
+
 """
 Worst code in the bot.
 Images very ugly throwaway code.
@@ -96,17 +97,16 @@ def colourize(image, colours, intensity, **extras):
     return image
 
 
-def quest_colorize(image, colours, intensity, **extras):
+def quest_colorize(image, colors, cycle_colors):
     image = image.copy()
     pixel_data = list(image.getdata())
-    cycle_colours = tuple(extras.get('cycle_colours', image.size[0] // len(colours)))
-    colour_index = -1
-    colour = colours[colour_index]
+    color_index = -1
+    color = colors[color_index]
     pixel_count = 0
-    for i, pixel in enumerate(pixel_data):
-        pixel_data[i], pixel_count, colour_index, colour = quest_colorize_helper(i, pixel, pixel_count, colour_index, colour, cycle_colours, colours)
+    pixel_data = quest_colorize_helper(pixel_data, pixel_count, color_index, tuple(color), cycle_colors, tuple(colors))
     image.putdata(pixel_data)
     return image
+
 
 
 def paste_alpha(background, image, position):
@@ -335,7 +335,7 @@ async def quests_screen(ctx, player, page):
         quest = player.quests[quest_index]
         warning_colours = [traffic_light(danger_level) for danger_level in quest.get_threat_level(player)]
         try:
-            warning_icons = quest_colorize(mini_icons, warning_colours, 0.5, cycle_colours=[10, 10, 11, 10, 11])
+            warning_icons = quest_colorize(mini_icons, warning_colours, (10, 10, 11, 10, 11))
         except ImportError:
             warning_icons = colorize(mini_icons, warning_colours, 0.5, cycle_colours=[10, 10, 11, 10, 11])
         paste_alpha(image, warning_icons, (14 + row_size[0] - 53, row_size[1] * 2 - 12 + 44 * count))
