@@ -108,7 +108,6 @@ def quest_colorize(image, colors, cycle_colors):
     return image
 
 
-
 def paste_alpha(background, image, position):
     """
     A paste function that does not fuck up the background when
