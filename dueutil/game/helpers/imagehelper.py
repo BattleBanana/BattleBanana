@@ -336,7 +336,7 @@ async def quests_screen(ctx, player, page):
         warning_colours = [traffic_light(danger_level) for danger_level in quest.get_threat_level(player)]
         try:
             warning_icons = quest_colorize(mini_icons, warning_colours, 0.5, cycle_colours=[10, 10, 11, 10, 11])
-        except:
+        except ImportError:
             warning_icons = colorize(mini_icons, warning_colours, 0.5, cycle_colours=[10, 10, 11, 10, 11])
         paste_alpha(image, warning_icons, (14 + row_size[0] - 53, row_size[1] * 2 - 12 + 44 * count))
         level = "Level " + str(math.trunc(quest.level))
