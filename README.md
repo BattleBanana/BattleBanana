@@ -46,7 +46,7 @@ anything useful but you may be able to have some fun with it
 
 ### Features
 
-Battlebanana has many feature like
+BattleBanana has many feature like
 
 - Creating your own custom quests and weaponary
 - Battling your friends to decide whos the best of you, or become the top player of BattleBanana by fighting others to
@@ -66,8 +66,8 @@ or [donating](https://patreon.com/developeranonymous) to help pay for server cos
 
 ## Contribute
 
-If you have a soild understanding of python you can help BattleBanana by contributing towards the source code by fixing
-bugs, adding new features, or fixing up the repo. Active contributers can receive perks like (TBD)
+If you have a solid understanding of python, you can help BattleBanana by contributing towards the source code by fixing
+bugs, adding new features or fixing up the repo.
 
 ## License
 
