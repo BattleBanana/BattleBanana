@@ -37,6 +37,7 @@ async def blackjack(ctx, price, **details):
         raise util.BattleBananaException(ctx.channel, "You cannot bet under ¤1")
     if (user.gamble_play and (time.time() - user.last_played) < 120) or (time.time() - user.last_played) < 120:
         raise util.BattleBananaException(ctx.channel, "You are already playing!")
+    user.money -= price
 
     # Create new deck, make player playing
     deck = Deck() + Deck() + Deck() + Deck()
@@ -124,7 +125,7 @@ async def blackjack(ctx, price, **details):
     # Manage the message
     gain = math.floor(gain)
 
-    user.money += gain
+    user.money += (gain + price)
     user.command_rate_limits['blackjack_saved_cooldown'] = int(time.time())
     user.gamble_play = False
     user.last_played = 0
@@ -156,7 +157,7 @@ async def blackjack(ctx, price, **details):
 @commands.ratelimit(cooldown=5, error="You can't use russian roulette again for **[COOLDOWN]**!", save=True)
 async def russianroulette(ctx, price, **details):
     """
-   [CMD_KEY]russianroulette ~~(bet)~~
+   [CMD_KEY]russianroulette (bet)
     
     Play Russian Roulette with your friends, the gun.
     
@@ -169,6 +170,7 @@ async def russianroulette(ctx, price, **details):
         raise util.BattleBananaException(ctx.channel, "You cannot bet that much!")
     if price < 1:
         raise util.BattleBananaException(ctx.channel, "You cannot bet under ¤1")
+    user.money -= price
 
     message = await util.reply(ctx, "Click...")
     rnd = random.randint(1, 6)
@@ -178,7 +180,6 @@ async def russianroulette(ctx, price, **details):
         user.money += reward
         await util.edit_message(message, content=message.content + "\nYou survived and won `¤%s`!" % (reward))
     else:
-        user.money -= price
         battle_banana = players.find_player(ctx.guild.me.id)
         if battle_banana is not None:
             battle_banana.money += price
