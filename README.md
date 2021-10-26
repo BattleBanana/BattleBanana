@@ -30,7 +30,7 @@
       <img src="https://img.shields.io/badge/discord-py-blue.svg" alt="discord.py">
   </a>
   <a href="https://battlebanana.xyz/">
-      <img src="https://img.shields.io/website?down_color=lightgrey&down_message=offline&up_color=blue&up_message=online&url=https%3A%2F%2Fbattlebanana.xyz" alt="website">
+      <img alt="Website" src="https://img.shields.io/website?down_message=Offline&label=battlebanana.xyz&up_color=bright-green&up_message=Online&url=https%3A%2F%2Fbattlebanana.xyz">
   </a>
   <br>
   <a href="https://www.digitalocean.com/?refcode=4e8f4d74dfa5&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge">
@@ -46,7 +46,7 @@ anything useful but you may be able to have some fun with it
 
 ### Features
 
-Battlebanana has many feature like
+BattleBanana has many feature like
 
 - Creating your own custom quests and weaponary
 - Battling your friends to decide whos the best of you, or become the top player of BattleBanana by fighting others to
@@ -66,8 +66,8 @@ or [donating](https://patreon.com/developeranonymous) to help pay for server cos
 
 ## Contribute
 
-If you have a soild understanding of python you can help BattleBanana by contributing towards the source code by fixing
-bugs, adding new features, or fixing up the repo. Active contributers can receive perks like (TBD)
+If you have a solid understanding of python, you can help BattleBanana by contributing towards the source code by fixing
+bugs, adding new features or fixing up the repo.
 
 ## License
 
