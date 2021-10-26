@@ -12,6 +12,7 @@ General game stats
 class Stat(Enum):
     MONEY_CREATED = "moneycreated"
     MONEY_TRANSFERRED = "moneytransferred"
+    MONEY_TAXED = "moneytaxed"
     PLAYERS_LEVELED = "playersleveled"
     NEW_PLAYERS_JOINED = "newusers"
     QUESTS_GIVEN = "questsgiven"

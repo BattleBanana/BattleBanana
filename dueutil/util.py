@@ -12,6 +12,7 @@ from itertools import chain
 import generalconfig as gconf
 from dueutil import dbconn
 from .trello import TrelloClient
+from .game import stats
 
 """
 A random jumble of classes & functions that are some how
@@ -110,6 +111,22 @@ async def download_file(url):
             response.release()
             file_data.seek(0)
             return file_data
+
+
+async def tax(amount, bb):
+    #cuddle me mr. tax man
+    if amount < 10000:
+        return amount
+
+    tax_rate = 0.13 #13%
+    taxed_total = math.floor(amount * tax_rate)
+    taxed_amount = math.floor(amount - taxed_total)
+    stats.increment_stat(stats.Stat.MONEY_TAXED, taxed_total)
+
+    if bb is not None:
+        bb.money += taxed_total
+        bb.save()
+    return taxed_amount
 
 
 async def reply(ctx, *args, **kwargs):

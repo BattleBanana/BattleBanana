@@ -202,8 +202,10 @@ async def botstats(ctx, **_):
                                  % util.format_number_precise(game_stats[Stat.PLAYERS_LEVELED])
                                  + e.BBT + " **%s** awarded.\n"
                                  % util.format_money(game_stats[Stat.MONEY_CREATED])
-                                 + e.BBT_WITH_WINGS + " **%s** transferred between players."
-                                 % util.format_money(game_stats[Stat.MONEY_TRANSFERRED])),
+                                 + e.BBT_WITH_WINGS + " **%s** transferred between players.\n"
+                                 % util.format_money(game_stats[Stat.MONEY_TRANSFERRED])
+                                 + " **%s** taxed."
+                                 % util.format_money(game_stats[Stat.MONEY_TAXED])),
                           inline=False)
     # Sharding
     client = util.clients[0]

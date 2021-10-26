@@ -433,24 +433,29 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
         return
 
     sender.money -= transaction_amount
-    receiver.money += transaction_amount
+
+    battle_banana = players.find_player(ctx.guild.me.id)
+    taxed_transaction_amount = await util.tax(transaction_amount, battle_banana)
+    taxed_amount_string = util.format_number(taxed_transaction_amount, money=True, full_precision=True)
+    taxed_total_string = util.format_number(transaction_amount - taxed_transaction_amount, money=True, full_precision=True)
+    receiver.money += taxed_transaction_amount
 
     sender.save()
     receiver.save()
 
-    stats.increment_stat(stats.Stat.MONEY_TRANSFERRED, transaction_amount)
-    if transaction_amount >= 50:
+    stats.increment_stat(stats.Stat.MONEY_TRANSFERRED, taxed_transaction_amount)
+    if taxed_transaction_amount >= 50:
         await game_awards.give_award(ctx.channel, sender, "SugarDaddy", "Sugar daddy!")
 
     transaction_log = discord.Embed(title=e.BBT_WITH_WINGS + " Transaction complete!", type="rich",
                                     color=gconf.DUE_COLOUR)
     transaction_log.add_field(name="Sender:", value=sender.name_clean)
     transaction_log.add_field(name="Recipient:", value=receiver.name_clean)
-    transaction_log.add_field(name="Transaction amount (BBT):", value=amount_string, inline=False)
+    transaction_log.add_field(name="Transaction amount (BBT):", value=taxed_amount_string, inline=False)
     if message != "":
         transaction_log.add_field(name=":pencil: Attached note:", value=message, inline=False)
-    transaction_log.set_footer(text="Please keep this receipt for your records.")
-    util.logger.info("%s (%s) sent %s to %s (%s)", sender.name, sender.id, amount_string, receiver.name, receiver.id)
+    transaction_log.set_footer(text="Please keep this receipt for your records. • %s was subtracted for taxes" % taxed_total_string )
+    util.logger.info("%s (%s) sent %s (%s) to %s (%s)", sender.name, sender.id, amount_string, taxed_amount_string, receiver.name, receiver.id)
 
     await util.reply(ctx, embed=transaction_log)
 
