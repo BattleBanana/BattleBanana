@@ -121,7 +121,7 @@ async def tax(amount, bb):
     tax_rate = 0.13 #13%
     taxed_total = math.floor(amount * tax_rate)
     taxed_amount = math.floor(amount - taxed_total)
-    
+
     stats.increment_stat(stats.Stat.MONEY_TAXED, taxed_total)
     if bb is not None:
         bb.money += taxed_total
@@ -135,11 +135,6 @@ async def reply(ctx, *args, **kwargs):
         # Guild/Channel id
         server_id, channel_id = ctx.channel.split("/")
         ctx.channel = get_guild(int(server_id)).get_channel(int(channel_id))
-    # if type(args[0]) is str:
-    #    text = args[0]
-    #    if "|" in text:
-    #        # args[0] = Translated text
-    #        pass
     if asyncio.get_event_loop() != clients[0].loop:
         # Allows it to speak across shards
         clients[0].run_task(reply, *((ctx.channel,) + args), mention_author=False, **kwargs)
@@ -157,11 +152,6 @@ async def say(channel: discord.TextChannel, *args, **kwargs):
         # Guild/Channel id
         server_id, channel_id = channel.split("/")
         channel = get_guild(int(server_id)).get_channel(int(channel_id))
-    # if type(args[0]) is str:
-    #    text = args[0]
-    #    if "|" in text:
-    #        # args[0] = Translated text
-    #        pass
     if asyncio.get_event_loop() != clients[0].loop:
         # Allows it to speak across shards
         clients[0].run_task(say, *((channel,) + args), **kwargs)
