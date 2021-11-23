@@ -33,6 +33,9 @@ async def blackjack(ctx, price, **details):
         raise util.BattleBananaException(ctx.channel, "You cannot bet under ¤1")
     
     user = details["author"]
+    if price > user.money:
+        raise util.BattleBananaException(ctx.channel, "You cannot bet more than you have!")
+
     user.command_rate_limits['blackjack_saved_cooldown'] = int(time.time()) + 120
 
     # Create new deck, make player playing
@@ -150,6 +153,8 @@ async def russianroulette(ctx, price, **details):
         raise util.BattleBananaException(ctx.channel, "You cannot bet under ¤1")
 
     user = details["author"]
+    if price > user.money:
+            raise util.BattleBananaException(ctx.channel, "You cannot bet more than you have!")
 
     message = await util.reply(ctx, "Click...")
     rnd = random.randint(1, 6)
