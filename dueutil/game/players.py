@@ -509,9 +509,8 @@ async def handle_client(reader, writer):
         for attr in list(set(request.keys()).intersection(player_data)):  # shared attrs between request and player
             setattr(player, attr, request[attr])
         writer.write("200 OK".encode())
-        user: discord.abc.User = util.fetch_user(request['id'])
+        user: discord.User = util.fetch_user(request['id'])
         if user:
-            await user.create_dm()
             await user.send("Your data has been received and transferred! You can transfer again in 7 days.")
         await asyncio.sleep(0.2)
     else:

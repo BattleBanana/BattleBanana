@@ -29,21 +29,15 @@ async def blackjack(ctx, price, **details):
     Game objective: Obtain 21 or the closest to win!
     [Card Values](https://battlebanana.xyz/img/21Values.png)
     """
-    user = details["author"]
-
-    if user.money < price or price > 1000000000:
-        raise util.BattleBananaException(ctx.channel, "You cannot bet that much!")
     if price < 1:
         raise util.BattleBananaException(ctx.channel, "You cannot bet under ¤1")
-    if (user.gamble_play and (time.time() - user.last_played) < 120) or (time.time() - user.last_played) < 120:
-        raise util.BattleBananaException(ctx.channel, "You are already playing!")
-    user.money -= price
+    
+    user = details["author"]
+    user.command_rate_limits['blackjack_saved_cooldown'] = int(time.time()) + 120
 
     # Create new deck, make player playing
     deck = Deck() + Deck() + Deck() + Deck()
     deck.shuffle(5)
-    user.gamble_play = True
-    user.last_played = time.time()
 
     # Hands out 2 cards to each & calculate the count
     dealer_hand = deck.deal(2)
@@ -60,12 +54,10 @@ async def blackjack(ctx, price, **details):
     blackjack_buttons: ui.View = blackjackGame.Interaction(ctx.author)
     msg = await util.reply(ctx, embed=blackjack_embed, view=blackjack_buttons)
 
-    player_play = dealer_value < 21 or user_value > 21
-    while player_play:
+    while user_value < 21 and dealer_value < 21:
         user.last_played = time.time()
-        if user_value >= 21:
-            break
 
+        user.command_rate_limits['blackjack_saved_cooldown'] = int(time.time()) + 120
         content = await blackjack_buttons.start()
         if content == "hit":
             user_hand += deck.deal(1)
@@ -79,20 +71,14 @@ async def blackjack(ctx, price, **details):
             await util.edit_message(msg, embed=blackjack_embed, view=blackjack_buttons)
         elif content == "stand":
             break
-        else:
-            util.logger.warning(f"Got an unexpected action during blackjack: {content}")
-            break
 
-    dealer_play = dealer_value < 17 and (user_value < 21 or (user_value == 21 and len(user_hand) > 2))
     # Dealer's turn
-    while dealer_play:
-        dealer_value = blackjackGame.get_deck_value(dealer_hand)
-        if dealer_value >= 17:
-            break
-
+    while dealer_value < 17 and user_value <= 21:
         # Make him pick a card
-        dealer_hand += deck.deal(1)
+        dealer_hand += deck.deal()
 
+        dealer_value = blackjackGame.get_deck_value(dealer_hand)
+    
     # Manage who wins/loses
     user_value, dealer_value = blackjackGame.compare_decks(user_hand, dealer_hand)
     gain = 0
@@ -124,15 +110,12 @@ async def blackjack(ctx, price, **details):
 
     # Manage the message
     gain = math.floor(gain)
-
-    user.money += (gain + price)
+    user.money += gain
     user.command_rate_limits['blackjack_saved_cooldown'] = int(time.time())
-    user.gamble_play = False
-    user.last_played = 0
     user.save()
 
     if gain > 0:
-        result += " You were rewarded with `¤%s`" % (price + gain)
+        result += " You were rewarded with `¤%s`" % (gain)
     elif gain < 0:
         result += " You lost `¤%s`." % (price)
 
@@ -163,14 +146,10 @@ async def russianroulette(ctx, price, **details):
     
     Game objective: Pray to survive.
     """
-
-    user = details["author"]
-
-    if user.money < price or price > 1000000000:
-        raise util.BattleBananaException(ctx.channel, "You cannot bet that much!")
     if price < 1:
         raise util.BattleBananaException(ctx.channel, "You cannot bet under ¤1")
-    user.money -= price
+
+    user = details["author"]
 
     message = await util.reply(ctx, "Click...")
     rnd = random.randint(1, 6)

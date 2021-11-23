@@ -302,7 +302,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                                 type=discord.ActivityType.watching)
         try:
             await self.change_presence(activity=game, shard_id=shard_id)
-        except Exception as e:
+        except Exception:
             util.logger.error("Failed to change presence")
 
         util.logger.info("\nLogged in shard %d as %s\nWith account @%s ID:%s \n-------",

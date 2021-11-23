@@ -123,9 +123,11 @@ async def tax(amount, bb):
     taxed_amount = math.floor(amount - taxed_total)
     stats.increment_stat(stats.Stat.MONEY_TAXED, taxed_total)
 
+    stats.increment_stat(stats.Stat.MONEY_TAXED, tax)
     if bb is not None:
         bb.money += taxed_total
         bb.save()
+    
     return taxed_amount
 
 

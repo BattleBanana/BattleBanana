@@ -454,7 +454,7 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
     transaction_log.add_field(name="Transaction amount (BBT):", value=taxed_amount_string, inline=False)
     if message != "":
         transaction_log.add_field(name=":pencil: Attached note:", value=message, inline=False)
-    transaction_log.set_footer(text="Please keep this receipt for your records. • %s was subtracted for taxes" % taxed_total_string )
+    transaction_log.set_footer(text=f"Please keep this receipt for your records. • {taxed_total_string} (13%) was subtracted for taxes")
     util.logger.info("%s (%s) sent %s (%s) to %s (%s)", sender.name, sender.id, amount_string, taxed_amount_string, receiver.name, receiver.id)
 
     await util.reply(ctx, embed=transaction_log)
