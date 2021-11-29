@@ -52,9 +52,11 @@ class BattleBananaClient(discord.AutoShardedClient):
         self.queue_tasks = queue.Queue()
         self.start_time = time.time()
 
-        intents = discord.Intents.default()
+        intents = discord.Intents.none()
+        intents.emojis = True
         intents.members = True
         intents.guilds = True
+        intents.guild_messages = True
 
         super(BattleBananaClient, self).__init__(intents=intents, max_messages=None, **details)
 
