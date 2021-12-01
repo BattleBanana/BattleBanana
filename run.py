@@ -86,7 +86,7 @@ class BattleBananaClient(discord.AutoShardedClient):
     def who_added(self, event: discord.AuditLogEntry):
         return event.target.id == self.user.id
 
-    async def on_guild_join(self, guild):
+    async def on_guild_join(self, guild: discord.Guild):
         await guild.chunk()
         server_count = util.get_server_count()
         dbconn.update_guild_joined(1)
@@ -138,7 +138,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         await servercounts.update_server_count()
 
     @staticmethod
-    def server_stats(guild):
+    def server_stats(guild: discord.Guild):
         member_count = len(guild.members)
         bot_count = sum(member.bot for member in guild.members)
         bot_percent = int((bot_count / member_count) * 100)
@@ -233,7 +233,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         sentry_sdk.capture_exception(error)
         traceback.print_exc()
 
-    async def on_message(self, message):
+    async def on_message(self, message: discord.Message):
         if (message.author == self.user
                 or message.author.bot
                 or isinstance(message.channel, discord.abc.PrivateChannel)
@@ -256,7 +256,7 @@ class BattleBananaClient(discord.AutoShardedClient):
 
         await events.on_message_event(message)
 
-    async def on_member_update(self, before, after):
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
         if not self.is_ready():
             return
 
@@ -272,7 +272,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                 player.donor = True
                 player.save()
 
-    async def on_guild_remove(self, guild):
+    async def on_guild_remove(self, guild: discord.Guild):
         if not self.is_ready() or guild is None:
             return
 
@@ -299,7 +299,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         except:
             util.logger.error("Websocket already started")
 
-    async def on_shard_ready(self, shard_id):
+    async def on_shard_ready(self, shard_id: int):
         game = discord.Activity(name="battlebanana.xyz | shard %d/%d" % (shard_id + 1, self.shard_count),
                                 type=discord.ActivityType.watching)
         try:
