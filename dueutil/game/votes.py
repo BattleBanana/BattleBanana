@@ -28,7 +28,7 @@ async def process_votes():
             if type(vote) == dict:
                 vote_id = vote.get("_id")
                 user_id = int(vote.get("user"))
-                isWeekend = vote.get("weekend", False)
+                is_weekend = vote.get("weekend", False)
                 date = vote.get("date")
 
                 player = players.find_player(user_id)
@@ -37,7 +37,7 @@ async def process_votes():
                     continue
 
                 reward = DAILY_AMOUNT * player.level * player.prestige_multiplicator()
-                if isWeekend:
+                if is_weekend:
                     reward *= 2
                 player.money += reward
                 player.save()

@@ -94,7 +94,8 @@ class Player(BattleBananaObject, SlotPickleMixin):
                  "inventory", "last_message_hashes",
                  "command_rate_limits", "team",
                  "team_invites", "prestige_level",
-                 "weapon_hidden", "gamble_play", "last_played"]
+                 "weapon_hidden", "gamble_play", 
+                 "last_played"]
 
     # I expect new types of quests/weapons to be subclasses.
 

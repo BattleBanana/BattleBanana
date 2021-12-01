@@ -224,6 +224,10 @@ def get_server_count():
     return len(clients[0].guilds)
 
 
+def get_shard_count():
+    return len(clients[0].shard_count)
+
+
 def get_guild_id(source):
     if isinstance(source, int):
         return source

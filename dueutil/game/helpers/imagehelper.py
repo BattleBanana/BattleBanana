@@ -19,12 +19,12 @@ from .. import emojis as e
 from ..configs import dueserverconfig
 from ..customizations import _Themes
 
+WEB_PROXY = "https://mirror.touhidur.xyz/"
+
 """
 Worst code in the bot.
 Images very ugly throwaway code.
 """
-
-WEB_PROXY = "https://mirror.touhidur.xyz/"
 
 # TODO: Rewrite
 
@@ -194,13 +194,12 @@ def has_dimensions(image, dimensions):
     return width == dimensions[0] and height == dimensions[1]
 
 
-async def send_image(ctx, image, Type, **kwargs):
+async def send_image(ctx, image, send_type, **kwargs):
     stats.increment_stat(stats.Stat.IMAGES_SERVED)
-    # kwargs["filename"] = kwargs.pop('file_name', "")
     output = BytesIO()
     image.save(output, format="PNG")
     output.seek(0)
-    if Type == "s":
+    if send_type == "s":
         await util.say(ctx.channel, file=File(output, filename=kwargs.pop('file_name')), **kwargs)
     else:
         await util.reply(ctx, file=File(output, filename=kwargs.pop('file_name')), **kwargs)

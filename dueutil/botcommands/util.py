@@ -634,14 +634,14 @@ async def exchange(ctx, amount, currency, **details):
     await util.reply(ctx, embed=exchange_embed)
 
     to = transaction.get("to")
-    toID = to.get("id")
+    to_id = to.get("id")
     payout = float(transaction.get('payout'))
 
     logs_embed = discord.Embed(title="Discion Transaction",
                                description="Receipt ID: [%s](%s)" % (transaction["id"], receipt),
                                type="rich", colour=gconf.DUE_COLOUR)
     logs_embed.add_field(name="User:", value=f"{player.user_id}")
-    logs_embed.add_field(name="Exchange", value="%s %s => %.2f %s" % (amount, discoin.CURRENCY_CODE, payout, toID),
+    logs_embed.add_field(name="Exchange", value="%s %s => %.2f %s" % (amount, discoin.CURRENCY_CODE, payout, to_id),
                          inline=False)
 
     await util.say(gconf.discoin_channel, embed=logs_embed)
@@ -657,10 +657,10 @@ async def status(ctx, message=None, **details):
     client: discord.AutoShardedClient = util.clients[0]
     if message is None:
         count = client.shard_count
-        for shardID in range(0, count):
-            game = discord.Activity(name="battlebanana.xyz | shard %d/%d" % (shardID, count),
+        for shard_id in range(0, count):
+            game = discord.Activity(name="battlebanana.xyz | shard %d/%d" % (shard_id, count),
                                     type=discord.ActivityType.watching)
-            await client.change_presence(activity=game, shard_id=shardID)
+            await client.change_presence(activity=game, shard_id=shard_id)
     else:
         await client.change_presence(activity=discord.Activity(name=message, type=discord.ActivityType.watching))
 
@@ -705,7 +705,6 @@ async def startsocketserver(ctx, **details):
     Only in case the server doesn't boot up in run.py
     """
     global async_server
-    loop = asyncio.get_event_loop()
     async_server = await asyncio.start_server(players.handle_client, '', gconf.other_configs["connectionPort"])
     server_port = async_server.sockets[0].getsockname()[
         1]  # get port that the server is on, to confirm it started on 4000

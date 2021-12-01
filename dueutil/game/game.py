@@ -12,8 +12,12 @@ from ..game import stats, weapons, quests, awards
 from ..game.configs import dueserverconfig
 from ..game.helpers import imagehelper
 
+try:
+    import ssdeep
+except ImportError:
+    import ppdeep as ssdeep
+
 # import enchant
-# import ssdeep
 # from guess_language import guess_language
 
 # from threading import Lock
@@ -26,7 +30,7 @@ testers = open('testers.txt').read()  # For testers award
 
 # spelling_lock = Lock()
 
-def getResponses():
+def get_responses():
     return json.load(open("dueutil/game/configs/daily.json", "r"))
 
 
@@ -36,7 +40,15 @@ def get_spam_level(player, message_content):
     fuzzy hash > 50% means it's probably spam
     """
 
+    message_hash = ssdeep.hash(message_content)
     spam_level = 0
+    spam_levels = [ssdeep.compare(message_hash, prior_hash) for prior_hash in player.last_message_hashes if
+                   prior_hash is not None]
+    if len(spam_levels) > 0:
+        spam_level = max(spam_levels)
+    player.last_message_hashes.append(message_hash)
+
+    util.logger.info("%s (%s) spam level: %s", player.name_assii, player.id, spam_level)
     return spam_level
 
 
@@ -119,7 +131,6 @@ async def player_message(message, player, spam_level):
 
             spelling_score = max(1, spelling_score / ((len(message_words) * 3) + 1))
             spelling_avg = player.misc_stats["average_spelling_correctness"]
-            1 - abs(spelling_score - spelling_avg)
             spelling_strg = big_word_spelling_score / big_word_count
             # Not really an average (like quest turn avg) (but w/e)
             player.misc_stats["average_spelling_correctness"] = (spelling_avg + spelling_score) / 2

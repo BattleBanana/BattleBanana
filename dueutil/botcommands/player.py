@@ -27,7 +27,7 @@ async def daily(ctx, **details):
     You can use this command once every 24 hours!
     """
     player = details["author"]
-    responses = game.getResponses()
+    responses = game.get_responses()
 
     BALANCED_AMOUNT = DAILY_AMOUNT * player.level * player.prestige_multiplicator()
 

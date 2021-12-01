@@ -88,9 +88,9 @@ async def make_transaction(sender_id, amount, to, cfrom=CURRENCY_CODE):
             return await response.json()
 
 
-async def reverse_transaction(user, From, amount, id):
+async def reverse_transaction(user, currency_from, amount, id):
     util.logger.warning("Reversed transaction: %s", id)
-    await make_transaction(user, amount, From)
+    await make_transaction(user, amount, currency_from)
 
 
 async def unprocessed_transactions():

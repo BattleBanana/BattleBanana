@@ -325,11 +325,11 @@ async def generatecode(ctx, value, count=1, show=True, **details):
         json.dump(codes, code_file, indent=4)
 
     if show:
-        code_Embed = discord.Embed(title="New codes!", type="rich", colour=gconf.DUE_COLOUR)
-        code_Embed.add_field(name="Codes:", value=newcodes)
-        code_Embed.set_footer(
+        code_embed = discord.Embed(title="New codes!", type="rich", colour=gconf.DUE_COLOUR)
+        code_embed.add_field(name="Codes:", value=newcodes)
+        code_embed.set_footer(
             text="These codes can only be used once! Use %sredeem (code) to redeem the prize!" % (details["cmd_key"]))
-        await util.reply(ctx, embed=code_Embed)
+        await util.reply(ctx, embed=code_embed)
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="C?")
@@ -354,11 +354,11 @@ async def codes(ctx, page=1, **details):
             if len(codelist) == 720:
                 break
 
-    code_Embed = discord.Embed(title="New codes!", type="rich", colour=gconf.DUE_COLOUR)
-    code_Embed.add_field(name="Codes:", value="%s" % (codelist if len(codelist) != 0 else "No code to display!"))
-    code_Embed.set_footer(
+    code_embed = discord.Embed(title="New codes!", type="rich", colour=gconf.DUE_COLOUR)
+    code_embed.add_field(name="Codes:", value="%s" % (codelist if len(codelist) != 0 else "No code to display!"))
+    code_embed.set_footer(
         text="These codes can only be used once! Use %sredeem (code) to redeem the prize!" % (details["cmd_key"]))
-    await util.reply(ctx, embed=code_Embed)
+    await util.reply(ctx, embed=code_embed)
 
 
 @commands.command(args_pattern="S")
@@ -477,7 +477,6 @@ async def bans(ctx, page=1, **_):
     string = ""
 
     start = (page - 1) * 10
-    end = page * 10
     for cursor in dbconn.conn()['permissions'].find({'permission': "banned"}, {'_id': 1}).skip(start).limit(10):
         string += "<@%s> (%s)\n" % (cursor['_id'], cursor['_id'])
 
@@ -505,17 +504,17 @@ async def reloadbot(ctx, **_):
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="IP*")
 async def givecash(ctx, amount, *players, **_):
-    toSend = ""
+    to_send = ""
     for player in players:
         player.money += amount
         amount_str = util.format_number(abs(amount), money=True, full_precision=True)
         if amount >= 0:
-            toSend += "Added ``" + amount_str + "`` to **" + player.get_name_possession_clean() + "** account!\n"
+            to_send += "Added ``" + amount_str + "`` to **" + player.get_name_possession_clean() + "** account!\n"
         else:
-            toSend += "Subtracted ``" + amount_str + "`` from **" + player.get_name_possession_clean() + "** account!\n"
+            to_send += "Subtracted ``" + amount_str + "`` from **" + player.get_name_possession_clean() + "** account!\n"
         player.save()
 
-    await util.reply(ctx, toSend)
+    await util.reply(ctx, to_send)
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PI")
@@ -689,13 +688,14 @@ async def vote(ctx, **_):
     Obtain up to ¤40'000 for voting
     """
 
-    Embed = discord.Embed(title="Vote for your favorite Discord Bot", type="rich", colour=gconf.DUE_COLOUR)
-    Embed.add_field(name="Vote:", value="[top.gg](https://top.gg/bot/464601463440801792/vote)\n"
+    vote_embed = discord.Embed(title="Vote for your favorite Discord Bot", type="rich", colour=gconf.DUE_COLOUR)
+    vote_embed.add_field(name="Vote:", value="[top.gg](https://top.gg/bot/464601463440801792/vote)\n"
                                         "[discordbotlist.com](https://discordbotlist.com/bots/battlebanana/upvote)\n"
                                         "[bots.ondiscord.xyz](https://bots.ondiscord.xyz/bots/464601463440801792)")
-    Embed.set_footer(text="You will receive your reward shortly after voting! (Up to 5 minutes)")
+    vote_embed.set_footer(text="You will receive your reward shortly after voting! (Up to 5 minutes)")
 
-    await util.reply(ctx, embed=Embed)
+    await util.reply(ctx, embed=vote_embed)
+
 
 # @commands.command(permission=Permission.BANANA_ADMIN, args_pattern=None, hidden=True)
 # async def cleartopdogs(ctx, **details):

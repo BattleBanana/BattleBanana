@@ -135,7 +135,7 @@ class BattleBananaClient(discord.AutoShardedClient):
             util.logger.warning("Unable to send on join message: %s", e)
 
         # Update stats
-        await servercounts.update_server_count(self)
+        await servercounts.update_server_count()
 
     @staticmethod
     def server_stats(guild):
@@ -285,7 +285,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                                   % (util.ultra_escape_string(guild.name), guild.member_count))
         # Update stats
         dbconn.update_guild_joined(-1)
-        await servercounts.update_server_count(self)
+        await servercounts.update_server_count()
 
     async def on_ready(self):
         global async_server
