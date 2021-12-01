@@ -164,6 +164,7 @@ async def russianroulette(ctx, price, **details):
         user.money += reward
         await util.edit_message(message, content=message.content + "\nYou survived and won `¤%s`!" % (reward))
     else:
+        user.money -= price
         battle_banana = players.find_player(ctx.guild.me.id)
         if battle_banana is not None:
             battle_banana.money += price
