@@ -367,20 +367,19 @@ async def compare(ctx, player1, player2=None, **details):
     if player1 == player2:
         raise util.BattleBananaException(ctx.channel, "There is no reason to compare the same player!")
 
-    compare_Embed = discord.Embed()
-
     if player2 is None:
         player2 = player1
         player1 = plr
-    compare_Embed.title = "Comparing **%s** with **%s**!" % (player1.name_clean, player2.name_clean)
-    compare_Embed.add_field(
+    
+    compare_embed = discord.Embed(title=f"Comparing **{player1.name_clean}** with **{player2.name_clean}**!")
+    compare_embed.add_field(
         name=player1.name_clean,
         value=("Prestige: %s\nLevel: %s\nHealth: %.2f\nAttack: %.2f\nStrength: %.2f\nAccuracy: %.2f" % (
             player1.prestige_level, player1.level, player1.hp * player1.strg, player1.attack, player1.strg,
             player1.accy)),
         inline=True
     )
-    compare_Embed.add_field(
+    compare_embed.add_field(
         name=player2.name_clean,
         value=("Prestige: %s\nLevel: %s\nHealth: %.2f\nAttack: %.2f\nStrength: %.2f\nAccuracy: %.2f" % (
             player2.prestige_level, player2.level, player2.hp * player2.strg, player2.attack, player2.strg,
@@ -388,7 +387,7 @@ async def compare(ctx, player1, player2=None, **details):
         inline=True
     )
 
-    await util.reply(ctx, embed=compare_Embed)
+    await util.reply(ctx, embed=compare_embed)
 
 
 @commands.command(args_pattern='PCS?', aliases=["sc"])

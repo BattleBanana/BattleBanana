@@ -15,12 +15,12 @@ class Team(BattleBananaObject, SlotPickleMixin):
     __slots__ = ["name", "description", "level", "open",
                  "owner", "admins", "members", "pendings", "id"]
 
-    def __init__(self, owner, name, description, level, isOpen, **details):
+    def __init__(self, owner, name, description, level, is_open, **details):
         self.name = name
         self.id = name.lower()
         self.description = description
         self.level = level
-        self.open = isOpen
+        self.open = is_open
         self.owner = owner.id
         self.admins = [owner.id]
         self.members = [owner.id]
@@ -39,17 +39,17 @@ class Team(BattleBananaObject, SlotPickleMixin):
             level += players.find_player(member).level
         return "%.2f" % (level / len(self.members))
 
-    def isPending(self, member):
+    def is_pending(self, member):
         return member.id in self.pendings
 
-    def isMember(self, member):
+    def is_member(self, member):
         return member.id in self.members
 
-    def isAdmin(self, member):
+    def is_admin(self, member):
         return member.id in self.admins
 
-    def addMember(self, ctx, member):
-        if self.isMember(member):
+    def add_member(self, ctx, member):
+        if self.is_member(member):
             raise util.BattleBananaException(ctx.channel, member.name + " is already a member!")
 
         if self.id in member.team_invites:
@@ -60,8 +60,8 @@ class Team(BattleBananaObject, SlotPickleMixin):
         member.team = self.id
         member.save()
 
-    def Kick(self, ctx, member):
-        if not self.isMember(member):
+    def kick(self, ctx, member):
+        if not self.is_member(member):
             raise util.BattleBananaException(ctx.channel, member.name + " is not in the team!")
 
         if member.id in self.admins:
@@ -72,35 +72,35 @@ class Team(BattleBananaObject, SlotPickleMixin):
         member.team = None
         member.save()
 
-    def addAdmin(self, ctx, member):
-        if self.isAdmin(member):
+    def add_admin(self, ctx, member):
+        if self.is_admin(member):
             raise util.BattleBananaException(ctx.channel, member.name + " is already an admin!")
 
         self.admins.append(member.id)
         self.save()
 
-    def removeAdmin(self, ctx, member):
-        if not self.isAdmin(member):
+    def remove_admin(self, ctx, member):
+        if not self.is_admin(member):
             raise util.BattleBananaException(ctx.channel, member.name + " is not an admin!")
 
         self.admins.remove(member.id)
         self.save()
 
-    def addPending(self, ctx, member):
-        if self.isPending(member):
+    def add_pending(self, ctx, member):
+        if self.is_pending(member):
             raise util.BattleBananaException(ctx.channel, member.name + " is already pending!")
 
         self.pendings.append(member.id)
         self.save()
 
-    def removePending(self, ctx, member):
-        if not self.isPending(member):
+    def remove_pending(self, ctx, member):
+        if not self.is_pending(member):
             raise util.BattleBananaException(ctx.channel, member.name + " is not pending!")
 
         self.pendings.remove(member.id)
         self.save()
 
-    def Delete(self):
+    def delete(self):
         for member in self.members:
             member = players.find_player(member)
             member.team = None
@@ -119,9 +119,11 @@ class Team(BattleBananaObject, SlotPickleMixin):
 
 def find_team(team_id: str) -> Team:
     if team_id in teams:
-        return teams.pop(team_id)
+        return teams[team_id]
     elif load_team(team_id):
-        return teams.pop(team_id)
+        team = teams[team_id]
+        team.id = team_id
+        return team
 
 
 REFERENCE_TEAM = Team(players.REFERENCE_PLAYER, "reference team", "Okay!", 1, False, no_save=True)
