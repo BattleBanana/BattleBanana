@@ -153,11 +153,11 @@ async def acceptquest(ctx, quest_index, **details):
         stats_reward = players.STAT_GAIN_FORMAT % (add_attack, add_strg, add_accy)
         quest_results = reward + stats_reward
 
-        prevExp = player.total_exp
+        prev_exp = player.total_exp
         player.progress(add_attack, add_strg, add_accy, max_attr=max_stats_gain,
                         max_exp=10000 * player.prestige_multiplicator())
-        expGain = player.total_exp - prevExp
-        quest_results = (reward + "and `" + str(round(expGain)) + "` EXP\n" + stats_reward)
+        exp_gain = player.total_exp - prev_exp
+        quest_results = (reward + "and `" + str(round(exp_gain)) + "` EXP\n" + stats_reward)
 
         player.money += quest.money
         stats.increment_stat(stats.Stat.MONEY_CREATED, quest.money)
@@ -354,7 +354,7 @@ async def declineallquests(ctx, **details):
     await util.reply(ctx, "Declined %s quests!" % quests)
 
 
-@commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SRRRRS?S?L?%?')
+@commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SRRRRS?S?S?%?')
 async def createquest(ctx, name, attack, strg, accy, hp,
                       task=None, weapon=None, image_url=None, spawn_chance=25, **_):
     """
@@ -395,8 +395,9 @@ async def createquest(ctx, name, attack, strg, accy, hp,
     if image_url is not None:
         extras['image_url'] = image_url
 
-    if "image_url" in extras and not imagehelper.is_url_image(image_url):
-        return await imagehelper.warn_on_invalid_image(ctx.channel, url=extras["image_url"])
+    if "image_url" in extras and not (await imagehelper.is_url_image(image_url)):
+        extras.pop("image_url")
+        await imagehelper.warn_on_invalid_image(ctx.channel)
 
     new_quest = quests.Quest(name, attack, strg, accy, hp, **extras, ctx=ctx)
     await util.reply(ctx, ":white_check_mark: " + util.ultra_escape_string(
@@ -406,7 +407,7 @@ async def createquest(ctx, name, attack, strg, accy, hp,
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SS*')
 @commands.extras.dict_command(optional={"attack/atk": "R", "strg/strength": "R", "hp": "R",
                                         "accy/accuracy": "R", "spawn": "%", "weapon/weap": "S",
-                                        "image": "L", "task": "S", "channel": "S"})
+                                        "image": "S", "task": "S", "channel": "S"})
 async def editquest(ctx, quest_name, updates, **_):
     """
     [CMD_KEY]editquest name (property value)+
@@ -442,7 +443,6 @@ async def editquest(ctx, quest_name, updates, **_):
                     quest.base_strg = value
             else:
                 updates[quest_property] = "Must be at least 1!"
-            continue
         elif quest_property == "spawn":
             if 25 >= value >= 1:
                 quest.spawn_chance = value / 100
@@ -486,12 +486,14 @@ async def editquest(ctx, quest_name, updates, **_):
     else:
         quest.save()
         result = e.QUEST + " **%s** updates!\n" % quest.name_clean
+
+        if new_image_url is not None and not (await imagehelper.is_url_image(new_image_url)):
+            quest.image_url = quest.DEFAULT_IMAGE
+            updates["image"] = None
+            await imagehelper.warn_on_invalid_image(ctx.channel)
+        
         for quest_property, update_result in updates.items():
             result += ("``%s`` → %s\n" % (quest_property, update_result))
-
-        if new_image_url is not None and not imagehelper.is_url_image(new_image_url):
-            quest.image_url = quests.Quest.DEFAULT_IMAGE
-            await imagehelper.warn_on_invalid_image(ctx.channel, url=new_image_url)
 
         quest.save()
         await util.reply(ctx, result)

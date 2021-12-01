@@ -1,10 +1,11 @@
 import asyncio
+import aiohttp
+import discord
 import math
 import mimetypes
 import os
 import random
 import re
-import urllib3
 from PIL import Image, ImageDraw, ImageFont
 from colour import Color
 from discord import File
@@ -22,6 +23,8 @@ from ..customizations import _Themes
 Worst code in the bot.
 Images very ugly throwaway code.
 """
+
+WEB_PROXY = "https://mirror.touhidur.xyz/"
 
 # TODO: Rewrite
 
@@ -105,14 +108,15 @@ def paste_alpha(background, image, position):
     background.paste(image, position, mask)
 
 
-def is_url_image(url):
+async def check_mimetype(url: str):
     mimetype, _ = mimetypes.guess_type(url)
     return (mimetype and mimetype.startswith('image'))
 
 
-def check_url(url):
-    """Returns True if the url returns a response code between 200-300,
-       otherwise return False.
+async def check_url(url: str):
+    """
+    Returns True if the url returns a response code between 200-300,
+    otherwise return False.
     """
     try:
         headers = {
@@ -121,21 +125,28 @@ def check_url(url):
             "Accept": "*/*"
         }
 
-        req = urllib3.Request(url, headers=headers, timeout=REQUEST_TIMEOUT)
-        response = urllib3.urlopen(req, timeout=REQUEST_TIMEOUT)
-        return response.code in range(200, 209)
+        async with aiohttp.ClientSession(timeout=REQUEST_TIMEOUT) as session:
+            # Strip http(s):// from the url
+            url = url.replace("http://", "").replace("https://", "")
+
+            async with session.get(WEB_PROXY + url, headers=headers, timeout=REQUEST_TIMEOUT) as response:
+                return (response.status in range(200, 300)) and response.content_type.startswith('image')
     except Exception:
         return False
 
 
-def url_image(url):
-    return is_url_image(url) and check_url(url)
+async def is_http_https(url: str):
+    return url.startswith('http://') or url.startswith('https://')
 
 
-async def warn_on_invalid_image(channel):
+async def is_url_image(url: str):
+    return (await is_http_https(url)) and (await check_mimetype(url)) and (await check_url(url))
+
+
+async def warn_on_invalid_image(channel: discord.TextChannel):
     # A generic warning.
     await util.say(channel,
-                   (":warning: The image url provided does not seem to be correct!\n"
+                (":warning: The image url provided does not seem to be correct!\n"
                     + "The url must point directly to an image file such as <https://battlebanana.xyz/img/slime.png>."))
 
 
@@ -686,7 +697,7 @@ async def googly_eyes(ctx, eye_descriptor):
 def get_text_limit_len(draw, text, given_font, length):
     removed_chars = False
     text = re.sub(r'[\u200B-\u200D\uFEFF]', '', text)
-    for x in range(0, len(text)):
+    for _ in range(0, len(text)):
         width = draw.textsize(text, font=given_font)[0]
         if width > length:
             text = text[:len(text) - 1]

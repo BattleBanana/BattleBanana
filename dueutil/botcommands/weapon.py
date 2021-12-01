@@ -321,7 +321,7 @@ async def declinewager(ctx, wager_index, **details):
         raise util.BattleBananaException(ctx.channel, "Request not found!")
 
 
-@commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SSC%B?S?L?')
+@commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SSC%B?S?S?')
 async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon='🔫', image_url=None, **_):
     """
     [CMD_KEY]createweapon "weapon name" "hit message" damage accy
@@ -352,7 +352,8 @@ async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon=
         extras["image_url"] = image_url
 
     if "image_url" in extras and not imagehelper.is_url_image(image_url):
-        return await imagehelper.warn_on_invalid_image(ctx.channel, url=extras["image_url"])
+        extras.pop("image_url")
+        await imagehelper.warn_on_invalid_image(ctx.channel)
 
     weapon = weapons.Weapon(name, hit_message, damage, accy, **extras, ctx=ctx)
     await util.reply(ctx, (weapon.icon + " **" + weapon.name_clean + "** is available in the shop for "
@@ -361,7 +362,7 @@ async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon=
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern="SS*")
 @commands.extras.dict_command(optional={"message/hit/hit_message": "S", "ranged": "B",
-                                        "icon": "S", "image": "L"})
+                                        "icon": "S", "image": "S"})
 async def editweapon(ctx, weapon_name, updates, **_):
     """
     [CMD_KEY]editweapon name (property value)+
@@ -398,6 +399,7 @@ async def editweapon(ctx, weapon_name, updates, **_):
             updates[weapon_property] = util.ultra_escape_string(value)
             if weapon_property == "image":
                 new_image_url = weapon.image_url = value
+                updates[weapon_property] = f"<{new_image_url}>"
             else:
                 if weapon.acceptable_string(value, 32):
                     weapon.hit_message = value
@@ -409,12 +411,14 @@ async def editweapon(ctx, weapon_name, updates, **_):
         await util.reply(ctx, "You need to provide a list of valid changes for the weapon!")
     else:
         result = weapon.icon + " **%s** updates!\n" % weapon.name_clean
-        for weapon_property, update_result in updates.items():
-            result += "``%s`` → %s\n" % (weapon_property, update_result)
 
         if new_image_url is not None and not imagehelper.is_url_image(new_image_url):
-            weapon.image_url = weapons.Weapon.DEFAULT_IMAGE
+            weapon.image_url = weapon.DEFAULT_IMAGE
+            updates["image"] = None
             await imagehelper.warn_on_invalid_image(ctx.channel, url=new_image_url)
+        
+        for weapon_property, update_result in updates.items():
+            result += "``%s`` → %s\n" % (weapon_property, update_result)
 
         weapon.save()
         await util.reply(ctx, result)
