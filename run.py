@@ -368,15 +368,7 @@ def run_bb():
         for task in tasks.tasks:
             asyncio.ensure_future(task(), loop=loop)
 
-        try:
-            loop.run_forever()
-        except KeyboardInterrupt:
-            util.logger.warning("Bot has been stopped with CTRL + C")
-            os._exit(0)
-        except Exception as client_exception:
-            util.logger.exception(client_exception, exc_info=True)
-            util.logger.critical("FATAL ERROR: Bot has crashed!")
-            os._exit(1)
+        loop.run_forever()
 
 
 if __name__ == "__main__":
