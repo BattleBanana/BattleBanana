@@ -12,14 +12,13 @@ from discord import File
 from io import BytesIO
 from urllib.parse import urlparse
 
+import generalconfig as gconf
 from dueutil import util
 from . import imagecache
 from .. import awards, gamerules, stats, weapons, customizations
 from .. import emojis as e
 from ..configs import dueserverconfig
 from ..customizations import _Themes
-
-WEB_PROXY = "https://mirror.touhidur.xyz/"
 
 """
 Worst code in the bot.
@@ -47,11 +46,14 @@ quest_row = Image.open("assets/screens/quest_row.png")
 mini_icons = Image.open("assets/screens/mini_icons.png")
 profile_parts = dict()
 
+traffic_lights = list(Color("red").range_to(Color("#ffbf00"), 5)) + list(Color("#ffbf00").range_to(Color("green"), 5))
+
 DUE_BLACK = (48, 48, 48)
 
 REQUEST_TIMEOUT = 1
 
-traffic_lights = list(Color("red").range_to(Color("#ffbf00"), 5)) + list(Color("#ffbf00").range_to(Color("green"), 5))
+nord_vpn = gconf.nordvpn_configs
+PROXY_URL = f"{nord_vpn['protocol']}://{nord_vpn['username']}:{nord_vpn['password']}@{nord_vpn['host']}:{nord_vpn['port']}"
 
 
 def traffic_light(colour_scale):
@@ -126,10 +128,7 @@ async def check_url(url: str):
         }
 
         async with aiohttp.ClientSession(timeout=REQUEST_TIMEOUT) as session:
-            # Strip http(s):// from the url
-            url = url.replace("http://", "").replace("https://", "")
-
-            async with session.get(WEB_PROXY + url, headers=headers, timeout=REQUEST_TIMEOUT) as response:
+            async with session.get(url, proxy=PROXY_URL, headers=headers, timeout=REQUEST_TIMEOUT) as response:
                 return (response.status in range(200, 300)) and response.content_type.startswith('image')
     except Exception:
         return False
