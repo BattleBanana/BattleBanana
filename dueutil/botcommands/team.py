@@ -6,7 +6,7 @@ from .. import commands, util, dbconn
 from ..game import players, teams
 
 
-async def in_a_team(player: players.Player):
+def in_a_team(player: players.Player):
     """
     Checks if the player is in a team.
     :param player: The player to check.
@@ -19,10 +19,8 @@ async def in_a_team(player: players.Player):
     if team is None:
         player.team = None
         player.save()
-        return False
-
-    return True
-
+    
+    return player.team is not None
 
 @commands.command(args_pattern="SS?B?C?")
 async def createteam(ctx, name, description="This is a new and awesome team!", is_open=True, level=1, **details):
