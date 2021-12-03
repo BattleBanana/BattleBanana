@@ -2,7 +2,6 @@ import asyncio
 import aiohttp
 import discord
 import math
-import mimetypes
 import os
 import random
 import re
@@ -110,11 +109,6 @@ def paste_alpha(background, image, position):
     background.paste(image, position, mask)
 
 
-async def check_mimetype(url: str):
-    mimetype, _ = mimetypes.guess_type(url)
-    return (mimetype and mimetype.startswith('image'))
-
-
 async def check_url(url: str):
     """
     Returns True if the url returns a response code between 200-300,
@@ -139,7 +133,7 @@ async def is_http_https(url: str):
 
 
 async def is_url_image(url: str):
-    return (await is_http_https(url)) and (await check_mimetype(url)) and (await check_url(url))
+    return (await is_http_https(url)) and (await check_url(url))
 
 
 async def warn_on_invalid_image(channel: discord.TextChannel):
