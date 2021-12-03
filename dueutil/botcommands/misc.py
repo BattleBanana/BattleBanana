@@ -565,8 +565,7 @@ async def updatebot(ctx, **_):
     """
     [CMD_KEY]updatebot
     
-    Updates BattleBanana
-    
+    Updates BattleBanana to the latest version.
     """
 
     try:
@@ -596,7 +595,7 @@ async def updatebot(ctx, **_):
         update_result = "No output."
     update_embed = discord.Embed(title=":gear: Updating BattleBanana!", type="rich", color=gconf.DUE_COLOUR)
     update_embed.description = "Pulling lastest version from **github**!"
-    update_embed.add_field(name='Changes', value='```' + update_result + '```', inline=False)
+    update_embed.add_field(name='Changes', value='```' + update_result[:1018] + '```', inline=False)
     await util.reply(ctx, embed=update_embed)
     update_result = update_result.strip()
     if not (update_result.endswith("is up to date.") or update_result.endswith(
