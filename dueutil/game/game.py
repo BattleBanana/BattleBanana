@@ -48,7 +48,6 @@ def get_spam_level(player, message_content):
         spam_level = max(spam_levels)
     player.last_message_hashes.append(message_hash)
 
-    util.logger.info("%s (%s) spam level: %s", player.name_assii, player.id, spam_level)
     return spam_level
 
 
