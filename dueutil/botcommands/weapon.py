@@ -415,7 +415,7 @@ async def editweapon(ctx, weapon_name, updates, **_):
         if new_image_url is not None and not (await imagehelper.is_url_image(new_image_url)):
             weapon.image_url = weapon.DEFAULT_IMAGE
             updates["image"] = None
-            await imagehelper.warn_on_invalid_image(ctx.channel, url=new_image_url)
+            await imagehelper.warn_on_invalid_image(ctx.channel)
         
         for weapon_property, update_result in updates.items():
             result += "``%s`` → %s\n" % (weapon_property, update_result)
