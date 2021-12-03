@@ -69,81 +69,76 @@ async def player_message(message, player, spam_level):
     def get_words():
         return re.compile('\w+').findall(message.content)
 
-    if player is not None:
-        # Mention the old bot award
-        if gconf.DEAD_BOT_ID in message.raw_mentions:
-            await awards.give_award(message.channel, player, "SoCold", "They're not coming back.")
-        # Art award
-        if player.misc_stats["art_created"] >= 100:
-            await awards.give_award(message.channel, player, "ItsART")
+    # Mention the old bot award
+    if gconf.DEAD_BOT_ID in message.raw_mentions:
+        await awards.give_award(message.channel, player, "SoCold", "They're not coming back.")
+    # Art award
+    if player.misc_stats["art_created"] >= 100:
+        await awards.give_award(message.channel, player, "ItsART")
 
-        if progress_time(player) and spam_level < SPAM_TOLERANCE:
+    if progress_time(player) and spam_level < SPAM_TOLERANCE:
 
-            if len(message.content) > 0:
-                player.last_progress = time.time()
-            else:
-                return
+        if len(message.content) > 0:
+            player.last_progress = time.time()
+        else:
+            return
 
-            # Special Awards
-            # Comeback award
-            if str(player.id) in old_players:
-                await awards.give_award(message.channel, player, "CameBack", "Return to BattleBanana")
-            # Tester award
-            if str(player.id) in testers:
-                await awards.give_award(message.channel, player, "Tester", ":bangbang: **Something went wrong...**")
-            # Donor award
-            if player.donor:
-                await awards.give_award(message.channel, player, "Donor",
-                                        "Donate to BattleBanana!!! :money_with_wings: :money_with_wings: :money_with_wings:")
-            # DueUtil tech award
-            if dbconn.conn()["dueutiltechusers"].find({"_id": player.id}).count() > 0:
-                if "DueUtilTech" not in player.awards:
-                    player.inventory["themes"].append("dueutil.tech")
-                await awards.give_award(message.channel, player, "DueUtilTech", "<https://battlebanana.xyz/>")
+        # Special Awards
+        # Comeback award
+        if str(player.id) in old_players:
+            await awards.give_award(message.channel, player, "CameBack", "Return to BattleBanana")
+        # Tester award
+        if str(player.id) in testers:
+            await awards.give_award(message.channel, player, "Tester", ":bangbang: **Something went wrong...**")
+        # Donor award
+        if player.donor:
+            await awards.give_award(message.channel, player, "Donor",
+                                    "Donate to BattleBanana!!! :money_with_wings: :money_with_wings: :money_with_wings:")
+        # DueUtil tech award
+        if dbconn.conn()["dueutiltechusers"].find({"_id": player.id}).count() > 0:
+            if "DueUtilTech" not in player.awards:
+                player.inventory["themes"].append("dueutil.tech")
+            await awards.give_award(message.channel, player, "DueUtilTech", "<https://battlebanana.xyz/>")
 
-            ### DueUtil - the hidden spelling game!
-            # The non-thread safe Apsell calls
-            # spelling_lock.acquire()
-            # DISABLED: Spell checking due to random seg faults (even with locks).
-            """lang = guess_language(message.content)
-            if lang in enchant.list_languages():
-                spelling_dict = enchant.Dict(lang)
-            else:
-                spelling_dict = enchant.Dict("en_GB")
-            """
+        ### DueUtil - the hidden spelling game!
+        # The non-thread safe Apsell calls
+        # spelling_lock.acquire()
+        # DISABLED: Spell checking due to random seg faults (even with locks).
+        """lang = guess_language(message.content)
+        if lang in enchant.list_languages():
+            spelling_dict = enchant.Dict(lang)
+        else:
+            spelling_dict = enchant.Dict("en_GB")
+        """
 
-            spelling_score = 0
-            big_word_count = 1
-            big_word_spelling_score = 0
-            message_words = get_words()
-            for word in message_words:
+        spelling_score = 0
+        big_word_count = 1
+        big_word_spelling_score = 0
+        message_words = get_words()
+        for word in message_words:
+            if len(word) > 4:
+                big_word_count += 1
+            if random.getrandbits(1):  # spelling_dict.check(word):
+                spelling_score += 3
                 if len(word) > 4:
-                    big_word_count += 1
-                if random.getrandbits(1):  # spelling_dict.check(word):
-                    spelling_score += 3
-                    if len(word) > 4:
-                        big_word_spelling_score += 1
-                else:
-                    spelling_score -= 1
-            # spelling_lock.release()
-            # We survived?!
+                    big_word_spelling_score += 1
+            else:
+                spelling_score -= 1
+        # spelling_lock.release()
+        # We survived?!
 
-            spelling_score = max(1, spelling_score / ((len(message_words) * 3) + 1))
-            spelling_avg = player.misc_stats["average_spelling_correctness"]
-            spelling_strg = big_word_spelling_score / big_word_count
-            # Not really an average (like quest turn avg) (but w/e)
-            player.misc_stats["average_spelling_correctness"] = (spelling_avg + spelling_score) / 2
+        spelling_score = max(1, spelling_score / ((len(message_words) * 3) + 1))
+        spelling_avg = player.misc_stats["average_spelling_correctness"]
+        spelling_strg = big_word_spelling_score / big_word_count
+        # Not really an average (like quest turn avg) (but w/e)
+        player.misc_stats["average_spelling_correctness"] = (spelling_avg + spelling_score) / 2
 
-            len_limit = max(1, 120 - len(message.content))
-            player.progress(spelling_score / len_limit, spelling_strg / len_limit, spelling_avg / len_limit)
+        len_limit = max(1, 120 - len(message.content))
+        player.progress(spelling_score / len_limit, spelling_strg / len_limit, spelling_avg / len_limit)
 
-            player.hp = 10 * player.level
-            await check_for_level_up(message, player)
-            player.save()
-
-    # else:
-    # players.Player(message.author)
-    # stats.increment_stat(stats.Stat.NEW_PLAYERS_JOINED)
+        player.hp = 10 * player.level
+        await check_for_level_up(message, player)
+        player.save()
 
 
 async def check_for_level_up(ctx, player):
@@ -265,8 +260,8 @@ async def on_message(message):
             return
         if quest_time(player) or progress_time(player):
             spam_level = get_spam_level(player, message.content)
-    await player_message(message, player, spam_level)
-    if player is not None:
+
+        await player_message(message, player, spam_level)
         await manage_quests(message, player, spam_level)
         await check_for_recalls(message, player)
         await check_for_missing_new_stats(player)
