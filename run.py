@@ -12,6 +12,7 @@ import traceback
 from threading import Thread
 
 import generalconfig as gconf
+from dueutil import blacklist as bl
 from dueutil import dbconn, events, loader, permissions, servercounts, util
 from dueutil.game import players, emojis as e
 from dueutil.game.configs import dueserverconfig
@@ -236,6 +237,7 @@ class BattleBananaClient(discord.AutoShardedClient):
     async def on_message(self, message: discord.Message):
         if (message.author == self.user
                 or message.author.bot
+                or bl.find(message.author.id)
                 or isinstance(message.channel, discord.abc.PrivateChannel)
                 or not self.is_ready()):
             return
@@ -368,7 +370,15 @@ def run_bb():
         for task in tasks.tasks:
             asyncio.ensure_future(task(), loop=loop)
 
-        loop.run_forever()
+        try:
+            loop.run_forever()
+        except KeyboardInterrupt:
+            util.logger.warning("Bot has been stopped with CTRL + C")
+            os._exit(0)
+        except Exception as client_exception:
+            util.logger.exception(client_exception, exc_info=True)
+            util.logger.critical("FATAL ERROR: Bot has crashed!")
+            os._exit(1)
 
 
 if __name__ == "__main__":

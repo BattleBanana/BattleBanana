@@ -6,6 +6,7 @@ import time
 from itertools import chain
 
 import generalconfig as gconf
+from .. import blacklist as bl
 from .. import commands, events, util, permissions
 # Shorthand for emoji as I use gconf to hold emoji constants
 from ..game import emojis as e
@@ -727,3 +728,31 @@ async def cooldownreset(ctx, player, cooldown=None, **details):
 @commands.command(permission=Permission.BANANA_OWNER, args_pattern="PS?", aliases=['scld'], hidden=True)
 async def showcooldown(ctx, player, **details):
     await util.say(ctx.channel, ["%s" % cooldown for cooldown in player.command_rate_limits])
+
+
+@commands.command(permission=Permission.BANANA_ADMIN, args_pattern="MS", hidden=True)
+async def blacklist(ctx, id, reason = "No reason specified", **_):
+    """
+    [CMD_KEY]blacklist (member id)
+
+    Blocks the member from the on_message event.
+    """
+    if bl.find(id):
+        raise util.BattleBananaException(ctx.channel, "This member is already blacklisted!")
+
+    bl.add(id, reason)
+    await util.reply(ctx, "The user has been blacklisted!")
+
+
+@commands.command(permission=Permission.BANANA_ADMIN, args_pattern="M", hidden=True)
+async def unblacklist(ctx, id, **_):
+    """
+    [CMD_KEY]unblacklist (member id)
+
+    Blocks the member from the on_message event.
+    """
+    if not bl.find(id):
+        raise util.BattleBananaException(ctx.channel, "This member is not blacklisted!")
+
+    bl.remove(id)
+    await util.reply(ctx, "The user has been unblacklisted!")

@@ -58,6 +58,18 @@ def update_guild_joined(count):
     conn()["GuildStats"].update({'_id': month}, update_query, upsert=True)
 
 
+def blacklist_member(id: int, reason: str):
+    conn()["Blacklist"].update({'_id': id}, {'$set': {'reason': reason}}, upsert=True)
+
+
+def unblacklist_member(id: int):
+    conn()["Blacklist"].delete_one({'_id': id})
+
+
+def get_blacklist():
+    return conn()["Blacklist"].find()
+
+
 def _load_config():
     global config
     with open('dbconfig.json') as config_file:
