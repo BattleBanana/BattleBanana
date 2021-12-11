@@ -351,7 +351,7 @@ async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon=
     if image_url is not None:
         extras["image_url"] = image_url
 
-    if "image_url" in extras and not imagehelper.is_url_image(image_url):
+    if "image_url" in extras and not (await imagehelper.is_url_image(image_url)):
         extras.pop("image_url")
         await imagehelper.warn_on_invalid_image(ctx.channel)
 
