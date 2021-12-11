@@ -15,3 +15,4 @@ sentry_sdk
 pydealer
 requests
 ssdeep
+aiohttp_socks

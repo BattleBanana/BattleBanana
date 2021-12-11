@@ -1,4 +1,5 @@
 import asyncio
+from aiohttp_socks import ProxyConnector
 import aiohttp
 import discord
 import math
@@ -51,8 +52,8 @@ DUE_BLACK = (48, 48, 48)
 
 REQUEST_TIMEOUT = 1
 
-nord_vpn = gconf.nordvpn_configs
-PROXY_URL = f"{nord_vpn['protocol']}://{nord_vpn['username']}:{nord_vpn['password']}@{nord_vpn['host']}:{nord_vpn['port']}"
+NORDVPN = gconf.nordvpn_configs
+PROXY_URL = f"{NORDVPN['protocol']}://{NORDVPN['username']}:{NORDVPN['password']}@{NORDVPN['host']}:{NORDVPN['port']}"
 
 
 def traffic_light(colour_scale):
@@ -120,10 +121,11 @@ async def check_url(url: str):
             "User-Agent": "BattleBanana",
             "Accept": "*/*"
         }
-
-        async with aiohttp.ClientSession(timeout=REQUEST_TIMEOUT) as session:
-            async with session.get(url, proxy=PROXY_URL, headers=headers, timeout=REQUEST_TIMEOUT) as response:
-                return (response.status in range(200, 300)) and response.content_type.startswith('image')
+        
+        connector = ProxyConnector.from_url(PROXY_URL)
+        async with aiohttp.ClientSession(connector=connector) as session:
+            async with session.get(url, headers=headers, timeout=REQUEST_TIMEOUT) as response:
+                return (response.status in range(200, 300)) and response.content_type.lower().startswith('image')
     except Exception:
         return False
 
@@ -133,7 +135,11 @@ async def is_http_https(url: str):
 
 
 async def is_url_image(url: str):
-    return (await is_http_https(url)) and (await check_url(url))
+    has_valid_protocol = await is_http_https(url)
+    if not has_valid_protocol:
+        return False
+
+    return await check_url(url)
 
 
 async def warn_on_invalid_image(channel: discord.TextChannel):
