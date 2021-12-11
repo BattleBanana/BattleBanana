@@ -50,7 +50,7 @@ traffic_lights = list(Color("red").range_to(Color("#ffbf00"), 5)) + list(Color("
 
 DUE_BLACK = (48, 48, 48)
 
-REQUEST_TIMEOUT = 1
+REQUEST_TIMEOUT = 5
 
 NORDVPN = gconf.nordvpn_configs
 PROXY_URL = f"{NORDVPN['protocol']}://{NORDVPN['username']}:{NORDVPN['password']}@{NORDVPN['host']}:{NORDVPN['port']}"
@@ -127,7 +127,7 @@ async def check_url(url: str):
             async with session.get(url, headers=headers, timeout=REQUEST_TIMEOUT) as response:
                 return (response.status in range(200, 300)) and response.content_type.lower().startswith('image')
     except Exception as e:
-        util.logger.error(f"Error checking url: {e}")
+        util.logger.error(f"Error while checking url", e)
         return False
 
 
