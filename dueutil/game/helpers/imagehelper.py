@@ -123,7 +123,7 @@ async def check_url(url: str):
         }
         
         connector = ProxyConnector.from_url(PROXY_URL)
-        async with aiohttp.ClientSession(connector=connector, timeout=REQUEST_TIMEOUT) as session:
+        async with aiohttp.ClientSession(connector=connector) as session:
             async with session.get(url, headers=headers) as response:
                 return (response.status in range(200, 300)) and response.content_type.lower().startswith('image')
     except asyncio.TimeoutError:
