@@ -131,7 +131,7 @@ async def check_url(url: str):
     except Exception as e:
         util.logger.warning(f"Error when checking url {url}: {e}")
     finally:
-        session.close()
+        await session.close()
     
     return False
 
