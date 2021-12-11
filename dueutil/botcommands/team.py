@@ -71,7 +71,7 @@ async def deleteteam(ctx, **details):
     if not in_a_team(member):
         raise util.BattleBananaException(ctx.channel, "You're not in a team!")
 
-    team = member.team
+    team = teams.find_team(member.team)
     if member.id != team.owner:
         raise util.BattleBananaException(ctx.channel, "You need to be the owner to delete the team!")
 
@@ -201,7 +201,7 @@ async def myteam(ctx, **details):
     if not in_a_team(member):
         raise util.BattleBananaException(ctx.channel, "You're not in any team!")
 
-    team = member.team
+    team = teams.find_team(member.team)
 
     pendings = ""
     members = ""
@@ -265,7 +265,7 @@ async def promoteuser(ctx, user, **details):
     if not in_a_team(user) or user.team != member.team:
         raise util.BattleBananaException(ctx.channel, "This player is not in your team!")
 
-    team = member.team
+    team = teams.find_team(member.team)
     if member.id != team.owner:
         raise util.BattleBananaException(ctx.channel, "You are not allowed to promote users! (You must be owner!)")
 
@@ -294,7 +294,7 @@ async def demoteuser(ctx, user, **details):
     if not in_a_team(user) or user.team != member.team:
         raise util.BattleBananaException(ctx.channel, "This user is not in your team!")
 
-    team = member.team
+    team = teams.find_team(member.team)
     if member.id != team.owner:
         raise util.BattleBananaException(ctx.channel, "You are not allowed to demote users! (You must be the owner!)")
 
@@ -329,7 +329,7 @@ async def teamkick(ctx, user, **details):
     if not in_a_team(user) or user.team != member.team:
         raise util.BattleBananaException(ctx.channel, "This player is not in your team!")
 
-    team = member.team
+    team = teams.find_team(member.team)
     if not team.is_admin(member):
         raise util.BattleBananaException(ctx.channel, "You must be an admin to use this command!")
 
@@ -357,7 +357,7 @@ async def leaveteam(ctx, **details):
         raise util.BattleBananaException(ctx.channel,
                                          "You are not in any team.. You can't leave the void.. *My void!* :smiling_imp:")
 
-    team = member.team
+    team = teams.find_team(member.team)
     if team.owner == member.id:
         raise util.BattleBananaException(ctx.channel,
                                          "You cannot leave this team! If you want to disband it, use `%sdeleteteam`" % (
@@ -514,7 +514,7 @@ async def editteam(ctx, updates, **details):
     if not in_a_team(member):
         raise util.BattleBananaException(ctx.channel, "You are not in a team!")
 
-    team = member.team
+    team = teams.find_team(member.team)
     if not team.is_admin(member):
         raise util.BattleBananaException(ctx.channel, "You need to be an admin to change settings!")
 
@@ -603,7 +603,7 @@ async def acceptpending(ctx, user, **details):
     if not in_a_team(member):
         raise util.BattleBananaException(ctx.channel, "You're not in a team!")
 
-    team = member.team
+    team = teams.find_team(member.team)
 
     if user.team != None:
         raise util.BattleBananaException(ctx.channel, "This player found his favorite team already!")
@@ -628,7 +628,7 @@ async def declinepending(ctx, user, **details):
     if not in_a_team(member):
         raise util.BattleBananaException(ctx.channel, "You're not in a team!")
 
-    team = member.team
+    team = teams.find_team(member.team)
 
     if not team.is_pending(user):
         raise util.BattleBananaException(ctx.channel, "Pending user not found!")
