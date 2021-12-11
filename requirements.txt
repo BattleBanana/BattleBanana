@@ -1,7 +1,7 @@
 objgraph
 validators
 colour
-pymongo
+pymongo==3.12.3
 discord.py
 cachetools
 numpy
