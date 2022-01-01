@@ -199,6 +199,10 @@ class BattleBananaClient(discord.AutoShardedClient):
                         pass
                 return
         elif isinstance(error, discord.HTTPException):
+            if "The resource is being rate limited." in str(error):
+                await util.duelogger.error(f"**Blacklisted user:** {ctx.author.mention}\n<@{gconf.other_configs['owner']}>")
+                return bl.add(ctx.author.id, "Ratelimit")
+                
             util.logger.error("Discord HTTP error: %s", error)
             if ctx_is_message:
                 trigger_message = discord.Embed(title="Trigger", type="rich", color=gconf.DUE_COLOUR)
@@ -206,7 +210,10 @@ class BattleBananaClient(discord.AutoShardedClient):
                 await util.duelogger.error(("**Message/command triggred error!**\n"
                                             + "__Stack trace:__ ```" + traceback.format_exc()[-1500:] + "```"),
                                            embed=trigger_message)
-
+        elif isinstance(error, discord.NotFound):
+            if "Unknown Channel" in str(error):
+                await util.duelogger.error(f"**Blacklisted user:** {ctx.author.mention}\n<@115269304705875969>")
+                return bl.add(ctx.author.id, "Ratelimit")
         elif isinstance(error, (aiohttp.ClientResponseError, aiohttp.ClientOSError)):
             if ctx_is_message:
                 util.logger.error("%s: ctx from %s: %s", error, ctx.author.id, ctx.content)
