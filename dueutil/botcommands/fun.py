@@ -407,9 +407,8 @@ async def minecraft(ctx, **_):
     """
 
     embed = discord.Embed(title="BananaCraft", type="rich", color=gconf.DUE_COLOUR)
-    embed.add_field(name="Status:", value="Currently down, awaiting 1.18")
-    # embed.add_field(name="Minecraft version:", value="1.16.1")
-    # embed.add_field(name="Server address:", value="mc.battlebanana.xyz")
+    embed.add_field(name="Minecraft version:", value="1.18")
+    embed.add_field(name="Server address:", value="mc.battlebanana.xyz")
 
     await util.reply(ctx, f"{emojis.QUESTER} Official BananaCraft server!", embed=embed)
 
