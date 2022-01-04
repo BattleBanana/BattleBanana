@@ -200,8 +200,10 @@ class BattleBananaClient(discord.AutoShardedClient):
                 return
         elif isinstance(error, discord.HTTPException):
             if "The resource is being rate limited." in str(error):
-                await util.duelogger.error(f"**Blacklisted user:** {ctx.author.mention}\n<@{gconf.other_configs['owner']}>")
-                return bl.add(ctx.author.id, "Ratelimit")
+                if bl.find(ctx.author.id) is not None:
+                    await util.duelogger.error(f"**Blacklisted user:** {ctx.author.mention}\n<@{gconf.other_configs['owner']}>")
+                    bl.add(ctx.author.id, "Ratelimit")
+                return
                 
             util.logger.error("Discord HTTP error: %s", error)
             if ctx_is_message:
@@ -212,8 +214,10 @@ class BattleBananaClient(discord.AutoShardedClient):
                                            embed=trigger_message)
         elif isinstance(error, discord.NotFound):
             if "Unknown Channel" in str(error):
-                await util.duelogger.error(f"**Blacklisted user:** {ctx.author.mention}\n<@115269304705875969>")
-                return bl.add(ctx.author.id, "Ratelimit")
+                if bl.find(ctx.author.id) is not None:
+                    await util.duelogger.error(f"**Blacklisted user:** {ctx.author.mention}\n<@115269304705875969>")
+                    bl.add(ctx.author.id, "Ratelimit")
+                return
         elif isinstance(error, (aiohttp.ClientResponseError, aiohttp.ClientOSError)):
             if ctx_is_message:
                 util.logger.error("%s: ctx from %s: %s", error, ctx.author.id, ctx.content)
