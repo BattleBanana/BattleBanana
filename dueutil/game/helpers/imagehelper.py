@@ -20,6 +20,12 @@ from .. import emojis as e
 from ..configs import dueserverconfig
 from ..customizations import _Themes
 
+try:
+    from .speedup import quest_colorize_helper
+except (ImportError, ModuleNotFoundError):
+    def quest_colorize_helper(*args):
+        raise ImportError("Something broke, please tell Theelx#4980")
+
 """
 Worst code in the bot.
 Images very ugly throwaway code.
@@ -95,6 +101,17 @@ def colourize(image, colours, intensity, **extras):
             pixel_data[i] = tuple(
                 int(pi * (1 - intensity) + ci * intensity) for pi, ci in zip(pixel[:3], colour)) + pixel[3:]
         pixel_count += 1
+    image.putdata(pixel_data)
+    return image
+
+
+def quest_colorize(image, colors, cycle_colors):
+    image = image.copy()
+    pixel_data = list(image.getdata())
+    color_index = -1
+    color = colors[color_index]
+    pixel_count = 0
+    pixel_data = quest_colorize_helper(pixel_data, pixel_count, color_index, tuple(color), cycle_colors, tuple(colors))
     image.putdata(pixel_data)
     return image
 
@@ -318,7 +335,10 @@ async def quests_screen(ctx, player, page):
         image.paste(quest_row, (14, 40 + 44 * count))
         quest = player.quests[quest_index]
         warning_colours = [traffic_light(danger_level) for danger_level in quest.get_threat_level(player)]
-        warning_icons = colourize(mini_icons, warning_colours, 0.5, cycle_colours=[10, 10, 11, 10, 11])
+        try:
+            warning_icons = quest_colorize(mini_icons, warning_colours, (10, 10, 11, 10, 11))
+        except ImportError:
+            warning_icons = colorize(mini_icons, warning_colours, 0.5, cycle_colours=[10, 10, 11, 10, 11])
         paste_alpha(image, warning_icons, (14 + row_size[0] - 53, row_size[1] * 2 - 12 + 44 * count))
         level = "Level " + str(math.trunc(quest.level))
         level_width = draw.textsize(level, font=font_small)[0] + 5
