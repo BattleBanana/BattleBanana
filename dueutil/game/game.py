@@ -17,18 +17,10 @@ try:
 except ImportError:
     import ppdeep as ssdeep
 
-# import enchant
-# from guess_language import guess_language
-
-# from threading import Lock
-
 SPAM_TOLERANCE = 50
 # For awards in the first week. Not permanent.
 old_players = open('oldplayers.txt').read()  # For comeback award
 testers = open('testers.txt').read()  # For testers award
-
-
-# spelling_lock = Lock()
 
 def get_responses():
     return json.load(open("dueutil/game/configs/daily.json", "r"))
@@ -45,7 +37,7 @@ def get_spam_level(player, message_content):
     spam_levels = [ssdeep.compare(message_hash, prior_hash) for prior_hash in player.last_message_hashes if
                    prior_hash is not None]
     if len(spam_levels) > 0:
-        spam_level = max(spam_levels)
+        spam_level = sum(spam_levels) / len(spam_levels)
     player.last_message_hashes.append(message_hash)
 
     return spam_level
