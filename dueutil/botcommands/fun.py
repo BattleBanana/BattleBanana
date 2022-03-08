@@ -379,8 +379,8 @@ async def pandemic(ctx, **_):
     pandemic_level = percent_infected // 33
     pandemic_embed = discord.Embed(title=":biohazard: BattleBanana Pandemic :biohazard:", type="rich",
                                    color=gconf.DUE_COLOUR)
-    # pandemic_embed.description = ("Oh my god! In the last news, infected people are invading our world!\n"
-    #                               + "This is the current infection rate!")
+    pandemic_embed.description = ("Oh my god! In the last news, infected people are invading our world!\n"
+                                  + "This is the current infection rate!")
     pandemic_embed.set_thumbnail(url=thumbnails.get(pandemic_level, thumbnails[2]))
     pandemic_embed.description = "Monitoring the spread of the __loser__ pandemic."
     pandemic_embed.add_field(name="Pandemic stats", value=("Out of a total of **%s** players:\n"
@@ -452,7 +452,7 @@ async def topdoghistory(ctx, page=1, **_):
             else:
                 tdstring += f"- **{player.name}**, at {date.strftime('%d/%m/%Y')}\n"
 
-    embed.add_field(name="Previous topdogs:", value=tdstring, inline=False)
+    embed.add_field(name="Previous topdogs:", value=tdstring or "No previous topdogs", inline=False)
 
     await util.reply(ctx, embed=embed)
 

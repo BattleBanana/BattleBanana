@@ -10,5 +10,7 @@ dueutil/game/configs/codes.json
 .idea/
 localization/
 start_fixed.sh
-run.py.lprof
 .DS_Store
+logs/
+dueutil/game/helpers/build
+*speedup*

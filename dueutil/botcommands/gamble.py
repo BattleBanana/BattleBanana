@@ -1,6 +1,5 @@
 import asyncio
 import discord
-import gc
 import math
 import random
 import time
@@ -54,7 +53,7 @@ async def blackjack(ctx, price, **details):
     blackjack_embed.add_field(name=f"Dealer's hand ({dealer_value})", value=dealer_hand)
     blackjack_embed.set_footer(text="Click on \"hit\" or \"stand\". This prompt will close in 120 seconds")
 
-    blackjack_buttons: ui.View = blackjackGame.Interaction(ctx.author)
+    blackjack_buttons: ui.View = blackjackGame.BlackjackInteraction(ctx.author)
     msg = await util.reply(ctx, embed=blackjack_embed, view=blackjack_buttons)
 
     while user_value < 21 and dealer_value < 21:
@@ -70,7 +69,7 @@ async def blackjack(ctx, price, **details):
             blackjack_embed.add_field(name="Your hand (%s)" % (user_value), value=user_hand)
             blackjack_embed.add_field(name="Dealer's hand (%s)" % (dealer_value), value=dealer_hand)
 
-            blackjack_buttons = blackjackGame.Interaction(ctx.author)
+            blackjack_buttons = blackjackGame.BlackjackInteraction(ctx.author)
             await util.edit_message(msg, embed=blackjack_embed, view=blackjack_buttons)
         elif content == "stand":
             break

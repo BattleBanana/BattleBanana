@@ -2,7 +2,7 @@ objgraph
 validators
 colour
 pymongo==3.12.3
-discord.py
+git+https://github.com/Rapptz/discord.py
 cachetools
 numpy
 repoze.timeago
@@ -16,3 +16,4 @@ pydealer
 requests
 ssdeep
 aiohttp_socks
+cython

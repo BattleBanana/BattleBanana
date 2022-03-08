@@ -11,35 +11,33 @@ EQUIVALENTS = {
     "Ace": 11
 }
 
-class Interaction(ui.View):
-    def __init__(self, author = None, timeout = DEFAULT_TIMEOUT):
+class BlackjackInteraction(ui.View):
+    def __init__(self, author: discord.User, timeout = DEFAULT_TIMEOUT):
         self._author = author
+        self.value = "stand"
         super().__init__(timeout=timeout)
 
-    def _check(self, interaction_author):
-        return interaction_author.id == self._author.id
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        if interaction.user.id == self._author.id:
+            return True
+
+        await interaction.response.send_message('This is not your game!', ephemeral=True)
+
+        return False
 
     async def start(self):
-        has_timed_out = await self.wait()
-        if has_timed_out:
-            return "stand"
+        await self.wait()
         return self.value
     
     @ui.button(label='Hit', style=ButtonStyle.primary)
     async def hit(self, button: ui.Button, interaction: discord.Interaction):
-        if self._check(interaction.user):
-            self.value = "hit"
-            self.stop()
-        else:
-            await interaction.response.send_message('This is not your game!', ephemeral=True)
+        self.value = "hit"
+        self.stop()
 
     @ui.button(label='Stand', style=ButtonStyle.primary)
     async def stand(self, button: ui.Button, interaction: discord.Interaction):
-        if self._check(interaction.user):
-            self.value = "stand"
-            self.stop()
-        else:
-            await interaction.response.send_message('This is not your game!', ephemeral=True)
+        self.value = "stand"
+        self.stop()
 
 
 def get_deck_value(deck: Deck):

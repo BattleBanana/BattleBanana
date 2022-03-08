@@ -58,6 +58,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         intents.members = True
         intents.guilds = True
         intents.guild_messages = True
+        intents.message_content = True
 
         super(BattleBananaClient, self).__init__(intents=intents, max_messages=None, **details)
 
@@ -200,7 +201,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                 return
         elif isinstance(error, discord.HTTPException):
             if "The resource is being rate limited." in str(error):
-                if bl.find(ctx.author.id) is not None:
+                if bl.find(ctx.author.id) is None:
                     await util.duelogger.error(f"**Blacklisted user:** {ctx.author.mention}\n<@{gconf.other_configs['owner']}>")
                     bl.add(ctx.author.id, "Ratelimit")
                 return
@@ -376,7 +377,7 @@ def run_bb():
             continue
 
         ### Tasks
-        loop = asyncio.get_event_loop()
+        loop = asyncio.new_event_loop()
         from dueutil import tasks
         for task in tasks.tasks:
             asyncio.ensure_future(task(), loop=loop)

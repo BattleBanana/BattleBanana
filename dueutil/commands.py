@@ -200,8 +200,13 @@ class ConfirmInteraction(ui.View):
         self._author = author
         super().__init__(timeout=timeout)
 
-    def _check(self, interaction_author):
-        return interaction_author.id == self._author.id
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        if interaction.user.id == self._author.id:
+            return True
+
+        await interaction.response.send_message('You cannot use this interaction!', ephemeral=True)
+
+        return False
 
     async def start(self):
         has_timed_out = await self.wait()
@@ -211,17 +216,15 @@ class ConfirmInteraction(ui.View):
     
     @ui.button(label='Confirm', style=ButtonStyle.green)
     async def confirm(self, button: ui.Button, interaction: discord.Interaction):
-        if self._check(interaction.user):
-            self.value = "confirm"
-            await interaction.response.send_message("Gotcha! Doing it chief.", ephemeral=True)
-            self.stop()
+        self.value = "confirm"
+        await interaction.response.send_message("Gotcha! Doing it chief.", ephemeral=True)
+        self.stop()
 
     @ui.button(label='Cancel', style=ButtonStyle.red)
     async def cancel(self, button: ui.Button, interaction: discord.Interaction):
-        if self._check(interaction.user):
-            self.value = "cancel"
-            await interaction.response.send_message("Understood! I won't do it.", ephemeral=True)
-            self.stop()
+        self.value = "cancel"
+        await interaction.response.send_message("Understood! I won't do it.", ephemeral=True)
+        self.stop()
 
 def require_cnf(warning):
     # Checks the user confirms the command.
