@@ -5,7 +5,6 @@ import math
 import objgraph
 import os
 import platform
-import random
 import re
 import shlex
 import subprocess
@@ -20,6 +19,7 @@ import generalconfig as gconf
 from .. import commands, util, events, dbconn, loader
 from ..game import customizations, awards, leaderboards, game, emojis
 from ..game.helpers import imagehelper
+from ..game.configs import codes
 from ..permissions import Permission
 
 
@@ -308,54 +308,30 @@ async def generatecode(ctx, value, count=1, show=True, **details):
     Generates the number of codes (amount) with price ($$$)
     """
 
-    newcodes = ""
-    with open("dueutil/game/configs/codes.json", "r+") as code_file:
-        codes = json.load(code_file)
-
-        for i in range(count):
-            code = "BATTLEBANANAPROMO_%i" % (random.uniform(1000000000, 9999999999))
-            while codes.get(code):
-                code = "BATTLEBANANAPROMO_%i" % (random.uniform(1000000000, 9999999999))
-            codes[code] = value
-            if show:
-                newcodes += "%s\n" % code
-
-        code_file.seek(0)
-        code_file.truncate()
-        json.dump(codes, code_file, indent=4)
+    new_codes = codes.generate(value, count)
 
     if show:
         code_embed = discord.Embed(title="New codes!", type="rich", colour=gconf.DUE_COLOUR)
-        code_embed.add_field(name="Codes:", value=newcodes)
+        code_embed.add_field(name="Codes:", value="\n".join([code.code for code in new_codes]))
         code_embed.set_footer(
             text="These codes can only be used once! Use %sredeem (code) to redeem the prize!" % (details["cmd_key"]))
         await util.reply(ctx, embed=code_embed)
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="C?")
-async def codes(ctx, page=1, **details):
+async def showcodes(ctx, page=1, **details):
     """
-    [CMD_KEY]codes
+    [CMD_KEY]showcodes
 
     Shows remaining codes
     """
 
-    page = page - 1
-    codelist = ""
-    with open("dueutil/game/configs/codes.json", "r+") as code_file:
-        codes = json.load(code_file)
-        codes = list(codes)
-        if page != 0 and page * 30 >= len(codes):
-            raise util.BattleBananaException(ctx.channel, "Page not found")
-
-        for index in range(len(codes) - 1 - (30 * page), -1, -1):
-            code_name = codes[index]
-            codelist += "%s\n" % (code_name)
-            if len(codelist) == 720:
-                break
+    paged_codes = codes.get_paged(page, 30)
+    if paged_codes is None:
+        raise util.BattleBananaException(ctx.channel, "Page not found")
 
     code_embed = discord.Embed(title="New codes!", type="rich", colour=gconf.DUE_COLOUR)
-    code_embed.add_field(name="Codes:", value="%s" % (codelist if len(codelist) != 0 else "No code to display!"))
+    code_embed.add_field(name="Codes:", value="\n".join([code.code for code in paged_codes]) if len(paged_codes) != 0 else "No code to display!")
     code_embed.set_footer(
         text="These codes can only be used once! Use %sredeem (code) to redeem the prize!" % (details["cmd_key"]))
     await util.reply(ctx, embed=code_embed)
@@ -369,29 +345,15 @@ async def redeem(ctx, code, **details):
     Redeem your code
     """
 
-    with open("dueutil/game/configs/codes.json", "r+") as code_file:
-        try:
-            codes = json.load(code_file)
-        except ValueError:
-            codes = {}
+    price = codes.redeem(code)
+    if price is None:
+        raise util.BattleBananaException(ctx.channel, "Code does not exist!")
 
-        if not codes.get(code):
-            code_file.close()
-            raise util.BattleBananaException(ctx.channel, "Code does not exist!")
+    user = details["author"]
+    user.money += price
+    user.save()
 
-        user = details["author"]
-        money = codes[code]
-
-        del codes[code]
-        user.money += money
-        user.save()
-
-        code_file.seek(0)
-        code_file.truncate()
-        json.dump(codes, code_file, indent=4)
-        code_file.close()
-
-        await util.reply(ctx, "You successfully reclaimed **%s** !!" % (util.format_money(money)))
+    await util.reply(ctx, "You successfully redeemed **%s** !!" % (util.format_money(price)))
 
 
 @commands.command(permission=Permission.BANANA_OWNER, args_pattern="PS")
@@ -560,6 +522,23 @@ async def updateleaderboard(ctx, **_):
     await util.reply(ctx, ":ferris_wheel: Updating leaderboard!")
 
 
+async def run_script(name: str):
+    try:
+        sys = platform.platform()
+        if "Linux" in sys:
+            return await asyncio.create_subprocess_shell(f"bash {name}",
+                                                                  stdout=asyncio.subprocess.PIPE,
+                                                                  stderr=asyncio.subprocess.PIPE)
+        elif "Windows" in sys:
+            return await asyncio.create_subprocess_shell(
+                f'"C:\\Program Files\\Git\\bin\\bash" {name}',
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE)
+        else:
+            raise asyncio.CancelledError()
+    except asyncio.CancelledError as updateexc:
+        return updateexc.output
+
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern=None)
 async def updatebot(ctx, **_):
     """
@@ -568,21 +547,7 @@ async def updatebot(ctx, **_):
     Updates BattleBanana to the latest version.
     """
 
-    try:
-        sys = platform.platform()
-        if "Linux" in sys:
-            update_result = await asyncio.create_subprocess_shell('bash update_script.sh',
-                                                                  stdout=asyncio.subprocess.PIPE,
-                                                                  stderr=asyncio.subprocess.PIPE)
-        elif "Windows" in sys:
-            update_result = await asyncio.create_subprocess_shell(
-                '"C:\\Program Files\\Git\\bin\\bash" update_script.sh',
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE)
-        else:
-            raise asyncio.CancelledError()
-    except asyncio.CancelledError as updateexc:
-        update_result = updateexc.output
+    update_result = await run_script("update_script.sh")
     stdout, stderr = await update_result.communicate()
     if stdout:
         update_result = stdout.decode("utf-8")
@@ -601,7 +566,7 @@ async def updatebot(ctx, **_):
     if not (update_result.endswith("is up to date.") or update_result.endswith(
             "up-to-date.") or update_result == "Something went wrong!"):
         await util.duelogger.concern("BattleBanana updating!")
-        os._exit(1)
+        await run_script("start.sh")
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern=None)

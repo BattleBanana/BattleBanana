@@ -1,4 +1,5 @@
 import asyncio
+import secrets
 import discord
 import math
 import random
@@ -156,9 +157,8 @@ async def russianroulette(ctx, price, **details):
             raise util.BattleBananaException(ctx.channel, "You cannot bet more than you have!")
 
     message = await util.reply(ctx, "Click...")
-    rnd = random.randint(1, 6)
     await asyncio.sleep(random.random() * 2)
-    if rnd == 1:
+    if secrets.randbelow(6) == 1:
         reward = price * 5
         user.money += reward
         await util.edit_message(message, content=message.content + "\nYou survived and won `¤%s`!" % (reward))

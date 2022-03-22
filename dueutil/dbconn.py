@@ -13,11 +13,7 @@ DESCENDING = pymongo.DESCENDING
 def conn():
     global db
     if db is None:
-        client = MongoClient(config['host'])
-        client.admin.authenticate(config['user'], config['pwd'], mechanism='SCRAM-SHA-1')
-        uri = "mongodb://" + config['user'] + ":" + config['pwd'] + "@" + config[
-            'host'] + "/admin?authMechanism=SCRAM-SHA-1"
-        db = MongoClient(uri).dueutil
+        db = MongoClient(username=config['user'], password=config['pwd'], host=config['host']).dueutil
 
         return db
     else:
@@ -29,7 +25,7 @@ def insert_object(id, pickleable_object):
         return
     
     # TODO: Insert values atomicly instead of saving them as a JSON string
-    conn()[type(pickleable_object).__name__].update({'_id': id},
+    conn()[type(pickleable_object).__name__].update_one({'_id': id},
                                                     {"$set": {'data': jsonpickle.encode(pickleable_object)}},
                                                     upsert=True)
 
@@ -55,11 +51,11 @@ def delete_player(player):
 def update_guild_joined(count):
     month = datetime.now().strftime("%Y-%m")
     update_query = {'$inc': {'joined': 1} if count > 0 else {'left': 1}}
-    conn()["GuildStats"].update({'_id': month}, update_query, upsert=True)
+    conn()["GuildStats"].update_one({'_id': month}, update_query, upsert=True)
 
 
 def blacklist_member(id: int, reason: str):
-    conn()["Blacklist"].update({'_id': id}, {'$set': {'reason': reason}}, upsert=True)
+    conn()["Blacklist"].update_one({'_id': id}, {'$set': {'reason': reason}}, upsert=True)
 
 
 def unblacklist_member(id: int):

@@ -1,4 +1,5 @@
 import asyncio
+import secrets
 import discord
 import json
 import jsonpickle
@@ -254,7 +255,7 @@ def get_quest_on_server(guild: discord.Guild, quest_name: str) -> Quest:
 def remove_quest_from_server(guild: discord.Guild, quest_name: str):
     quest_id = f"{guild.id}/{quest_name.lower()}"
     del quest_map[quest_id]
-    dbconn.get_collection_for_object(Quest).remove({'_id': quest_id})
+    dbconn.get_collection_for_object(Quest).delete_one({'_id': quest_id})
 
 
 def get_quest_from_id(quest_id: str) -> Quest:
@@ -267,11 +268,11 @@ def get_channel_quests(channel: discord.abc.GuildChannel) -> List[Quest]:
 
 def get_random_quest_in_channel(channel: discord.abc.GuildChannel):
     if channel.guild in quest_map:
-        return random.choice(get_channel_quests(channel))
+        return secrets.choice(get_channel_quests(channel))
 
 
 def add_default_quest_to_server(guild):
-    default = random.choice(list(quest_map["DEFAULT"].values()))
+    default = secrets.choice(list(quest_map["DEFAULT"].values()))
     Quest(default.name,
           default.base_attack,
           default.base_strg,

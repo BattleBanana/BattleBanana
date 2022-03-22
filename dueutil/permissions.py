@@ -52,7 +52,7 @@ def has_special_permission(member, permission):
 
 def give_permission(member, permission):
     if permission != Permission.PLAYER:
-        dbconn.conn()["permissions"].update({'_id': member.id}, {"$set": {'permission': permission.value[1]}},
+        dbconn.conn()["permissions"].update_one({'_id': member.id}, {"$set": {'permission': permission.value[1]}},
                                             upsert=True)
         special_permissions[member.id] = permission.value[1]
     else:

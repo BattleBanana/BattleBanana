@@ -21,7 +21,7 @@ def calculate_player_rankings(rank_name, sort_function, reverse=True):
     db = dbconn.conn()
     db.drop_collection(rank_name)
     for rank, player_id in enumerate(leaderboards[rank_name][0]):
-        db[rank_name].insert({"rank": rank + 1, "player_id": player_id})
+        db[rank_name].insert_one({"rank": rank + 1, "player_id": player_id})
 
 
 def calculate_level_leaderboard():

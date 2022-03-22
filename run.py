@@ -12,7 +12,7 @@ import traceback
 from threading import Thread
 
 import generalconfig as gconf
-from dueutil import blacklist as bl
+from dueutil import blacklist
 from dueutil import dbconn, events, loader, permissions, servercounts, util
 from dueutil.game import players, emojis as e
 from dueutil.game.configs import dueserverconfig
@@ -60,8 +60,9 @@ class BattleBananaClient(discord.AutoShardedClient):
         intents.guild_messages = True
         intents.message_content = True
 
-        super(BattleBananaClient, self).__init__(intents=intents, max_messages=None, **details)
+        super().__init__(intents=intents, max_messages=None, **details)
 
+    async def setup_hook(self):
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
 
     async def __check_task_queue(self):
@@ -110,15 +111,17 @@ class BattleBananaClient(discord.AutoShardedClient):
 
         # Message to help out new guild admins.
         try:
-            audit = await guild.audit_logs(action=discord.AuditLogAction.bot_add).find(self.who_added)
-            user = audit.user
+            audit = None
+            async for log in guild.audit_logs(action=discord.AuditLogAction.bot_add):
+                if log.user == self.user:
+                    audit = log
+                    break
 
-            await user.create_dm()
-            await user.send(":wave: __Thanks for adding me!__\n"
+            await audit.user.send(":wave: __Thanks for adding me!__\n"
                             + "If you would like to customize me to fit your "
                             + "guild take a quick look at the admins "
                             + "guide at <https://battlebanana.xyz/howto/#adming>.\n"
-                            + "It shows how to change the command prefix here, and set which "
+                            + "It shows how to change the command prefix here and set which "
                             + "channels I or my commands can be used in (along with a bunch of other stuff).")
         except discord.Forbidden:
             for channel in guild.channels:
@@ -201,9 +204,9 @@ class BattleBananaClient(discord.AutoShardedClient):
                 return
         elif isinstance(error, discord.HTTPException):
             if "The resource is being rate limited." in str(error):
-                if bl.find(ctx.author.id) is None:
+                if blacklist.find(ctx.author.id) is None:
                     await util.duelogger.error(f"**Blacklisted user:** {ctx.author.mention}\n<@{gconf.other_configs['owner']}>")
-                    bl.add(ctx.author.id, "Ratelimit")
+                    blacklist.add(ctx.author.id, "Ratelimit")
                 return
                 
             util.logger.error("Discord HTTP error: %s", error)
@@ -215,9 +218,9 @@ class BattleBananaClient(discord.AutoShardedClient):
                                            embed=trigger_message)
         elif isinstance(error, discord.NotFound):
             if "Unknown Channel" in str(error):
-                if bl.find(ctx.author.id) is not None:
+                if blacklist.find(ctx.author.id) is not None:
                     await util.duelogger.error(f"**Blacklisted user:** {ctx.author.mention}\n<@115269304705875969>")
-                    bl.add(ctx.author.id, "Ratelimit")
+                    blacklist.add(ctx.author.id, "Ratelimit")
                 return
         elif isinstance(error, (aiohttp.ClientResponseError, aiohttp.ClientOSError)):
             if ctx_is_message:
@@ -247,11 +250,11 @@ class BattleBananaClient(discord.AutoShardedClient):
         traceback.print_exc()
 
     async def on_message(self, message: discord.Message):
-        if (message.author == self.user
+        if (not self.is_ready()
+                or message.author == self.user
                 or message.author.bot
-                or bl.find(message.author.id)
                 or isinstance(message.channel, discord.abc.PrivateChannel)
-                or not self.is_ready()):
+                or blacklist.find(message.author.id)):
             return
 
         owner = message.author
@@ -311,7 +314,7 @@ class BattleBananaClient(discord.AutoShardedClient):
             server_port = async_server.sockets[0].getsockname()[1]  # get port that the server is on, to confirm it started on 4000
             util.logger.info("Listening for data transfer requests on port %s!" % server_port)
         except:
-            util.logger.error("Websocket already started")
+            util.logger.warning("Websocket already started")
 
     async def on_shard_ready(self, shard_id: int):
         game = discord.Activity(name="battlebanana.xyz | shard %d/%d" % (shard_id + 1, self.shard_count),
@@ -341,7 +344,7 @@ class ClientThread(Thread):
         client = BattleBananaClient(chunk_guilds_at_startup=False)
         clients.append(client)
         try:
-            client.loop.run_until_complete(client.start(bot_key))
+            asyncio.run(client.start(bot_key))
         except KeyboardInterrupt:
             client.loop.run_until_complete(client.logout())
             util.logger.warning("Bot has been stopped with CTRL + C")
@@ -394,7 +397,6 @@ def run_bb():
 
 
 if __name__ == "__main__":
-    print("Starting BattleBanana!")
     config = gconf.other_configs
     bot_key = config["botToken"]
     shard_names = config["shardNames"]

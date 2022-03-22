@@ -1,4 +1,5 @@
 import asyncio
+import secrets
 from aiohttp_socks import ProxyConnector
 import aiohttp
 import discord
@@ -606,7 +607,7 @@ async def googly_eyes(ctx, eye_descriptor):
         Returns a random eye postion
         """
 
-        return random.choice(eye_types)
+        return secrets.choice(eye_types)
 
     def random_eye_type():
 
@@ -615,8 +616,8 @@ async def googly_eyes(ctx, eye_descriptor):
         """
         mods = ["evil", "gay", "snek", "high", "ogre", "emoji", "small"]
         eye_type = ""
-        for _ in range(0, random.randrange(0, len(mods))):
-            mod = random.choice(mods)
+        for _ in range(0, secrets.randbelow(len(mods))):
+            mod = secrets.choice(mods)
             eye_type += mod
             mods.remove(mod)
         return eye_type + random_eyes()

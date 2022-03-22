@@ -282,12 +282,6 @@ def paginator(item_add):
     return page_getter
 
 
-"""    
-def random_word():
-    response = requests.get("http://randomword.setgetgo.com/get.php")
-"""
-
-
 async def get_glitter_text(gif_text):
     """
     Screen scrape glitter text

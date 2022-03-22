@@ -12,7 +12,7 @@ General config for a particular guild
 
 
 def update_server_config(guild, **update):
-    dbconn.conn()["serverconfigs"].update({'_id': guild.id}, {"$set": update}, upsert=True)
+    dbconn.conn()["serverconfigs"].update_one({'_id': guild.id}, {"$set": update}, upsert=True)
 
 
 def mute_level(channel):

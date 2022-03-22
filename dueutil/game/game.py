@@ -1,6 +1,7 @@
 import json
 import random
 import re
+import secrets
 import time
 
 import generalconfig as gconf
@@ -87,7 +88,7 @@ async def player_message(message, player, spam_level):
             await awards.give_award(message.channel, player, "Donor",
                                     "Donate to BattleBanana!!! :money_with_wings: :money_with_wings: :money_with_wings:")
         # DueUtil tech award
-        if dbconn.conn()["dueutiltechusers"].find({"_id": player.id}).count() > 0:
+        if dbconn.conn()["dueutiltechusers"].count_documents({"_id": player.id}) > 0:
             if "DueUtilTech" not in player.awards:
                 player.inventory["themes"].append("dueutil.tech")
             await awards.give_award(message.channel, player, "DueUtilTech", "<https://battlebanana.xyz/>")
@@ -110,7 +111,7 @@ async def player_message(message, player, spam_level):
         for word in message_words:
             if len(word) > 4:
                 big_word_count += 1
-            if random.getrandbits(1):  # spelling_dict.check(word):
+            if secrets.randbits(1):  # spelling_dict.check(word):
                 spelling_score += 3
                 if len(word) > 4:
                     big_word_spelling_score += 1

@@ -60,7 +60,7 @@ def update_award_stat(award_id, stat, value, increment=True):
             update = {"$inc": {stat: value}}
         else:
             update = {"$set": {stat: value}}
-        dbconn.conn()["award_stats"].update({"award": award_id}, update, upsert=True)
+        dbconn.conn()["award_stats"].update_one({"award": award_id}, update, upsert=True)
 
 
 def get_award_stat(award_id):

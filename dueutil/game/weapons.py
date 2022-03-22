@@ -169,7 +169,7 @@ def remove_weapon_from_shop(guild: discord.Guild, weapon_name: str) -> bool:
     weapon = get_weapon_for_server(guild.id, weapon_name)
     if weapon is not None:
         del weapons[weapon.id]
-        dbconn.get_collection_for_object(Weapon).remove({'_id': weapon.id})
+        dbconn.get_collection_for_object(Weapon).delete_one({'_id': weapon.id})
         return True
     return False
 

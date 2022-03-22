@@ -372,7 +372,7 @@ async def pandemic(ctx, **_):
                   1: "http://i.imgur.com/we6XgpG.gif",
                   2: "http://i.imgur.com/EJVYJ9C.gif"}
 
-    total_players = dbconn.get_collection_for_object(players.Player).count()
+    total_players = dbconn.get_collection_for_object(players.Player).estimated_document_count()
     total_infected = virus_stats["times_given"]
     total_uninfected = total_players - total_infected
     percent_infected = (total_infected / total_players) * 100
@@ -421,7 +421,7 @@ async def topdoghistory(ctx, page=1, **_):
     Display the current and the 10 previous topdogs
     """
     page -= 1
-    count = dbconn.conn()["Topdogs"].find().count()
+    count = dbconn.conn()["Topdogs"].estimated_document_count()
 
     if topdogs_per_page * page > count:
         raise util.BattleBananaException(ctx.channel, "Page not found!")
@@ -455,17 +455,3 @@ async def topdoghistory(ctx, page=1, **_):
     embed.add_field(name="Previous topdogs:", value=tdstring or "No previous topdogs", inline=False)
 
     await util.reply(ctx, embed=embed)
-
-# import random
-# @commands.command(args_pattern=None)
-# async def fool(ctx, **details):
-#     """
-#     [CMD_KEY]fool
-# 
-#     Are you a fool?
-#     """
-#     randomnumber = random.randint(1, 100)
-#     if randomnumber >= 50:
-#         await util.reply(ctx, "%s is a fool!1!!11 :confused:" % (ctx.author.mention))
-#     else:
-#         await util.reply(ctx, "%s is not a fool!1!11!1! :smiley:" % (ctx.author.mention))

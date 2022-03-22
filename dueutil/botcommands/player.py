@@ -1,3 +1,4 @@
+import secrets
 import discord
 import random
 import time
@@ -34,7 +35,7 @@ async def daily(ctx, **details):
     player.money += BALANCED_AMOUNT
     player.save()
     await util.reply(ctx,
-                     e.BBT + f' {random.choice(responses).format(user=f"**{player}**", daily=f"¤{BALANCED_AMOUNT}")}')
+                     e.BBT + f' {secrets.choice(responses).format(user=f"**{player}**", daily=f"¤{BALANCED_AMOUNT}")}')
 
 
 @commands.command(args_pattern=None)

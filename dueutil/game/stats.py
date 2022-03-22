@@ -23,7 +23,7 @@ class Stat(Enum):
 
 
 def increment_stat(dueutil_stat: Stat, increment=1):
-    dbconn.conn()["stats"].update({"stat": dueutil_stat.value},
+    dbconn.conn()["stats"].update_one({"stat": dueutil_stat.value},
                                   {"$inc": {"count": increment}}, upsert=True)
 
 

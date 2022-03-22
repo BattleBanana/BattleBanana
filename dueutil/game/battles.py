@@ -1,3 +1,4 @@
+import secrets
 import discord
 import random
 from collections import OrderedDict
@@ -140,7 +141,7 @@ def battle(**battleargs):
         if message is None:
             weapon = attacker.player.weapon
             if weapon.id == weapons.NO_WEAPON_ID:
-                message = random.choice(BABY_MOVES)
+                message = secrets.choice(BABY_MOVES)
             else:
                 message = weapon.hit_message
 
