@@ -15,4 +15,4 @@ docker stop battlebanana
 docker rm battlebanana
 
 # Start the container
-docker run -d --net=host --name battlebanana battlebanana:latest
+docker run -d --net=host -v $(pwd):/usr/src/app --name battlebanana battlebanana:latest

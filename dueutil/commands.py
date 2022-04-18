@@ -215,13 +215,13 @@ class ConfirmInteraction(ui.View):
         return self.value
     
     @ui.button(label='Confirm', style=ButtonStyle.green)
-    async def confirm(self, button: ui.Button, interaction: discord.Interaction):
+    async def confirm(self, interaction: discord.Interaction, button: ui.Button):
         self.value = "confirm"
         await interaction.response.send_message("Gotcha! Doing it chief.", ephemeral=True)
         self.stop()
 
     @ui.button(label='Cancel', style=ButtonStyle.red)
-    async def cancel(self, button: ui.Button, interaction: discord.Interaction):
+    async def cancel(self, interaction: discord.Interaction, button: ui.Button):
         self.value = "cancel"
         await interaction.response.send_message("Understood! I won't do it.", ephemeral=True)
         self.stop()

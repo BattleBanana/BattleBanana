@@ -13,14 +13,17 @@ class PromoCode:
 
 codes: List[PromoCode] = []
 
+def __new_code():
+    return f"BATTLEBANANA_{secrets.token_hex(5).upper()}"
+
 
 def generate(price, quantity = 1):
     new_codes: List[PromoCode] = []
 
     for _ in range(quantity):
-        code = f"BATTLEBANANA_{secrets.token_hex(10)}"
+        code = __new_code()
         while exists(code):
-            code = f"BATTLEBANANA_{secrets.token_hex(10)}"
+            code = __new_code()
 
         new_codes.append(PromoCode(code, price))
 

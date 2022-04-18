@@ -30,13 +30,13 @@ class BlackjackInteraction(ui.View):
         return self.value
     
     @ui.button(label='Hit', style=ButtonStyle.primary)
-    async def hit(self, button: ui.Button, interaction: discord.Interaction):
+    async def hit(self, interaction: discord.Interaction, button: ui.Button):
         await interaction.response.defer()
         self.value = "hit"
         self.stop()
 
     @ui.button(label='Stand', style=ButtonStyle.primary)
-    async def stand(self, button: ui.Button, interaction: discord.Interaction):
+    async def stand(self, interaction: discord.Interaction, button: ui.Button):
         await interaction.response.defer()
         self.value = "stand"
         self.stop()
