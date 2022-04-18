@@ -14,13 +14,20 @@ THOUSANDS_REGEX = re.compile(r'(\,)([0-9][0-9][0-9])')
 
 
 def strip_thousands_separators(value):
-    if value[-1] == "k":
-        value = value.replace("k", "") + "000"
-    if value[-1] == "m":
-        value = value.replace("m", "") + "000000"
     # Will strip 1000s without crazy 1,,,,,,,,,,000
     # Allowed will also allow incorrect formatting.
     value = re.sub(THOUSANDS_REGEX, r'\2', value)
+    
+    multiplier = value[-1].lower()
+    if multiplier in ("k", "m", "b"):
+        value = value[:-1]
+        if multiplier == "k":
+            value = int(value) * 1000
+        elif multiplier == "m":
+            value = int(value) * 1000000
+        elif multiplier == "b":
+            value = int(value) * 1000000000
+
     return value
 
 
@@ -97,7 +104,7 @@ def parse_type(arg_type, value, **extras):
     return {
         'P': parse_player(value, called, ctx),
         # This one is for page selectors that could be a page number or a string like a weapon name.
-        'M': parse_count(value) if parse_count(value) else value,
+        'M': parse_count(value) or value,
         'B': value.lower() in misc.POSITIVE_BOOLS,
         '%': parse_float(value.rstrip("%"))
     }.get(arg_type)
