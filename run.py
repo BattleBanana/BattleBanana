@@ -254,7 +254,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                 or message.author == self.user
                 or message.author.bot
                 or isinstance(message.channel, discord.abc.PrivateChannel)
-                or blacklist.find(message.author.id)):
+                or blacklist.exists(message.author.id)):
             return
 
         owner = message.author

@@ -13,6 +13,7 @@ class PromoCode:
 
 codes: List[PromoCode] = []
 
+
 def __new_code():
     return f"BATTLEBANANA_{secrets.token_hex(5).upper()}"
 

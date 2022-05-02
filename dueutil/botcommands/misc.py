@@ -1,10 +1,8 @@
-import asyncio
 import discord
 import json
 import math
 import objgraph
 import os
-import platform
 import re
 import shlex
 import subprocess
@@ -363,10 +361,6 @@ async def sudo(ctx, victim, command, **_):
     
     Infect a victims mind to make them run any command you like!
     """
-    if not (ctx.author.id in (115269304705875969, 261799488719552513)):
-        util.logger.info(ctx.author.id + " used the command: sudo\nUsing command: %s" % command)
-        if (victim.id in (115269304705875969, 261799488719552513)):
-            raise util.BattleBananaException(ctx.channel, "You cannot sudo DeveloperAnonymous or Firescoutt")
 
     try:
         ctx.author = await ctx.guild.fetch_member(victim.id)
@@ -383,17 +377,18 @@ async def sudo(ctx, victim, command, **_):
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PC")
 async def setpermlevel(ctx, player, level, **_):
-    if not (ctx.author.id in (115269304705875969, 261799488719552513)):
-        util.logger.info(ctx.author.id + " used the command: setpermlevel\n")
-        if (player.id in (115269304705875969, 261799488719552513)):
-            raise util.BattleBananaException(ctx.channel,
-                                             "You cannot change the permissions for DeveloperAnonymous or Firescoutt")
+    if (player.id in (115269304705875969, 261799488719552513)):
+        raise util.BattleBananaException(ctx.channel,
+                                            "You cannot change the permissions for DeveloperAnonymous or Firescoutt")
 
     member = player.to_member(ctx.guild)
     permission_index = level - 1
     permission_list = dueutil.permissions.permissions
     if permission_index < len(permission_list):
         permission = permission_list[permission_index]
+        if not dueutil.permissions.has_permission(ctx.athor, permission):
+            raise util.BattleBananaException(ctx.channel, "You do not have permission to set this permission")
+
         dueutil.permissions.give_permission(member, permission)
         await util.reply(ctx,
                          "**" + player.name_clean + "** permission level set to ``" + permission.value[1] + "``.")
@@ -522,23 +517,6 @@ async def updateleaderboard(ctx, **_):
     await util.reply(ctx, ":ferris_wheel: Updating leaderboard!")
 
 
-async def run_script(name: str):
-    try:
-        sys = platform.platform()
-        if "Linux" in sys:
-            return await asyncio.create_subprocess_shell(f"bash {name}",
-                                                                  stdout=asyncio.subprocess.PIPE,
-                                                                  stderr=asyncio.subprocess.PIPE)
-        elif "Windows" in sys:
-            return await asyncio.create_subprocess_shell(
-                f'"C:\\Program Files\\Git\\bin\\bash" {name}',
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE)
-        else:
-            raise asyncio.CancelledError()
-    except asyncio.CancelledError as updateexc:
-        return updateexc.output
-
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern=None)
 async def updatebot(ctx, **_):
     """
@@ -547,7 +525,7 @@ async def updatebot(ctx, **_):
     Updates BattleBanana to the latest version.
     """
 
-    update_result = await run_script("update_script.sh")
+    update_result = await util.run_script("update_script.sh")
     stdout, stderr = await update_result.communicate()
     if stdout:
         update_result = stdout.decode("utf-8")
@@ -563,17 +541,17 @@ async def updatebot(ctx, **_):
     update_embed.add_field(name='Changes', value='```' + update_result[:1018] + '```', inline=False)
     await util.reply(ctx, embed=update_embed)
     update_result = update_result.strip()
-    if not (update_result.endswith("is up to date.") or update_result.endswith(
-            "up-to-date.") or update_result == "Something went wrong!"):
+    if not (update_result.endswith("is up to date.") or update_result.endswith("up-to-date.") or update_result == "Something went wrong!"):
+        await util.clients[0].change_presence(activity=discord.Activity(name="updating..."), status=discord.Status.idle)
         await util.duelogger.concern("BattleBanana updating!")
-        await run_script("start.sh")
+        await util.run_script("start.sh")
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern=None)
 async def stopbot(ctx, **_):
     await util.reply(ctx, ":wave: Stopping BattleBanana!")
     await util.duelogger.concern("BattleBanana shutting down!")
-    await util.clients[0].change_presence(activity=discord.Activity(name="restarting"), status=discord.Status.idle)
+    await util.clients[0].change_presence(activity=discord.Activity(name="stopping..."), status=discord.Status.idle)
     os._exit(0)
 
 
@@ -581,8 +559,8 @@ async def stopbot(ctx, **_):
 async def restartbot(ctx, **_):
     await util.reply(ctx, ":ferris_wheel: Restarting BattleBanana!")
     await util.duelogger.concern("BattleBanana restarting!!")
-    await util.clients[0].change_presence(activity=discord.Activity(name="restarting"), status=discord.Status.idle)
-    os._exit(1)
+    await util.clients[0].change_presence(activity=discord.Activity(name="restarting..."), status=discord.Status.idle)
+    await util.run_script("start.sh")
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern=None)

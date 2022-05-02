@@ -19,7 +19,7 @@ extras = commandextras
 IMAGE_REQUEST_COOLDOWN = 3
 
 """
-DueUtils random command system.
+BattleBanana random command system.
 """
 
 
@@ -58,10 +58,8 @@ def command(**command_rules):
         async def wrapped_command(ctx, prefix, _, args, **details):
             name = command_func.__name__
             player = players.find_player(ctx.author.id)
-            if player is None:
-                if name != "createaccount":
-                    return await util.reply(ctx,
-                                            "You are not registered\nUse `" + prefix + "createaccount` to register")
+            if player is None and name != "createaccount":
+                return await util.reply(ctx, f"Please run `{prefix}createaccount` if you want to use BattleBanana.")
 
             # Player has admin perms
             is_admin = permissions.has_permission(ctx.author, Permission.SERVER_ADMIN)
@@ -88,6 +86,7 @@ def command(**command_rules):
                     if not has_my_variant(name) or len(ctx.raw_mentions) > 0:
                         # Could not be a mistype for a personal my command
                         await ctx.add_reaction(emojis.QUESTION_REACT)
+                        await util.reply(ctx, f":question: Wrong syntax was used, please run `{prefix}help {name}` for help.")
                     else:
                         # May have meant to call a personal command
                         personal_command_name = "my" + name

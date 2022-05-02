@@ -50,6 +50,16 @@ def find(id: int) -> BlacklistedUser or None:
     return None
 
 
+def exists(id: int) -> bool:
+    """
+    Find a user in the blacklist
+    """
+    for user in blacklist:
+        if user.id == id:
+            return True
+    return False
+
+
 def __load() -> None:
     """
     Load the blacklist from the database

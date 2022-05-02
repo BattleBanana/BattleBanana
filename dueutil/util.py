@@ -5,6 +5,7 @@ import emoji  # The emoji list in this is outdated/not complete.
 import io
 import logging
 import math
+import platform
 import time
 from datetime import datetime
 from itertools import chain
@@ -111,6 +112,25 @@ async def download_file(url):
             response.release()
             file_data.seek(0)
             return file_data
+
+
+async def run_script(name: str):
+    try:
+        sys = platform.platform()
+        if "Linux" in sys:
+            return await asyncio.create_subprocess_shell(
+                f"bash {name}",
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE)
+        elif "Windows" in sys:
+            return await asyncio.create_subprocess_shell(
+                f'"C:\\Program Files\\Git\\bin\\bash" {name}',
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE)
+        else:
+            raise asyncio.CancelledError()
+    except asyncio.CancelledError as err:
+        return err.output
 
 
 async def tax(amount, bb):

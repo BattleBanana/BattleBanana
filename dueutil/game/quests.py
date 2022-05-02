@@ -17,7 +17,7 @@ from ..game import weapons
 from ..game.helpers.misc import BattleBananaObject, DueMap
 from ..util import SlotPickleMixin
 
-quest_map = DueMap()
+quests = DueMap()
 
 MIN_QUEST_IV = 0
 QUEST_DAY = 86400
@@ -43,8 +43,7 @@ class Quest(BattleBananaObject, SlotPickleMixin):
         given_spawn_chance = extras.get('spawn_chance', 4)
 
         if message is not None:
-            if message.guild in quest_map:
-                if name.lower() in quest_map[message.guild]:
+            if message.guild in quests and name.lower() in quests[message.guild]:
                     raise util.BattleBananaException(message.channel, "A foe with that name already exists on this guild!")
 
             if base_accy < 1 or base_attack < 1 or base_strg < 1:
@@ -84,9 +83,9 @@ class Quest(BattleBananaObject, SlotPickleMixin):
         return f"{self.server_id}/{self.name.lower()}"
 
     def _add(self):
-        global quest_map
+        global quests
         if self.server_id != "":
-            quest_map[self.id] = self
+            quests[self.id] = self
 
     def base_values(self):
         return self._BaseStats(self.base_attack, self.base_strg,
@@ -224,7 +223,7 @@ class ActiveQuest(Player, util.SlotPickleMixin):
 
     @property
     def info(self):
-        return quest_map[self.q_id]
+        return quests[self.q_id]
 
     def save(self):
         pass
@@ -245,34 +244,34 @@ class ActiveQuest(Player, util.SlotPickleMixin):
 
 
 def get_server_quest_list(guild: discord.Guild) -> Dict[str, Quest]:
-    return quest_map[guild]
+    return quests[guild]
 
 
 def get_quest_on_server(guild: discord.Guild, quest_name: str) -> Quest:
-    return quest_map[f"{guild.id}/{quest_name.lower()}"]
+    return quests[f"{guild.id}/{quest_name.lower()}"]
 
 
 def remove_quest_from_server(guild: discord.Guild, quest_name: str):
     quest_id = f"{guild.id}/{quest_name.lower()}"
-    del quest_map[quest_id]
+    del quests[quest_id]
     dbconn.get_collection_for_object(Quest).delete_one({'_id': quest_id})
 
 
 def get_quest_from_id(quest_id: str) -> Quest:
-    return quest_map[quest_id]
+    return quests[quest_id]
 
 
 def get_channel_quests(channel: discord.abc.GuildChannel) -> List[Quest]:
-    return [quest for quest in quest_map[channel.guild].values() if quest.channel in ("ALL", channel.id)]
+    return [quest for quest in quests[channel.guild].values() if quest.channel in ("ALL", channel.id)]
 
 
 def get_random_quest_in_channel(channel: discord.abc.GuildChannel):
-    if channel.guild in quest_map:
+    if channel.guild in quests:
         return secrets.choice(get_channel_quests(channel))
 
 
 def add_default_quest_to_server(guild):
-    default = secrets.choice(list(quest_map["DEFAULT"].values()))
+    default = secrets.choice(list(quests["DEFAULT"].values()))
     Quest(default.name,
           default.base_attack,
           default.base_strg,
@@ -287,19 +286,18 @@ def add_default_quest_to_server(guild):
 
 
 def remove_all_quests(guild):
-    if guild in quest_map:
+    if guild in quests:
         result = dbconn.delete_objects(Quest, '%s/.*' % guild.id)
-        del quest_map[guild]
+        del quests[guild]
         return result.deleted_count
     return 0
 
 
 def has_quests(place):
     if isinstance(place, discord.Guild):
-        return place in quest_map and len(quest_map[place]) > 0
-    elif isinstance(place, discord.abc.GuildChannel):
-        if place.guild in quest_map:
-            return len(get_channel_quests(place)) > 0
+        return place in quests and len(quests[place]) > 0
+    elif isinstance(place, discord.abc.GuildChannel) and place.guild in quests:
+        return len(get_channel_quests(place)) > 0
     return False
 
 
@@ -332,8 +330,8 @@ def _load():
         if isinstance(loaded_quest.server_id, str):
             loaded_quest.server_id = int(loaded_quest.server_id)
 
-        quest_map[loaded_quest.id] = util.load_and_update(REFERENCE_QUEST, loaded_quest)
-    util.logger.info("Loaded %s quests", len(quest_map))
+        quests[loaded_quest.id] = util.load_and_update(REFERENCE_QUEST, loaded_quest)
+    util.logger.info("Loaded %s quests", len(quests))
 
 
 _load()
