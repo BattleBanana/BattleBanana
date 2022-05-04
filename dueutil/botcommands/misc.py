@@ -542,7 +542,7 @@ async def updatebot(ctx, **_):
     await util.reply(ctx, embed=update_embed)
     update_result = update_result.strip()
     if not (update_result.endswith("is up to date.") or update_result.endswith("up-to-date.") or update_result == "Something went wrong!"):
-        await util.clients[0].change_presence(activity=discord.Activity(name="updating..."), status=discord.Status.idle)
+        await util.clients[0].change_presence(activity=discord.Activity(name="BattleBanana update...", type=discord.ActivityType.watching), status=discord.Status.idle)
         await util.duelogger.concern("BattleBanana updating!")
         await util.run_script("start.sh")
 
@@ -551,7 +551,7 @@ async def updatebot(ctx, **_):
 async def stopbot(ctx, **_):
     await util.reply(ctx, ":wave: Stopping BattleBanana!")
     await util.duelogger.concern("BattleBanana shutting down!")
-    await util.clients[0].change_presence(activity=discord.Activity(name="stopping..."), status=discord.Status.idle)
+    await util.clients[0].change_presence(activity=discord.Activity(name="BattleBanana stop...", type=discord.ActivityType.watching), status=discord.Status.idle)
     os._exit(0)
 
 
@@ -559,7 +559,7 @@ async def stopbot(ctx, **_):
 async def restartbot(ctx, **_):
     await util.reply(ctx, ":ferris_wheel: Restarting BattleBanana!")
     await util.duelogger.concern("BattleBanana restarting!!")
-    await util.clients[0].change_presence(activity=discord.Activity(name="restarting..."), status=discord.Status.idle)
+    await util.clients[0].change_presence(activity=discord.Activity(name="BattleBanana restart...", type=discord.ActivityType.watching), status=discord.Status.idle)
     await util.run_script("start.sh")
 
 
@@ -577,7 +577,8 @@ async def meminfo(ctx, **_):
 async def ping(ctx, **_):
     """
     [CMD_KEY]ping
-    pong! Gives you the response time.
+    
+    Pong! Gives you the response time.
     """
     message = await util.reply(ctx, ":ping_pong:")
     t1 = time.time()
@@ -588,38 +589,45 @@ async def ping(ctx, **_):
     apims = round((message.created_at - ctx.created_at).total_seconds() * 1000)
 
     embed = discord.Embed(title=":ping_pong: Pong!", type="rich", colour=gconf.DUE_COLOUR)
-    embed.add_field(name="Bot Latency:", value="``%sms``" % (apims))
+    embed.add_field(name="Bot Latency:", value=f"`{apims}ms`")
     try:
         latency = round(util.clients[0].latencies[util.get_shard_index(ctx.guild.id)][1] * 1000)
 
-        embed.add_field(name="API Latency:", value="``%sms``" % (latency))
+        embed.add_field(name="API Latency:", value=f"`{latency}ms`")
     except OverflowError:
         embed.add_field(name="API Latency:", value="``NaN``")
 
-    embed.add_field(name="Database Latency:", value="``%sms``" % (dbms), inline=False)
+    embed.add_field(name="Database Latency:", value=f"``{dbms}ms``", inline=False)
     await util.edit_message(message, embed=embed)
 
 
-@commands.command(args_pattern=None, hidden=True)
+@commands.command(args_pattern=None)
 async def pong(ctx, **_):
     """
     [CMD_KEY]pong
-    pong! Gives you the response time.
+
+    Ping! Gives you the response time.
     """
     message = await util.reply(ctx, ":ping_pong:")
-
-    apims = round((message.created_at - ctx.created_at).total_seconds() * 1000)
-    latency = round(util.clients[0].latencies[util.get_shard_index(ctx.guild.id)][1] * 1000)
-
     t1 = time.time()
     dbconn.db.command('ping')
     t2 = time.time()
     dbms = round((t2 - t1) * 1000)
 
-    embed = discord.Embed(title=":ping_pong: Pong!", type="rich", colour=gconf.DUE_COLOUR)
-    embed.add_field(name="API Latency:", value="``%sms``" % (latency))
-    embed.add_field(name="Bot Latency:", value="``%sms``" % (apims))
-    embed.add_field(name="Database Latency:", value="``%sms``" % (dbms), inline=False)
+    apims = round((message.created_at - ctx.created_at).total_seconds() * 1000)
+
+    embed = discord.Embed(title=":ping_pong: Ping!", type="rich", colour=gconf.DUE_COLOUR)
+    try:
+        latency = round(util.clients[0].latencies[util.get_shard_index(ctx.guild.id)][1] * 1000)
+
+        embed.add_field(name="API Latency:", value=f"`{latency}ms`")
+    except OverflowError:
+        embed.add_field(name="API Latency:", value="``NaN``")
+    
+    embed.add_field(name="Bot Latency:", value=f"`{apims}ms`")
+
+    embed.add_field(name="Database Latency:", value=f"``{dbms}ms``", inline=False)
+    await util.edit_message(message, embed=embed)
 
     await util.edit_message(message, embed=embed)
 
