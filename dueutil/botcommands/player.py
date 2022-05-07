@@ -280,8 +280,15 @@ async def createaccount(ctx, **details):
 
     players.Player(ctx.author)
     stats.increment_stat(stats.Stat.NEW_PLAYERS_JOINED)
-    await util.reply(ctx,
-                     "Welcome to the BattleBanana club! Make sure you head to <https://battlebanana.xyz/howto> for a starter guide!\n\nHave fun! :D")
+
+    embed = discord.Embed(title="Welcome to BattleBanana!", color=0xFEE761)
+    embed.add_field(name="How to play?", value="We have an extensive guide on how to play BattleBanana.\n"
+                                                "You can find it at <https://battlebanana.xyz/howto>")
+    embed.add_field(name="How to get started?", value="You can find a list of all commands at <https://battlebanana.xyz/commands>")
+    embed.add_field(name="Need more help?", value="You can join our support server at <https://battlebanana.xyz/support> and we'll be more than happy to help you out!")
+    embed.set_footer(text="BattleBanana is a bot created by DeveloperAnonymous#9830")
+
+    await util.reply(ctx, "Your account has been created!", embed=embed)
 
 
 @commands.command(args_pattern="S?")

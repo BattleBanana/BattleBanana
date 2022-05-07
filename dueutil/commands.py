@@ -58,7 +58,7 @@ def command(**command_rules):
         async def wrapped_command(ctx, prefix, _, args, **details):
             name = command_func.__name__
             player = players.find_player(ctx.author.id)
-            if player is None and name != "createaccount":
+            if player is None and wrapped_command.permission > Permission.DISCORD_USER:
                 return await util.reply(ctx, f"Please run `{prefix}createaccount` if you want to use BattleBanana.")
 
             # Player has admin perms
@@ -109,7 +109,6 @@ def command(**command_rules):
                 # React X
                 if not (permissions.has_permission(ctx.author, Permission.PLAYER) or permissions.has_special_permission(
                         ctx.author, Permission.BANNED)):
-                    player = players.find_player(ctx.author.id)
                     local_optout = not player.is_playing(ctx.author, local=True)
                     if local_optout:
                         await util.reply(ctx, "You are opted out. Use ``%soptinhere``!" % prefix)
