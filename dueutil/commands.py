@@ -159,7 +159,7 @@ def imagecommand():
         @ratelimit(slow_command=True, cooldown=IMAGE_REQUEST_COOLDOWN, error=":cold_sweat: Please don't break me!")
         @wraps(command_func)
         async def wrapped_command(ctx, *args, **kwargs):
-            await ctx.channel.trigger_typing()
+            await util.typing(ctx.channel)
             await asyncio.ensure_future(command_func(ctx, *args, **kwargs))
 
         return wrapped_command

@@ -188,7 +188,7 @@ async def save_old_topdog(player):
 
 
 async def typing(channel):
-    await channel.trigger_typing()
+    await channel.typing()
 
 
 async def wait_for_message(ctx, author, timeout=120):
