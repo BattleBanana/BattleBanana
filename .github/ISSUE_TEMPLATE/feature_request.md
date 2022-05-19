@@ -1,7 +1,7 @@
 ---
 name: Feature request
 about: Suggest an idea for Battlebanana
-title: "[FEATURE]"
+title: "[FEATURE] "
 labels: enhancement
 assignees: ''
 
@@ -15,3 +15,7 @@ A clear and concise description of what you want to happen.
 
 **Additional context**
 Add any other context or screenshots about the feature request here.
+
+**Checklist**
+- [ ] I searched for this feature and it was not already suggested
+- [ ] I added the issue to the "BattleBanana" project
