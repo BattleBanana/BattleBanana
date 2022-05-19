@@ -4,7 +4,7 @@ about: Create a report to help us improve
 title: "[BUG]"
 labels: bug
 assignees: ''
-
+project: "BattleBanana"
 ---
 
 **Describe the bug**
