@@ -156,7 +156,7 @@ async def acceptinvite(ctx, team, **details):
 
     member = details["author"]
 
-    if not in_a_team(member):
+    if in_a_team(member):
         raise util.BattleBananaException(ctx.channel, ALREADY_IN_TEAM)
 
     if team.id not in member.team_invites:
@@ -206,44 +206,7 @@ async def myteam(ctx, **details):
 
     team = teams.find_team(member.team)
 
-    pendings = ""
-    members = ""
-    admins = ""
-    for id in team.admins:
-        if id != team.owner:
-            admins += "%s (%s)\n" % (players.find_player(id).name, str(id))
-    for id in team.members:
-        if id not in team.admins and id != team.owner:
-            members += "%s (%s)\n" % (players.find_player(id).name, str(id))
-    for id in team.pendings:
-        if id in team.members:
-            team.pendings.remove(id)
-        else:
-            pendings += "%s (%s)\n" % (players.find_player(id).name, str(id))
-
-    if len(pendings) == 0:
-        pendings = "Nobody is pending!"
-    if len(members) == 0:
-        members = "There is no member to display!"
-    if len(admins) == 0:
-        admins = "There is no admin to display!"
-
-    owner = players.find_player(team.owner)
-
-    team_embed = discord.Embed(title="Team Information", description="Displaying team information", type="rich",
-                               colour=gconf.DUE_COLOUR)
-    team_embed.add_field(name="Name", value=team.name, inline=False)
-    team_embed.add_field(name="Description", value=team.description, inline=False)
-    team_embed.add_field(name="Owner", value=f"{owner.name} ({owner.id})", inline=False)
-    team_embed.add_field(name="Member Count", value=len(team.members), inline=False)
-    team_embed.add_field(name="Average level", value=team.avgLevel, inline=False)
-    team_embed.add_field(name="Required level", value=team.level, inline=False)
-    team_embed.add_field(name="Recruiting", value="Yes" if team.open else "No", inline=False)
-    team_embed.add_field(name="Admins:", value=admins)
-    team_embed.add_field(name="Members:", value=members)
-    team_embed.add_field(name="Pendings:", value=pendings)
-
-    await util.reply(ctx, embed=team_embed)
+    await util.reply(ctx, embed=team.get_info_embed())
 
 
 @commands.command(args_pattern="P", aliases=["pu"])
@@ -403,15 +366,15 @@ async def showteams(ctx, page=1, **details):
         else:
             teams.teams[loaded_team.id] = util.load_and_update(teams.REFERENCE_TEAM, loaded_team)
             team = teams.teams[loaded_team.id]
-        try:
-            owner = players.find_player(team.owner)
-            teams_embed.add_field(name=team.name,
-                                 value="Owner: **%s** (%s)\nDescription: **%s**\nMembers: **%s**\nAverage Level: **%s**\nRequired Level: **%s**\nRecruiting: **%s**" % (
-                                     owner.name, owner.id, team.description, len(team.members), team.avgLevel,
-                                     team.level,
-                                     ("Yes" if team.open else "No")), inline=False)
-        except:
-            continue
+
+        owner = players.find_player(team.owner)
+        teams_embed.add_field(
+            name=team.name,
+            value=f"Owner: **{owner.name}** ({owner.id})\nDescription: **{team.description}**\nMembers: **{len(team.members)}**"
+            + f"\nAverage Level: **{team.avgLevel}**\nRequired Level: **{team.level}**\nRecruiting: **{'Yes' if team.open else 'No'}**",
+            inline=False
+        )
+
 
     limit = page_size * page + page_size < len(db_teams)
     teams_embed.set_footer(text="%s" % (("Do %sshowteams %d for the next page!" % (
@@ -424,47 +387,10 @@ async def showteaminfo(ctx, team, **_):
     """
     [CMD_KEY]showteaminfo (team)
 
-    Display information about selected team - Owner, Admins, Members, team name, number of members, etc
+    Display team info
     """
 
-    team_embed = discord.Embed(title="Team Information", description="Displaying team information", type="rich",
-                               colour=gconf.DUE_COLOUR)
-    pendings = ""
-    members = ""
-    admins = ""
-    for id in team.admins:
-        if id != team.owner:
-            admins += "%s (%s)\n" % (players.find_player(id).name, str(id))
-    for id in team.members:
-        if id not in team.admins and id != team.owner:
-            members += "%s (%s)\n" % (players.find_player(id).name, str(id))
-    for id in team.pendings:
-        if id in team.members:
-            team.pendings.remove(id)
-        else:
-            pendings += "%s (%s)\n" % (players.find_player(id).name, str(id))
-
-    team_embed.add_field(name="Name", value=team.name, inline=False)
-    team_embed.add_field(name="Description", value=team.description, inline=False)
-    team_embed.add_field(name="Owner", value="%s (%s)" % (players.find_player(team.owner).name, team.owner),
-                         inline=False)
-    team_embed.add_field(name="Member Count", value=len(team.members), inline=False)
-    team_embed.add_field(name="Average level", value=team.avgLevel, inline=False)
-    team_embed.add_field(name="Required level", value=team.level, inline=False)
-    team_embed.add_field(name="Recruiting", value="Yes" if team.open else "No", inline=False)
-
-    if len(pendings) == 0:
-        pendings = "Nobody is pending!"
-    if len(members) == 0:
-        members = "There is no member to display!"
-    if len(admins) == 0:
-        admins = "There is no admin to display!"
-
-    team_embed.add_field(name="Admins:", value=admins)
-    team_embed.add_field(name="Members:", value=members)
-    team_embed.add_field(name="Pendings:", value=pendings)
-
-    await util.reply(ctx, embed=team_embed)
+    await util.reply(ctx, embed=team.get_info_embed())
 
 
 @commands.command(args_pattern="T", aliases=["jt"])

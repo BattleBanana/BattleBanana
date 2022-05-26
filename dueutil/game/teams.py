@@ -1,4 +1,7 @@
+import discord
 import jsonpickle
+
+import generalconfig as gconf
 
 from .. import dbconn, util
 from ..game import players
@@ -115,6 +118,42 @@ class Team(BattleBananaObject, SlotPickleMixin):
         if self.name.endswith('s'):
             return self.name + "'"
         return self.name + "'s"
+
+    def get_info_embed(self):
+        pendings = ""
+        members = ""
+        admins = ""
+        PLAYER_FORMAT = "%s (%s)\n"
+        for id in self.admins:
+            if id != self.owner:
+                admins += PLAYER_FORMAT % (players.find_player(id).name, str(id))
+        for id in self.members:
+            if id not in self.admins:
+                members += PLAYER_FORMAT % (players.find_player(id).name, str(id))
+        for id in self.pendings:
+            pendings += PLAYER_FORMAT % (players.find_player(id).name, str(id))
+
+        if len(pendings) == 0:
+            pendings = "Nobody is pending!"
+        if len(members) == 0:
+            members = "There is no member to display!"
+        if len(admins) == 0:
+            admins = "There is no admin to display!"
+
+        owner = players.find_player(self.owner)
+
+        team_embed = discord.Embed(title="Team Information", description="Displaying team information", type="rich",
+                                    colour=gconf.DUE_COLOUR)
+        team_embed.add_field(name="Name", value=self.name, inline=False)
+        team_embed.add_field(name="Description", value=self.description, inline=False)
+        team_embed.add_field(name="Owner", value=f"{owner.name} ({owner.id})", inline=False)
+        team_embed.add_field(name="Member Count", value=len(self.members), inline=False)
+        team_embed.add_field(name="Average level", value=self.avgLevel, inline=False)
+        team_embed.add_field(name="Required level", value=self.level, inline=False)
+        team_embed.add_field(name="Recruiting", value="Yes" if self.open else "No", inline=False)
+        team_embed.add_field(name="Admins:", value=admins)
+        team_embed.add_field(name="Members:", value=members)
+        team_embed.add_field(name="Pendings:", value=pendings)
 
 
 def find_team(team_id: str) -> Team:
