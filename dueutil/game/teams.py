@@ -142,18 +142,20 @@ class Team(BattleBananaObject, SlotPickleMixin):
 
         owner = players.find_player(self.owner)
 
-        team_embed = discord.Embed(title="Team Information", description="Displaying team information", type="rich",
+        embed = discord.Embed(title="Team Information", description="Displaying team information", type="rich",
                                     colour=gconf.DUE_COLOUR)
-        team_embed.add_field(name="Name", value=self.name, inline=False)
-        team_embed.add_field(name="Description", value=self.description, inline=False)
-        team_embed.add_field(name="Owner", value=f"{owner.name} ({owner.id})", inline=False)
-        team_embed.add_field(name="Member Count", value=len(self.members), inline=False)
-        team_embed.add_field(name="Average level", value=self.avgLevel, inline=False)
-        team_embed.add_field(name="Required level", value=self.level, inline=False)
-        team_embed.add_field(name="Recruiting", value="Yes" if self.open else "No", inline=False)
-        team_embed.add_field(name="Admins:", value=admins)
-        team_embed.add_field(name="Members:", value=members)
-        team_embed.add_field(name="Pendings:", value=pendings)
+        embed.add_field(name="Name", value=self.name, inline=False)
+        embed.add_field(name="Description", value=self.description, inline=False)
+        embed.add_field(name="Owner", value=f"{owner.name} ({owner.id})", inline=False)
+        embed.add_field(name="Member Count", value=len(self.members), inline=False)
+        embed.add_field(name="Average level", value=self.avgLevel, inline=False)
+        embed.add_field(name="Required level", value=self.level, inline=False)
+        embed.add_field(name="Recruiting", value="Yes" if self.open else "No", inline=False)
+        embed.add_field(name="Admins:", value=admins)
+        embed.add_field(name="Members:", value=members)
+        embed.add_field(name="Pendings:", value=pendings)
+
+        return embed
 
 
 def find_team(team_id: str) -> Team:
