@@ -59,8 +59,8 @@ DUE_BLACK = (48, 48, 48)
 
 REQUEST_TIMEOUT = 5
 
-NORDVPN = gconf.nordvpn_configs
-PROXY_URL = f"{NORDVPN['protocol']}://{NORDVPN['username']}:{NORDVPN['password']}@{NORDVPN['host']}:{NORDVPN['port']}"
+# NORDVPN = gconf.nordvpn_configs
+# PROXY_URL = f"{NORDVPN['protocol']}://{NORDVPN['username']}:{NORDVPN['password']}@{NORDVPN['host']}:{NORDVPN['port']}"
 
 
 def traffic_light(colour_scale):
@@ -139,11 +139,6 @@ async def check_url(url: str):
             "User-Agent": "BattleBanana",
             "Accept": "*/*"
         }
-        
-        connector = ProxyConnector.from_url(PROXY_URL)
-        async with aiohttp.ClientSession(connector=connector) as session:
-            async with session.get(url, headers=headers) as response:
-                return (response.status in range(200, 300)) and response.content_type.lower().startswith('image')
     except asyncio.TimeoutError:
         util.logger.warning(f"Timeout error when checking url {url}")
     except Exception as e:

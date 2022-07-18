@@ -19,7 +19,7 @@ from dueutil.game.configs import dueserverconfig
 from dueutil.game.helpers import imagecache
 from dueutil.permissions import Permission
 
-sentry_sdk.init(gconf.other_configs.get("sentryAuth"), ignore_errors=["KeyboardInterrupt"])
+# sentry_sdk.init(gconf.other_configs.get("sentryAuth"), ignore_errors=["KeyboardInterrupt"])
 
 MAX_RECOVERY_ATTEMPTS = 1000
 
