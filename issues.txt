@@ -1,6 +1,0 @@
-1. ppdeep to be installed instead of ssdeep in windows
-2. "sentry auth" key not required, corresponding code to be deleted. 
-3. generalconfig.py required
-4. change "battlebananaconfig.json" to filename in remote directory, example "dueutil.json"
-5. nord_vpn in imagehelper.py not required, corresponding code to be deleted.
-
