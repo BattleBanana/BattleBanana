@@ -14,5 +14,5 @@ typing
 sentry_sdk
 pydealer
 aiohttp_socks
-ppdeep
+ssdeep
 cython
