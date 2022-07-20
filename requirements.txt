@@ -1,3 +1,4 @@
+
 objgraph
 validators
 colour
@@ -13,6 +14,6 @@ beautifulsoup4
 typing
 sentry_sdk
 pydealer
-aiohttp_socks
 ssdeep
+aiohttp_socks
 cython
