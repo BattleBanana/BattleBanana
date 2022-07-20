@@ -144,7 +144,6 @@ async def check_url(url: str):
         async with aiohttp.ClientSession(connector=connector) as session:
             async with session.get(url, headers=headers) as response:
                 return (response.status in range(200, 300)) and response.content_type.lower().startswith('image')
-                
     except asyncio.TimeoutError:
         util.logger.warning(f"Timeout error when checking url {url}")
     except Exception as e:
