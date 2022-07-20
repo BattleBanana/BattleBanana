@@ -475,11 +475,9 @@ async def optin(ctx, **details):
     (This applies to all servers with BattleBanana)
     """
 
-    # player = details["author"]
-    player = players.find_player(details["author"])
+    player = details["author"]
     if player is None:
         return await util.reply(ctx, f"Please run `{details['cmd_key']}createaccount` if you want to use BattleBanana.")
-        # return await util.reply(ctx, f"bruh moment")
         
     local_optout = not player.is_playing(ctx.author, local=True)
     # Already playing
@@ -535,10 +533,10 @@ async def optinhere(ctx, **details):
     Optin to BattleBanana on a guild.
     """
 
-    # player = details["author"]
-    player = players.find_player(details["author"])
+    player = details["author"]
     if player is None:
         return await util.reply(ctx, f"Please run `{details['cmd_key']}createaccount` if you want to use BattleBanana.")
+    
     globally_opted_out = not player.is_playing()
 
     optout_role = util.get_role_by_name(ctx.guild, gconf.OPTOUT_ROLE)
