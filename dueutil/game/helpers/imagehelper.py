@@ -59,9 +59,6 @@ DUE_BLACK = (48, 48, 48)
 
 REQUEST_TIMEOUT = 5
 
-NORDVPN = gconf.nordvpn_configs
-PROXY_URL = f"{NORDVPN['protocol']}://{NORDVPN['username']}:{NORDVPN['password']}@{NORDVPN['host']}:{NORDVPN['port']}"
-
 
 def traffic_light(colour_scale):
     # 0 Red to 1 Green
@@ -140,7 +137,7 @@ async def check_url(url: str):
             "Accept": "*/*"
         }
         
-        connector = ProxyConnector.from_url(PROXY_URL)
+        connector = util.get_vpn_connector()
         async with aiohttp.ClientSession(connector=connector) as session:
             async with session.get(url, headers=headers) as response:
                 return (response.status in range(200, 300)) and response.content_type.lower().startswith('image')

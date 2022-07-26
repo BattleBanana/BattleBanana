@@ -1,5 +1,6 @@
 import aiohttp
 import asyncio
+from aiohttp_socks import ProxyConnector
 import discord
 import inspect
 import os
@@ -48,7 +49,6 @@ class BattleBananaClient(discord.AutoShardedClient):
     """
     BattleBanana client
     """
-
     def __init__(self, **details):
         self.queue_tasks = queue.Queue()
         self.start_time = time.time()
@@ -59,8 +59,9 @@ class BattleBananaClient(discord.AutoShardedClient):
         intents.guilds = True
         intents.guild_messages = True
         intents.message_content = True
-
-        super().__init__(intents=intents, max_messages=None, **details)
+        
+        connector = util.get_vpn_connector()
+        super().__init__(intents=intents, max_messages=None, connector=connector, **details)
 
     async def setup_hook(self):
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
@@ -232,7 +233,7 @@ class BattleBananaClient(discord.AutoShardedClient):
             os._exit(1)
         elif isinstance(error, (OSError, aiohttp.ClientConnectionError,
                                 asyncio.exceptions.TimeoutError)):  # 99% of time its just network errors
-            util.logger.error(error.message)
+            util.logger.warn(error.message)
         elif isinstance(error, pymongo.errors.ServerSelectionTimeoutError):
             util.duelogger.error("Something went wrong and we disconnected from database " + "<@115269304705875969>")
             util.logger.critical("Something went wrong and we disconnected from database")
