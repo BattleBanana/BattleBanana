@@ -350,7 +350,7 @@ def format_number_precise(number):
 
 
 def char_is_emoji(character):
-    emojize = emoji.emojize(character, use_aliases=True)
+    emojize = emoji.emojize(character, language="alias")
     demojize = emoji.demojize(emojize)
     return emojize != demojize
 
