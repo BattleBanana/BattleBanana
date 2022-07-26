@@ -39,17 +39,6 @@ async def permissions(ctx, **_):
     await util.reply(ctx, permissions_report)
 
 
-@commands.command(args_pattern="S*", hidden=True)
-async def test(ctx, *args, **_):
-    """A test command"""
-
-    # print(args[0].__dict__)
-    # args[0].save()
-    # await imagehelper.test(ctx.channel)
-    await util.reply(ctx, ("Yo!!! What up dis be my test command fo show.\n"
-                           "I got deedz args ```" + str(args) + "```!"))
-
-
 @commands.command(args_pattern="RR", hidden=True)
 async def add(ctx, first_number, second_number, **_):
     """
@@ -123,9 +112,9 @@ async def uploadbg(ctx, icon, name, description, url, price, submitter=None, **d
     image.save('assets/backgrounds/' + image_name)
 
     try:
-        backgrounds_file = open('assets/backgrounds/backgrounds.json', 'r+')
+        backgrounds_file = open(customizations.BACKGROUND_PATH, 'r+')
     except IOError:
-        backgrounds_file = open('assets/backgrounds/backgrounds.json', 'w+')
+        backgrounds_file = open(customizations.BACKGROUND_PATH, 'w+')
     with backgrounds_file:
         try:
             backgrounds = json.load(backgrounds_file)
@@ -188,7 +177,7 @@ async def deletebg(ctx, background_to_delete, **details):
     background = customizations.backgrounds[background_to_delete]
 
     try:
-        with open('assets/backgrounds/backgrounds.json', 'r+') as backgrounds_file:
+        with open(customizations.BACKGROUND_PATH, 'r+') as backgrounds_file:
             backgrounds = json.load(backgrounds_file)
             if background_to_delete not in backgrounds:
                 raise util.BattleBananaException(ctx.channel, "You cannot delete this background!")
@@ -645,14 +634,3 @@ async def vote(ctx, **_):
     vote_embed.set_footer(text="You will receive your reward shortly after voting! (Up to 5 minutes)")
 
     await util.reply(ctx, embed=vote_embed)
-
-
-# @commands.command(permission=Permission.BANANA_ADMIN, args_pattern=None, hidden=True)
-# async def cleartopdogs(ctx, **details):
-#     await util.reply(ctx, ":arrows_counterclockwise: Removing every active topdog!")
-#     for id, v in sorted(game.players.players.items()):
-#         if 'TopDog' in v.awards:
-#             v.awards.remove("TopDog")
-#             v.save()
-
-#     await util.reply(ctx, "Scan is done! ")

@@ -14,6 +14,9 @@ Basic classes to store themes, backgrounds and banners.
 """
 
 
+BACKGROUND_PATH = "assets/backgrounds/backgrounds.json"
+
+
 # Both Theme & Background used to be an extension of dict and DUObj
 # but had to be changed due to __slots__
 
