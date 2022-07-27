@@ -467,15 +467,12 @@ REFERENCE_PLAYER = Player(no_save=True)
 
 
 def load_player(player_id: int):
-    # Slow try/except to prevent overflows
-    try:
-        response = dbconn.get_collection_for_object(Player).find_one({"_id": player_id})
-    except OverflowError:
-        return None
+    response = dbconn.get_collection_for_object(Player).find_one({"_id": player_id})
+
     if response is not None and 'data' in response:
         player_data = response['data']
         loaded_player = jsonpickle.decode(player_data)
-        players[player_id] = util.load_and_update(REFERENCE_PLAYER, loaded_player)
+        players[player_id] = loaded_player
         return True
 
 
@@ -500,20 +497,19 @@ async def handle_client(reader, writer):
         id = int(request['id'])
         player = find_player(id)
         if player is None:  # no account on BattleBanana
-            Player(FakeMember(id))
-            player = await find_player(id)
-    except json.decoder.JSONDecodeError:
+            player = Player(FakeMember(id))
+    except json.decoder.JSONDecodeError as e:
         player = None
-        error_found = True
-    if not player is None:
+        error_found = e
+    
+    if player:
         player_data = {i async for i in get_stuff(player)}
-        for attr in list(set(request.keys()).intersection(player_data)):  # shared attrs between request and player
+        for attr in request.keys().intersection(player_data):  # shared attrs between request and player
             setattr(player, attr, request[attr])
         writer.write("200 OK".encode())
         user: discord.User = util.fetch_user(request['id'])
         if user:
             await user.send("Your data has been received and transferred! You can transfer again in 7 days.")
-        await asyncio.sleep(0.2)
     else:
         writer.write("smh {}".format(error_found).encode())
     writer.close()  # close it

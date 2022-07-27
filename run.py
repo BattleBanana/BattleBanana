@@ -64,6 +64,10 @@ class BattleBananaClient(discord.AutoShardedClient):
         super().__init__(intents=intents, max_messages=None, connector=connector, **details)
 
     async def setup_hook(self):
+        async_server = await asyncio.start_server(players.handle_client, '', gconf.other_configs["connectionPort"])
+        server_port = async_server.sockets[0].getsockname()[1]  # get port that the server is on, to confirm it started on 4000
+        util.logger.info("Listening for data transfer requests on port %s!" % server_port)
+
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
 
     async def __check_task_queue(self):
@@ -310,12 +314,6 @@ class BattleBananaClient(discord.AutoShardedClient):
         util.logger.info("Bot (re)started after %.2fs & Shards started after %.2fs", time.time() - start_time,
                          time.time() - shard_time)
         await util.duelogger.bot("BattleBanana has *(re)*started\nBot version → ``%s``" % gconf.VERSION)
-        try:
-            async_server = await asyncio.start_server(players.handle_client, '', gconf.other_configs["connectionPort"])
-            server_port = async_server.sockets[0].getsockname()[1]  # get port that the server is on, to confirm it started on 4000
-            util.logger.info("Listening for data transfer requests on port %s!" % server_port)
-        except:
-            util.logger.warning("Websocket already started")
 
     async def on_shard_ready(self, shard_id: int):
         game = discord.Activity(name="battlebanana.xyz | shard %d/%d" % (shard_id + 1, self.shard_count),
