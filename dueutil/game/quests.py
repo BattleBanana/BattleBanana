@@ -25,6 +25,8 @@ QUEST_COOLDOWN = 300
 MAX_DAILY_QUESTS = 100
 MAX_ACTIVE_QUESTS = 25
 
+QUEST_NOT_FOUND = "Quest not found!"
+
 
 class Quest(BattleBananaObject, SlotPickleMixin):
     """A class to hold info about a guild quest"""
@@ -217,16 +219,9 @@ class ActiveQuest(Player, util.SlotPickleMixin):
     def money(self):
         return self.get_reward()
 
-    @money.setter
-    def money(self, value):
-        pass
-
     @property
     def info(self):
         return quests[self.q_id]
-
-    def save(self):
-        pass
 
     def __setstate__(self, object_state):
         SlotPickleMixin.__setstate__(self, object_state)

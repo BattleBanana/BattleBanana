@@ -256,7 +256,7 @@ async def giveemoji(ctx, receiver, emoji, **details):
     await awards.give_award(ctx.channel, sender, "Emoji", ":fire: __Breakdown Of Society__ :city_dusk:")
     if emoji == "🍆":
         await awards.give_award(ctx.channel, sender, "Sauce", "*Saucy*")
-    if sender.misc_stats["emojis_given"] >= 100 and not "EmojiKing" in sender.awards:
+    if sender.misc_stats["emojis_given"] >= 100 and "EmojiKing" not in sender.awards:
         await awards.give_award(ctx.channel, sender, "EmojiKing",
                                 ":biohazard: **__WIPEOUT HUMANITY__** :radioactive:")
 
@@ -275,7 +275,7 @@ async def givepotato(ctx, receiver, **details):
     receiver.misc_stats["potatoes"] += 1
 
     await awards.give_award(ctx.channel, sender, "Potato", ":potato: Bringer Of Potatoes :potato:")
-    if sender.misc_stats["potatoes_given"] >= 100 and not "KingTat" in sender.awards:
+    if sender.misc_stats["potatoes_given"] >= 100 and "KingTat" not in sender.awards:
         await awards.give_award(ctx.channel, sender, "KingTat",
                                 ":crown: :potato: **Potato King!** :potato: :crown:")
 
@@ -305,7 +305,7 @@ async def battletopdog(ctx, **details):
     Battle the "top dog"
     """
     top_dog_stats = awards.get_award_stat("TopDog")
-    if top_dog_stats is None or not "top_dog" in top_dog_stats:
+    if top_dog_stats is None or "top_dog" not in top_dog_stats:
         raise util.BattleBananaException(ctx.channel, "Sorry there was an error trying to find the topdog!")
 
     top_dog = players.find_player(int(top_dog_stats["top_dog"]))
@@ -335,7 +335,7 @@ async def viewtopdog(ctx, **_):
     See the info page of the "top dog"
     """
     top_dog_stats = awards.get_award_stat("TopDog")
-    if top_dog_stats is None or not "top_dog" in top_dog_stats:
+    if top_dog_stats is None or "top_dog" not in top_dog_stats:
         raise util.BattleBananaException(ctx.channel, "Sorry there was an error trying to find the topdog!")
 
     top_dog = players.find_player(int(top_dog_stats["top_dog"]))
@@ -433,7 +433,7 @@ async def topdoghistory(ctx, page=1, **_):
     embed.set_footer(text="Times are in UTC.")
 
     topdog = awards.get_award_stat("TopDog")
-    if topdog is None or not "top_dog" in topdog:
+    if topdog is None or "top_dog" not in topdog:
         embed.add_field(name="Current topdog:", value=":bangbang: Failed to parse current topdog")
     else:
         topdog = players.find_player(int(topdog["top_dog"]))

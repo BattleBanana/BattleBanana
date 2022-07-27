@@ -336,9 +336,9 @@ async def redeem(ctx, code, **details):
     if price is None:
         raise util.BattleBananaException(ctx.channel, "Code does not exist!")
 
-    user = details["author"]
-    user.money += price
-    user.save()
+    player = details["author"]
+    player.money += price
+    player.save()
 
     await util.reply(ctx, "You successfully redeemed **%s** !!" % (util.format_money(price)))
 

@@ -14,6 +14,7 @@ stock_weapons = ["none"]
 weapons = DueMap()
 
 MAX_STORED_WEAPONS = 6
+WEAPON_NOT_FOUND = "Weapon not found!"
 
 # Simple namedtuple for weapon sums
 Summary = namedtuple("Summary", ["price", "damage", "accy"])

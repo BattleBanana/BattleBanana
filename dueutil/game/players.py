@@ -1,4 +1,3 @@
-import asyncio
 import discord
 import gc
 import json
@@ -27,11 +26,11 @@ STAT_GAIN_FORMAT = (e.ATK + ": +%.2f " + e.STRG + ": +%.2f " + e.ACCY + ": +%.2f
 
 
 class FakeMember:
-    def __init__(self, user_id: int, name: str, roles=[]):
+    def __init__(self, user_id: int, name: str, roles=None):
         self.id = user_id
         self.mention = f"<@{user_id}>"
         self.name = "<Dummy>"
-        self.roles = roles
+        self.roles = roles or []
 
 
 class Players(dict):
@@ -56,14 +55,6 @@ class Players(dict):
 
 
 players = Players()
-
-
-# @tasks.task(timeout=Players.PRUNE_INACTIVITY_TIME)
-# def prune_task():
-#     try:
-#         players.prune()
-#     except RuntimeError as exception:
-#         util.logger.warning("Failed to prune players: %s" % exception)
 
 
 class Player(BattleBananaObject, SlotPickleMixin):
@@ -109,7 +100,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
             super().__init__("NO_ID", "BattleBanana Player", **kwargs)
         self.reset()
 
-    def prestige(self, discord_user=None):
+    def prestige(self):
         ##### STATS #####
         self.prestige_level += 1
         self.level = 1

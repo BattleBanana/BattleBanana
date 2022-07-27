@@ -67,7 +67,7 @@ async def questinfo(ctx, quest_index, **details):
     if 0 <= quest_index < len(player.quests):
         await imagehelper.quest_screen(ctx, player.quests[quest_index])
     else:
-        raise util.BattleBananaException(ctx.channel, "Quest not found!")
+        raise util.BattleBananaException(ctx.channel, quests.QUEST_NOT_FOUND)
 
 
 @commands.command(args_pattern='C?', aliases=['mq'])
@@ -99,7 +99,7 @@ async def acceptquest(ctx, quest_index, **details):
     player = details["author"]
     quest_index -= 1
     if quest_index >= len(player.quests):
-        raise util.BattleBananaException(ctx.channel, "Quest not found!")
+        raise util.BattleBananaException(ctx.channel, quests.QUEST_NOT_FOUND)
     if player.money - player.quests[quest_index].money // 2 < 0:
         raise util.BattleBananaException(ctx.channel, "You can't afford the risk!")
     if player.quests_completed_today >= quests.MAX_DAILY_QUESTS:
@@ -330,7 +330,7 @@ async def declinequest(ctx, quest_index, **details):
                                + quest_task + " **" + quest.name_clean
                                + " [Level " + str(math.trunc(quest.level)) + "]**!"))
     else:
-        raise util.BattleBananaException(ctx.channel, "Quest not found!")
+        raise util.BattleBananaException(ctx.channel, quests.QUEST_NOT_FOUND)
 
 
 @commands.command(aliases=["daq"])
@@ -428,7 +428,7 @@ async def editquest(ctx, quest_name, updates, **_):
 
     quest = quests.get_quest_on_server(ctx.guild, quest_name)
     if quest is None:
-        raise util.BattleBananaException(ctx.channel, "Quest not found!")
+        raise util.BattleBananaException(ctx.channel, quests.QUEST_NOT_FOUND)
 
     new_image_url = None
     for quest_property, value in updates.items():
@@ -511,7 +511,7 @@ async def removequest(ctx, quest_name, **_):
     quest_name = quest_name.lower()
     quest = quests.get_quest_on_server(ctx.guild, quest_name)
     if quest is None:
-        raise util.BattleBananaException(ctx.channel, "Quest not found!")
+        raise util.BattleBananaException(ctx.channel, quests.QUEST_NOT_FOUND)
 
     quests.remove_quest_from_server(ctx.guild, quest_name)
     await util.reply(ctx, ":white_check_mark: **" + quest.name_clean + "** is no more!")
@@ -574,7 +574,7 @@ async def serverquests(ctx, page=1, **details):
         quest_name = page
         quest = quests.get_quest_on_server(ctx.guild, quest_name)
         if quest is None:
-            raise util.BattleBananaException(ctx.channel, "Quest not found!")
+            raise util.BattleBananaException(ctx.channel, quests.QUEST_NOT_FOUND)
         quest_info_embed.title = "Quest information for the %s " % quest.name_clean
         quest_info_embed.description = "You can edit these values with %seditquest %s (values)" \
                                        % (details["cmd_key"], quest.name_command_clean.lower())

@@ -592,7 +592,7 @@ async def exchange(ctx, amount, currency, **details):
     if currency == discoin.CURRENCY_CODE:
         raise util.BattleBananaException(ctx.channel, "There is no reason to exchange %s for %s!" % (
             discoin.CURRENCY_CODE, discoin.CURRENCY_CODE))
-    if not currency in discoin.codes:
+    if currency not in discoin.codes:
         raise util.BattleBananaException(ctx.channel,
                                          "Not a valid currency! Use `%scurrencies` to know which currency is available." %
                                          details['cmd_key'])
@@ -723,7 +723,7 @@ async def cooldownreset(ctx, player, cooldown=None, **details):
     if cooldown is None:
         player.command_rate_limits = {}
     else:
-        if not cooldown in player.command_rate_limits:
+        if cooldown not in player.command_rate_limits:
             raise util.BattleBananaException("Invalid cooldown")
         player.command_rate_limits.pop(cooldown)
 

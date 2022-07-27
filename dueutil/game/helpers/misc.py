@@ -245,7 +245,6 @@ class Wizzard(ABC):
         self.name = name
         self.complete = 0
         self.question_count = 0
-        # self.message = util.say("Wizzard")
 
     def progress_bar(self):
         bar_width = 20

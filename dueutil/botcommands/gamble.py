@@ -32,11 +32,11 @@ async def blackjack(ctx, price, **details):
     if price < 1:
         raise util.BattleBananaException(ctx.channel, "You cannot bet under ¤1")
     
-    user = details["author"]
-    if price > user.money:
+    player = details["author"]
+    if price > player.money:
         raise util.BattleBananaException(ctx.channel, "You cannot bet more than you have!")
 
-    user.command_rate_limits['blackjack_saved_cooldown'] = int(time.time()) + 120
+    player.command_rate_limits['blackjack_saved_cooldown'] = int(time.time()) + 120
 
     # Create new deck, make player playing
     deck = Deck() + Deck() + Deck() + Deck()
@@ -48,7 +48,7 @@ async def blackjack(ctx, price, **details):
     user_value, dealer_value = blackjackGame.compare_decks(user_hand, dealer_hand)
 
     blackjack_embed = discord.Embed(title="Blackjack dealer", description="%s game. Current bet: ¤%s"
-                                                                          % (user.get_name_possession(), price),
+                                                                          % (player.get_name_possession(), price),
                                     type="rich", colour=gconf.DUE_COLOUR)
     blackjack_embed.add_field(name=f"Your hand ({user_value})", value=user_hand)
     blackjack_embed.add_field(name=f"Dealer's hand ({dealer_value})", value=dealer_hand)
@@ -58,9 +58,9 @@ async def blackjack(ctx, price, **details):
     msg = await util.reply(ctx, embed=blackjack_embed, view=blackjack_buttons)
 
     while user_value < 21 and dealer_value < 21:
-        user.last_played = time.time()
+        player.last_played = time.time()
 
-        user.command_rate_limits['blackjack_saved_cooldown'] = int(time.time()) + 120
+        player.command_rate_limits['blackjack_saved_cooldown'] = int(time.time()) + 120
         content = await blackjack_buttons.start()
         if content == "hit":
             user_hand += deck.deal(1)
@@ -113,9 +113,9 @@ async def blackjack(ctx, price, **details):
 
     # Manage the message
     gain = math.floor(gain)
-    user.money += gain
-    user.command_rate_limits['blackjack_saved_cooldown'] = int(time.time())
-    user.save()
+    player.money += gain
+    player.command_rate_limits['blackjack_saved_cooldown'] = int(time.time())
+    player.save()
 
     if gain > 0:
         result += " You were rewarded with `¤%s`" % (gain)
@@ -152,21 +152,21 @@ async def russianroulette(ctx, price, **details):
     if price < 1:
         raise util.BattleBananaException(ctx.channel, "You cannot bet under ¤1")
 
-    user = details["author"]
-    if price > user.money:
+    player = details["author"]
+    if price > player.money:
             raise util.BattleBananaException(ctx.channel, "You cannot bet more than you have!")
 
     message = await util.reply(ctx, "Click...")
     await asyncio.sleep(random.random() * 2)
     if secrets.randbelow(6) == 1:
         reward = price * 5
-        user.money += reward
+        player.money += reward
         await util.edit_message(message, content=message.content + "\nYou survived and won `¤%s`!" % (reward))
     else:
-        user.money -= price
+        player.money -= price
         battle_banana = players.find_player(ctx.guild.me.id)
         if battle_banana is not None:
             battle_banana.money += price
             battle_banana.save()
         await util.edit_message(message, content=message.content + "\nYou died and lost `¤%s`!" % (price))
-    user.save()
+    player.save()

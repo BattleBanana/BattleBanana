@@ -301,12 +301,12 @@ async def deleteme(ctx, **details):
     This cannot be reversed!
     """
 
-    user = details["author"]
+    player = details["author"]
 
-    dbconn.delete_player(user)
+    dbconn.delete_player(player)
     players.players.pop(ctx.author.id)
 
-    await util.reply(ctx, "Your user has been deleted.")
+    await util.reply(ctx, "Your account has been deleted.")
 
 
 @commands.command(args_pattern='PCS?', aliases=["sq"])
@@ -478,23 +478,23 @@ async def prestige(ctx, **details):
     and having some bonuses :)
     """
 
-    user = details["author"]
-    prestige_level = gamerules.get_level_for_prestige(user.prestige_level)
-    req_money = gamerules.get_money_for_prestige(user.prestige_level)
+    player = details["author"]
+    prestige_level = gamerules.get_level_for_prestige(player.prestige_level)
+    req_money = gamerules.get_money_for_prestige(player.prestige_level)
 
-    if user.level < prestige_level:
+    if player.level < prestige_level:
         raise util.BattleBananaException(ctx.channel,
                                          "You need to be level %s or higher to go to the next prestige!" % prestige_level)
-    if user.money < req_money:
+    if player.money < req_money:
         raise util.BattleBananaException(ctx.channel, "You need atleast %s %s to afford the next prestige!" % (
             util.format_number_precise(req_money), e.BBT))
 
-    user.money -= req_money
-    user.prestige()
+    player.money -= req_money
+    player.prestige()
 
     if prestige_level > 0:
-        await game.awards.give_award(ctx.channel, user, 'Prestige')
-    await util.reply(ctx, "You successfully prestiged! You are now at prestige %s, congrats!" % user.prestige_level)
+        await game.awards.give_award(ctx.channel, player, 'Prestige')
+    await util.reply(ctx, "You successfully prestiged! You are now at prestige %s, congrats!" % player.prestige_level)
 
 
 @commands.command(args_pattern="P?", aliases=["mp", "showprestige", "sp"])
