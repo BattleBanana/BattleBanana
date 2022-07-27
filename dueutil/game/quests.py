@@ -219,6 +219,10 @@ class ActiveQuest(Player, util.SlotPickleMixin):
     def money(self):
         return self.get_reward()
 
+    @money.setter
+    def money(self, value):
+        pass
+
     @property
     def info(self):
         return quests[self.q_id]

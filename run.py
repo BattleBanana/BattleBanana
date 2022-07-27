@@ -1,6 +1,5 @@
 import aiohttp
 import asyncio
-from aiohttp_socks import ProxyConnector
 import discord
 import inspect
 import os
