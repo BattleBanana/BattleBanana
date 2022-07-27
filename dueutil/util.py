@@ -84,7 +84,7 @@ class SendMessagePermMissing(discord.Forbidden):
 class SlotPickleMixin:
     """
     Mixin for pickling slots
-    MIT - http://code.activestate.com/recipes/578433-mixin-for-pickling-objects-with-__slots__/
+    MIT - https://code.activestate.com/recipes/578433-mixin-for-pickling-objects-with-__slots__/
     ^ Fuck this utter shite is WRONG and does not account for slot inherits
     """
 

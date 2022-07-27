@@ -338,7 +338,7 @@ async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon=
         This creates a weapon named "Laser" with the hit message
         "FIRES THEIR LAZOR AT", 100 damage and 50% accy
     Advanced Weapon:
-        ``[CMD_KEY]createweapon "Banana Gun" "splats" 12 10 True :banana: http://i.imgur.com/6etFBta.png``
+        ``[CMD_KEY]createweapon "Banana Gun" "splats" 12 10 True :banana: https://i.imgur.com/6etFBta.png``
         The first four properties work like before. This weapon also has ranged set to ``true``
         as it fires projectiles, a icon (for the shop) ':banana:' and image of the weapon from the url.
     """
@@ -376,7 +376,7 @@ async def editweapon(ctx, weapon_name, updates, **_):
 
         [CMD_KEY]editweapon laser message "pews at" icon :gun:
 
-        [CMD_KEY]editweapon "a gun" image http://i.imgur.com/QuZQm4D.png
+        [CMD_KEY]editweapon "a gun" image https://i.imgur.com/QuZQm4D.png
     """
 
     weapon = weapons.get_weapon_for_server(ctx.guild.id, weapon_name)

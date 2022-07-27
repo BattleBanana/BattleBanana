@@ -34,7 +34,7 @@ class Quest(BattleBananaObject, SlotPickleMixin):
                  "base_attack", "base_strg", "base_accy", "base_hp",
                  "channel", "times_beaten"]
 
-    DEFAULT_IMAGE = "http://i.imgur.com/zOIJM9T.png"
+    DEFAULT_IMAGE = "https://i.imgur.com/zOIJM9T.png"
 
     _BaseStats = namedtuple("BaseStats", ["attack", "strg", "accy", "hp"])
 
@@ -321,7 +321,6 @@ def _load():
                       no_save=True)
 
     load_default_quests()
-
     for quest in dbconn.get_collection_for_object(Quest).find():
         loaded_quest: Quest = jsonpickle.decode(quest['data'])
 

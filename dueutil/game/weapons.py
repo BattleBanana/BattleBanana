@@ -23,7 +23,7 @@ class Weapon(BattleBananaObject, SlotPickleMixin):
     """A simple weapon that can be used by a monster or player in BattleBanana"""
 
     PRICE_CONSTANT = 0.04375
-    DEFAULT_IMAGE = "http://i.imgur.com/QFyiU6O.png"
+    DEFAULT_IMAGE = "https://i.imgur.com/QFyiU6O.png"
 
     __slots__ = ["damage", "accy", "price",
                  "_icon", "hit_message", "melee", "image_url",
@@ -131,7 +131,7 @@ class Weapon(BattleBananaObject, SlotPickleMixin):
             self.save()
 
 # The 'None'/No weapon weapon
-NO_WEAPON = Weapon("None", None, 1, 66, no_save=True, image_url="http://i.imgur.com/gNn7DyW.png", icon="👊")
+NO_WEAPON = Weapon("None", None, 1, 66, no_save=True, image_url="https://i.imgur.com/gNn7DyW.png", icon="👊")
 NO_WEAPON_ID = NO_WEAPON.id
 
 

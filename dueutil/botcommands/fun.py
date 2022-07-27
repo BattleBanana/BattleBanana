@@ -28,7 +28,7 @@ async def glitter(ctx, text, **details):
     
     Creates a glitter text gif!
     
-    (Glitter text from http://www.gigaglitters.com/)
+    (Glitter text from https://www.gigaglitters.com/)
     """
     details["author"].misc_stats["art_created"] += 1
     await glitter_text(ctx.channel, text)
@@ -368,9 +368,9 @@ async def pandemic(ctx, **_):
         return
 
     warning_symbols = {0: ":heart: - Healthy", 1: ":yellow_heart: - Worrisome", 2: ":black_heart: - Doomed"}
-    thumbnails = {0: "http://i.imgur.com/NENJMOP.jpg",
-                  1: "http://i.imgur.com/we6XgpG.gif",
-                  2: "http://i.imgur.com/EJVYJ9C.gif"}
+    thumbnails = {0: "https://i.imgur.com/NENJMOP.jpg",
+                  1: "https://i.imgur.com/we6XgpG.gif",
+                  2: "https://i.imgur.com/EJVYJ9C.gif"}
 
     total_players = dbconn.get_collection_for_object(players.Player).estimated_document_count()
     total_infected = virus_stats["times_given"]

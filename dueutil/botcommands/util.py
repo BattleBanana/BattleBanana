@@ -46,7 +46,7 @@ async def help(ctx, *args, **details):
                     # Stupid award reference
                     command_name = 'dumbledore?!?'
                     command_help = 'Some stupid *joke?* reference to old due!!!111'
-                    help_embed.set_image(url='http://i.imgur.com/UrWhI9P.gif')
+                    help_embed.set_image(url='https://i.imgur.com/UrWhI9P.gif')
                     await awards.give_award(ctx.channel, details["author"], "Daddy",
                                             "I have no memory of this award...")
             else:
@@ -146,7 +146,7 @@ async def botinfo(ctx, **_):
     info_embed.description = "BattleBanana is customizable bot to add fun commands, quests and battles to your guild."
     info_embed.add_field(name="Owner", value="[DeveloperAnonymous#9830](https://battlebanana.xyz/)")
     info_embed.add_field(name="Framework",
-                         value="[discord.py %s :two_hearts:](http://discordpy.readthedocs.io/en/latest/)"
+                         value="[discord.py %s :two_hearts:](https://discordpy.readthedocs.io/en/latest/)"
                                % (discord.__version__))
     info_embed.add_field(name="Version", value=gconf.VERSION),
     info_embed.add_field(name="Invite BB!", value="%s" % gconf.BOT_INVITE, inline=False)
@@ -308,7 +308,7 @@ async def leave(ctx, **_):
     """
 
     bye_embed = discord.Embed(title="Goodbye!", color=gconf.DUE_COLOUR)
-    bye_embed.set_image(url="http://i.imgur.com/N65P9gL.gif")
+    bye_embed.set_image(url="https://i.imgur.com/N65P9gL.gif")
     await util.reply(ctx, embed=bye_embed)
     try:
         await ctx.guild.leave()
