@@ -24,6 +24,8 @@ sentry_sdk.init(gconf.other_configs.get("sentryAuth"), ignore_errors=["KeyboardI
 
 MAX_RECOVERY_ATTEMPTS = 1000
 
+STACKTRACE_FORMAT = "__Stack trace:__ ```%s```"
+
 stopped = False
 bot_key = ""
 client: discord.AutoShardedClient = None
@@ -162,7 +164,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         error = sys.exc_info()[1]
         if ctx is None:
             await util.duelogger.error(("**BattleBanana experienced an error!**\n"
-                                        + "__Stack trace:__ ```" + traceback.format_exc() + "```"))
+                                        + STACKTRACE_FORMAT % (traceback.format_exc())))
             util.logger.error("None message/command error: %s", error)
         elif isinstance(error, util.BattleBananaException):
             # A normal battlebanana user error
@@ -219,8 +221,8 @@ class BattleBananaClient(discord.AutoShardedClient):
                 trigger_message = discord.Embed(title="Trigger", type="rich", color=gconf.DUE_COLOUR)
                 trigger_message.add_field(name="Message", value=ctx.author.mention + ":\n" + ctx.content)
                 await util.duelogger.error(("**Message/command triggred error!**\n"
-                                            + "__Stack trace:__ ```" + traceback.format_exc()[-1500:] + "```"),
-                                           embed=trigger_message)
+                                            + STACKTRACE_FORMAT % (traceback.format_exc()[-1500:])),
+                                            embed=trigger_message)
         elif isinstance(error, discord.NotFound):
             if "Unknown Channel" in str(error):
                 if blacklist.find(ctx.author.id) is not None:
@@ -247,8 +249,8 @@ class BattleBananaClient(discord.AutoShardedClient):
             trigger_message = discord.Embed(title="Trigger", type="rich", color=gconf.DUE_COLOUR)
             trigger_message.add_field(name="Message", value=ctx.author.mention + ":\n" + ctx.content)
             await util.duelogger.error("**Message/command triggered error!**\n"
-                                       + "__Stack trace:__ ```" + traceback.format_exc()[-1500:] + "```",
-                                       embed=trigger_message)
+                                        + STACKTRACE_FORMAT % (traceback.format_exc()[-1500:]),
+                                        embed=trigger_message)
 
         # Log exception on sentry.
         sentry_sdk.capture_exception(error)

@@ -485,20 +485,20 @@ async def handle_client(reader, writer):
     error_found = False
     try:
         request = json.loads(request)
-        id = int(request['id'])
-        player = find_player(id)
+        player_id = int(request['id'])
+        player = find_player(player_id)
         if player is None:  # no account on BattleBanana
-            player = Player(FakeMember(id))
+            player = Player(FakeMember(player_id))
     except json.decoder.JSONDecodeError as e:
         player = None
         error_found = e
     
     if player:
         player_data = {i async for i in get_stuff(player)}
-        for attr in request.keys().intersection(player_data):  # shared attrs between request and player
+        for attr in set(request.keys()).intersection(player_data):  # shared attrs between request and player
             setattr(player, attr, request[attr])
         writer.write("200 OK".encode())
-        user: discord.User = util.fetch_user(request['id'])
+        user: discord.User = util.fetch_user(player.id)
         if user:
             await user.send("Your data has been received and transferred! You can transfer again in 7 days.")
     else:
