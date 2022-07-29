@@ -59,6 +59,10 @@ def find_translation(ctx: commands.Context, key: str, *args, force_update: bool 
 
 
 def _load():
+    # Check if path LOCALIZATION_PATH exists
+    if not os.path.exists(LOCALIZATION_PATH):
+        return util.logger.warning("Localization path does not exist, skipping translations")
+
     temp_translations = {}
     for language in os.listdir(LOCALIZATION_PATH):
         if language == ".git":
