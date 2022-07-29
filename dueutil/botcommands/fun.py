@@ -1,4 +1,5 @@
 import asyncio
+from aiohttp_socks import ProxyError
 import discord
 import repoze.timeago
 from datetime import datetime
@@ -16,8 +17,8 @@ async def glitter_text(channel, text):
     try:
         gif_text = await misc.get_glitter_text(text)
         await util.say(channel, ":sparkles: Your glitter text!", file=discord.File(fp=gif_text, filename="glittertext.gif"))
-    except (ValueError, asyncio.TimeoutError):
-        await util.say(channel, ":cry: Could not fetch glitter text!")
+    except (ValueError, asyncio.TimeoutError, ProxyError):
+        await util.say(channel, ":cry: Could not fetch glitter text! Please try again later.")
 
 
 @commands.command(args_pattern='S', aliases=("gt", "glittertext",))
