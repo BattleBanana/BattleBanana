@@ -176,6 +176,8 @@ def ratelimit(**command_info):
             if command_info.get('save', False):
                 command_name += "_saved_cooldown"
             now = int(time.time())
+            if player is None:
+                return
             time_since_last_used = now - player.command_rate_limits.get(command_name, 0)
             if time_since_last_used < command_info["cooldown"]:
                 error = command_info["error"]
