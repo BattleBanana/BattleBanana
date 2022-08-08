@@ -193,8 +193,8 @@ async def acceptallquests(ctx, **details):
     acceptquest, but without the spamming!
     """
 
-    # if not player.donor:
-    #     raise util.BattleBananaException(ctx.channel, "This command is for donors only!")
+    if not player.donor:
+        raise util.BattleBananaException(ctx.channel, "This command is for donors only!")
 
     player = details["author"]
 
