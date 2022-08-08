@@ -1,4 +1,3 @@
-import asyncio
 import discord
 import gc
 import json
@@ -27,11 +26,11 @@ STAT_GAIN_FORMAT = (e.ATK + ": +%.2f " + e.STRG + ": +%.2f " + e.ACCY + ": +%.2f
 
 
 class FakeMember:
-    def __init__(self, user_id: int, name: str, roles=[]):
+    def __init__(self, user_id: int, name: str, roles=None):
         self.id = user_id
         self.mention = f"<@{user_id}>"
         self.name = "<Dummy>"
-        self.roles = roles
+        self.roles = roles or []
 
 
 class Players(dict):
@@ -56,14 +55,6 @@ class Players(dict):
 
 
 players = Players()
-
-
-# @tasks.task(timeout=Players.PRUNE_INACTIVITY_TIME)
-# def prune_task():
-#     try:
-#         players.prune()
-#     except RuntimeError as exception:
-#         util.logger.warning("Failed to prune players: %s" % exception)
 
 
 class Player(BattleBananaObject, SlotPickleMixin):
@@ -109,7 +100,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
             super().__init__("NO_ID", "BattleBanana Player", **kwargs)
         self.reset()
 
-    def prestige(self, discord_user=None):
+    def prestige(self):
         ##### STATS #####
         self.prestige_level += 1
         self.level = 1
@@ -467,15 +458,12 @@ REFERENCE_PLAYER = Player(no_save=True)
 
 
 def load_player(player_id: int):
-    # Slow try/except to prevent overflows
-    try:
-        response = dbconn.get_collection_for_object(Player).find_one({"_id": player_id})
-    except OverflowError:
-        return None
+    response = dbconn.get_collection_for_object(Player).find_one({"_id": player_id})
+
     if response is not None and 'data' in response:
         player_data = response['data']
         loaded_player = jsonpickle.decode(player_data)
-        players[player_id] = util.load_and_update(REFERENCE_PLAYER, loaded_player)
+        players[player_id] = loaded_player
         return True
 
 
@@ -497,23 +485,22 @@ async def handle_client(reader, writer):
     error_found = False
     try:
         request = json.loads(request)
-        id = int(request['id'])
-        player = find_player(id)
+        player_id = int(request['id'])
+        player = find_player(player_id)
         if player is None:  # no account on BattleBanana
-            Player(FakeMember(id))
-            player = await find_player(id)
-    except json.decoder.JSONDecodeError:
+            player = Player(FakeMember(player_id))
+    except json.decoder.JSONDecodeError as e:
         player = None
-        error_found = True
-    if not player is None:
+        error_found = e
+    
+    if player:
         player_data = {i async for i in get_stuff(player)}
-        for attr in list(set(request.keys()).intersection(player_data)):  # shared attrs between request and player
+        for attr in set(request.keys()).intersection(player_data):  # shared attrs between request and player
             setattr(player, attr, request[attr])
         writer.write("200 OK".encode())
-        user: discord.User = util.fetch_user(request['id'])
+        user: discord.User = util.fetch_user(player.id)
         if user:
             await user.send("Your data has been received and transferred! You can transfer again in 7 days.")
-        await asyncio.sleep(0.2)
     else:
         writer.write("smh {}".format(error_found).encode())
     writer.close()  # close it

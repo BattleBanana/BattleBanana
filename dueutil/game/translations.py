@@ -1,101 +1,82 @@
-import discord
+import os
 import json
 
+from discord.ext import commands
+
 from dueutil import util
-from dueutil.game.configs import dueserverconfig
 
 
-async def say(ctx, path, *args, **kwargs):
-    # print(args)
-    # if type(channel) is str:
-    #    # Guild/Channel id
-    #    server_id, channel_id = channel.split("/")
-    #    channel = util.get_guild(int(server_id)).get_channel(int(channel_id))
-    # if asyncio.get_event_loop() != clients[0].loop:
-    #    # Allows it to speak across shards
-    #    clients[0].run_task(say, *((channel,) + args), **kwargs)
-    # else:
+LOCALIZATION_PATH = "dueutil/game/configs/localization/"
+DEFAULT_LANGUAGE = "en"
+
+translations = {}
+
+
+def _get_translation(language: str, full_key: str) -> str:
+    category, command, key = full_key.split(".")
+
     try:
-        channel = ctx.channel
-        string = str(path).split(":")
-        lan = dueserverconfig.get_language(ctx.guild.id)
-        try:
-            f = json.load(
-                open("dueutil/game/configs/localization/" + str(lan) + "/" + string[0] + "/" + string[1] + ".json",
-                     "r"))
-        except (IndexError, FileNotFoundError, KeyError):
-            # try:
-            f = json.load(open("dueutil/game/configs/localization/en/" + string[0] + "/" + string[1] + ".json", "r"))
-            # except (IndexError, FileNotFoundError, KeyError):
-            # raise util.BattleBananaException(ctx.channel, "Translation error, missing English translation")
-        msg = f[string[2]]
-
-        if "[CMD_KEY]" in msg:
-            prefix = dueserverconfig.server_cmd_key(ctx.guild)
-            msg = msg.replace("[CMD_KEY]", prefix)
-
-        return await channel.send((msg % args), **kwargs)
-    except discord.Forbidden as send_error:
-        raise util.SendMessagePermMissing(send_error)
+        return translations[language][category][command][key]
+    except KeyError:
+        return translations.get(DEFAULT_LANGUAGE, {}).get(category, {}).get(command, {}).get(key, full_key)
 
 
-def translate(ctx, path, *args):
-    # print(args)
-    # print(str(args))
-    string = path.split(":")
-    lan = dueserverconfig.get_language(ctx.guild.id)
-    try:
-        f = json.load(
-            open("dueutil/game/configs/localization/" + str(lan) + "/" + string[0] + "/" + string[1] + ".json", "r"))
-    except (IndexError, FileNotFoundError, KeyError):
-        # try:
-        f = json.load(open("dueutil/game/configs/localization/en/" + string[0] + "/" + string[1] + ".json", "r"))
-        # except (IndexError, FileNotFoundError, KeyError):
-        # raise util.BattleBananaException(ctx.channel, "Translation error, missing English translation")
-        # TODO other translations for non commands
-        # raise util.BattleBananaException(ctx.channel, translations.translate(ctx, "util:setlanguage:ERROR"))
-    msg = f[string[2]]
+def find_translation(ctx: commands.Context, key: str, *args, force_update: bool = False):
+    """
+    Finds the translation for a key in the current language
+    
+    Parameters
+    ----------
+    ctx: :class:`discord.ext.commands.Context`
+        The context of the message
+    key: :class:`str`
+        The key to find
+    args: :class:`list`
+        The arguments to replace the key with
+    force_update: :class:`bool`
+        Update the translations. Defaults to false
 
-    if "[CMD_KEY]" in msg:
-        prefix = dueserverconfig.server_cmd_key(ctx.guild)
-        msg = msg.replace("[CMD_KEY]", prefix)
+    Returns
+    -------
+    translation: :class:`str`
+        The translated string or the key if no translation was found
+    """
+    if translations == {} or force_update:
+        _load()
+    
+    # Get the language of the server
+    # TODO: Fetch it from serverconfigs
+    language = DEFAULT_LANGUAGE
 
-    return (msg % args)
+    # Get the translation
+    translation = _get_translation(language, key)
+
+    # Replace the arguments
+    for arg in args:
+        translation = translation.replace("{}", arg, 1)
+    
+    return translation
 
 
-def translate_help(ctx, path, *args):
-    string = path.split(":")
-    lan = dueserverconfig.get_language(ctx.guild.id)
-    try:
-        f = json.load(
-            open("dueutil/game/configs/localization/" + str(lan) + "/" + string[0] + "/" + string[1] + ".json", "r"))
-    except (IndexError, FileNotFoundError, KeyError):
-        try:
-            f = json.load(open("dueutil/game/configs/localization/en/" + string[0] + "/" + string[1] + ".json", "r"))
-        except (IndexError, FileNotFoundError, KeyError):
-            if "[CMD_KEY]" in path:
-                prefix = dueserverconfig.server_cmd_key(ctx.guild)
-                path = path.replace("[CMD_KEY]", prefix)
-            return path
+def _load():
+    # Check if path LOCALIZATION_PATH exists
+    if not os.path.exists(LOCALIZATION_PATH):
+        return util.logger.warning("Localization path does not exist, skipping translations")
 
-    msg = f[string[2]]
+    temp_translations = {}
+    for language in os.listdir(LOCALIZATION_PATH):
+        if language == ".git":
+            continue
+        temp_translations[language] = {}
+        for category in os.listdir(LOCALIZATION_PATH + language):
+            temp_translations[language][category] = {}
+            for file in os.listdir(LOCALIZATION_PATH + language + "/" + category):
+                file_name = file.split(".")[0]
+                temp_translations[language][category][file_name] = json.load(
+                    open(LOCALIZATION_PATH + language + "/" + category + "/" + file, "r", encoding="utf-8"))
+    
+    translations.update(temp_translations)
+    util.logger.info(f"Loaded {len(translations)} translations")
 
-    if "[CMD_KEY]" in msg:
-        prefix = dueserverconfig.server_cmd_key(ctx.guild)
-        msg = msg.replace("[CMD_KEY]", prefix)
 
-    return (msg % args)
-
-# def getLocale(ctx, player, path):
-#    string = path.split(":")
-#    lan = dueserverconfig.get_language(ctx.guild.id)
-#    try:
-#        f = json.load(open("dueutil/game/configs/localization/"+str(lan)+"/"+string[0]+"/"+string[1]+".json", "r"))
-#    except (IndexError, FileNotFoundError):
-#        return "n/a"
-#    msg = f[string[2]]
-#
-#    if "[PLAYER]" in msg:
-#        msg = msg.replace("[PLAYER]", str(player))
-#    
-#    return msg
+_load()
