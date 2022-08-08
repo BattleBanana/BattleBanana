@@ -13,7 +13,7 @@ from . import imagecache
 
 POSITIVE_BOOLS = ('true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh')
 auto_replies = []
-GLITTER_TEXT_URL = ("http://www.gigaglitters.com/procesing.php?text=%s"
+GLITTER_TEXT_URL = ("https://www.gigaglitters.com/procesing.php?text=%s"
                     + "&size=90&text_color=img/DCdarkness.gif"
                     + "&angle=0&border=0&border_yes_no=4&shadows=1&font='fonts/Super 911.ttf'")
 
@@ -245,7 +245,6 @@ class Wizzard(ABC):
         self.name = name
         self.complete = 0
         self.question_count = 0
-        # self.message = util.say("Wizzard")
 
     def progress_bar(self):
         bar_width = 20

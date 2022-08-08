@@ -14,6 +14,7 @@ stock_weapons = ["none"]
 weapons = DueMap()
 
 MAX_STORED_WEAPONS = 6
+WEAPON_NOT_FOUND = "Weapon not found!"
 
 # Simple namedtuple for weapon sums
 Summary = namedtuple("Summary", ["price", "damage", "accy"])
@@ -23,7 +24,7 @@ class Weapon(BattleBananaObject, SlotPickleMixin):
     """A simple weapon that can be used by a monster or player in BattleBanana"""
 
     PRICE_CONSTANT = 0.04375
-    DEFAULT_IMAGE = "http://i.imgur.com/QFyiU6O.png"
+    DEFAULT_IMAGE = "https://i.imgur.com/QFyiU6O.png"
 
     __slots__ = ["damage", "accy", "price",
                  "_icon", "hit_message", "melee", "image_url",
@@ -131,7 +132,7 @@ class Weapon(BattleBananaObject, SlotPickleMixin):
             self.save()
 
 # The 'None'/No weapon weapon
-NO_WEAPON = Weapon("None", None, 1, 66, no_save=True, image_url="http://i.imgur.com/gNn7DyW.png", icon="👊")
+NO_WEAPON = Weapon("None", None, 1, 66, no_save=True, image_url="https://i.imgur.com/gNn7DyW.png", icon="👊")
 NO_WEAPON_ID = NO_WEAPON.id
 
 
@@ -221,12 +222,12 @@ def _load():
 
     # Load from db
     for weapon in dbconn.get_collection_for_object(Weapon).find():
-        loaded_weapon = jsonpickle.decode(weapon['data'])
+        loaded_weapon: Weapon = jsonpickle.decode(weapon['data'])
 
         if isinstance(loaded_weapon.server_id, str):
             loaded_weapon.server_id = int(loaded_weapon.server_id)
             
-        weapons[loaded_weapon.id] = util.load_and_update(NO_WEAPON, loaded_weapon)
+        weapons[loaded_weapon.id] = loaded_weapon
     util.logger.info("Loaded %s weapons", len(weapons))
 
 

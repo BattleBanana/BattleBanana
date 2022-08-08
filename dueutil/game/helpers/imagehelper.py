@@ -1,6 +1,5 @@
 import asyncio
 import secrets
-from aiohttp_socks import ProxyConnector
 import aiohttp
 import discord
 import math
@@ -13,7 +12,6 @@ from discord import File
 from io import BytesIO
 from urllib.parse import urlparse
 
-import generalconfig as gconf
 from dueutil import util
 from . import imagecache
 from .. import awards, gamerules, stats, weapons, customizations
@@ -23,7 +21,7 @@ from ..customizations import _Themes
 
 try:
     from .speedup import quest_colorize_helper
-except (ImportError, ModuleNotFoundError):
+except ImportError:
     def quest_colorize_helper(*args):
         raise ImportError("Something broke, please tell Theelx#4980")
 
@@ -34,12 +32,13 @@ Images very ugly throwaway code.
 
 # TODO: Rewrite
 
+DUE_FONT = "assets/fonts/Due_Robo.ttf"
 # DueUtil fonts
-font = ImageFont.truetype("assets/fonts/Due_Robo.ttf", 12)
-font_big = ImageFont.truetype("assets/fonts/Due_Robo.ttf", 18)
-font_med = ImageFont.truetype("assets/fonts/Due_Robo.ttf", 14)
-font_small = ImageFont.truetype("assets/fonts/Due_Robo.ttf", 11)
-font_tiny = ImageFont.truetype("assets/fonts/Due_Robo.ttf", 9)
+font_tiny = ImageFont.truetype(DUE_FONT, 9)
+font_small = ImageFont.truetype(DUE_FONT, 11)
+font = ImageFont.truetype(DUE_FONT, 12)
+font_med = ImageFont.truetype(DUE_FONT, 14)
+font_big = ImageFont.truetype(DUE_FONT, 18)
 font_epic = ImageFont.truetype("assets/fonts/benfont.ttf", 12)
 
 # Templates
@@ -58,9 +57,6 @@ traffic_lights = list(Color("red").range_to(Color("#ffbf00"), 5)) + list(Color("
 DUE_BLACK = (48, 48, 48)
 
 REQUEST_TIMEOUT = 5
-
-NORDVPN = gconf.nordvpn_configs
-PROXY_URL = f"{NORDVPN['protocol']}://{NORDVPN['username']}:{NORDVPN['password']}@{NORDVPN['host']}:{NORDVPN['port']}"
 
 
 def traffic_light(colour_scale):
@@ -140,7 +136,7 @@ async def check_url(url: str):
             "Accept": "*/*"
         }
         
-        connector = ProxyConnector.from_url(PROXY_URL)
+        connector = util.get_vpn_connector()
         async with aiohttp.ClientSession(connector=connector) as session:
             async with session.get(url, headers=headers) as response:
                 return (response.status in range(200, 300)) and response.content_type.lower().startswith('image')
@@ -339,7 +335,7 @@ async def quests_screen(ctx, player, page):
         try:
             warning_icons = quest_colorize(mini_icons, warning_colours, (10, 10, 11, 10, 11))
         except ImportError:
-            warning_icons = colorize(mini_icons, warning_colours, 0.5, cycle_colours=[10, 10, 11, 10, 11])
+            warning_icons = colourize(mini_icons, warning_colours, 0.5, cycle_colours=[10, 10, 11, 10, 11])
         paste_alpha(image, warning_icons, (14 + row_size[0] - 53, row_size[1] * 2 - 12 + 44 * count))
         level = "Level " + str(math.trunc(quest.level))
         level_width = draw.textsize(level, font=font_small)[0] + 5

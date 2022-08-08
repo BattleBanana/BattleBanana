@@ -463,8 +463,7 @@ async def determine_args(pattern, args, called, ctx):
                 last_string_type = pattern.rfind(string_type)
                 if last_string_type > last_string:
                     last_string = last_string_type
-            if last_string != -1:
-                if could_be_string(pattern[last_string:]):
+            if last_string != -1 and could_be_string(pattern[last_string:]):
                     new_args = tuple(args[:last_string]) + (' '.join(args[last_string:]),)
                     if checks_satisfied == len(new_args) and valid_args_len(new_args, pattern):
                         return new_args

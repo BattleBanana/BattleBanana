@@ -17,7 +17,7 @@
   <a href="https://www.python.org/downloads/">
     <img src="https://img.shields.io/badge/Made%20With-Python%203.10-blue.svg?style=for-the-badge" alt="Made with python">
   </a>
-  <a href="http://makeapullrequest.com">
+  <a href="https://makeapullrequest.com">
     <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="Discord Server">
   </a>
   <a href="https://top.gg/bot/464601463440801792">

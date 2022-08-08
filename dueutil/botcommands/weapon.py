@@ -338,7 +338,7 @@ async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon=
         This creates a weapon named "Laser" with the hit message
         "FIRES THEIR LAZOR AT", 100 damage and 50% accy
     Advanced Weapon:
-        ``[CMD_KEY]createweapon "Banana Gun" "splats" 12 10 True :banana: http://i.imgur.com/6etFBta.png``
+        ``[CMD_KEY]createweapon "Banana Gun" "splats" 12 10 True :banana: https://i.imgur.com/6etFBta.png``
         The first four properties work like before. This weapon also has ranged set to ``true``
         as it fires projectiles, a icon (for the shop) ':banana:' and image of the weapon from the url.
     """
@@ -376,7 +376,7 @@ async def editweapon(ctx, weapon_name, updates, **_):
 
         [CMD_KEY]editweapon laser message "pews at" icon :gun:
 
-        [CMD_KEY]editweapon "a gun" image http://i.imgur.com/QuZQm4D.png
+        [CMD_KEY]editweapon "a gun" image https://i.imgur.com/QuZQm4D.png
     """
 
     weapon = weapons.get_weapon_for_server(ctx.guild.id, weapon_name)
@@ -435,7 +435,7 @@ async def removeweapon(ctx, weapon_name, **_):
     weapon_name = weapon_name.lower()
     weapon = weapons.get_weapon_for_server(ctx.guild.id, weapon_name)
     if weapon is None or weapon.id == weapons.NO_WEAPON_ID:
-        raise util.BattleBananaException(ctx.channel, "Weapon not found")
+        raise util.BattleBananaException(ctx.channel, weapons.WEAPON_NOT_FOUND)
     if weapon.id != weapons.NO_WEAPON_ID and weapons.stock_weapon(weapon_name) != weapons.NO_WEAPON_ID:
         raise util.BattleBananaException(ctx.channel, "You can't remove stock weapons!")
     weapons.remove_weapon_from_shop(ctx.guild, weapon_name)
@@ -467,7 +467,7 @@ async def buy_weapon(weapon_name, **details):
     channel = details["channel"]
 
     if weapon is None or weapon_name == "none":
-        raise util.BattleBananaException(channel, "Weapon not found")
+        raise util.BattleBananaException(channel, weapons.WEAPON_NOT_FOUND)
     if customer.money - weapon.price < 0:
         await util.say(channel, ":anger: You can't afford that weapon.")
     elif weapon.price > customer.item_value_limit:
@@ -477,7 +477,7 @@ async def buy_weapon(weapon_name, **details):
                                                       full_precision=True) + "**"))
     elif customer.equipped["weapon"] != weapons.NO_WEAPON_ID:
         if len(customer.inventory["weapons"]) < weapons.MAX_STORED_WEAPONS:
-            if weapon.w_id not in customer.inventory["weapons"] and not (weapon.w_id == customer.equipped["weapon"]):
+            if weapon.w_id not in customer.inventory["weapons"] and weapon.w_id != customer.equipped["weapon"]:
                 customer.store_weapon(weapon)
                 customer.money -= weapon.price
                 await util.say(channel, ("**" + customer.name_clean + "** bought a **" + weapon.name_clean + "** for "
@@ -530,7 +530,7 @@ def weapon_info(weapon_name=None, **details):
     if weapon is None:
         weapon = weapons.get_weapon_for_server(details["server_id"], weapon_name)
         if weapon is None:
-            raise util.BattleBananaException(details["channel"], "Weapon not found")
+            raise util.BattleBananaException(details["channel"], weapons.WEAPON_NOT_FOUND)
     embed.title = weapon.icon + ' | ' + weapon.name_clean
     embed.set_thumbnail(url=weapon.image_url)
     embed.add_field(name='Damage', value=util.format_number(weapon.damage))

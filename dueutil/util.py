@@ -1,5 +1,6 @@
 import aiohttp
 import asyncio
+from aiohttp_socks import ProxyConnector
 import discord
 import emoji  # The emoji list in this is outdated/not complete.
 import io
@@ -83,7 +84,7 @@ class SendMessagePermMissing(discord.Forbidden):
 class SlotPickleMixin:
     """
     Mixin for pickling slots
-    MIT - http://code.activestate.com/recipes/578433-mixin-for-pickling-objects-with-__slots__/
+    MIT - https://code.activestate.com/recipes/578433-mixin-for-pickling-objects-with-__slots__/
     ^ Fuck this utter shite is WRONG and does not account for slot inherits
     """
 
@@ -100,8 +101,17 @@ class SlotPickleMixin:
             setattr(self, slot, value)
 
 
+def get_vpn_connector():
+    vpn_config = gconf.vpn_config
+    if vpn_config is None:
+        return None
+
+    return ProxyConnector.from_url(f"{vpn_config['protocol']}://{vpn_config['username']}:{vpn_config['password']}@{vpn_config['host']}:{vpn_config['port']}")
+
+
 async def download_file(url):
-    async with aiohttp.ClientSession(conn_timeout=10) as session:
+    connector = get_vpn_connector()
+    async with aiohttp.ClientSession(conn_timeout=10, connector=connector) as session:
         async with session.get(url) as response:
             file_data = io.BytesIO()
             while True:
@@ -340,7 +350,7 @@ def format_number_precise(number):
 
 
 def char_is_emoji(character):
-    emojize = emoji.emojize(character, use_aliases=True)
+    emojize = emoji.emojize(character, language="alias")
     demojize = emoji.demojize(emojize)
     return emojize != demojize
 

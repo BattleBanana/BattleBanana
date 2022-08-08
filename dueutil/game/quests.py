@@ -25,6 +25,8 @@ QUEST_COOLDOWN = 300
 MAX_DAILY_QUESTS = 100
 MAX_ACTIVE_QUESTS = 25
 
+QUEST_NOT_FOUND = "Quest not found!"
+
 
 class Quest(BattleBananaObject, SlotPickleMixin):
     """A class to hold info about a guild quest"""
@@ -34,7 +36,7 @@ class Quest(BattleBananaObject, SlotPickleMixin):
                  "base_attack", "base_strg", "base_accy", "base_hp",
                  "channel", "times_beaten"]
 
-    DEFAULT_IMAGE = "http://i.imgur.com/zOIJM9T.png"
+    DEFAULT_IMAGE = "https://i.imgur.com/zOIJM9T.png"
 
     _BaseStats = namedtuple("BaseStats", ["attack", "strg", "accy", "hp"])
 
@@ -225,9 +227,6 @@ class ActiveQuest(Player, util.SlotPickleMixin):
     def info(self):
         return quests[self.q_id]
 
-    def save(self):
-        pass
-
     def __setstate__(self, object_state):
         SlotPickleMixin.__setstate__(self, object_state)
         """ quester is set in the player's setstate
@@ -321,16 +320,16 @@ def _load():
                       no_save=True)
 
     load_default_quests()
-
     for quest in dbconn.get_collection_for_object(Quest).find():
-        loaded_quest = jsonpickle.decode(quest['data'])
+        loaded_quest: Quest = jsonpickle.decode(quest['data'])
 
         if isinstance(loaded_quest.channel, str) and loaded_quest.channel not in ("ALL", None, "NONE"):
             loaded_quest.channel = int(loaded_quest.channel)
+        
         if isinstance(loaded_quest.server_id, str):
             loaded_quest.server_id = int(loaded_quest.server_id)
 
-        quests[loaded_quest.id] = util.load_and_update(REFERENCE_QUEST, loaded_quest)
+        quests[loaded_quest.id] = loaded_quest
     util.logger.info("Loaded %s quests", len(quests))
 
 

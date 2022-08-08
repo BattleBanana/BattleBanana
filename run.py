@@ -23,6 +23,8 @@ sentry_sdk.init(gconf.other_configs.get("sentryAuth"), ignore_errors=["KeyboardI
 
 MAX_RECOVERY_ATTEMPTS = 1000
 
+STACKTRACE_FORMAT = "__Stack trace:__ ```%s```"
+
 stopped = False
 bot_key = ""
 client: discord.AutoShardedClient = None
@@ -48,7 +50,6 @@ class BattleBananaClient(discord.AutoShardedClient):
     """
     BattleBanana client
     """
-
     def __init__(self, **details):
         self.queue_tasks = queue.Queue()
         self.start_time = time.time()
@@ -59,10 +60,15 @@ class BattleBananaClient(discord.AutoShardedClient):
         intents.guilds = True
         intents.guild_messages = True
         intents.message_content = True
-
-        super().__init__(intents=intents, max_messages=None, **details)
+        
+        connector = util.get_vpn_connector()
+        super().__init__(intents=intents, max_messages=None, connector=connector, **details)
 
     async def setup_hook(self):
+        async_server = await asyncio.start_server(players.handle_client, '', gconf.other_configs["connectionPort"])
+        server_port = async_server.sockets[0].getsockname()[1]  # get port that the server is on, to confirm it started on 4000
+        util.logger.info("Listening for data transfer requests on port %s!" % server_port)
+
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
 
     async def __check_task_queue(self):
@@ -157,7 +163,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         error = sys.exc_info()[1]
         if ctx is None:
             await util.duelogger.error(("**BattleBanana experienced an error!**\n"
-                                        + "__Stack trace:__ ```" + traceback.format_exc() + "```"))
+                                        + STACKTRACE_FORMAT % (traceback.format_exc())))
             util.logger.error("None message/command error: %s", error)
         elif isinstance(error, util.BattleBananaException):
             # A normal battlebanana user error
@@ -214,8 +220,8 @@ class BattleBananaClient(discord.AutoShardedClient):
                 trigger_message = discord.Embed(title="Trigger", type="rich", color=gconf.DUE_COLOUR)
                 trigger_message.add_field(name="Message", value=ctx.author.mention + ":\n" + ctx.content)
                 await util.duelogger.error(("**Message/command triggred error!**\n"
-                                            + "__Stack trace:__ ```" + traceback.format_exc()[-1500:] + "```"),
-                                           embed=trigger_message)
+                                            + STACKTRACE_FORMAT % (traceback.format_exc()[-1500:])),
+                                            embed=trigger_message)
         elif isinstance(error, discord.NotFound):
             if "Unknown Channel" in str(error):
                 if blacklist.find(ctx.author.id) is not None:
@@ -232,7 +238,7 @@ class BattleBananaClient(discord.AutoShardedClient):
             os._exit(1)
         elif isinstance(error, (OSError, aiohttp.ClientConnectionError,
                                 asyncio.exceptions.TimeoutError)):  # 99% of time its just network errors
-            util.logger.error(error.message)
+            util.logger.warn(error.message)
         elif isinstance(error, pymongo.errors.ServerSelectionTimeoutError):
             util.duelogger.error("Something went wrong and we disconnected from database " + "<@115269304705875969>")
             util.logger.critical("Something went wrong and we disconnected from database")
@@ -242,8 +248,8 @@ class BattleBananaClient(discord.AutoShardedClient):
             trigger_message = discord.Embed(title="Trigger", type="rich", color=gconf.DUE_COLOUR)
             trigger_message.add_field(name="Message", value=ctx.author.mention + ":\n" + ctx.content)
             await util.duelogger.error("**Message/command triggered error!**\n"
-                                       + "__Stack trace:__ ```" + traceback.format_exc()[-1500:] + "```",
-                                       embed=trigger_message)
+                                        + STACKTRACE_FORMAT % (traceback.format_exc()[-1500:]),
+                                        embed=trigger_message)
 
         # Log exception on sentry.
         sentry_sdk.capture_exception(error)
@@ -309,12 +315,6 @@ class BattleBananaClient(discord.AutoShardedClient):
         util.logger.info("Bot (re)started after %.2fs & Shards started after %.2fs", time.time() - start_time,
                          time.time() - shard_time)
         await util.duelogger.bot("BattleBanana has *(re)*started\nBot version → ``%s``" % gconf.VERSION)
-        try:
-            async_server = await asyncio.start_server(players.handle_client, '', gconf.other_configs["connectionPort"])
-            server_port = async_server.sockets[0].getsockname()[1]  # get port that the server is on, to confirm it started on 4000
-            util.logger.info("Listening for data transfer requests on port %s!" % server_port)
-        except:
-            util.logger.warning("Websocket already started")
 
     async def on_shard_ready(self, shard_id: int):
         game = discord.Activity(name="battlebanana.xyz | shard %d/%d" % (shard_id + 1, self.shard_count),
