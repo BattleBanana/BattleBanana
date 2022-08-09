@@ -392,6 +392,12 @@ class Player(BattleBananaObject, SlotPickleMixin):
         self.equipped["banner"] = theme["banner"]
         self.equipped["background"] = theme["background"]
 
+    @property
+    def attr_gain(self,stat,quest,turns):
+        self.misc_stats["average_quest_battle_turns"] = (self.misc_stats["average_quest_battle_turns"] + turns)/2 
+        return (max(0.01, (stat / self.get_avg_stat())
+                * quest.level * (turns / self.misc_stats["average_quest_battle_turns"]) / 2 * (quest.get_quest_scale() + 0.5) * 3))
+
     def to_member(self, guild=None):
         """
         Returns a discord member or a fake member.
