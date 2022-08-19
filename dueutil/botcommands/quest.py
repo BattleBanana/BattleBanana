@@ -214,7 +214,6 @@ async def acceptallquests(ctx, **details):
     previous_attack = player.attack
     previous_strength = player.strg
     previous_accuracy = player.accy
-    total_turns = 0
 
     wins = 0
     lose = 0
@@ -222,16 +221,15 @@ async def acceptallquests(ctx, **details):
     b = 0
     total_quests = len(player.quests)
     total_turns = 0
+    quest_turns_list = []
     
     while b < total_quests:
         quest = player.quests.pop(b)
         battle_log = battles.get_battle_log(player_one=player, player_two=quest, p2_prefix="the ")
-        turns = battle_log.turn_count
+        quest_turns_list.append(battle_log.turn_count)
         total_turns += battle_log.turn_count
         winner = battle_log.winner
         stats.increment_stat(stats.Stat.QUESTS_ATTEMPTED)
-        # Not really an average (but w/e)
-        average_quest_battle_turns = player.misc_stats["average_quest_battle_turns"] = (player.misc_stats["average_quest_battle_turns"] + turns) / 2
         
         if winner == quest:
             lose += 1
@@ -249,7 +247,7 @@ async def acceptallquests(ctx, **details):
             player.quests_won += 1
             total_cash += quest.money
 
-            add_strg, add_attack, add_accy,max_stats_gain = player.calculate_progress(quest,turns,average_quest_battle_turns)
+            add_strg, add_attack, add_accy,max_stats_gain = player.calculate_progress(quest,battle_log.turn_count,sum(quest_turns_list)/len(quest_turns_list))
             player.progress(add_attack, add_strg, add_accy, max_attr=max_stats_gain, max_exp=10000 * player.prestige_multiplicator())
 
             stats.increment_stat(stats.Stat.MONEY_CREATED, quest.money)
@@ -262,6 +260,8 @@ async def acceptallquests(ctx, **details):
             player.misc_stats["quest_losing_streak"] = 0
         else:
             draw += 1
+            
+        player.misc_stats["average_quest_battle_turns"] = (player.misc_stats["average_quest_battle_turns"] + battle_log.turn_count) / 2
         total_quests -=1
 
     player.money += total_cash
