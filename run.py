@@ -228,6 +228,15 @@ class BattleBananaClient(discord.AutoShardedClient):
                     await util.duelogger.error(f"**Blacklisted user:** {ctx.author.mention}\n<@115269304705875969>")
                     blacklist.add(ctx.author.id, "Ratelimit")
                 return
+        elif isinstance(error, discord.DiscordServerError):
+            util.logger.error("Discord Server error: %s", error)
+            if ctx_is_message:
+                trigger_message = discord.Embed(title="Trigger", type="rich", color=gconf.DUE_COLOUR)
+                trigger_message.add_field(name="Message", value=ctx.author.mention + ":\n" + ctx.content)
+                await util.duelogger.error(("**Message/command triggred error!**\n"
+                                            + STACKTRACE_FORMAT % (traceback.format_exc()[-1500:])),
+                                            embed=trigger_message)
+            return
         elif isinstance(error, (aiohttp.ClientResponseError, aiohttp.ClientOSError)):
             if ctx_is_message:
                 util.logger.error("%s: ctx from %s: %s", error, ctx.author.id, ctx.content)
