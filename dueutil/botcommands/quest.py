@@ -220,8 +220,7 @@ async def acceptallquests(ctx, **details):
     draw = 0
     quest_turns_list = []
     
-    for b in range(len(player.quests)):
-        quest = player.quests[b]
+    for quest in player.quests:
         battle_log = battles.get_battle_log(player_one=player, player_two=quest, p2_prefix="the ")
         quest_turns_list.append(battle_log.turn_count)
         average_turns = sum(quest_turns_list)/len(quest_turns_list)
