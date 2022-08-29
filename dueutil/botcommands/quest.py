@@ -209,18 +209,18 @@ async def acceptallquests(ctx, **details):
                                    "You can't accept all your quests because it will exceed your daily quest limit of " + str(quests.MAX_DAILY_QUESTS))
 
 
-    total_cash = 0
     previous_exp = player.exp
     previous_attack = player.attack
     previous_strength = player.strg
     previous_accuracy = player.accy
+    previous_money = player.money
 
     wins = 0
     lose = 0
     draw = 0
     quest_turns_list = []
-    
-    for quest in player.quests:
+    player_quests = player.quests
+    for quest in player_quests:
         battle_log = battles.get_battle_log(player_one=player, player_two=quest, p2_prefix="the ")
         quest_turns_list.append(battle_log.turn_count)
         average_turns = sum(quest_turns_list)/len(quest_turns_list)
@@ -229,7 +229,7 @@ async def acceptallquests(ctx, **details):
         
         if winner == quest:
             lose += 1
-            total_cash -= quest.money // 2
+            player.money -= quest.money//2
             player.quest_spawn_build_up += 0.1
             player.misc_stats["quest_losing_streak"] += 1
             if player.misc_stats["quest_losing_streak"] == 10:
@@ -237,7 +237,7 @@ async def acceptallquests(ctx, **details):
 
         elif winner == player:
             wins += 1
-            total_cash += quest.money
+            player.money += quest.money
             if player.quest_day_start == 0:
                 player.quest_day_start = time.time()
             player.quests_completed_today += 1
@@ -257,17 +257,12 @@ async def acceptallquests(ctx, **details):
             
         else:
             draw += 1
-
+        player.quests.remove(quest)
         player.misc_stats["average_quest_battle_turns"] = (player.misc_stats["average_quest_battle_turns"] + battle_log.turn_count) / 2
-
-    player.quests = []
-    player.money += total_cash
-
+    
     battle_embed = discord.Embed(title=("Battle Results"), type="rich", color=gconf.DUE_COLOUR)
-    battle_embed.add_field(name="Quests Fought", value=("Total quests: "+str(int(wins+lose))+"\nWon: " +str(wins)+"\nLost: "+str(lose)+"\nDraw: " + str(draw)))
-    battle_embed.add_field(name="Results", value=("Money: `¤"+str(total_cash)+"`\nAdded EXP: `"+ str(round(player.exp - previous_exp))+"`\n"+ e.ATK+" "+str(round(player.attack - previous_attack,2))+"\n"+ e.ACCY+" "+str(round(player.accy - previous_accuracy,2))+"\n" + e.STRG +" "+str(round(player.strg - previous_strength,2))))
-    battle_embed.add_field(name="Total turns", value=(str(round(sum(quest_turns_list)))))
-    battle_embed.add_field(name="Average Turns", value=(str(round(sum(quest_turns_list)/len(quest_turns_list)))))
+    battle_embed.add_field(name="Quests Fought", value=("Total quests: "+str(int(wins+lose))+"\nWon: " +str(wins)+"\nLost: "+str(lose)+"\nDraw: " + str(draw) + "\n Total Turns: " + str(sum(quest_turns_list)) + "\n Average Turns: " + str(round(sum(quest_turns_list)/len(quest_turns_list)))))
+    battle_embed.add_field(name="Results", value=("Money: `¤"+str(player.money - previous_money)+"`\nAdded EXP: `"+ str(round(player.exp - previous_exp))+"`\n"+ e.ATK+" "+str(round(player.attack - previous_attack,2))+"\n"+ e.ACCY+" "+str(round(player.accy - previous_accuracy,2))+"\n" + e.STRG +" "+str(round(player.strg - previous_strength,2))))
     battle_embed.set_footer(text="If the money is negative, then you lost more money from losing battles than you gained from winning them.")
 
     await util.reply(ctx, embed=battle_embed)
