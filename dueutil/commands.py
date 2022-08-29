@@ -172,6 +172,8 @@ def ratelimit(**command_info):
         @wraps(command_func)
         async def wrapped_command(ctx, *args, **details):
             player = details["author"]
+            if player is None:
+                return
             command_name = details["command_name"]
             if command_info.get('save', False):
                 command_name += "_saved_cooldown"

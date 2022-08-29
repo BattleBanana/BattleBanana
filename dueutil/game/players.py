@@ -225,6 +225,27 @@ class Player(BattleBananaObject, SlotPickleMixin):
     def prestige_multiplicator(self):
         return self.prestige_level + 1
 
+    def calculate_progress(self, quest, turns, average_turns):
+        quest_scale = quest.get_quest_scale()
+        avg_player_stat = self.get_avg_stat()
+
+        def attr_gain(stat):
+            return (max(0.01, (stat / avg_player_stat)
+                        * quest.level * (turns / average_turns) / 2 * (quest_scale + 0.5) * 3))
+
+        # Put some random in the prestige gain so its not a raw 20 * prestige
+        max_stats_gain = 100 * self.prestige_multiplicator()
+        if self.donor:
+            max_stats_gain *= 1.5
+
+        add_strg = min(attr_gain(quest.strg), max_stats_gain)
+        # Limit these with add_strg. Since if the quest is super strong. It would not be beatable.
+        # Add a little random so the limit is not super visible
+        add_attack = min(attr_gain(quest.attack), min(add_strg * 3 * random.uniform(0.6, 1.5), max_stats_gain))
+        add_accy = min(attr_gain(quest.accy), min(add_strg * 3 * random.uniform(0.6, 1.5), max_stats_gain))
+
+        return add_strg, add_attack, add_accy,max_stats_gain
+
     def progress(self, attack, strg, accy, **options):
         max_attr = options.get('max_attr', 0.1)
         max_exp = options.get('max_exp', 15)
