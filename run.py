@@ -23,7 +23,7 @@ sentry_sdk.init(gconf.other_configs.get("sentryAuth"), ignore_errors=["KeyboardI
 
 MAX_RECOVERY_ATTEMPTS = 1000
 
-STACKTRACE_FORMAT = "__Stack trace:__ ```%s```"
+STACKTRACE_FORMAT = "__Stack trace:__ ```py\n%s\n```"
 
 stopped = False
 bot_key = ""
