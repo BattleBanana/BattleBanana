@@ -1,16 +1,23 @@
 import re
+import sys
 
-from dueutil.game.helpers import imagehelper
 from . import util
 from .game import players, teams
 from .game.helpers import misc
 from .permissions import Permission
 
 # The max number the bot will accept. To avoid issues with crazy big numbers.
-MAX_NUMBER = 9223372036854775807
+MAX_NUMBER = sys.maxsize
 MIN_NUMBER = -MAX_NUMBER
 STRING_TYPES = ('S', 'M')
-THOUSANDS_REGEX = re.compile(r'(\,)([0-9][0-9][0-9])')
+THOUSANDS_REGEX = re.compile(r'(\,)(\d\d\d)')
+
+NUMBER_MULTIPLIERS = {
+    "k": 1000,
+    "m": 1000000,
+    "b": 1000000000,
+    "t": 1000000000000,
+}
 
 
 def strip_thousands_separators(value):
@@ -19,14 +26,8 @@ def strip_thousands_separators(value):
     value = re.sub(THOUSANDS_REGEX, r'\2', value)
     
     multiplier = value[-1].lower()
-    if multiplier in ("k", "m", "b"):
-        value = value[:-1]
-        if multiplier == "k":
-            value = int(value) * 1000
-        elif multiplier == "m":
-            value = int(value) * 1000000
-        elif multiplier == "b":
-            value = int(value) * 1000000000
+    if multiplier in NUMBER_MULTIPLIERS:
+        value = float(value[:-1]) * NUMBER_MULTIPLIERS[multiplier]
 
     return value
 
@@ -97,14 +98,18 @@ base_func_dict = {'T': parse_team, 'S': parse_string, 'I': parse_int, 'C': parse
 
 
 def parse_type(arg_type, value, **extras):
-    called = extras.get("called")
-    ctx = extras.get("ctx")
     if arg_type in base_func_dict:
         return base_func_dict[arg_type](value)
-    return {
-        'P': parse_player(value, called, ctx),
-        # This one is for page selectors that could be a page number or a string like a weapon name.
-        'M': parse_count(value) or value,
-        'B': value.lower() in misc.POSITIVE_BOOLS,
-        '%': parse_float(value.rstrip("%"))
-    }.get(arg_type)
+    
+    match(arg_type):
+        case "P":
+            called = extras.get("called")
+            ctx = extras.get("ctx")
+            
+            return parse_player(value, called, ctx)
+        case "M":
+            return parse_count(value) or value
+        case "B":
+            return value.lower() in misc.POSITIVE_BOOLS
+        case "%":
+            return parse_float(value.rstrip('%'))

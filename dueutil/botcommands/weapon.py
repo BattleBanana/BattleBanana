@@ -321,8 +321,8 @@ async def declinewager(ctx, wager_index, **details):
         raise util.BattleBananaException(ctx.channel, "Request not found!")
 
 
-@commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SSC%B?S?S?')
-async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon='🔫', image_url=None, **_):
+@commands.command(permission=Permission.SERVER_ADMIN, args_pattern="SSCFB?S?S?")
+async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon="🔫", image_url=None, **_):
     """
     [CMD_KEY]createweapon "weapon name" "hit message" damage accy
     

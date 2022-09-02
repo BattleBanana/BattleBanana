@@ -322,7 +322,7 @@ async def declineallquests(ctx, **details):
     await util.reply(ctx, "Declined %s quests!" % quests)
 
 
-@commands.command(permission=Permission.SERVER_ADMIN, args_pattern='SRRRRS?S?S?%?')
+@commands.command(permission=Permission.SERVER_ADMIN, args_pattern="SRRRRS?S?S?F?")
 async def createquest(ctx, name, attack, strg, accy, hp,
                       task=None, weapon=None, image_url=None, spawn_chance=25, **_):
     """
