@@ -1,5 +1,4 @@
 import asyncio
-from aiohttp_socks import ProxyError
 import discord
 import repoze.timeago
 from datetime import datetime
@@ -10,14 +9,14 @@ from ..game import awards, players, leaderboards, battles
 from ..game import emojis
 from ..game.helpers import misc, imagehelper
 
-topdogs_per_page = 10
+TOPDOGS_PER_PAGE = 10
 
 
 async def glitter_text(channel, text):
     try:
         gif_text = await misc.get_glitter_text(text)
         await util.say(channel, ":sparkles: Your glitter text!", file=discord.File(fp=gif_text, filename="glittertext.gif"))
-    except (ValueError, asyncio.TimeoutError, ProxyError):
+    except (ValueError, asyncio.TimeoutError):
         await util.say(channel, ":cry: Could not fetch glitter text! Please try again later.")
 
 
@@ -422,13 +421,13 @@ async def topdoghistory(ctx, page=1, **_):
     Display the current and the 10 previous topdogs
     """
     page -= 1
-    count = dbconn.conn()["Topdogs"].estimated_document_count()
+    count = dbconn.conn()["Topdogs"].count_documents()
 
-    if topdogs_per_page * page > count:
+    if TOPDOGS_PER_PAGE * page > count:
         raise util.BattleBananaException(ctx.channel, "Page not found!")
 
-    topdogs = dbconn.conn()["Topdogs"].find({}, {'_id': 0}).sort([('date', -1)]).skip(topdogs_per_page * page).limit(
-        topdogs_per_page)
+    topdogs = dbconn.conn()["Topdogs"].find({}, {'_id': 0}).sort(('date', -1)).skip(TOPDOGS_PER_PAGE * page).limit(
+        TOPDOGS_PER_PAGE)
 
     embed = discord.Embed(title="Topdog History", type="rich", color=gconf.DUE_COLOUR)
     embed.set_footer(text="Times are in UTC.")
