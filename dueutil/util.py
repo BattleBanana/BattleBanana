@@ -1,6 +1,6 @@
 import aiohttp
 import asyncio
-from aiohttp_socks import ProxyConnector
+from aiohttp_socks import ProxyConnector, ProxyType
 import discord
 import emoji  # The emoji list in this is outdated/not complete.
 import io
@@ -106,7 +106,13 @@ def get_vpn_connector():
     if vpn_config is None:
         return None
 
-    return ProxyConnector.from_url(f"{vpn_config['protocol']}://{vpn_config['username']}:{vpn_config['password']}@{vpn_config['host']}:{vpn_config['port']}")
+    return ProxyConnector(
+        proxy_type=ProxyType.HTTP,
+        host=vpn_config['host'],
+        port=vpn_config['port'],
+        username=vpn_config['username'],
+        password=vpn_config['password']
+    )
 
 
 async def download_file(url):
