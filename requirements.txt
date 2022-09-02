@@ -13,8 +13,9 @@ beautifulsoup4
 typing
 sentry_sdk
 pydealer
-ssdeep
+ppdeep
 aiohttp_socks
 cython
 aiohttp[speedups]
 cchardet
+psutil

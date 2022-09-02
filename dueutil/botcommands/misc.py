@@ -219,7 +219,7 @@ async def eval(ctx, body, **details):
 
     For 1337 haxors only! Go away!
 
-    Evaluates a code
+    Evaluates code
     """
 
     env = {
@@ -366,16 +366,16 @@ async def sudo(ctx, victim, command, **_):
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PC")
 async def setpermlevel(ctx, player, level, **_):
-    if (player.id in (115269304705875969, 261799488719552513)):
+    if dueutil.permissions.get_special_permission(ctx.author) <= dueutil.permissions.get_special_permission(player):
         raise util.BattleBananaException(ctx.channel,
-                                            "You cannot change the permissions for DeveloperAnonymous or Firescoutt")
+                                            "You cannot change the permissions for someone with a higher or equal permission level to you!")
 
     member = player.to_member(ctx.guild)
     permission_index = level - 1
     permission_list = dueutil.permissions.permissions
     if permission_index < len(permission_list):
         permission = permission_list[permission_index]
-        if not dueutil.permissions.has_permission(ctx.athor, permission):
+        if not dueutil.permissions.has_permission(ctx.author, permission):
             raise util.BattleBananaException(ctx.channel, "You do not have permission to set this permission")
 
         dueutil.permissions.give_permission(member, permission)
@@ -399,8 +399,10 @@ async def setpermlevel(ctx, player, level, **_):
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="P", aliases=["giveban"])
 async def ban(ctx, player, **_):
-    if (player.id in (115269304705875969, 261799488719552513)):
-        raise util.BattleBananaException(ctx.channel, "You cannot ban DeveloperAnonymous or Firescoutt")
+    if dueutil.permissions.get_special_permission(ctx.author) <= dueutil.permissions.get_special_permission(player):
+        raise util.BattleBananaException(ctx.channel,
+                                            "You cannot ban someone with a higher or equal permission level to you!")
+
     dueutil.permissions.give_permission(player.to_member(ctx.guild), Permission.BANNED)
     await util.reply(ctx, emojis.MACBAN + " **" + player.name_clean + "** banned!")
     await util.duelogger.concern("**%s** has been banned! (%s)" % (player.name_clean, str(player.id)))
@@ -438,6 +440,7 @@ async def toggledonor(ctx, player, **_):
         await util.reply(ctx, "**%s** is now a donor!" % player.name_clean)
     else:
         await util.reply(ctx, "**%s** is no longer donor" % player.name_clean)
+    player.save()
 
 
 @commands.command(permission=Permission.BANANA_OWNER, args_pattern=None)

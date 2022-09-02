@@ -1,6 +1,7 @@
 import asyncio
 import discord
 import json
+import psutil
 import repoze.timeago
 import time
 from itertools import chain
@@ -191,6 +192,7 @@ async def botstats(ctx, **_):
                                  % util.format_number_precise(game_stats[Stat.DISCOIN_RECEIVED]))
                                 + e.CHANNEL + " **%s** commands used.\n"
                                 % util.format_number_precise(game_stats[Stat.COMMANDS_USED]))
+
     # Game
     stats_embed.add_field(name="Game",
                           value=(e.QUESTER + " **%s** players.\n"
@@ -208,6 +210,7 @@ async def botstats(ctx, **_):
                                  + " **%s** taxed."
                                  % util.format_money(game_stats[Stat.MONEY_TAXED])),
                           inline=False)
+
     # Sharding
     client = util.clients[0]
     current_shard = util.get_shard_index(ctx.guild.id)
@@ -216,6 +219,13 @@ async def botstats(ctx, **_):
                                  % (current_shard + 1, client.shard_count, gconf.shard_names[current_shard])
                                  + "Current uptime is %s."
                                  % util.display_time(time.time() - client.start_time, granularity=4)),
+                          inline=False)
+
+    # CPU and RAM usage
+    stats_embed.add_field(name="CPU and RAM usage",
+                          value=("CPU usage is %s%% and RAM usage is %s%%."
+                                 % (util.format_number_precise(psutil.cpu_percent()),
+                                    util.format_number_precise(psutil.virtual_memory().percent))),
                           inline=False)
 
     await util.reply(ctx, embed=stats_embed)
