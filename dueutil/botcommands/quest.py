@@ -267,9 +267,12 @@ async def acceptallquests(ctx, **details):
 
     await util.reply(ctx, embed=battle_embed)
 
-    wins > 0 and await awards.give_award(ctx.channel, player, "QuestDone", "*Saved* the guild!")
-    lose > 0 and await awards.give_award(ctx.channel, player, "RedMist", "Red mist...")
-    draw > 0 and await awards.give_award(ctx.channel, player, "InconceivableQuest")
+    if wins > 0:
+        await awards.give_award(ctx.channel, player, "QuestDone", "*Saved* the guild!")
+    if lose > 0:
+        await awards.give_award(ctx.channel, player, "RedMist", "Red mist...")
+    if draw > 0:
+        await awards.give_award(ctx.channel, player, "InconceivableQuest")
 
     player.save()
 
