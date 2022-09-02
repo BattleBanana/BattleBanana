@@ -183,7 +183,7 @@ async def acceptquest(ctx, quest_index, **details):
 
 
 @commands.command(args_pattern=None, aliases=['aaq'])
-@commands.require_cnf(warning=f"Check your equipped weapon, cash and stats.\nThis command will accept **all your quests** and could potentially result in :bangbang:**MASSIVE money loss**:bangbang: {e.NOT_STONK}.\nYou have been warned.")
+@commands.require_cnf(warning=f"Check your equipped weapon, cash and stats.\nThis command will accept **all your quests** and could potentially result in :bangbang:**MASSIVE money loss**:bangbang: {e.NOT_STONK}.\nAre you sure you want to continue?")
 async def acceptallquests(ctx, **details): 
     """
     [CMD_KEY]acceptallquests
@@ -195,13 +195,14 @@ async def acceptallquests(ctx, **details):
     if not player.donor:
         raise util.BattleBananaException(ctx.channel, "This command is for donors only!")
 
-    if len(player.quests) == 0:
+    total_quests = len(player.quests)
+    if total_quests == 0:
         raise util.BattleBananaException(ctx.channel, "You have no quests!")
 
     if player.money < sum([quest.money for quest in player.quests]) // 2:
         raise util.BattleBananaException(ctx.channel, "You can't afford the risk of doing all of your quests!")
 
-    if player.quests_completed_today + len(player.quests) >= quests.MAX_DAILY_QUESTS:
+    if player.quests_completed_today + total_quests >= quests.MAX_DAILY_QUESTS:
        raise util.BattleBananaException(ctx.channel,
                                    "You can't accept all your quests because it will exceed your daily quest limit of " + str(quests.MAX_DAILY_QUESTS))
 
@@ -218,7 +219,7 @@ async def acceptallquests(ctx, **details):
     lose = 0
     draw = 0
     quest_turns_list = [player.misc_stats["average_quest_battle_turns"]]
-    player_quests = player.quests
+    player_quests = list(player.quests)
     for quest in player_quests:
         battle_log = battles.get_battle_log(player_one=player, player_two=quest, p2_prefix="the ")
         quest_turns_list.append(battle_log.turn_count)
@@ -254,12 +255,13 @@ async def acceptallquests(ctx, **details):
             
         else:
             draw += 1
-        player.quests.remove(quest)
 
-    average_turns = sum(quest_turns_list) / len(quest_turns_list)
+        player.quests.remove(quest) 
+
+    average_turns = round(sum(quest_turns_list) / len(quest_turns_list), 2)
     player.misc_stats["average_quest_battle_turns"] = average_turns
     battle_embed = discord.Embed(title="Battle Results", type="rich", color=gconf.DUE_COLOUR)
-    battle_embed.add_field(name="Quests Fought", value=f"Total quests: {len(player_quests)}\nWon: {wins}\nLost: {lose}\nDraw: {draw}\n Total Turns: {sum(quest_turns_list)}\n Average Turns: {average_turns}")
+    battle_embed.add_field(name="Quests Fought", value=f"Total quests: {total_quests}\nWon: {wins}\nLost: {lose}\nDraw: {draw}\n Total Turns: {int(sum(quest_turns_list))}\n Average Turns: {average_turns}")
     battle_embed.add_field(name="Results", value=f"{e.ATK}: {round(player.attack - previous_attack, 2)}\n{e.ACCY}: {round(player.accy - previous_accuracy, 2)}\n{e.STRG} {round(player.strg - previous_strength, 2)}\nMoney: ¤{player.money - previous_money}\nEXP: {round(player.exp - previous_exp)}")
     battle_embed.set_footer(text="If the money is negative, then you lost more money from losing battles than you gained from winning them.")
 
