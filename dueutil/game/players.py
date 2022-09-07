@@ -129,7 +129,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
                                     weapon=weapons.NO_WEAPON_ID,
                                     banner=customizations.Banner.DEFAULT_BANNER,
                                     theme=customizations.Theme.DEFAULT_THEME,
-                                    theme=customizations.Background.DEFAULT_BACKGROUND)
+                                    background=customizations.Background.DEFAULT_BACKGROUND)
 
         ##### Inventory. defaultdict so I can add more stuff - without fuss
         ##### Also makes shop simpler
@@ -210,7 +210,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
                                     weapon=weapons.NO_WEAPON_ID,
                                     banner=customizations.Banner.DEFAULT_BANNER,
                                     theme=customizations.Theme.DEFAULT_THEME,
-                                    theme=customizations.Background.DEFAULT_BACKGROUND)
+                                    background=customizations.Background.DEFAULT_BACKGROUND)
 
         ##### Inventory. defaultdict so I can add more stuff - without fuss
         ##### Also makes shop simpler
