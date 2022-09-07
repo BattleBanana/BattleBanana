@@ -1,20 +1,22 @@
-import aiohttp
 import asyncio
-import discord
 import inspect
 import os
-import pymongo
 import queue
-import sentry_sdk
 import sys
 import time
 import traceback
 from threading import Thread
 
+import aiohttp
+import discord
+import pymongo
+import sentry_sdk
+
 import generalconfig as gconf
-from dueutil import blacklist
-from dueutil import dbconn, events, loader, permissions, servercounts, util
-from dueutil.game import players, emojis as e
+from dueutil import (blacklist, dbconn, events, loader, permissions,
+                     servercounts, util)
+from dueutil.game import emojis as e
+from dueutil.game import players
 from dueutil.game.configs import dueserverconfig
 from dueutil.game.helpers import imagecache
 from dueutil.permissions import Permission
