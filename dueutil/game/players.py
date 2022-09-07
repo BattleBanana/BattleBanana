@@ -127,9 +127,9 @@ class Player(BattleBananaObject, SlotPickleMixin):
         ##### Equiped items
         self.equipped = defaultdict(Player.DEFAULT_FACTORIES["equipped"],
                                     weapon=weapons.NO_WEAPON_ID,
-                                    banner="discord blue",
-                                    theme="default",
-                                    background="default")
+                                    banner=customizations.Banner.DEFAULT_BANNER,
+                                    theme=customizations.Theme.DEFAULT_THEME,
+                                    theme=customizations.Background.DEFAULT_BACKGROUND)
 
         ##### Inventory. defaultdict so I can add more stuff - without fuss
         ##### Also makes shop simpler
@@ -208,17 +208,17 @@ class Player(BattleBananaObject, SlotPickleMixin):
         ##### Equiped items
         self.equipped = defaultdict(Player.DEFAULT_FACTORIES["equipped"],
                                     weapon=weapons.NO_WEAPON_ID,
-                                    banner="discord blue",
-                                    theme="default",
-                                    background="default")
+                                    banner=customizations.Banner.DEFAULT_BANNER,
+                                    theme=customizations.Theme.DEFAULT_THEME,
+                                    theme=customizations.Background.DEFAULT_BACKGROUND)
 
         ##### Inventory. defaultdict so I can add more stuff - without fuss
         ##### Also makes shop simpler
         self.inventory = defaultdict(Player.DEFAULT_FACTORIES["inventory"],
                                      weapons=[],
-                                     themes=["default"],
-                                     backgrounds=["default"],
-                                     banners=["discord blue"])
+                                     theme=[customizations.Theme.DEFAULT_THEME],
+                                     backgrounds=[customizations.Background.DEFAULT_BACKGROUND],
+                                     banners=[customizations.Banner.DEFAULT_BANNER])
 
         self.save()
 
@@ -382,10 +382,10 @@ class Player(BattleBananaObject, SlotPickleMixin):
     @property
     def banner(self):
         banner = customizations.banners.get(self.equipped["banner"],
-                                            customizations.banners["discord blue"])
+                                            customizations.banners[customizations.Banner.DEFAULT_BANNER])
         if not (self.equipped["banner"] in customizations.banners or banner.can_use_banner(self)):
             self.inventory["banners"].remove(self.equipped["banner"])
-            self.equipped["banner"] = "discord blue"
+            self.equipped["banner"] = customizations.Banner.DEFAULT_BANNER
         return banner
 
     @banner.setter
@@ -488,10 +488,10 @@ def load_player(player_id: int):
         return True
 
 
-async def get_stuff(self):
+def get_stuff(self):
     for attr in chain.from_iterable(getattr(cls, '__slots__', []) for cls in self.__class__.__mro__):
         try:
-            yield attr
+            yield from attr
         except AttributeError:
             continue
 

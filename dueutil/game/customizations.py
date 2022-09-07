@@ -60,6 +60,7 @@ class Theme(Customization):
     Needs item setting & copying to support
     overriding theme attributes
     """
+    DEFAULT_THEME = "default"
 
     __slots__ = []
 
@@ -122,12 +123,12 @@ class _Themes(dict):
 
 
 class Background(Customization):
-    __slots__ = ["image"]
-
     """
     Unlike Theme copy() & setting background data should
     never be needed
     """
+    DEFAULT_BACKGROUND = "default"
+    __slots__ = ["image"]
 
     def __init__(self, id, **background_data):
         super().__init__(id, **background_data)
@@ -161,6 +162,7 @@ class Banner(Customization):
     This class is based off a legacy class from DueUtil V1
     and hence does not properly Customization
     """
+    DEFAULT_BANNER = "discord blue"
 
     def __init__(self, id, **banner_data):
         self.price = banner_data["price"]
