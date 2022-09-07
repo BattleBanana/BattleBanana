@@ -563,9 +563,9 @@ async def battle_screen(ctx, player_one, player_two):
         wep_image_one = await resize_image_url(weapons.Weapon.DEFAULT_IMAGE, 30, 30)
 
     try:
-        image.paste(wep_image_one, (6, height - 6 - 30), wep_image_one)
+        image.paste(wep_image_one, (0, 0, 6, height - 6 - 30), wep_image_one)
     except:
-        image.paste(wep_image_one, (6, height - 6 - 30))
+        image.paste(wep_image_one, (0, 0, 6, height - 6 - 30))
 
     wep_image_two = await resize_image_url(weapon_two.image_url, 30, 30)
 
