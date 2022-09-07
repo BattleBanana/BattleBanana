@@ -1,4 +1,6 @@
 from typing import Set
+
+from dueutil import util
 from . import dbconn
 
 class BlacklistedUser:
@@ -52,7 +54,7 @@ def find(id: int) -> BlacklistedUser or None:
 
 def exists(id: int) -> bool:
     """
-    Find a user in the blacklist
+    Check if a user is blacklisted
     """
     for user in blacklist:
         if user.id == id:
@@ -66,6 +68,8 @@ def __load() -> None:
     """
     for cursor in dbconn.get_blacklist():
         add(cursor["_id"], cursor["reason"])
+    
+    util.logger.info("Loaded %s blacklisted users", len(blacklist))
 
 
 __load()

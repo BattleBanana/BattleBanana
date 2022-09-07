@@ -224,9 +224,9 @@ class BattleBananaClient(discord.AutoShardedClient):
                                             embed=trigger_message)
         elif isinstance(error, discord.NotFound):
             if "Unknown Channel" in str(error):
-                if blacklist.find(ctx.author.id) is not None:
+                if blacklist.find(ctx.author.id) is None:
                     await util.duelogger.error(f"**Blacklisted user:** {ctx.author.mention}\n<@115269304705875969>")
-                    blacklist.add(ctx.author.id, "Ratelimit")
+                    blacklist.add(ctx.author.id, "Unknown Channel")
                 return
         elif isinstance(error, discord.DiscordServerError):
             util.logger.error("Discord Server error: %s", error)
