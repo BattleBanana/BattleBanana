@@ -756,7 +756,7 @@ async def blacklist(ctx, id, reason = "No reason specified", **_):
     if bl.find(id):
         raise util.BattleBananaException(ctx.channel, "This member is already blacklisted!")
 
-    blacklist.add(id, reason)
+    bl.add(id, reason)
     await util.reply(ctx, "The user has been blacklisted!")
 
 
@@ -770,5 +770,5 @@ async def unblacklist(ctx, id, **_):
     if not bl.find(id):
         raise util.BattleBananaException(ctx.channel, "This member is not blacklisted!")
 
-    blacklist.remove(id)
+    bl.remove(id)
     await util.reply(ctx, "The user has been unblacklisted!")
