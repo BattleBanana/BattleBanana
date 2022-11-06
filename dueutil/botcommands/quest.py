@@ -131,7 +131,7 @@ async def acceptquest(ctx, quest_index, **details):
 
         reward = (
                 ":sparkles: **" + player.name_clean + "** defeated the **" + quest.name + "** and was rewarded with ``"
-                + util.format_number(quest.money, full_precision=True, money=True) + "``")
+                + util.format_number(quest.money, full_precision=True, money=True) + "`` ")
         quest_scale = quest.get_quest_scale()
         avg_player_stat = player.get_avg_stat()
 
@@ -151,12 +151,13 @@ async def acceptquest(ctx, quest_index, **details):
         add_accy = min(attr_gain(quest.accy), min(add_strg * 3 * random.uniform(0.6, 1.5), max_stats_gain))
 
         stats_reward = players.STAT_GAIN_FORMAT % (add_attack, add_strg, add_accy)
+        quest_results = reward + stats_reward
 
         prev_exp = player.total_exp
         player.progress(add_attack, add_strg, add_accy, max_attr=max_stats_gain,
                         max_exp=10000 * player.prestige_multiplicator())
         exp_gain = player.total_exp - prev_exp
-        quest_results = f"{reward} and `{str(round(exp_gain))}` EXP\n{stats_reward}"
+        quest_results = (reward + "and `" + str(round(exp_gain)) + "` EXP\n" + stats_reward)
 
         player.money += quest.money
         stats.increment_stat(stats.Stat.MONEY_CREATED, quest.money)
@@ -241,7 +242,7 @@ async def acceptallquests(ctx, **details):
             player.quests_won += 1
 
             average_turns = sum(quest_turns_list) / len(quest_turns_list)
-            add_strg, add_attack, add_accy, max_stats_gain = players.calculate_progress(quest, battle_log.turn_count, average_turns)
+            add_strg, add_attack, add_accy, max_stats_gain = player.calculate_progress(quest, battle_log.turn_count, average_turns)
             player.progress(add_attack, add_strg, add_accy, max_attr=max_stats_gain, max_exp=10000 * player.prestige_multiplicator())
 
             stats.increment_stat(stats.Stat.MONEY_CREATED, quest.money)
