@@ -1,8 +1,9 @@
+discord.py[speed]<3.0.0
+aiohttp[speedups]
+pymongo[srv]
 objgraph
 validators
 colour
-pymongo
-discord.py<3.0.0
 cachetools
 numpy
 repoze.timeago
@@ -10,12 +11,10 @@ jsonpickle
 emoji
 Pillow
 beautifulsoup4
-typing
 sentry_sdk
 pydealer
 ssdeep
 aiohttp_socks
 cython
-aiohttp[speedups]
-cchardet
 psutil
+setuptools
