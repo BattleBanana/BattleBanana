@@ -191,20 +191,20 @@ class BattleBananaClient(discord.AutoShardedClient):
                         # Attempt to warn user
                         perms = ctx.channel.permissions_for(ctx.guild.me)
                         await util.say(ctx.channel,
-                                       "The action could not be performed as I'm **missing permissions**! Make sure I have the following permissions:\n"
-                                       + "- Manage Roles %s;\n" % (
-                                           e.CHECK_REACT if perms.manage_roles else e.CROSS_REACT)
-                                       + "- Manage messages %s;\n" % (
-                                           e.CHECK_REACT if perms.manage_messages else e.CROSS_REACT)
-                                       + "- Embed links %s;\n" % (e.CHECK_REACT if perms.embed_links else e.CROSS_REACT)
-                                       + "- Attach files %s;\n" % (
-                                           e.CHECK_REACT if perms.attach_files else e.CROSS_REACT)
-                                       + "- Read Message History %s;\n" % (
-                                           e.CHECK_REACT if perms.read_message_history else e.CROSS_REACT)
-                                       + "- Use external emojis %s;\n" % (
-                                           e.CHECK_REACT if perms.external_emojis else e.CROSS_REACT)
-                                       + "- Add reactions%s" % (e.CHECK_REACT if perms.add_reactions else e.CROSS_REACT)
-                                       )
+                            "The action could not be performed as I'm **missing permissions**! Make sure I have the following permissions:\n"
+                            + "- Manage Roles %s;\n" % (
+                                e.CHECK_REACT if perms.manage_roles else e.CROSS_REACT)
+                            + "- Manage messages %s;\n" % (
+                                e.CHECK_REACT if perms.manage_messages else e.CROSS_REACT)
+                            + "- Embed links %s;\n" % (e.CHECK_REACT if perms.embed_links else e.CROSS_REACT)
+                            + "- Attach files %s;\n" % (
+                                e.CHECK_REACT if perms.attach_files else e.CROSS_REACT)
+                            + "- Read Message History %s;\n" % (
+                                e.CHECK_REACT if perms.read_message_history else e.CROSS_REACT)
+                            + "- Use external emojis %s;\n" % (
+                                e.CHECK_REACT if perms.external_emojis else e.CROSS_REACT)
+                            + "- Add reactions%s" % (e.CHECK_REACT if perms.add_reactions else e.CROSS_REACT)
+                        )
                     except util.SendMessagePermMissing:
                         pass  # They've block sending messages too.
                     except discord.Forbidden:
@@ -212,7 +212,8 @@ class BattleBananaClient(discord.AutoShardedClient):
                 return
         elif isinstance(error, discord.HTTPException):
             if "The resource is being rate limited." in str(error):
-                if blacklist.find(ctx.author.id) is None:
+                bl_entry = blacklist.find(ctx.author.id)
+                if not bl_entry:
                     await util.duelogger.error(f"**Blacklisted user:** {ctx.author.mention}\n<@{gconf.other_configs['owner']}>")
                     blacklist.add(ctx.author.id, "Ratelimit")
                 return
@@ -226,8 +227,9 @@ class BattleBananaClient(discord.AutoShardedClient):
                                             embed=trigger_message)
         elif isinstance(error, discord.NotFound):
             if "Unknown Channel" in str(error):
-                if blacklist.find(ctx.author.id) is None:
-                    await util.duelogger.error(f"**Blacklisted user:** {ctx.author.mention}\n<@115269304705875969>")
+                bl_entry = blacklist.find(ctx.author.id)
+                if not bl_entry:
+                    await util.duelogger.error(f"**Blacklisted user:** {ctx.author.mention}\n<@{gconf.other_configs['owner']}>")
                     blacklist.add(ctx.author.id, "Unknown Channel")
                 return
         elif isinstance(error, discord.DiscordServerError):
@@ -251,7 +253,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                                 asyncio.exceptions.TimeoutError)):  # 99% of time its just network errors
             util.logger.warn(error.message)
         elif isinstance(error, pymongo.errors.ServerSelectionTimeoutError):
-            util.duelogger.error("Something went wrong and we disconnected from database " + "<@115269304705875969>")
+            util.duelogger.error("Something went wrong and we disconnected from database " + f"<@{gconf.other_configs['owner']}>")
             util.logger.critical("Something went wrong and we disconnected from database")
             os._exit(1)
         elif ctx_is_message:

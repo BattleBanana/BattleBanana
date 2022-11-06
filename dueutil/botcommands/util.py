@@ -7,7 +7,7 @@ import time
 from itertools import chain
 
 import generalconfig as gconf
-from .. import blacklist
+from .. import blacklist as bl
 from .. import commands, events, util, permissions
 # Shorthand for emoji as I use gconf to hold emoji constants
 from ..game import emojis as e
@@ -753,7 +753,7 @@ async def blacklist(ctx, id, reason = "No reason specified", **_):
 
     Blocks the member from the on_message event.
     """
-    if blacklist.find(id):
+    if bl.find(id):
         raise util.BattleBananaException(ctx.channel, "This member is already blacklisted!")
 
     blacklist.add(id, reason)
@@ -767,7 +767,7 @@ async def unblacklist(ctx, id, **_):
 
     Blocks the member from the on_message event.
     """
-    if not blacklist.find(id):
+    if not bl.find(id):
         raise util.BattleBananaException(ctx.channel, "This member is not blacklisted!")
 
     blacklist.remove(id)
