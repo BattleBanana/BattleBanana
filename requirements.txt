@@ -1,9 +1,8 @@
-discord.py[speed]<3.0.0
-aiohttp
-pymongo[srv]
 objgraph
 validators
 colour
+pymongo[srv]
+discord.py<3.0.0
 cachetools
 numpy
 repoze.timeago
@@ -16,5 +15,6 @@ pydealer
 ssdeep
 aiohttp_socks
 cython
+aiohttp[speedups]
+cchardet
 psutil
-setuptools
