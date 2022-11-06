@@ -10,6 +10,7 @@ jsonpickle
 emoji
 Pillow
 beautifulsoup4
+typing
 sentry_sdk
 pydealer
 ssdeep
