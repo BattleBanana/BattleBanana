@@ -151,15 +151,11 @@ async def check_url(url: str):
 
 
 async def is_http_https(url: str):
-    return url.startswith('http://') or url.startswith('https://')
+    return url.startswith("http://") or url.startswith("https://")
 
 
 async def is_url_image(url: str):
-    has_valid_protocol = await is_http_https(url)
-    if not has_valid_protocol:
-        return False
-
-    return await check_url(url)
+    return await is_http_https(url) and await check_url(url) or False
 
 
 async def warn_on_invalid_image(channel: discord.TextChannel):

@@ -151,7 +151,6 @@ async def acceptquest(ctx, quest_index, **details):
         add_accy = min(attr_gain(quest.accy), min(add_strg * 3 * random.uniform(0.6, 1.5), max_stats_gain))
 
         stats_reward = players.STAT_GAIN_FORMAT % (add_attack, add_strg, add_accy)
-        quest_results = reward + stats_reward
 
         prev_exp = player.total_exp
         player.progress(add_attack, add_strg, add_accy, max_attr=max_stats_gain,

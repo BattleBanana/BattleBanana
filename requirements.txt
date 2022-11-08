@@ -18,3 +18,4 @@ aiohttp_socks
 cython
 psutil
 setuptools
+py-cpuinfo

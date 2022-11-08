@@ -1,17 +1,24 @@
 import asyncio
-import discord
+from datetime import datetime
 import json
-import psutil
-import repoze.timeago
+import os
+import sys
 import time
 from itertools import chain
 
+import cpuinfo
+import discord
+import psutil
+import repoze.timeago
+
 import generalconfig as gconf
+
 from .. import blacklist as bl
-from .. import commands, events, util, permissions
+from .. import commands, events, permissions, util
 # Shorthand for emoji as I use gconf to hold emoji constants
+from ..game import awards, discoin
 from ..game import emojis as e
-from ..game import stats, awards, discoin, players
+from ..game import players, stats
 from ..game.configs import dueserverconfig
 from ..game.stats import Stat
 from ..permissions import Permission
@@ -169,7 +176,7 @@ async def prefix(ctx, **details):
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
-async def botstats(ctx, **_):
+async def botstats(ctx: discord.Message, **_):
     """
     [CMD_KEY]stats
     
@@ -179,10 +186,11 @@ async def botstats(ctx, **_):
     game_stats = stats.get_stats()
     stats_embed = discord.Embed(title="BattleBanana's Statistics!", type="rich", color=gconf.DUE_COLOUR)
 
+    created_at = datetime.utcfromtimestamp(ctx.guild.me.created_at.timestamp())
     stats_embed.description = ("The numbers and stuff of BattleBanana right now!\n"
                                + "The **worst** Discord bot since %s, %s!"
-                               % (gconf.DUE_START_DATE.strftime("%d/%m/%Y"),
-                                  repoze.timeago.get_elapsed(gconf.DUE_START_DATE)))
+                               % (created_at.strftime("%d/%m/%Y"),
+                                  repoze.timeago.get_elapsed(created_at)))
 
     # General
     stats_embed.add_field(name="General",
@@ -221,11 +229,31 @@ async def botstats(ctx, **_):
                                  % util.display_time(time.time() - client.start_time, granularity=4)),
                           inline=False)
 
-    # CPU and RAM usage
-    stats_embed.add_field(name="CPU and RAM usage",
-                          value=("CPU usage is %s%% and RAM usage is %s%%."
-                                 % (util.format_number_precise(psutil.cpu_percent()),
-                                    util.format_number_precise(psutil.virtual_memory().percent))),
+    # Server infos
+    process = psutil.Process(os.getpid())
+    os_platform = sys.platform
+    match os_platform:
+        case "linux":
+            os_platform = "Linux"
+        case "win32":
+            os_platform = "Windows"
+        case "darwin":
+            os_platform = "macOS"
+        case _:
+            os_platform = "Unknown"
+    
+    cpu_usage = round(process.cpu_percent(), 2)
+    cpu_model = cpuinfo.get_cpu_info()["brand_raw"]
+
+    gb_divisor = 1024 * 1024 * 1024
+    used_ram = round(process.memory_info().rss / gb_divisor, 2)
+    total_ram = round(psutil.virtual_memory().total / gb_divisor, 2)
+    percent_ram = round(process.memory_percent(), 2)
+
+    stats_embed.add_field(name="System infos",
+                          value=(f"{e.OS} **{os_platform}**\n" \
+                                 f"{e.CPU} **{cpu_model} ({cpu_usage}% usage)**\n" \
+                                 f"{e.RAM} **{used_ram}/{total_ram} GB ({percent_ram}%)**"),
                           inline=False)
 
     await util.reply(ctx, embed=stats_embed)

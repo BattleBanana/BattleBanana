@@ -107,7 +107,6 @@ def get_vpn_connector():
         return None
 
     return ProxyConnector(
-        proxy_type=vpn_config["protocol"],
         host=vpn_config['host'],
         port=vpn_config['port'],
         username=vpn_config['username'],
