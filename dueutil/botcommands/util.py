@@ -243,7 +243,7 @@ async def botstats(ctx: discord.Message, **_):
             os_platform = "Unknown"
     
     cpu_usage = round(process.cpu_percent(), 2)
-    cpu_model = cpuinfo.get_cpu_info()["brand_raw"]
+    cpu_model = util.get_cpu_info()
 
     gb_divisor = 1024 * 1024 * 1024
     used_ram = round(process.memory_info().rss / gb_divisor, 2)

@@ -1,15 +1,16 @@
 import aiohttp
 import asyncio
-from aiohttp_socks import ProxyConnector, ProxyType
+from aiohttp_socks import ProxyConnector
+import cpuinfo
+from datetime import datetime
 import discord
 import emoji  # The emoji list in this is outdated/not complete.
 import io
+from itertools import chain
 import logging
 import math
 import platform
 import time
-from datetime import datetime
-from itertools import chain
 
 import generalconfig as gconf
 from dueutil import dbconn
@@ -25,6 +26,7 @@ Other than that no two things in this module have much in common
 
 client = None
 clients = []
+processor = ""
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('battlebanana')
 logging.getLogger('discord.state').setLevel(logging.ERROR)
@@ -112,6 +114,13 @@ def get_vpn_connector():
         username=vpn_config['username'],
         password=vpn_config['password']
     )
+
+
+def get_cpu_info():
+    global processor
+    if processor == "":
+        processor = cpuinfo.get_cpu_info()['brand_raw']
+    return processor
 
 
 async def download_file(url):
