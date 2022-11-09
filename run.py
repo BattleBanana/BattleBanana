@@ -121,17 +121,17 @@ class BattleBananaClient(discord.AutoShardedClient):
         try:
             audit = None
             async for log in guild.audit_logs(action=discord.AuditLogAction.bot_add):
-                if log.user == self.user:
+                if log.target.user == self.user:
                     audit = log
                     break
-
+            
             await audit.user.send(":wave: __Thanks for adding me!__\n"
                             + "If you would like to customize me to fit your "
                             + "guild take a quick look at the admins "
                             + "guide at <https://battlebanana.xyz/howto/#adming>.\n"
                             + "It shows how to change the command prefix here and set which "
                             + "channels I or my commands can be used in (along with a bunch of other stuff).")
-        except discord.Forbidden:
+        except AttributeError:
             for channel in guild.channels:
                 if isinstance(channel, discord.TextChannel):
                     try:
