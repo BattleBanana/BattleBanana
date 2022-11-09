@@ -21,7 +21,7 @@ def _get_translation(language: str, full_key: str) -> str:
         return translations.get(DEFAULT_LANGUAGE, {}).get(category, {}).get(command, {}).get(key, full_key)
 
 
-def find_translation(ctx: commands.Context, key: str, *args, force_update: bool = False):
+def find_translation(_: commands.Context, key: str, *args, force_update: bool = False):
     """
     Finds the translation for a key in the current language
     

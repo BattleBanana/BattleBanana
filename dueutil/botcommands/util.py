@@ -350,8 +350,8 @@ async def leave(ctx, **_):
     await util.reply(ctx, embed=bye_embed)
     try:
         await ctx.guild.leave()
-    except:
-        raise util.BattleBananaException(ctx.channel, "Could not leave guild!")
+    except discord.HTTPException as e:
+        raise util.BattleBananaException(ctx.channel, f"Could not leave guild! ({e.text})")
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern=None)

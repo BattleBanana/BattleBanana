@@ -49,7 +49,7 @@ async def spawnquest(ctx, *args, **details):
         await util.reply(ctx,
                          ":cloud_lightning: Spawned **" + quest.name_clean + "** [Level " + str(
                              active_quest.level) + "]")
-    except:
+    except Exception:
         raise util.BattleBananaException(ctx.channel, "Failed to spawn quest!")
 
 

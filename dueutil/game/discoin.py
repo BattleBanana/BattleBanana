@@ -70,7 +70,7 @@ async def update_discoin():
         bots = sorted_bots
         currencies = new_currencies
         codes = [currency.code for currency in currencies]
-    except:
+    except Exception:
         pass
 
 

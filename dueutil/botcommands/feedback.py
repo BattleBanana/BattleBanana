@@ -5,6 +5,10 @@ from .. import util, commands
 from ..permissions import Permission
 
 
+BUG_REPORT = "Bug report"
+SUGGESTION = "Suggestion"
+
+
 class FeedbackHandler:
     """
     Another weird class to make something easier.
@@ -25,7 +29,7 @@ class FeedbackHandler:
                                                               + "Author: %s (id %s)" % (author_name, author.id)),
                                                         list_name=self.trello_list,
                                                         labels=["automated",
-                                                                "Bug" if self.type == "bug report" else "Suggestion"])
+                                                                "Bug" if self.type == BUG_REPORT else SUGGESTION])
         author_icon_url = author.display_avatar.url
         if author_icon_url == "":
             author_icon_url = author.display_avatar.url
@@ -46,11 +50,11 @@ class FeedbackHandler:
         log_report.add_field(name=ctx.guild.name, value=ctx.guild.id)
         log_report.add_field(name="author", value=ctx.author.id)
         log_report.set_footer(text="Received at " + util.pretty_time())
-        await util.say(gconf.bug_channel if self.type == "bug report" else gconf.feedback_channel, embed=log_report)
+        await util.say(gconf.bug_channel if self.type == BUG_REPORT else gconf.feedback_channel, embed=log_report)
 
 
-bug_reporter = FeedbackHandler(channel=gconf.bug_channel, type="bug report", trello_list="bugs")
-suggestion_sender = FeedbackHandler(channel=gconf.feedback_channel, type="suggestion", trello_list="suggestions")
+bug_reporter = FeedbackHandler(channel=gconf.bug_channel, type=BUG_REPORT, trello_list="bugs")
+suggestion_sender = FeedbackHandler(channel=gconf.feedback_channel, type=SUGGESTION, trello_list="suggestions")
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern="S")

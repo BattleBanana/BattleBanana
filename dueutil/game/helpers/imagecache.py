@@ -37,7 +37,7 @@ async def cache_resized_image(image, url):
         # cache image
         image.convert('RGB').save(filename, optimize=True, quality=100)
         return image
-    except:
+    except Exception:
         # We don't care what went wrong
         if os.path.isfile(filename):
             os.remove(filename)
@@ -49,7 +49,7 @@ def get_cached_resized_image(url, width, height):
     try:
         image = Image.open(filename)
         return image
-    except:
+    except Exception:
         # We don't care what went wrong
         if os.path.isfile(filename):
             os.remove(filename)
@@ -77,7 +77,7 @@ async def cache_image(url):
         # cache image
         image.convert('RGB').save(filename, optimize=True, quality=100)
         return image
-    except:
+    except Exception:
         # We don't care what went wrong
         if os.path.isfile(filename):
             os.remove(filename)

@@ -1,13 +1,12 @@
 import secrets
 import discord
-import random
 from collections import OrderedDict
 from collections import namedtuple
 
 import generalconfig as gconf
 from .. import util
 from ..game import weapons, awards
-from ..game.players import Player
+from ..game.players import Player, permissions, Permission
 
 # Some tuples for use within this module.
 _BattleResults = namedtuple("BattleResults", ["moves", "turn_count", "winner",
@@ -60,8 +59,8 @@ async def give_awards_for_battle(channel, battle_log: _BattleLog):
         loser = battle_log.loser
         # if "Duerus" in winner.awards:
         #     await awards.give_award(channel, loser, "Duerus")
-        if ("TopDog" in loser.awards):
-            if not (winner.id in (115269304705875969, 261799488719552513, 464601463440801792)):
+        if "TopDog" in loser.awards:
+            if not permissions.has_permission(winner, Permission.BANANA_ADMIN):
                 loser.awards.remove("TopDog")
                 await awards.give_award(channel, winner, "TopDog")
                 awards.update_award_stat("TopDog", "top_dog", str(winner.id))
@@ -71,7 +70,7 @@ async def give_awards_for_battle(channel, battle_log: _BattleLog):
         if battle_log.turn_count == 1 and winner.level - loser.level <= 2.5:
             await  awards.give_award(channel, winner, "CritHit")
         # If it's me
-        if loser.id == 115269304705875969:
+        if loser.id == gconf.other_configs["owner"]:
             await awards.give_award(channel, winner, "KillMe")
 
 

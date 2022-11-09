@@ -227,7 +227,7 @@ async def level_up_screen(ctx, player, cash):
     try:
         avatar = await resize_avatar(player, ctx.channel.guild, 54, 54)
         image.paste(avatar, (10, 10))
-    except:
+    except Exception:
         pass
     draw = ImageDraw.Draw(image)
     draw.text((159, 18), str(level), "white", font=font_big)
@@ -241,7 +241,7 @@ async def new_quest_screen(ctx, quest, player):
     try:
         avatar = await resize_avatar(quest, ctx.channel.guild, 54, 54)
         image.paste(avatar, (10, 10))
-    except:
+    except Exception:
         pass
     draw = ImageDraw.Draw(image)
 
@@ -408,7 +408,7 @@ async def stats_screen(ctx, player):
 
     try:
         image.paste(await resize_avatar(player, ctx.channel.guild, 80, 80), (9, 12))
-    except:
+    except Exception:
         pass
 
     if player.benfont:
@@ -493,7 +493,7 @@ async def quest_screen(ctx, quest):
 
     try:
         image.paste(await resize_avatar(quest, None, 72, 72), (9, 12))
-    except:
+    except Exception:
         pass
 
     level = str(math.trunc(quest.level))
@@ -542,12 +542,12 @@ async def battle_screen(ctx, player_one, player_two):
 
     try:
         image.paste(await resize_avatar(player_one, ctx.channel.guild, 54, 54), (9, 9))
-    except:
+    except Exception:
         pass
 
     try:
         image.paste(await resize_avatar(player_two, ctx.channel.guild, 54, 54), (width - 9 - 55, 9))
-    except:
+    except Exception:
         pass
 
     weapon_one = player_one.weapon
@@ -560,7 +560,7 @@ async def battle_screen(ctx, player_one, player_two):
 
     try:
         image.paste(wep_image_one, (6, height - 6 - 30), wep_image_one)
-    except:
+    except Exception:
         image.paste(wep_image_one, (6, height - 6 - 30))
 
     wep_image_two = await resize_image_url(weapon_two.image_url, 30, 30)
@@ -569,7 +569,7 @@ async def battle_screen(ctx, player_one, player_two):
         wep_image_two = await resize_image_url(weapons.Weapon.DEFAULT_IMAGE, 30, 30)
     try:
         image.paste(wep_image_two, (width - 30 - 6, height - 6 - 30), wep_image_two)
-    except:
+    except Exception:
         image.paste(wep_image_two, (width - 30 - 6, height - 6 - 30))
 
     draw = ImageDraw.Draw(image)

@@ -59,7 +59,7 @@ class TrelloClient:
 
                             label_ids_list = [label["id"] for label in board_labels if label["name"].lower() in labels]
                             if len(label_ids_list) != len(labels):
-                                raise Exception("Could not find labels")
+                                raise ValueError("Could not find labels")
                             label_ids = ','.join(label_ids_list)
 
                         args = {'name': name,
@@ -75,6 +75,6 @@ class TrelloClient:
                                 result = await response.json()
                                 if "shortUrl" in result:
                                     return result["shortUrl"]
-                                raise Exception("Failed to add card!")
-                raise Exception("List not found")
-        raise Exception("Board not found")
+                                raise RuntimeError("Failed to add card!")
+                raise ValueError("List not found")
+        raise ValueError("Board not found")
