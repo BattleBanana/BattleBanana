@@ -209,16 +209,23 @@ def has_dimensions(image, dimensions):
     return width == dimensions[0] and height == dimensions[1]
 
 
+def image_to_discord_file(image, filename):
+    if image is None:
+        return None
+    with BytesIO() as image_binary:
+        image.save(image_binary, format='PNG')
+        image_binary.seek(0)
+        return discord.File(fp=image_binary, filename=filename)
+
+
 async def send_image(ctx, image, send_type, **kwargs):
     stats.increment_stat(stats.Stat.IMAGES_SERVED)
-    output = BytesIO()
-    image.save(output, format="PNG")
-    output.seek(0)
+
+    file = image_to_discord_file(image, kwargs.pop("file_name"))
     if send_type == "s":
-        await util.say(ctx.channel, file=File(output, filename=kwargs.pop('file_name')), **kwargs)
+        await util.say(ctx.channel, file=file, **kwargs)
     else:
-        await util.reply(ctx, file=File(output, filename=kwargs.pop('file_name')), **kwargs)
-    output.close()
+        await util.reply(ctx, file=file, **kwargs)
 
 
 async def level_up_screen(ctx, player, cash):
@@ -236,7 +243,7 @@ async def level_up_screen(ctx, player, cash):
                      content=e.LEVEL_UP + " **" + player.name_clean + "** Level Up!")
 
 
-async def new_quest_screen(ctx, quest, player):
+async def new_quest(ctx, quest, player):
     image = new_quest_template.copy()
     try:
         avatar = await resize_avatar(quest, ctx.channel.guild, 54, 54)
@@ -258,6 +265,13 @@ async def new_quest_screen(ctx, quest, player):
         (quest_bubble_position, (quest_bubble_position[0] + quest_index_width + 5, quest_bubble_position[1] + 11)),
         fill="#2a52be", outline="#a1caf1")
     draw.text((9, quest_bubble_position[1]), quest_index_text, "white", font=font_small)
+    
+    return image
+
+
+async def new_quest_screen(ctx, quest, player):
+    image = await new_quest(ctx, quest, player)
+    
     await send_image(ctx, image, "s", file_name="new_quest.png",
                      content=e.QUEST + " **" + player.name_clean + "** New Quest!")
 

@@ -94,9 +94,16 @@ async def weekly(ctx, **details):
         new_quest = await quests.ActiveQuest.create(quest.q_id, player)
         stats.increment_stat(stats.Stat.QUESTS_GIVEN)
         if dueserverconfig.mute_level(ctx.channel) < 0:
-            await imagehelper.new_quest_screen(ctx, new_quest, player)
+            image = await imagehelper.new_quest(ctx, new_quest, player)
+            
+            file = imagehelper.image_to_discord_file(image, "quest.png")
+
+            embed = discord.Embed(title="Weekly Reward!", description="Here is your weekly reward!", type="rich", color=gconf.DUE_COLOUR)
+            embed.set_image(url="attachment://quest.png")
+
+            await util.reply(ctx, file=file, embed=embed)
         else:
-            util.logger.info("Won't send new quest image - channel blocked.")
+            util.logger.info("Won't send weekly image - channel blocked.")
 
 
 @commands.command(args_pattern=None)
