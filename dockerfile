@@ -2,6 +2,9 @@ FROM python:3.10-slim
 
 WORKDIR /usr/src/app
 
+# Create a virtual environment
+RUN python3.10 -m venv venv && . venv/bin/activate
+
 # Install dependencies for ssdeep
 RUN apt-get update && apt-get install -y build-essential libfuzzy-dev
 
