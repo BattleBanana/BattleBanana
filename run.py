@@ -131,7 +131,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                             + "guide at <https://battlebanana.xyz/howto/#adming>.\n"
                             + "It shows how to change the command prefix here and set which "
                             + "channels I or my commands can be used in (along with a bunch of other stuff).")
-        except AttributeError:
+        except (discord.Forbidden, AttributeError):
             for channel in guild.channels:
                 if isinstance(channel, discord.TextChannel):
                     try:
