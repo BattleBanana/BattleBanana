@@ -8,7 +8,7 @@ if [ ! -d "logs" ]; then
 fi
 
 # Save the logs with today's date up to seconds precision
-nohup docker logs battlebanana >> "logs/$(date +%Y-%m-%d_%H-%M-%S).txt"
+docker logs battlebanana > "logs/$(date +%Y-%m-%d_%H-%M-%S).txt" 2>&1
 
 # Stop and delete the container
 docker stop battlebanana
