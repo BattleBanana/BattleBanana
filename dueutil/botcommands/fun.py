@@ -421,7 +421,7 @@ async def topdoghistory(ctx, page=1, **_):
     Display the current and the 10 previous topdogs
     """
     page -= 1
-    count = dbconn.conn()["Topdogs"].count_documents()
+    count = dbconn.conn().get_collection("Topdogs").count_documents({})
 
     if TOPDOGS_PER_PAGE * page > count:
         raise util.BattleBananaException(ctx.channel, "Page not found!")
