@@ -15,7 +15,7 @@ sentry_sdk
 pydealer
 ssdeep
 aiohttp_socks
-cython
+cython>=3.0.0a11
 psutil
 setuptools
 py-cpuinfo

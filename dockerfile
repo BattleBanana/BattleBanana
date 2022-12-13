@@ -1,9 +1,9 @@
-FROM python:3.10-slim
+FROM python:3.11-slim
 
 WORKDIR /usr/src/app
 
 # Create a virtual environment
-RUN python3.10 -m venv battlebanana && . ./battlebanana/bin/activate
+RUN python3 -m venv battlebanana && . ./battlebanana/bin/activate
 
 # Install dependencies for ssdeep
 RUN apt-get update && apt-get install -y build-essential libfuzzy-dev
@@ -12,11 +12,11 @@ RUN apt-get update && apt-get install -y build-essential libfuzzy-dev
 COPY . .
 
 # Copy requirements file to container & Install the requirements
-RUN python3.10 -m pip install -r requirements.txt
+RUN python3 -m pip install -r requirements.txt
 
 # Run setup.py in helpers/ directory and clean up unneeded files
 RUN cd dueutil/game/helpers/ \
-    && python3.10 setup.py build_ext --inplace \
+    && python3 setup.py build_ext --inplace \
     && cd ~
 
-CMD ["python3.10", "run.py"]
+CMD ["python3", "run.py"]
