@@ -685,7 +685,7 @@ async def cooldownreset(ctx, player, cooldown=None, **details):
         player.command_rate_limits = {}
     else:
         if cooldown not in player.command_rate_limits:
-            raise util.BattleBananaException("Invalid cooldown")
+            raise util.BattleBananaException(ctx.channel, "Invalid cooldown")
         player.command_rate_limits.pop(cooldown)
 
     player.save()
@@ -698,9 +698,9 @@ async def showcooldown(ctx, player, **details):
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="MS", hidden=True)
-async def blacklist(ctx, id, reason = "No reason specified", **_):
+async def block(ctx, id, reason = "No reason specified", **_):
     """
-    [CMD_KEY]blacklist (member id)
+    [CMD_KEY]block (member id)
 
     Blocks the member from the on_message event.
     """
