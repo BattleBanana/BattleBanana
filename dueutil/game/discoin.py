@@ -106,7 +106,8 @@ async def mark_as_completed(transaction):
             return await response.json()
 
 
-@tasks.task(timeout=150)
+# Task is disabled because discoin is probably never coming back.
+# @tasks.task(timeout=150)
 async def process_transactions():
     try:
         if not util.clients[0].is_ready():
