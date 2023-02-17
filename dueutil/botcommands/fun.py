@@ -426,7 +426,7 @@ async def topdoghistory(ctx, page=1, **_):
     if TOPDOGS_PER_PAGE * page > count:
         raise util.BattleBananaException(ctx.channel, "Page not found!")
 
-    topdogs = dbconn.conn()["Topdogs"].find({}, {'_id': 0}).sort(('date', -1)).skip(TOPDOGS_PER_PAGE * page).limit(
+    topdogs = dbconn.conn()["Topdogs"].find({}, {'_id': 0}).sort('date', -1).skip(TOPDOGS_PER_PAGE * page).limit(
         TOPDOGS_PER_PAGE)
 
     embed = discord.Embed(title="Topdog History", type="rich", color=gconf.DUE_COLOUR)
