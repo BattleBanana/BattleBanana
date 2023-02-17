@@ -8,11 +8,12 @@ RUN python3 -m venv battlebanana && . ./battlebanana/bin/activate
 # Install dependencies for ssdeep
 RUN apt-get update && apt-get install -y build-essential libfuzzy-dev
 
-# Copy the app to the container and builded speedups
-COPY . .
-
-# Copy requirements file to container & Install the requirements
+# Copy the requirements file and install dependencies
+COPY requirements.txt .
 RUN python3 -m pip install -r requirements.txt
+
+# Copy the app to the container
+COPY . .
 
 # Run setup.py in helpers/ directory and clean up unneeded files
 RUN cd dueutil/game/helpers/ \
