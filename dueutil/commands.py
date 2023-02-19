@@ -310,7 +310,7 @@ def parse(command_message):
     else:
         return key, "", []
 
-
+'''
 async def determine_args(pattern, args, called, ctx):
     """
     
@@ -468,3 +468,51 @@ async def determine_args(pattern, args, called, ctx):
                     if checks_satisfied == len(new_args) and valid_args_len(new_args, pattern):
                         return new_args
     return False
+'''
+async def determine_args(pattern: str, args, called, ctx):
+    #Initial Pattern Check
+    if pattern is None and len(args) > 0:
+        return False
+    elif (pattern is None or len(pattern) == 0) and len(args) == 0:
+        return args
+    
+    #split pattern to optional and compulsory
+    optional_marker_index = pattern.find('?')
+    optional_pattern = ''
+    if optional_marker_index != -1:
+        optional_pattern = pattern[optional_marker_index-1:]
+        pattern = pattern[:optional_marker_index-1]
+    
+    checked_args = []
+    
+    # Checking the command args match the given compulsory pattern.
+    rule_index = 0
+    arg_index = 0
+    while rule_index < len(pattern) and arg_index < len(args):        
+        if pattern[rule_index] == '*':
+            arg_val = commandtypes.parse_type(pattern[rule_index-1],args[arg_index],called = called,ctx = ctx)
+            if arg_val is False:
+                rule_index += 1
+            else:
+                checked_args.append(arg_val)
+                arg_index+=1       
+        else:
+            arg_val = commandtypes.parse_type(pattern[rule_index],args[arg_index],called = called,ctx = ctx)
+            if arg_val is False:
+                return False
+            else:
+                checked_args.append(arg_val)
+                arg_index += 1
+                rule_index += 1
+                
+    rule_index = 0
+    while rule_index < len(optional_pattern) and arg_index < len(args):        
+        arg_val = commandtypes.parse_type(optional_pattern[rule_index],args[arg_index],called = called,ctx = ctx)
+        if arg_val is False:
+            return False
+        else:
+            checked_args.append(arg_val)
+            arg_index += 1
+            rule_index += 2
+    
+    return checked_args
