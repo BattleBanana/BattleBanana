@@ -484,7 +484,6 @@ async def determine_args(pattern: str, args, called, ctx):
         optional_pattern = pattern[optional_marker_index-1:]
         pattern = pattern[:optional_marker_index-1]
     
-    # if pattern != '' and len(args) == 0
     checked_args = []
     
     # Checking the command args match the given compulsory pattern.
@@ -506,7 +505,11 @@ async def determine_args(pattern: str, args, called, ctx):
                 checked_args.append(arg_val)
                 arg_index += 1
                 rule_index += 1
-    if 
+                
+    #missing compulsory args
+    if rule_index != len(pattern):
+        return False
+         
     rule_index = 0
     while rule_index < len(optional_pattern) and arg_index < len(args):        
         arg_val = commandtypes.parse_type(optional_pattern[rule_index],args[arg_index],called = called,ctx = ctx)
