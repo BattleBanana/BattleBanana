@@ -262,7 +262,7 @@ async def acceptallquests(ctx, **details):
     player.misc_stats["average_quest_battle_turns"] = average_turns
     battle_embed = discord.Embed(title="Battle Results", type="rich", color=gconf.DUE_COLOUR)
     battle_embed.add_field(name="Quests Fought", value=f"Total quests: {total_quests}\nWon: {wins}\nLost: {lose}\nDraw: {draw}\n Total Turns: {int(sum(quest_turns_list))}\n Average Turns: {average_turns}")
-    battle_embed.add_field(name="Results", value=f"{e.ATK}: {round(player.attack - previous_attack, 2)}\n{e.ACCY}: {round(player.accy - previous_accuracy, 2)}\n{e.STRG} {round(player.strg - previous_strength, 2)}\nMoney: ¤{player.money - previous_money}\nEXP: {round(player.exp - previous_exp)}")
+    battle_embed.add_field(name="Results", value=f"{e.ATK}: {round(player.attack - previous_attack, 2)}\n{e.ACCY}: {round(player.accy - previous_accuracy, 2)}\n{e.STRG}: {round(player.strg - previous_strength, 2)}\nMoney: ¤{player.money - previous_money}\nEXP: {round(player.exp - previous_exp)}")
     battle_embed.set_footer(text="If the money is negative, then you lost more money from losing battles than you gained from winning them.")
 
     await util.reply(ctx, embed=battle_embed)
