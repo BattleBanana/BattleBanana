@@ -473,8 +473,11 @@ async def determine_args(pattern: str, args, called, ctx):
     #Initial Pattern Check
     if pattern is None and len(args) > 0:
         return False
-    elif (pattern is None or len(pattern) == 0) and len(args) == 0:
-        return args
+    elif len(args) == 0:
+        if pattern is None or pattern == '':
+            return args
+        else:
+            return False
     
     #split pattern to optional and compulsory
     optional_marker_index = pattern.find('?')
