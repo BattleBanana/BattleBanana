@@ -471,10 +471,8 @@ async def determine_args(pattern, args, called, ctx):
 '''
 async def determine_args(pattern: str, args, called, ctx):
     #Initial Pattern Check
-    if pattern is None and len(args) > 0:
-        return False
-    elif len(args) == 0:
-        if pattern is None or pattern == '':
+    if pattern is None or pattern == '':
+        if len(args) == 0:
             return args
         else:
             return False
@@ -486,6 +484,7 @@ async def determine_args(pattern: str, args, called, ctx):
         optional_pattern = pattern[optional_marker_index-1:]
         pattern = pattern[:optional_marker_index-1]
     
+    # if pattern != '' and len(args) == 0
     checked_args = []
     
     # Checking the command args match the given compulsory pattern.
@@ -507,7 +506,7 @@ async def determine_args(pattern: str, args, called, ctx):
                 checked_args.append(arg_val)
                 arg_index += 1
                 rule_index += 1
-                
+    if 
     rule_index = 0
     while rule_index < len(optional_pattern) and arg_index < len(args):        
         arg_val = commandtypes.parse_type(optional_pattern[rule_index],args[arg_index],called = called,ctx = ctx)
