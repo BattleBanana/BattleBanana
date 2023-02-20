@@ -613,6 +613,7 @@ async def determine_args(pattern: str, args, called, ctx):
         #check arg depending on pattern type
         if pattern[pattern_index+1] in PATTERN_MODIFIERS:
             arg_val,arg_index = check_arg(pattern_index,arg_index,True)
+            pattern_index+=1
         else:
             arg_val,arg_index = check_arg(pattern_index,arg_index)
         #error parsing arg
