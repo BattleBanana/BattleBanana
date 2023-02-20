@@ -610,12 +610,18 @@ async def determine_args(pattern: str, args, called, ctx):
     pattern_index = 0
     arg_index = 0
     while pattern_index < len(pattern):
-        #check arg depending on pattern type
-        if pattern[pattern_index+1] in PATTERN_MODIFIERS:
-            arg_val,arg_index = check_arg(pattern_index,arg_index,True)
-            pattern_index+=1
-        else:
+        #can a modifier exist?
+        if pattern_index+1 < len(pattern):
+            #check arg depending on pattern type
+            if pattern[pattern_index+1] in PATTERN_MODIFIERS:
+                arg_val,arg_index = check_arg(pattern_index,arg_index,True)
+                pattern_index+=1
+            else:
+                arg_val,arg_index = check_arg(pattern_index,arg_index)
+        #definitely not a modified pattern
+        else: 
             arg_val,arg_index = check_arg(pattern_index,arg_index)
+            
         #error parsing arg
         if arg_val is False:
             return False
