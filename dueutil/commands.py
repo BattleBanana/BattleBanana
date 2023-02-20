@@ -469,13 +469,51 @@ async def determine_args(pattern, args, called, ctx):
                         return new_args
     return False
 '''
+'''
 async def determine_args(pattern: str, args, called, ctx):
+    #Internal Helper Functions
+    def check_args(pattern_index : int, arg_index : int, mod = None):
+        #if normal pattern
+        ret_args = []
+        if mod is None:
+            arg = commandtypes.parse_type(pattern[pattern_index],args[arg_index],called = called,ctx = ctx)
+            if arg is False:
+                return False
+            return [arg]
+        else:
+            if mod == '*':
+                if 
+            return ret_args
+            
+    def check_normal_args(pattern: str, args : list, arg_index : int):
+        pass
+    
     #Initial Pattern Check
     if pattern is None or pattern == '':
         if len(args) == 0:
             return args
         else:
             return False
+    rule_index = 0
+    arg_index = 0
+    while rule_index < len(pattern) and arg_index < len(args):
+        if pattern[rule_index+1] in ['*','?']:
+            arg_list,new_arg_index = check_args(rule_index,arg_index,pattern[rule_index+1])
+            if arg_list is False:
+                return False
+            rule_index+=2
+            arg_index=new_arg_index            
+        else:
+            arg_list = check_normal_args(pattern,args,arg_index)
+            if arg_list is False:
+                return False
+            rule_index+=1
+            arg_index+=1
+        checked_args.extend(arg_list)
+
+    #missing compulsory args
+    if rule_index < len(pattern):
+        return False
     
     #split pattern to optional and compulsory
     optional_marker_index = pattern.find('?')
@@ -489,14 +527,18 @@ async def determine_args(pattern: str, args, called, ctx):
     # Checking the command args match the given compulsory pattern.
     rule_index = 0
     arg_index = 0
+
     while rule_index < len(pattern) and arg_index < len(args):        
         if pattern[rule_index] == '*':
+            if rule_index == len(pattern) - 1:
             arg_val = commandtypes.parse_type(pattern[rule_index-1],args[arg_index],called = called,ctx = ctx)
             if arg_val is False:
                 rule_index += 1
             else:
                 checked_args.append(arg_val)
-                arg_index+=1       
+                arg_index+=1
+                if arg_index == len(args) - 1:
+                    rule_index += 1     
         else:
             arg_val = commandtypes.parse_type(pattern[rule_index],args[arg_index],called = called,ctx = ctx)
             if arg_val is False:
@@ -505,10 +547,6 @@ async def determine_args(pattern: str, args, called, ctx):
                 checked_args.append(arg_val)
                 arg_index += 1
                 rule_index += 1
-                
-    #missing compulsory args
-    if rule_index != len(pattern):
-        return False
          
     rule_index = 0
     while rule_index < len(optional_pattern) and arg_index < len(args):        
@@ -520,4 +558,67 @@ async def determine_args(pattern: str, args, called, ctx):
             arg_index += 1
             rule_index += 2
     
+    return checked_args
+'''
+
+async def determine_args(pattern: str, args, called, ctx):
+    PATTERN_MODIFIERS = ['*','?']
+    if pattern is None or pattern == '':
+        if len(args) == 0:
+            return args
+        else:
+            return False
+        
+    #helper function
+    def check_arg(pattern_index : int, arg_index : int, mod = False):# -> Tuple[bool,int] | Tuple[list,int]:
+        ret_args = []
+        #no mods (and bitches)
+        if not mod:
+            try:
+                assert arg_index < len(args) #are args available?
+                arg = commandtypes.parse_type(pattern[pattern_index],args[arg_index],called = called,ctx = ctx)
+                if arg is False:
+                    ret_args = False
+                else:
+                    ret_args.append(arg)
+                    arg_index+=1
+            except AssertionError: #error, missing compulsory args
+                ret_args = False
+        else:
+            #no args left to parse,skip parsing
+            mod = pattern[pattern_index+1]
+            if arg_index >= len(args):
+                pass
+            elif mod == '?':
+                arg = commandtypes.parse_type(pattern[pattern_index],args[arg_index],called = called,ctx = ctx)
+                if arg is False:
+                    ret_args = False
+                else:
+                    ret_args.append(arg)
+                    arg_index+=1
+            elif mod == '*':
+                while arg_index < len(args):
+                    arg = commandtypes.parse_type(pattern[pattern_index],args[arg_index],called = called,ctx = ctx)
+                    if arg is False:
+                        break
+                    else:
+                        ret_args.append(arg)
+                        arg_index+=1
+        return ret_args,arg_index
+                        
+    checked_args = []
+    pattern_index = 0
+    arg_index = 0
+    while pattern_index < len(pattern):
+        #check arg depending on pattern type
+        if pattern[pattern_index+1] in PATTERN_MODIFIERS:
+            arg_val,arg_index = check_arg(pattern_index,arg_index,True)
+        else:
+            arg_val,arg_index = check_arg(pattern_index,arg_index)
+        #error parsing arg
+        if arg_val is False:
+            return False
+        checked_args.extend(arg_val)
+        pattern_index+=1
+
     return checked_args
