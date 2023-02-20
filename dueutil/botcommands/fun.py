@@ -426,11 +426,11 @@ async def topdoghistory(ctx, page=1, **_):
     if TOPDOGS_PER_PAGE * page > count:
         raise util.BattleBananaException(ctx.channel, "Page not found!")
 
-    topdogs = dbconn.conn()["Topdogs"].find({}, {'_id': 0}).sort(('date', -1)).skip(TOPDOGS_PER_PAGE * page).limit(
+    topdogs = dbconn.conn()["Topdogs"].find({}, {'_id': 0}).sort('date', -1).skip(TOPDOGS_PER_PAGE * page).limit(
         TOPDOGS_PER_PAGE)
 
     embed = discord.Embed(title="Topdog History", type="rich", color=gconf.DUE_COLOUR)
-    embed.set_footer(text="Times are in UTC.")
+    embed.set_footer(text="Times are displayed according to your timezone.")
 
     topdog = awards.get_award_stat("TopDog")
     if topdog is None or "top_dog" not in topdog:
@@ -446,11 +446,11 @@ async def topdoghistory(ctx, page=1, **_):
             date: datetime = topdog.get('date')
 
             if util.is_today(date):
-                tdstring += f"- **{player.name}**, today at {date.strftime('%H:%M')}\n"
+                tdstring += f"- **{player.name}**, today until <t:{round(date.timestamp())}:t>\n"
             elif util.is_yesterday(date):
-                tdstring += f"- **{player.name}**, yesterday at {date.strftime('%H:%M')}\n"
+                tdstring += f"- **{player.name}**, yesterday until <t:{round(date.timestamp())}:t>\n"
             else:
-                tdstring += f"- **{player.name}**, at {date.strftime('%d/%m/%Y')}\n"
+                tdstring += f"- **{player.name}**, at <t:{round(date.timestamp())}:D>\n"
 
     embed.add_field(name="Previous topdogs:", value=tdstring or "No previous topdogs", inline=False)
 
