@@ -321,8 +321,21 @@ async def determine_args(pattern: str, args, called, ctx):
     #helper function
     def check_arg(pattern_index : int, arg_index : int, mod = False):# -> Tuple[bool,int] | Tuple[list,int]:
         ret_args = []
+        #special condition when last pattern_type is a string-like
+        if ((len(pattern) - pattern_index) in [1,2]) and pattern[pattern_index] in commandtypes.STRING_TYPES: #last pattern type can be normal or mod
+            while arg_index < len(args):
+                arg = commandtypes.parse_type(pattern[pattern_index],args[arg_index],called = called,ctx = ctx)
+                if arg is False:
+                    ret_args = False
+                    break
+                else:
+                    ret_args.append(arg)
+                    arg_index+=1
+            if ret_args:
+                ret_args = [' '.join(ret_args)]
+                
         #no mods (and bitches)
-        if not mod:
+        elif not mod:
             try:
                 assert arg_index < len(args) #are args available?
                 arg = commandtypes.parse_type(pattern[pattern_index],args[arg_index],called = called,ctx = ctx)
@@ -333,6 +346,8 @@ async def determine_args(pattern: str, args, called, ctx):
                     arg_index+=1
             except AssertionError: #error, missing compulsory args
                 ret_args = False
+        
+        #modded
         else:
             mod = pattern[pattern_index+1]
             #no args left to parse,skip parsing
