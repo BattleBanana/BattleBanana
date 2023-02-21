@@ -17,6 +17,7 @@ from discord import ui
 
 extras = commandextras
 IMAGE_REQUEST_COOLDOWN = 3
+PATTERN_MODIFIERS = ['*','?']
 
 """
 BattleBanana random command system.
@@ -311,7 +312,6 @@ def parse(command_message):
         return key, "", []
 
 async def determine_args(pattern: str, args, called, ctx):
-    PATTERN_MODIFIERS = ['*','?']
     if pattern is None or pattern == '':
         if len(args) == 0:
             return args
@@ -321,29 +321,32 @@ async def determine_args(pattern: str, args, called, ctx):
     #helper function
     def check_arg(pattern_index : int, arg_index : int, mod = False):# -> Tuple[bool,int] | Tuple[list,int]:
         ret_args = []
-        #special condition when last pattern_type is a string-like
-        if ((len(pattern) - pattern_index) in [1,2]) and pattern[pattern_index] in commandtypes.STRING_TYPES: #last pattern type can be normal or mod
-            while arg_index < len(args):
-                arg = commandtypes.parse_type(pattern[pattern_index],args[arg_index],called = called,ctx = ctx)
-                if arg is False:
-                    ret_args = False
-                    break
-                else:
-                    ret_args.append(arg)
-                    arg_index+=1
-            if ret_args:
-                ret_args = [' '.join(ret_args)]
-                
+
         #no mods (and bitches)
-        elif not mod:
+        if not mod:
             try:
                 assert arg_index < len(args) #are args available?
-                arg = commandtypes.parse_type(pattern[pattern_index],args[arg_index],called = called,ctx = ctx)
-                if arg is False:
-                    ret_args = False
-                else:
-                    ret_args.append(arg)
-                    arg_index+=1
+                
+                #special condition when last pattern_type is a string-like
+                if len(pattern) - pattern_index == 1 and pattern[pattern_index] in commandtypes.STRING_TYPES:
+                    while arg_index < len(args):
+                        arg = commandtypes.parse_type(pattern[pattern_index],args[arg_index],called = called,ctx = ctx)
+                        if arg is False:
+                            ret_args = False
+                            break
+                        else:
+                            ret_args.append(arg)
+                            arg_index+=1
+                    if ret_args:
+                        ret_args = [' '.join(ret_args)]    
+                else:    
+                    arg = commandtypes.parse_type(pattern[pattern_index],args[arg_index],called = called,ctx = ctx)
+                    if arg is False:
+                        ret_args = False
+                    else:
+                        ret_args.append(arg)
+                        arg_index+=1
+        
             except AssertionError: #error, missing compulsory args
                 ret_args = False
         
@@ -354,12 +357,25 @@ async def determine_args(pattern: str, args, called, ctx):
             if arg_index >= len(args):
                 pass
             elif mod == '?':
-                arg = commandtypes.parse_type(pattern[pattern_index],args[arg_index],called = called,ctx = ctx)
-                if arg is False:
-                    ret_args = False
+                #special condition when last pattern_type is a string-like
+                if len(pattern) - pattern_index == 2 and pattern[pattern_index] in commandtypes.STRING_TYPES:
+                    while arg_index < len(args):
+                        arg = commandtypes.parse_type(pattern[pattern_index],args[arg_index],called = called,ctx = ctx)
+                        if arg is False:
+                            ret_args = False
+                            break
+                        else:
+                            ret_args.append(arg)
+                            arg_index+=1
+                    if ret_args:
+                        ret_args = [' '.join(ret_args)]
                 else:
-                    ret_args.append(arg)
-                    arg_index+=1
+                    arg = commandtypes.parse_type(pattern[pattern_index],args[arg_index],called = called,ctx = ctx)
+                    if arg is False:
+                        ret_args = False
+                    else:
+                        ret_args.append(arg)
+                        arg_index+=1
             elif mod == '*':
                 while arg_index < len(args):
                     arg = commandtypes.parse_type(pattern[pattern_index],args[arg_index],called = called,ctx = ctx)
@@ -368,6 +384,7 @@ async def determine_args(pattern: str, args, called, ctx):
                     else:
                         ret_args.append(arg)
                         arg_index+=1
+        
         return ret_args,arg_index
                         
     checked_args = []
