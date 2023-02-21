@@ -322,12 +322,11 @@ async def determine_args(pattern: str, args, called, ctx):
     def check_arg(pattern_index : int, arg_index : int, mod = False):# -> Tuple[bool,int] | Tuple[list,int]:
         ret_args = []
 
-        #no mods (and bitches)
+        # no mods (and bitches)
         if not mod:
-            try:
-                assert arg_index < len(args) #are args available?
-                
-                #special condition when last pattern_type is a string-like
+            # are args available?
+            if arg_index < len(args): 
+                # special condition when last pattern_type is a string-like
                 if len(pattern) - pattern_index == 1 and pattern[pattern_index] in commandtypes.STRING_TYPES:
                     while arg_index < len(args):
                         arg = commandtypes.parse_type(pattern[pattern_index],args[arg_index],called = called,ctx = ctx)
@@ -346,67 +345,62 @@ async def determine_args(pattern: str, args, called, ctx):
                     else:
                         ret_args.append(arg)
                         arg_index+=1
-        
-            except AssertionError: #error, missing compulsory args
+            else: # error, missing compulsory args
                 ret_args = False
         
-        #modded
+        # modded
         else:
             mod = pattern[pattern_index+1]
-            #no args left to parse,skip parsing
-            if arg_index >= len(args):
-                pass
-            elif mod == '?':
-                #special condition when last pattern_type is a string-like
-                if len(pattern) - pattern_index == 2 and pattern[pattern_index] in commandtypes.STRING_TYPES:
-                    while arg_index < len(args):
+            # check whether args exist
+            if arg_index < len(args):
+                if mod == '?':
+                    # special condition when last pattern_type is a string-like
+                    if len(pattern) - pattern_index == 2 and pattern[pattern_index] in commandtypes.STRING_TYPES:
+                        while arg_index < len(args):
+                            arg = commandtypes.parse_type(pattern[pattern_index],args[arg_index],called = called,ctx = ctx)
+                            if arg is False:
+                                ret_args = False
+                                break
+                            else:
+                                ret_args.append(arg)
+                                arg_index+=1
+                        if ret_args:
+                            ret_args = [' '.join(ret_args)]
+                    else:
                         arg = commandtypes.parse_type(pattern[pattern_index],args[arg_index],called = called,ctx = ctx)
                         if arg is False:
                             ret_args = False
+                        else:
+                            ret_args.append(arg)
+                            arg_index+=1      
+                elif mod == '*':
+                    while arg_index < len(args):
+                        arg = commandtypes.parse_type(pattern[pattern_index],args[arg_index],called = called,ctx = ctx)
+                        if arg is False:
                             break
                         else:
                             ret_args.append(arg)
                             arg_index+=1
-                    if ret_args:
-                        ret_args = [' '.join(ret_args)]
-                else:
-                    arg = commandtypes.parse_type(pattern[pattern_index],args[arg_index],called = called,ctx = ctx)
-                    if arg is False:
-                        ret_args = False
-                    else:
-                        ret_args.append(arg)
-                        arg_index+=1
-            elif mod == '*':
-                while arg_index < len(args):
-                    arg = commandtypes.parse_type(pattern[pattern_index],args[arg_index],called = called,ctx = ctx)
-                    if arg is False:
-                        break
-                    else:
-                        ret_args.append(arg)
-                        arg_index+=1
-        
+            
         return ret_args,arg_index
                         
     checked_args = []
     pattern_index = 0
     arg_index = 0
     while pattern_index < len(pattern):
-        #can a modifier exist?
+        is_mod = False
+        # can a modifier exist?
         if pattern_index+1 < len(pattern):
-            #check arg depending on pattern type
-            if pattern[pattern_index+1] in PATTERN_MODIFIERS:
-                arg_val,arg_index = check_arg(pattern_index,arg_index,True)
-                pattern_index+=1
-            else:
-                arg_val,arg_index = check_arg(pattern_index,arg_index)
-        #definitely a normal pattern type
-        else: 
-            arg_val,arg_index = check_arg(pattern_index,arg_index)
-            
-        #error parsing arg
+            is_mod = pattern[pattern_index+1] in PATTERN_MODIFIERS
+
+        arg_val, arg_index = check_arg(pattern_index,arg_index,is_mod)
+        # error parsing arg
         if arg_val is False:
             return False
-        checked_args.extend(arg_val)
+        
+        if is_mod:
+            pattern_index += 1
         pattern_index+=1
+        checked_args.extend(arg_val)
 
     return checked_args
