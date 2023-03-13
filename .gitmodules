@@ -1,0 +1,3 @@
+[submodule "dueutil/game/configs/localization"]
+	path = dueutil/game/configs/localization
+	url = https://github.com/Firescoutt/BattleBanana-Localization
