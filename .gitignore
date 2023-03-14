@@ -5,9 +5,6 @@ battlebanana.json
 dbconfig.json
 generalconfig.py
 dueutil/game/configs/codes.json
-.vscode/
-.idea/
-localization/
 start_fixed.sh
 .DS_Store
 logs/
