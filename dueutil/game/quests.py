@@ -107,15 +107,19 @@ class Quest(BattleBananaObject, SlotPickleMixin):
             self.base_hp,
         )
 
-    def get_channel_mention(self, guild):
+    def get_channel_mention(self, guild: discord.Guild):
         if self.channel in ("ALL", "NONE"):
             return self.channel.title()
-        else:
-            channel = guild.get_channel(self.channel)
+
+        ret = ""
+        for channel in self.channel:
+            channel = guild.get_channel(int(channel))
             if channel is None:
-                return "``Deleted``"
+                ret += "\n``Deleted``"
             else:
-                return channel.mention
+                ret += f"\n{channel.mention}"
+
+        return ret
 
     @property
     def made_on(self):
@@ -287,7 +291,9 @@ def get_quest_from_id(quest_id: str) -> Quest:
 
 
 def get_channel_quests(channel: discord.abc.GuildChannel) -> List[Quest]:
-    return [quest for quest in quests[channel.guild].values() if quest.channel in ("ALL", channel.id)]
+    return [
+        quest for quest in quests[channel.guild].values() if quest.channel == "ALL" or str(channel.id) in quest.channel
+    ]
 
 
 def get_random_quest_in_channel(channel: discord.abc.GuildChannel):
@@ -353,8 +359,8 @@ def _load():
     for quest in dbconn.get_collection_for_object(Quest).find():
         loaded_quest: Quest = jsonpickle.decode(quest["data"])
 
-        if isinstance(loaded_quest.channel, str) and loaded_quest.channel not in ("ALL", None, "NONE"):
-            loaded_quest.channel = int(loaded_quest.channel)
+        if isinstance(loaded_quest.channel, int):
+            loaded_quest.channel = [str(loaded_quest.channel)]
 
         if isinstance(loaded_quest.server_id, str):
             loaded_quest.server_id = int(loaded_quest.server_id)
