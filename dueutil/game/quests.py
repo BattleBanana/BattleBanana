@@ -94,16 +94,16 @@ class Quest(BattleBananaObject, SlotPickleMixin):
                                self.base_accy, self.base_hp, )
 
     def get_channel_mention(self, guild):
-        ret = ''
+        ret = ""
         if self.channel in ("ALL", "NONE"):
             ret += self.channel.title()
         else:
             for channel in self.channel:
                 channel = guild.get_channel(int(channel))
                 if channel is None:
-                    ret+="\n``Deleted``"
+                    ret += "\n``Deleted``"
                 else:
-                    ret+=f'\n{channel.mention}'
+                    ret += f'\n{channel.mention}'
         return ret.rstrip()
 
     @property
@@ -325,9 +325,6 @@ def _load():
     load_default_quests()
     for quest in dbconn.get_collection_for_object(Quest).find():
         loaded_quest: Quest = jsonpickle.decode(quest['data'])
-
-        if isinstance(loaded_quest.channel, str) and loaded_quest.channel not in ("ALL", None, "NONE"):
-            loaded_quest.channel = eval(loaded_quest.channel)
 
         if isinstance(loaded_quest.server_id, str):
             loaded_quest.server_id = int(loaded_quest.server_id)

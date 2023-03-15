@@ -435,18 +435,18 @@ async def editquest(ctx, quest_name, updates, **_):
                 quest.channel = value.upper()
                 updates[quest_property] = value.title()
             else:
-                value = [i.strip() for i in value.split(',')] # split through comma
-                value = [i.split() for i in value] #split through space
-                value = [id for l in value for id in l] # flatten the list - final output will always be list with list containing single elements
+                new_value = [i.strip() for i in value.split(',')] # split through comma
+                new_value = [i.split() for i in new_value] #split through space
+                new_value = [id for l in new_value for id in l] # flatten the list - final output will always be list with list containing single elements
                 quest_channels = []
                 channel_list_string = ""
-                for channel in value:
+                for channel in new_value:
                     channel_id = channel.replace("<#", "").replace(">", "")
                     ret_channel = util.get_channel(channel_id)
                     if ret_channel is not None:
                         if ret_channel not in quest_channels: # avoid duplicates
                             quest_channels.append(channel_id)
-                            channel_list_string += f'\n\t{ret_channel.mention}'
+                            channel_list_string += f"\n\t{ret_channel.mention}"
                     else:
                         channel_list_string += f"\n\t{channel} Channel not found!"
                 if quest_channels:
