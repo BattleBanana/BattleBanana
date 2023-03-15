@@ -93,18 +93,19 @@ class Quest(BattleBananaObject, SlotPickleMixin):
         return self._BaseStats(self.base_attack, self.base_strg,
                                self.base_accy, self.base_hp, )
 
-    def get_channel_mention(self, guild):
-        ret = ""
+    def get_channel_mention(self, guild: discord.Guild):
         if self.channel in ("ALL", "NONE"):
-            ret += self.channel.title()
-        else:
-            for channel in self.channel:
-                channel = guild.get_channel(int(channel))
-                if channel is None:
-                    ret += "\n``Deleted``"
-                else:
-                    ret += f'\n{channel.mention}'
-        return ret.rstrip()
+            return self.channel.title()
+
+        ret = ""
+        for channel in self.channel:
+            channel = guild.get_channel(int(channel))
+            if channel is None:
+                ret += "\n``Deleted``"
+            else:
+                ret += f"\n{channel.mention}"
+
+        return ret
 
     @property
     def made_on(self):
