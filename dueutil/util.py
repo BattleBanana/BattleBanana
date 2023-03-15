@@ -28,11 +28,10 @@ client = None
 clients = []
 processor = ""
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('battlebanana')
-logging.getLogger('discord.state').setLevel(logging.ERROR)
+logger = logging.getLogger("battlebanana")
+logging.getLogger("discord.state").setLevel(logging.ERROR)
 
-trello_client = TrelloClient(api_key=gconf.trello_api_key,
-                             api_token=gconf.trello_api_token)
+trello_client = TrelloClient(api_key=gconf.trello_api_key, api_token=gconf.trello_api_token)
 
 
 class DueLog:
@@ -64,7 +63,7 @@ class BattleBananaException(BotException):
     def __init__(self, channel, message, **kwargs):
         self.message = message
         self.channel = channel
-        self.additional_info = kwargs.get('additional_info', "")
+        self.additional_info = kwargs.get("additional_info", "")
 
     def get_message(self):
         message = ":bangbang: **" + self.message + "**"
@@ -91,12 +90,8 @@ class SlotPickleMixin:
     """
 
     def __getstate__(self):
-        all_slots = chain.from_iterable(getattr(cls, '__slots__', []) for cls in self.__class__.__mro__)
-        return dict(
-            (slot, getattr(self, slot))
-            for slot in all_slots
-            if hasattr(self, slot)
-        )
+        all_slots = chain.from_iterable(getattr(cls, "__slots__", []) for cls in self.__class__.__mro__)
+        return dict((slot, getattr(self, slot)) for slot in all_slots if hasattr(self, slot))
 
     def __setstate__(self, state):
         for slot, value in state.items():
@@ -109,17 +104,17 @@ def get_vpn_connector():
         return None
 
     return ProxyConnector(
-        host=vpn_config['host'],
-        port=vpn_config['port'],
-        username=vpn_config['username'],
-        password=vpn_config['password']
+        host=vpn_config["host"],
+        port=vpn_config["port"],
+        username=vpn_config["username"],
+        password=vpn_config["password"],
     )
 
 
 def get_cpu_info():
     global processor
     if processor == "":
-        processor = cpuinfo.get_cpu_info()['brand_raw']
+        processor = cpuinfo.get_cpu_info()["brand_raw"]
     return processor
 
 
@@ -143,14 +138,14 @@ async def run_script(name: str):
         sys = platform.platform()
         if "Linux" in sys:
             return await asyncio.create_subprocess_shell(
-                f"bash {name}",
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE)
+                f"bash {name}", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+            )
         elif "Windows" in sys:
             return await asyncio.create_subprocess_shell(
                 f'"C:\\Program Files\\Git\\bin\\bash" {name}',
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE)
+                stderr=asyncio.subprocess.PIPE,
+            )
         else:
             raise asyncio.CancelledError()
     except asyncio.CancelledError as err:
@@ -158,11 +153,11 @@ async def run_script(name: str):
 
 
 async def tax(amount, bb):
-    #cuddle me mr. tax man
+    # cuddle me mr. tax man
     if amount < 10000:
         return amount
 
-    tax_rate = 0.13 #13%
+    tax_rate = 0.13  # 13%
     taxed_total = math.floor(amount * tax_rate)
     taxed_amount = math.floor(amount - taxed_total)
 
@@ -170,7 +165,7 @@ async def tax(amount, bb):
     if bb is not None:
         bb.money += taxed_total
         bb.save()
-    
+
     return taxed_amount
 
 
@@ -208,7 +203,7 @@ async def say(channel: discord.TextChannel, *args, **kwargs):
 
 async def save_old_topdog(player):
     topdogs = dbconn.conn()["Topdogs"]
-    topdogs.insert_one({'user_id': player.id, 'date': datetime.utcnow()})
+    topdogs.insert_one({"user_id": player.id, "date": datetime.utcnow()})
 
 
 async def typing(channel):
@@ -223,7 +218,7 @@ async def wait_for_message(ctx, author, timeout=120):
         return msg in ("hit", "stand") and message.author == author and message.channel == channel
 
     try:
-        return await clients[0].wait_for('message', timeout=timeout, check=check)
+        return await clients[0].wait_for("message", timeout=timeout, check=check)
     except asyncio.exceptions.TimeoutError:
         return None
 
@@ -261,7 +256,7 @@ def get_shard_index(server):
 
 
 def pretty_time():
-    return time.strftime('%H:%M %Z on %b %d, %Y')
+    return time.strftime("%H:%M %Z on %b %d, %Y")
 
 
 def get_server_count():
@@ -275,7 +270,7 @@ def get_shard_count():
 def get_guild_id(source):
     if isinstance(source, int):
         return source
-    elif hasattr(source, 'guild'):
+    elif hasattr(source, "guild"):
         return source.guild.id
     elif isinstance(source, discord.Guild):
         return source.id
@@ -287,12 +282,12 @@ def get_guild(server_id: int):
 
 def is_today(date: datetime):
     today = datetime.today()
-    return (today.day == date.day and today.month == date.month and today.year == date.year)
+    return today.day == date.day and today.month == date.month and today.year == date.year
 
 
 def is_yesterday(date: datetime):
     today = datetime.today()
-    return ((today.day - 1) == date.day and today.month == date.month and today.year == date.year)
+    return (today.day - 1) == date.day and today.month == date.month and today.year == date.year
 
 
 def get_channel(channel_id):
@@ -316,12 +311,11 @@ def ultra_escape_string(string):
     for character in string:
         if not character.isalnum() and not character.isspace() and character not in escaped:
             escaped.append(character)
-            escaped_string = escaped_string.replace(character, '\\' + character)
+            escaped_string = escaped_string.replace(character, "\\" + character)
 
     # Escape the ultra annoying mentions that \@everyone does not block
     # Why? Idk
-    escaped_string = escaped_string.replace("@everyone", u"@\u200Beveryone") \
-        .replace("@here", u"@\u200Bhere")
+    escaped_string = escaped_string.replace("@everyone", "@\u200Beveryone").replace("@here", "@\u200Bhere")
 
     return escaped_string
 
@@ -329,13 +323,21 @@ def ultra_escape_string(string):
 def format_number(number, **kwargs):
     def small_format():
         nonlocal number
-        full_number = '{:,.2f}'.format(number).rstrip('0').rstrip('.')
-        return full_number if len(full_number) < 27 else '{:,g}'.format(number)
+        full_number = "{:,.2f}".format(number).rstrip("0").rstrip(".")
+        return full_number if len(full_number) < 27 else "{:,g}".format(number)
 
     def really_large_format():
         nonlocal number
-        units = ["Million", "Billion", "Trillion", "Quadrillion", "Quintillion", "Sextillion", "Septillion",
-                 "Octillion"]
+        units = [
+            "Million",
+            "Billion",
+            "Trillion",
+            "Quadrillion",
+            "Quintillion",
+            "Sextillion",
+            "Septillion",
+            "Octillion",
+        ]
         reg = len(str(math.floor(number / 1000)))
         if (reg - 1) % 3 != 0:
             reg -= (reg - 1) % 3
@@ -345,14 +347,14 @@ def format_number(number, **kwargs):
         except IndexError:
             string = " Bazillion"
         number = int(number * 100) / float(100)
-        formatted_number = '{0:g}'.format(number)
+        formatted_number = "{0:g}".format(number)
         return formatted_number + string if len(formatted_number) < 17 else str(math.trunc(number)) + string
 
-    if number >= 1000000 and not kwargs.get('full_precision', False):
+    if number >= 1000000 and not kwargs.get("full_precision", False):
         formatted = really_large_format()
     else:
         formatted = small_format()
-    return formatted if not kwargs.get('money', False) else '¤' + formatted
+    return formatted if not kwargs.get("money", False) else "¤" + formatted
 
 
 def format_money(amount):
@@ -387,8 +389,9 @@ def clamp(number, min_val, max_val):
 
 async def set_up_roles(guild):
     # Due roles that need making.
-    roles = [role_name for role_name in gconf.DUE_ROLES if
-             not any(role.name == role_name["name"] for role in guild.roles)]
+    roles = [
+        role_name for role_name in gconf.DUE_ROLES if not any(role.name == role_name["name"] for role in guild.roles)
+    ]
     for role in roles:
         await guild.create_role(name=role["name"], color=discord.Color(role.get("colour", gconf.DUE_COLOUR)))
     return roles
@@ -403,7 +406,7 @@ def get_role_by_name(guild, role_name):
 
 
 def filter_string(string: str) -> str:
-    return ''.join([char if char.isprintable() else "?" for char in string])
+    return "".join([char if char.isprintable() else "?" for char in string])
 
 
 SUFFIXES = {1: "st", 2: "nd", 3: "rd", 4: "th"}
@@ -419,11 +422,11 @@ def int_to_ordinal(number: int) -> str:
 
 # Simple time formatter based on "Mr. B" - https://stackoverflow.com/a/24542445
 INTERVALS = (
-    ('weeks', 604800),  # 60 * 60 * 24 * 7
-    ('days', 86400),  # 60 * 60 * 24
-    ('hours', 3600),  # 60 * 60
-    ('minutes', 60),
-    ('seconds', 1),
+    ("weeks", 604800),  # 60 * 60 * 24 * 7
+    ("days", 86400),  # 60 * 60 * 24
+    ("hours", 3600),  # 60 * 60
+    ("minutes", 60),
+    ("seconds", 1),
 )
 
 
@@ -435,9 +438,9 @@ def display_time(seconds, granularity=2):
         if value:
             seconds -= value * count
             if value == 1:
-                name = name.rstrip('s')
+                name = name.rstrip("s")
             result.append("{:d} {}".format(int(value), name))
-    return ', '.join(result[:granularity])
+    return ", ".join(result[:granularity])
 
 
 def s_suffix(word, count):

@@ -15,8 +15,8 @@ class Team(BattleBananaObject, SlotPickleMixin):
     """
     The BattleBanana Team class
     """
-    __slots__ = ["name", "description", "level", "open",
-                 "owner", "admins", "members", "pendings", "id"]
+
+    __slots__ = ["name", "description", "level", "open", "owner", "admins", "members", "pendings", "id"]
 
     def __init__(self, owner, name, description, level, is_open, **details):
         self.name = name
@@ -112,10 +112,10 @@ class Team(BattleBananaObject, SlotPickleMixin):
         if self.id in teams:
             del teams[self.id]
 
-        dbconn.get_collection_for_object(Team).delete_one({'_id': self.id})
+        dbconn.get_collection_for_object(Team).delete_one({"_id": self.id})
 
     def get_name_possession(self):
-        if self.name.endswith('s'):
+        if self.name.endswith("s"):
             return self.name + "'"
         return self.name + "'s"
 
@@ -142,8 +142,9 @@ class Team(BattleBananaObject, SlotPickleMixin):
 
         owner = players.find_player(self.owner)
 
-        embed = discord.Embed(title="Team Information", description="Displaying team information", type="rich",
-                                    colour=gconf.DUE_COLOUR)
+        embed = discord.Embed(
+            title="Team Information", description="Displaying team information", type="rich", colour=gconf.DUE_COLOUR
+        )
         embed.add_field(name="Name", value=self.name, inline=False)
         embed.add_field(name="Description", value=self.description, inline=False)
         embed.add_field(name="Owner", value=f"{owner.name} ({owner.id})", inline=False)
@@ -172,8 +173,8 @@ REFERENCE_TEAM = Team(players.REFERENCE_PLAYER, "reference team", "Okay!", 1, Fa
 
 def load_team(team_id):
     response = dbconn.get_collection_for_object(Team).find_one({"_id": team_id})
-    if response is not None and 'data' in response:
-        team_data = response['data']
+    if response is not None and "data" in response:
+        team_data = response["data"]
         loaded_team = jsonpickle.decode(team_data)
         teams[loaded_team.id] = util.load_and_update(REFERENCE_TEAM, loaded_team)
         return True

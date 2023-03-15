@@ -22,7 +22,7 @@ from ..util import SlotPickleMixin
 
 """ Player related classes & functions """
 
-STAT_GAIN_FORMAT = (e.ATK + ": +%.2f " + e.STRG + ": +%.2f " + e.ACCY + ": +%.2f")
+STAT_GAIN_FORMAT = e.ATK + ": +%.2f " + e.STRG + ": +%.2f " + e.ACCY + ": +%.2f"
 
 
 class FakeMember:
@@ -38,9 +38,8 @@ class Players(dict):
     PRUNE_INACTIVITY_TIME = 3600 * 6
 
     def prune(self):
-
         """
-        Removes player that the bot has not seen 
+        Removes player that the bot has not seen
         for over an hour. If anyone mentions these
         players (in a command) their data will be
         fetched directly from the database
@@ -63,30 +62,49 @@ class Player(BattleBananaObject, SlotPickleMixin):
     This (and a few other classes) are very higgledy-piggledy due to
     being make very early on in development & have been changed so many
     times while trying not to break older versions & code.
-    
+
     defaultdict is to hold sets of attributes that can be changed/Added to
     randomly.
-    
+
     It allows attrs to be added automatically
     """
 
     # These are all the attrbs needed for a player
     # This is meant to optimize players. One caveat all new attributes
     # Must be a misc_stat, inventory item or equipped item
-    __slots__ = ["level", "attack", "strg", "hp",
-                 "exp", "money", "total_exp", "accy",
-                 "last_progress", "last_quest",
-                 "wagers_won", "quests_won",
-                 "quest_day_start", "benfont",
-                 "quests_completed_today",
-                 "quests", "received_wagers",
-                 "awards", "quest_spawn_build_up",
-                 "donor", "misc_stats", "equipped",
-                 "inventory", "last_message_hashes",
-                 "command_rate_limits", "team",
-                 "team_invites", "prestige_level",
-                 "weapon_hidden", "gamble_play", 
-                 "last_played"]
+    __slots__ = [
+        "level",
+        "attack",
+        "strg",
+        "hp",
+        "exp",
+        "money",
+        "total_exp",
+        "accy",
+        "last_progress",
+        "last_quest",
+        "wagers_won",
+        "quests_won",
+        "quest_day_start",
+        "benfont",
+        "quests_completed_today",
+        "quests",
+        "received_wagers",
+        "awards",
+        "quest_spawn_build_up",
+        "donor",
+        "misc_stats",
+        "equipped",
+        "inventory",
+        "last_message_hashes",
+        "command_rate_limits",
+        "team",
+        "team_invites",
+        "prestige_level",
+        "weapon_hidden",
+        "gamble_play",
+        "last_played",
+    ]
 
     # I expect new types of quests/weapons to be subclasses.
 
@@ -125,24 +143,27 @@ class Player(BattleBananaObject, SlotPickleMixin):
         self.received_wagers = []
 
         ##### Equiped items
-        self.equipped = defaultdict(Player.DEFAULT_FACTORIES["equipped"],
-                                    weapon=weapons.NO_WEAPON_ID,
-                                    banner=customizations.Banner.DEFAULT_BANNER,
-                                    theme=customizations.Theme.DEFAULT_THEME,
-                                    background=customizations.Background.DEFAULT_BACKGROUND)
+        self.equipped = defaultdict(
+            Player.DEFAULT_FACTORIES["equipped"],
+            weapon=weapons.NO_WEAPON_ID,
+            banner=customizations.Banner.DEFAULT_BANNER,
+            theme=customizations.Theme.DEFAULT_THEME,
+            background=customizations.Background.DEFAULT_BACKGROUND,
+        )
 
         ##### Inventory. defaultdict so I can add more stuff - without fuss
         ##### Also makes shop simpler
-        self.inventory = defaultdict(Player.DEFAULT_FACTORIES["inventory"],
-                                     weapons=[],
-                                     themes=self.inventory.get("themes"),
-                                     backgrounds=self.inventory.get("backgrounds"),
-                                     banners=self.inventory.get("banners"))
+        self.inventory = defaultdict(
+            Player.DEFAULT_FACTORIES["inventory"],
+            weapons=[],
+            themes=self.inventory.get("themes"),
+            backgrounds=self.inventory.get("backgrounds"),
+            banners=self.inventory.get("banners"),
+        )
 
         self.save()
 
     def reset(self, discord_user=None):
-
         ### New rule: The default of all new items MUST have the id default now.
 
         if discord_user is not None:
@@ -197,28 +218,34 @@ class Player(BattleBananaObject, SlotPickleMixin):
         self.team_invites = []
 
         ##### Dumb misc stats (easy to add & remove)
-        self.misc_stats = defaultdict(int,
-                                      emojis_given=0,
-                                      emojis=0,
-                                      potatoes=0,
-                                      potatoes_given=0,
-                                      average_spelling_correctness=1,
-                                      average_quest_battle_turns=1)
+        self.misc_stats = defaultdict(
+            int,
+            emojis_given=0,
+            emojis=0,
+            potatoes=0,
+            potatoes_given=0,
+            average_spelling_correctness=1,
+            average_quest_battle_turns=1,
+        )
 
         ##### Equiped items
-        self.equipped = defaultdict(Player.DEFAULT_FACTORIES["equipped"],
-                                    weapon=weapons.NO_WEAPON_ID,
-                                    banner=customizations.Banner.DEFAULT_BANNER,
-                                    theme=customizations.Theme.DEFAULT_THEME,
-                                    background=customizations.Background.DEFAULT_BACKGROUND)
+        self.equipped = defaultdict(
+            Player.DEFAULT_FACTORIES["equipped"],
+            weapon=weapons.NO_WEAPON_ID,
+            banner=customizations.Banner.DEFAULT_BANNER,
+            theme=customizations.Theme.DEFAULT_THEME,
+            background=customizations.Background.DEFAULT_BACKGROUND,
+        )
 
         ##### Inventory. defaultdict so I can add more stuff - without fuss
         ##### Also makes shop simpler
-        self.inventory = defaultdict(Player.DEFAULT_FACTORIES["inventory"],
-                                     weapons=[],
-                                     theme=[customizations.Theme.DEFAULT_THEME],
-                                     backgrounds=[customizations.Background.DEFAULT_BACKGROUND],
-                                     banners=[customizations.Banner.DEFAULT_BANNER])
+        self.inventory = defaultdict(
+            Player.DEFAULT_FACTORIES["inventory"],
+            weapons=[],
+            theme=[customizations.Theme.DEFAULT_THEME],
+            backgrounds=[customizations.Background.DEFAULT_BACKGROUND],
+            banners=[customizations.Banner.DEFAULT_BANNER],
+        )
 
         self.save()
 
@@ -230,8 +257,9 @@ class Player(BattleBananaObject, SlotPickleMixin):
         avg_player_stat = self.get_avg_stat()
 
         def attr_gain(stat):
-            return (max(0.01, (stat / avg_player_stat)
-                        * quest.level * (turns / average_turns) / 2 * (quest_scale + 0.5) * 3))
+            return max(
+                0.01, (stat / avg_player_stat) * quest.level * (turns / average_turns) / 2 * (quest_scale + 0.5) * 3
+            )
 
         # Put some random in the prestige gain so its not a raw 20 * prestige
         max_stats_gain = 100 * self.prestige_multiplicator()
@@ -244,11 +272,11 @@ class Player(BattleBananaObject, SlotPickleMixin):
         add_attack = min(attr_gain(quest.attack), min(add_strg * 3 * random.uniform(0.6, 1.5), max_stats_gain))
         add_accy = min(attr_gain(quest.accy), min(add_strg * 3 * random.uniform(0.6, 1.5), max_stats_gain))
 
-        return add_strg, add_attack, add_accy,max_stats_gain
+        return add_strg, add_attack, add_accy, max_stats_gain
 
     def progress(self, attack, strg, accy, **options):
-        max_attr = options.get('max_attr', 0.1)
-        max_exp = options.get('max_exp', 15)
+        max_attr = options.get("max_attr", 0.1)
+        max_exp = options.get("max_exp", 15)
         self.attack += min(attack, max_attr)
         self.strg += min(strg, max_attr)
         self.accy += min(accy, max_attr)
@@ -269,8 +297,11 @@ class Player(BattleBananaObject, SlotPickleMixin):
         return self.get_owned("banners", customizations.banners)
 
     def get_owned_weapons(self):
-        return [weapons.get_weapon_from_id(weapon_id) for weapon_id in self.inventory["weapons"] if
-                weapon_id != weapons.NO_WEAPON_ID]
+        return [
+            weapons.get_weapon_from_id(weapon_id)
+            for weapon_id in self.inventory["weapons"]
+            if weapon_id != weapons.NO_WEAPON_ID
+        ]
 
     def get_weapon(self, weapon_name):
         return next((weapon for weapon in self.get_owned_weapons() if weapon.name.lower() == weapon_name.lower()), None)
@@ -279,7 +310,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
         return self.get_weapon(weapon_name) is not None
 
     def get_name_possession(self):
-        if self.name.endswith('s'):
+        if self.name.endswith("s"):
             return self.name + "'"
         return self.name + "'s"
 
@@ -331,9 +362,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
     def item_value_limit(self):
         # Take into account the progress in the current level.
         precise_level = self.level + self.exp / gamerules.get_exp_for_next_level(self.level)
-        return int(30 * (math.pow(precise_level, 2) / 3
-                         + 0.5 * math.pow(precise_level + 1, 2)
-                         * precise_level))
+        return int(30 * (math.pow(precise_level, 2) / 3 + 0.5 * math.pow(precise_level + 1, 2) * precise_level))
 
     @property
     def rank(self):
@@ -381,8 +410,9 @@ class Player(BattleBananaObject, SlotPickleMixin):
 
     @property
     def banner(self):
-        banner = customizations.banners.get(self.equipped["banner"],
-                                            customizations.banners[customizations.Banner.DEFAULT_BANNER])
+        banner = customizations.banners.get(
+            self.equipped["banner"], customizations.banners[customizations.Banner.DEFAULT_BANNER]
+        )
         if not (self.equipped["banner"] in customizations.banners or banner.can_use_banner(self)):
             self.inventory["banners"].remove(self.equipped["banner"])
             self.equipped["banner"] = customizations.Banner.DEFAULT_BANNER
@@ -446,9 +476,11 @@ class Player(BattleBananaObject, SlotPickleMixin):
     def __getstate__(self):
         object_state = SlotPickleMixin.__getstate__(self)
         del object_state["last_message_hashes"]
-        object_state["command_rate_limits"] = {command_name: last_used for (command_name, last_used) in
-                                               self.command_rate_limits.items()
-                                               if command_name.endswith("_saved_cooldown")}
+        object_state["command_rate_limits"] = {
+            command_name: last_used
+            for (command_name, last_used) in self.command_rate_limits.items()
+            if command_name.endswith("_saved_cooldown")
+        }
         if len(object_state["command_rate_limits"]) == 0:
             del object_state["command_rate_limits"]
         # Know need to save the default dict info (as the
@@ -459,7 +491,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
         return object_state
 
     def __iter__(self):
-        for attr in chain.from_iterable(getattr(cls, '__slots__', []) for cls in self.__class__.__mro__):
+        for attr in chain.from_iterable(getattr(cls, "__slots__", []) for cls in self.__class__.__mro__):
             try:
                 yield attr, getattr(self, attr)
             except AttributeError:
@@ -481,15 +513,15 @@ REFERENCE_PLAYER = Player(no_save=True)
 def load_player(player_id: int):
     response = dbconn.get_collection_for_object(Player).find_one({"_id": player_id})
 
-    if response is not None and 'data' in response:
-        player_data = response['data']
+    if response is not None and "data" in response:
+        player_data = response["data"]
         loaded_player = jsonpickle.decode(player_data)
         players[player_id] = loaded_player
         return True
 
 
 def get_stuff(self):
-    for attr in chain.from_iterable(getattr(cls, '__slots__', []) for cls in self.__class__.__mro__):
+    for attr in chain.from_iterable(getattr(cls, "__slots__", []) for cls in self.__class__.__mro__):
         try:
             yield from attr
         except AttributeError:
@@ -497,23 +529,23 @@ def get_stuff(self):
 
 
 async def handle_client(reader, writer):
-    if writer.get_extra_info('peername')[0] != gconf.other_configs["connectionIP"]:
-        util.logger.info(writer.get_extra_info('peername')[0], "tried to connect to us.")
+    if writer.get_extra_info("peername")[0] != gconf.other_configs["connectionIP"]:
+        util.logger.info(writer.get_extra_info("peername")[0], "tried to connect to us.")
         writer.write("smh".encode())
         writer.close()
         return
-    request = (await reader.read()).decode('utf8')
+    request = (await reader.read()).decode("utf8")
     error_found = False
     try:
         request = json.loads(request)
-        player_id = int(request['id'])
+        player_id = int(request["id"])
         player = find_player(player_id)
         if player is None:  # no account on BattleBanana
             player = Player(FakeMember(player_id))
     except json.decoder.JSONDecodeError as e:
         player = None
         error_found = e
-    
+
     if player:
         player_data = {i async for i in get_stuff(player)}
         for attr in set(request.keys()).intersection(player_data):  # shared attrs between request and player

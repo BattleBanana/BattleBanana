@@ -12,7 +12,7 @@ from ..permissions import Permission
 async def myweapons(ctx, *args, **details):
     """
     [CMD_KEY]myweapons (page)/(weapon name)
-    
+
     Shows the contents of your weapon inventory.
     """
 
@@ -23,12 +23,17 @@ async def myweapons(ctx, *args, **details):
         page = args[0]
 
     if type(page) is int:
-        weapon_store = weapons_page(player_weapons, page - 1,
-                                    title=player.get_name_possession_clean() + " Weapons", price_divisor=4 / 3,
-                                    empty_list="")
+        weapon_store = weapons_page(
+            player_weapons,
+            page - 1,
+            title=player.get_name_possession_clean() + " Weapons",
+            price_divisor=4 / 3,
+            empty_list="",
+        )
         if len(player_weapons) == 0:
-            weapon_store.add_field(name="No weapons stored!",
-                                   value="You can buy up to 6 more weapons from the shop and store them here!")
+            weapon_store.add_field(
+                name="No weapons stored!", value="You can buy up to 6 more weapons from the shop and store them here!"
+            )
         weapon_store.description = "Currently equipped: " + str(player.weapon)
         weapon_store.set_footer(text="Do " + details["cmd_key"] + "equip (weapon name) to equip a weapon.")
         await util.reply(ctx, embed=weapon_store)
@@ -49,7 +54,7 @@ async def myweapons(ctx, *args, **details):
 async def unequip(ctx, _=None, **details):
     """
     [CMD_KEY]unequip
-    
+
     Unequips your current weapon
     """
 
@@ -68,11 +73,11 @@ async def unequip(ctx, _=None, **details):
     await util.reply(ctx, ":white_check_mark: **" + weapon.name_clean + "** unequipped!")
 
 
-@commands.command(args_pattern='S', aliases=["eq"])
+@commands.command(args_pattern="S", aliases=["eq"])
 async def equip(ctx, weapon_name, **details):
     """
     [CMD_KEY]equip (weapon name)
-    
+
     Equips a weapon from your weapon inventory.
     """
 
@@ -90,8 +95,10 @@ async def equip(ctx, weapon_name, **details):
     player.discard_stored_weapon(weapon)
     if player.owns_weapon(current_weapon.name):
         player.store_weapon(weapon)
-        raise util.BattleBananaException(ctx.channel, ("Can't put your current weapon into storage!\n"
-                                                       + "There is already a weapon with the same name stored!"))
+        raise util.BattleBananaException(
+            ctx.channel,
+            ("Can't put your current weapon into storage!\n" + "There is already a weapon with the same name stored!"),
+        )
 
     if current_weapon.w_id != weapons.NO_WEAPON_ID:
         player.store_weapon(current_weapon)
@@ -104,20 +111,21 @@ async def equip(ctx, weapon_name, **details):
 
 @misc.paginator
 def weapons_page(weapons_embed, weapon, **extras):
-    price_divisor = extras.get('price_divisor', 1)
-    weapons_embed.add_field(name=str(weapon),
-                            value='``' + util.format_number(weapon.price // price_divisor, full_precision=True,
-                                                            money=True) + '``')
+    price_divisor = extras.get("price_divisor", 1)
+    weapons_embed.add_field(
+        name=str(weapon),
+        value="``" + util.format_number(weapon.price // price_divisor, full_precision=True, money=True) + "``",
+    )
 
 
-@commands.command(args_pattern='PP?', aliases=["bt"])
+@commands.command(args_pattern="PP?", aliases=["bt"])
 @commands.imagecommand()
 async def battle(ctx, *args, **details):
     """
     [CMD_KEY]battle player (optional other player)
-    
+
     Battle someone!
-    
+
     Note! You don't gain any exp or reward from these battles!
     Please do not spam anyone with unwanted battles.
     """
@@ -144,11 +152,11 @@ async def battle(ctx, *args, **details):
     await battles.give_awards_for_battle(ctx.channel, battle_log)
 
 
-@commands.command(args_pattern='PC', aliases=("wager", "wb"))
+@commands.command(args_pattern="PC", aliases=("wager", "wb"))
 async def wagerbattle(ctx, receiver, money, **details):
     """
     [CMD_KEY]wagerbattle player amount
-    
+
     Money will not be taken from your account after you use this command.
     If you cannot afford to pay when the wager is accepted you will be forced
     to sell your weapons.
@@ -162,21 +170,31 @@ async def wagerbattle(ctx, receiver, money, **details):
         raise util.BattleBananaException(ctx.channel, "You can't afford this wager!")
 
     if len(receiver.received_wagers) >= gconf.THING_AMOUNT_CAP:
-        raise util.BattleBananaException(ctx.channel,
-                                         "**%s** wager inbox is full!" % receiver.get_name_possession_clean())
+        raise util.BattleBananaException(
+            ctx.channel, "**%s** wager inbox is full!" % receiver.get_name_possession_clean()
+        )
 
     battles.BattleRequest(sender, receiver, money)
 
-    await util.reply(ctx, ("**" + sender.name_clean + "** wagers **" + receiver.name_clean + "** ``"
-                           + util.format_number(money, full_precision=True,
-                                                money=True) + "`` that they will win in a battle!"))
+    await util.reply(
+        ctx,
+        (
+            "**"
+            + sender.name_clean
+            + "** wagers **"
+            + receiver.name_clean
+            + "** ``"
+            + util.format_number(money, full_precision=True, money=True)
+            + "`` that they will win in a battle!"
+        ),
+    )
 
 
-@commands.command(args_pattern='C?', aliases=["vw"])
+@commands.command(args_pattern="C?", aliases=["vw"])
 async def mywagers(ctx, page=1, **details):
     """
     [CMD_KEY]mywagers (page)
-    
+
     Lists your received wagers.
     """
 
@@ -185,34 +203,42 @@ async def mywagers(ctx, page=1, **details):
         sender = players.find_player(current_wager.sender_id)
         if not sender:
             return
-        wagers_embed.add_field(name="%d. Request from %s" % (extras["index"] + 1, sender.name_clean),
-                               value="<@%s> ``%s``" % (sender.id, util.format_money(current_wager.wager_amount)))
+        wagers_embed.add_field(
+            name="%d. Request from %s" % (extras["index"] + 1, sender.name_clean),
+            value="<@%s> ``%s``" % (sender.id, util.format_money(current_wager.wager_amount)),
+        )
 
     player = details["author"]
-    wager_list_embed = wager_page(player.received_wagers, page - 1,
-                                  title=player.get_name_possession_clean() + " Received Wagers",
-                                  footer_more="But wait there's more! Do %smywagers %d" % (
-                                      details["cmd_key"], page + 1),
-                                  empty_list="")
+    wager_list_embed = wager_page(
+        player.received_wagers,
+        page - 1,
+        title=player.get_name_possession_clean() + " Received Wagers",
+        footer_more="But wait there's more! Do %smywagers %d" % (details["cmd_key"], page + 1),
+        empty_list="",
+    )
 
     if len(player.received_wagers) != 0:
-        wager_list_embed.add_field(name="Actions",
-                                   value=("Do ``{0}acceptwager (number)`` to accept a wager \nor ``"
-                                          + "{0}declinewager (number)`` to decline").format(details["cmd_key"]),
-                                   inline=False)
+        wager_list_embed.add_field(
+            name="Actions",
+            value=(
+                "Do ``{0}acceptwager (number)`` to accept a wager \nor ``" + "{0}declinewager (number)`` to decline"
+            ).format(details["cmd_key"]),
+            inline=False,
+        )
     else:
-        wager_list_embed.add_field(name="No wagers received!",
-                                   value="Wager requests you get from other players will appear here.")
+        wager_list_embed.add_field(
+            name="No wagers received!", value="Wager requests you get from other players will appear here."
+        )
 
     await util.reply(ctx, embed=wager_list_embed)
 
 
-@commands.command(args_pattern='C', aliases=["aw"])
+@commands.command(args_pattern="C", aliases=["aw"])
 @commands.imagecommand()
 async def acceptwager(ctx, wager_index, **details):
     """
     [CMD_KEY]acceptwager (wager number)
-    
+
     Accepts a wager!
     """
     # TODO: Handle draws
@@ -234,16 +260,22 @@ async def acceptwager(ctx, wager_index, **details):
     wager_amount_str = util.format_number(wager.wager_amount, full_precision=True, money=True)
     total_transferred = wager.wager_amount
     if winner == sender:
-        wager_results = (":skull: **" + player.name_clean + "** lost to **"
-                         + sender.name_clean + "** and paid ``" + wager_amount_str + "``")
+        wager_results = (
+            ":skull: **"
+            + player.name_clean
+            + "** lost to **"
+            + sender.name_clean
+            + "** and paid ``"
+            + wager_amount_str
+            + "``"
+        )
         player.money -= wager.wager_amount
         sender.money += wager.wager_amount
         sender.wagers_won += 1
     elif winner == player:
         player.wagers_won += 1
         if sender.money - wager.wager_amount >= 0:
-            payback = ("**" + sender.name_clean + "** paid **" + player.name_clean + "** ``"
-                       + wager_amount_str + "``")
+            payback = "**" + sender.name_clean + "** paid **" + player.name_clean + "** ``" + wager_amount_str + "``"
             player.money += wager.wager_amount
             sender.money -= wager.wager_amount
         else:
@@ -265,11 +297,23 @@ async def acceptwager(ctx, wager_index, **details):
             amount_paid_str = util.format_number(amount_paid, full_precision=True, money=True)
 
             if weapons_sold == 0:
-                payback = ("**" + sender.name_clean + "** could not afford to pay and had no weapons to sell! \n``"
-                           + amount_paid_str + "`` is all they could pay.")
+                payback = (
+                    "**"
+                    + sender.name_clean
+                    + "** could not afford to pay and had no weapons to sell! \n``"
+                    + amount_paid_str
+                    + "`` is all they could pay."
+                )
             else:
-                payback = ("**" + sender.name_clean + "** could not afford to pay and had to sell "
-                           + str(weapons_sold) + " weapon" + ("s" if weapons_sold != 1 else "") + " \n")
+                payback = (
+                    "**"
+                    + sender.name_clean
+                    + "** could not afford to pay and had to sell "
+                    + str(weapons_sold)
+                    + " weapon"
+                    + ("s" if weapons_sold != 1 else "")
+                    + " \n"
+                )
                 if amount_paid != wager.wager_amount:
                     payback += "They were still only able to pay ``" + amount_paid_str + "``. \nPathetic."
                 else:
@@ -277,10 +321,9 @@ async def acceptwager(ctx, wager_index, **details):
             sender.money -= amount_paid
             player.money += amount_paid
             total_transferred = amount_paid
-        wager_results = (":sparkles: **"
-                         + player.name_clean
-                         + "** won against **"
-                         + sender.name_clean + "**!\n" + payback)
+        wager_results = (
+            ":sparkles: **" + player.name_clean + "** won against **" + sender.name_clean + "**!\n" + payback
+        )
     else:
         wager_results = "Against all the odds the wager ended in a draw!"
     stats.increment_stat(stats.Stat.MONEY_TRANSFERRED, total_transferred)
@@ -293,18 +336,18 @@ async def acceptwager(ctx, wager_index, **details):
         if winner.wagers_won == 2500:
             await awards.give_award(ctx.channel, winner, "2500Wagers")
     else:
-        await  awards.give_award(ctx.channel, player, "InconceivableWager")
-        await  awards.give_award(ctx.channel, sender, "InconceivableWager")
+        await awards.give_award(ctx.channel, player, "InconceivableWager")
+        await awards.give_award(ctx.channel, sender, "InconceivableWager")
     await battles.give_awards_for_battle(ctx.channel, battle_log)
     sender.save()
     player.save()
 
 
-@commands.command(args_pattern='C', aliases=["dw"])
+@commands.command(args_pattern="C", aliases=["dw"])
 async def declinewager(ctx, wager_index, **details):
     """
     [CMD_KEY]declinewager (wager number)
-    
+
     Declines a wager.
     """
 
@@ -325,14 +368,14 @@ async def declinewager(ctx, wager_index, **details):
 async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon="🔫", image_url=None, **_):
     """
     [CMD_KEY]createweapon "weapon name" "hit message" damage accy
-    
+
     Creates a weapon for the guild shop!
-    
+
     For extra customization you add the following:
-    
+
     (ranged) (icon) (image url)
-    
-    __Example__: 
+
+    __Example__:
     Basic Weapon:
         ``[CMD_KEY]createweapon "Laser" "FIRES THEIR LAZOR AT" 100 50``
         This creates a weapon named "Laser" with the hit message
@@ -344,8 +387,9 @@ async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon=
     """
 
     if len(weapons.get_weapons_for_server(ctx.guild)) >= gconf.THING_AMOUNT_CAP:
-        raise util.BattleBananaException(ctx.channel, "Sorry you've used all %s slots in your shop!"
-                                         % gconf.THING_AMOUNT_CAP)
+        raise util.BattleBananaException(
+            ctx.channel, "Sorry you've used all %s slots in your shop!" % gconf.THING_AMOUNT_CAP
+        )
 
     extras = {"melee": not ranged, "icon": icon}
     if image_url is not None:
@@ -356,13 +400,21 @@ async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon=
         await imagehelper.warn_on_invalid_image(ctx.channel)
 
     weapon = weapons.Weapon(name, hit_message, damage, accy, **extras, ctx=ctx)
-    await util.reply(ctx, (weapon.icon + " **" + weapon.name_clean + "** is available in the shop for "
-                           + util.format_number(weapon.price, money=True) + "!"))
+    await util.reply(
+        ctx,
+        (
+            weapon.icon
+            + " **"
+            + weapon.name_clean
+            + "** is available in the shop for "
+            + util.format_number(weapon.price, money=True)
+            + "!"
+        ),
+    )
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern="SS*")
-@commands.extras.dict_command(optional={"message/hit/hit_message": "S", "ranged": "B",
-                                        "icon": "S", "image": "S"})
+@commands.extras.dict_command(optional={"message/hit/hit_message": "S", "ranged": "B", "icon": "S", "image": "S"})
 async def editweapon(ctx, weapon_name, updates, **_):
     """
     [CMD_KEY]editweapon name (property value)+
@@ -416,7 +468,7 @@ async def editweapon(ctx, weapon_name, updates, **_):
             weapon.image_url = weapon.DEFAULT_IMAGE
             updates["image"] = None
             await imagehelper.warn_on_invalid_image(ctx.channel)
-        
+
         for weapon_property, update_result in updates.items():
             result += "``%s`` → %s\n" % (weapon_property, update_result)
 
@@ -424,11 +476,11 @@ async def editweapon(ctx, weapon_name, updates, **_):
         await util.reply(ctx, result)
 
 
-@commands.command(permission=Permission.SERVER_ADMIN, args_pattern='S')
+@commands.command(permission=Permission.SERVER_ADMIN, args_pattern="S")
 async def removeweapon(ctx, weapon_name, **_):
     """
     [CMD_KEY]removeweapon (weapon name)
-    
+
     Screw all the people that bought it :D
     """
 
@@ -454,8 +506,11 @@ async def resetweapons(ctx, **_):
 
     weapons_deleted = weapons.remove_all_weapons(ctx.guild)
     if weapons_deleted > 0:
-        await util.reply(ctx, ":wastebasket: Your weapon shop has been reset—**%d %s** deleted."
-                         % (weapons_deleted, util.s_suffix("weapon", weapons_deleted)))
+        await util.reply(
+            ctx,
+            ":wastebasket: Your weapon shop has been reset—**%d %s** deleted."
+            % (weapons_deleted, util.s_suffix("weapon", weapons_deleted)),
+        )
     else:
         await util.reply(ctx, "There's no weapons to delete!")
 
@@ -471,31 +526,56 @@ async def buy_weapon(weapon_name, **details):
     if customer.money - weapon.price < 0:
         await util.say(channel, ":anger: You can't afford that weapon.")
     elif weapon.price > customer.item_value_limit:
-        await util.say(channel, (":baby: Awwww. I can't sell you that.\n"
-                                 + "You can use weapons with a value up to **"
-                                 + util.format_number(customer.item_value_limit, money=True,
-                                                      full_precision=True) + "**"))
+        await util.say(
+            channel,
+            (
+                ":baby: Awwww. I can't sell you that.\n"
+                + "You can use weapons with a value up to **"
+                + util.format_number(customer.item_value_limit, money=True, full_precision=True)
+                + "**"
+            ),
+        )
     elif customer.equipped["weapon"] != weapons.NO_WEAPON_ID:
         if len(customer.inventory["weapons"]) < weapons.MAX_STORED_WEAPONS:
             if weapon.w_id not in customer.inventory["weapons"] and weapon.w_id != customer.equipped["weapon"]:
                 customer.store_weapon(weapon)
                 customer.money -= weapon.price
-                await util.say(channel, ("**" + customer.name_clean + "** bought a **" + weapon.name_clean + "** for "
-                                         + util.format_number(weapon.price, money=True, full_precision=True)
-                                         + "\n:warning: You have not equipped this weapon! Do **"
-                                         + details["cmd_key"] + "equip "
-                                         + weapon.name_clean.lower() + "** to equip this weapon."))
+                await util.say(
+                    channel,
+                    (
+                        "**"
+                        + customer.name_clean
+                        + "** bought a **"
+                        + weapon.name_clean
+                        + "** for "
+                        + util.format_number(weapon.price, money=True, full_precision=True)
+                        + "\n:warning: You have not equipped this weapon! Do **"
+                        + details["cmd_key"]
+                        + "equip "
+                        + weapon.name_clean.lower()
+                        + "** to equip this weapon."
+                    ),
+                )
             else:
-                raise util.BattleBananaException(channel,
-                                                 "Cannot store new weapon! You already have a weapon with the same name!")
+                raise util.BattleBananaException(
+                    channel, "Cannot store new weapon! You already have a weapon with the same name!"
+                )
         else:
             raise util.BattleBananaException(channel, "No free weapon slots!")
     else:
         customer.weapon = weapon
         customer.money -= weapon.price
-        await util.say(channel, ("**" + customer.name_clean + "** bought a **"
-                                 + weapon.name_clean + "** for " + util.format_number(weapon.price, money=True,
-                                                                                      full_precision=True)))
+        await util.say(
+            channel,
+            (
+                "**"
+                + customer.name_clean
+                + "** bought a **"
+                + weapon.name_clean
+                + "** for "
+                + util.format_number(weapon.price, money=True, full_precision=True)
+            ),
+        )
         await awards.give_award(channel, customer, "Spender", "Licence to kill!")
     customer.save()
 
@@ -510,33 +590,45 @@ async def sell_weapon(weapon_name, **details):
         weapon_to_sell = player.weapon
         player.weapon = weapons.NO_WEAPON_ID
     else:
-        weapon_to_sell = next((weapon for weapon in player.get_owned_weapons() if weapon.name.lower() == weapon_name),
-                              None)
+        weapon_to_sell = next(
+            (weapon for weapon in player.get_owned_weapons() if weapon.name.lower() == weapon_name), None
+        )
         if weapon_to_sell is None:
             raise util.BattleBananaException(channel, "Weapon not found!")
         player.discard_stored_weapon(weapon_to_sell)
 
     sell_price = weapon_to_sell.price // price_divisor
     player.money += sell_price
-    await util.say(channel, ("**" + player.name_clean + "** sold their trusty **" + weapon_to_sell.name_clean
-                             + "** for ``" + util.format_number(sell_price, money=True, full_precision=True) + "``"))
+    await util.say(
+        channel,
+        (
+            "**"
+            + player.name_clean
+            + "** sold their trusty **"
+            + weapon_to_sell.name_clean
+            + "** for ``"
+            + util.format_number(sell_price, money=True, full_precision=True)
+            + "``"
+        ),
+    )
     player.save()
 
 
 def weapon_info(weapon_name=None, **details):
     embed = details["embed"]
-    price_divisor = details.get('price_divisor', 1)
-    weapon = details.get('weapon')
+    price_divisor = details.get("price_divisor", 1)
+    weapon = details.get("weapon")
     if weapon is None:
         weapon = weapons.get_weapon_for_server(details["server_id"], weapon_name)
         if weapon is None:
             raise util.BattleBananaException(details["channel"], weapons.WEAPON_NOT_FOUND)
-    embed.title = weapon.icon + ' | ' + weapon.name_clean
+    embed.title = weapon.icon + " | " + weapon.name_clean
     embed.set_thumbnail(url=weapon.image_url)
-    embed.add_field(name='Damage', value=util.format_number(weapon.damage))
-    embed.add_field(name='Accuracy', value=util.format_number(weapon.accy * 100) + '%')
-    embed.add_field(name='Price',
-                    value=util.format_number(weapon.price // price_divisor, money=True, full_precision=True))
+    embed.add_field(name="Damage", value=util.format_number(weapon.damage))
+    embed.add_field(name="Accuracy", value=util.format_number(weapon.accy * 100) + "%")
+    embed.add_field(
+        name="Price", value=util.format_number(weapon.price // price_divisor, money=True, full_precision=True)
+    )
     embed.add_field(name="Hit Message", value=weapon.hit_message)
-    embed.set_footer(text='Image supplied by weapon creator.')
+    embed.set_footer(text="Image supplied by weapon creator.")
     return embed

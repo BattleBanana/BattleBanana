@@ -20,8 +20,9 @@ except ImportError:
 
 SPAM_TOLERANCE = 50
 # For awards in the first week. Not permanent.
-old_players = open('oldplayers.txt').read()  # For comeback award
-testers = open('testers.txt').read()  # For testers award
+old_players = open("oldplayers.txt").read()  # For comeback award
+testers = open("testers.txt").read()  # For testers award
+
 
 def get_responses():
     return json.load(open("dueutil/game/configs/daily.json", "r"))
@@ -29,14 +30,15 @@ def get_responses():
 
 def get_spam_level(player, message_content):
     """
-    Get's a spam level for a message using a 
+    Get's a spam level for a message using a
     fuzzy hash > 50% means it's probably spam
     """
 
     message_hash = ssdeep.hash(message_content)
     spam_level = 0
-    spam_levels = [ssdeep.compare(message_hash, prior_hash) for prior_hash in player.last_message_hashes if
-                   prior_hash is not None]
+    spam_levels = [
+        ssdeep.compare(message_hash, prior_hash) for prior_hash in player.last_message_hashes if prior_hash is not None
+    ]
     if len(spam_levels) > 0:
         spam_level = sum(spam_levels) / len(spam_levels)
     player.last_message_hashes.append(message_hash)
@@ -56,11 +58,11 @@ async def player_message(message, player, spam_level):
     """
     W.I.P. Function to allow a small amount of exp
     to be gained from messaging.
-    
+
     """
 
     def get_words():
-        return re.compile('\w+').findall(message.content)
+        return re.compile("\w+").findall(message.content)
 
     # Mention the old bot award
     if gconf.DEAD_BOT_ID in message.raw_mentions:
@@ -70,7 +72,6 @@ async def player_message(message, player, spam_level):
         await awards.give_award(message.channel, player, "ItsART")
 
     if progress_time(player) and spam_level < SPAM_TOLERANCE:
-
         if len(message.content) > 0:
             player.last_progress = time.time()
         else:
@@ -85,8 +86,12 @@ async def player_message(message, player, spam_level):
             await awards.give_award(message.channel, player, "Tester", ":bangbang: **Something went wrong...**")
         # Donor award
         if player.donor:
-            await awards.give_award(message.channel, player, "Donor",
-                                    "Donate to BattleBanana!!! :money_with_wings: :money_with_wings: :money_with_wings:")
+            await awards.give_award(
+                message.channel,
+                player,
+                "Donor",
+                "Donate to BattleBanana!!! :money_with_wings: :money_with_wings: :money_with_wings:",
+            )
         # DueUtil tech award
         if dbconn.conn()["dueutiltechusers"].count_documents({"_id": player.id}) > 0:
             if "DueUtilTech" not in player.awards:
@@ -144,7 +149,7 @@ async def check_for_level_up(ctx, player):
     while player.exp >= exp_for_next_level:
         player.exp -= exp_for_next_level
         player.level += 1
-        level_up_reward += (player.level * 10)
+        level_up_reward += player.level * 10
         player.money += level_up_reward
 
         stats.increment_stat(stats.Stat.PLAYERS_LEVELED)
@@ -172,12 +177,15 @@ async def manage_quests(message, player, spam_level):
         player.quest_day_start = 0
         util.logger.info("%s (%s) daily completed quests reset", player.name_assii, player.id)
 
-    # Testing   
+    # Testing
     if len(quests.get_server_quest_list(channel.guild)) == 0:
         quests.add_default_quest_to_server(message.guild)
     if quest_time(player) and spam_level < SPAM_TOLERANCE:
-        if quests.has_quests(channel) and len(
-                player.quests) < quests.MAX_ACTIVE_QUESTS and player.quests_completed_today < quests.MAX_DAILY_QUESTS:
+        if (
+            quests.has_quests(channel)
+            and len(player.quests) < quests.MAX_ACTIVE_QUESTS
+            and player.quests_completed_today < quests.MAX_DAILY_QUESTS
+        ):
             player.last_quest = time.time()
             quest = quests.get_random_quest_in_channel(channel)
             new_quest = await quests.ActiveQuest.create(quest.q_id, player)
@@ -197,22 +205,33 @@ async def check_for_recalls(ctx, player):
 
     current_weapon_id = player.equipped["weapon"]
 
-    weapons_to_recall = [weapon_id for weapon_id in player.inventory["weapons"] + [current_weapon_id]
-                         if (weapons.get_weapon_from_id(weapon_id).id == weapons.NO_WEAPON_ID
-                             and weapon_id != weapons.NO_WEAPON_ID)]
+    weapons_to_recall = [
+        weapon_id
+        for weapon_id in player.inventory["weapons"] + [current_weapon_id]
+        if (weapons.get_weapon_from_id(weapon_id).id == weapons.NO_WEAPON_ID and weapon_id != weapons.NO_WEAPON_ID)
+    ]
 
     if len(weapons_to_recall) == 0:
         return
     if current_weapon_id in weapons_to_recall:
         player.weapon = weapons.NO_WEAPON_ID
-    player.inventory["weapons"] = [weapon_id for weapon_id in player.inventory["weapons"] if
-                                   weapon_id not in weapons_to_recall]
+    player.inventory["weapons"] = [
+        weapon_id for weapon_id in player.inventory["weapons"] if weapon_id not in weapons_to_recall
+    ]
     recall_amount = sum([weapons.get_weapon_summary_from_id(weapon_id).price for weapon_id in weapons_to_recall])
     player.money += recall_amount
     player.save()
-    await util.reply(ctx, (
-            ":bangbang: " + ("One" if len(weapons_to_recall) == 1 else "Some") + " of your weapons has been recalled!\n"
-            + "You get a refund of ``" + util.format_number(recall_amount, money=True, full_precision=True) + "``"))
+    await util.reply(
+        ctx,
+        (
+            ":bangbang: "
+            + ("One" if len(weapons_to_recall) == 1 else "Some")
+            + " of your weapons has been recalled!\n"
+            + "You get a refund of ``"
+            + util.format_number(recall_amount, money=True, full_precision=True)
+            + "``"
+        ),
+    )
 
 
 async def check_for_missing_new_stats(player):
@@ -220,17 +239,17 @@ async def check_for_missing_new_stats(player):
     Check if the player have all the fields
     """
     if not hasattr(player, "prestige_level"):
-        player.__setstate__({'prestige_level': 0})
+        player.__setstate__({"prestige_level": 0})
     if not hasattr(player, "team"):
-        player.__setstate__({'team': None})
+        player.__setstate__({"team": None})
     if not hasattr(player, "team_invites"):
-        player.__setstate__({'team_invites': []})
+        player.__setstate__({"team_invites": []})
     if not hasattr(player, "weapon_hidden"):
-        player.__setstate__({'weapon_hidden': False})
+        player.__setstate__({"weapon_hidden": False})
     if not hasattr(player, "gamble_play"):
-        player.__setstate__({'gamble_play': False})
+        player.__setstate__({"gamble_play": False})
     if not hasattr(player, "last_played"):
-        player.__setstate__({'last_played': 0})
+        player.__setstate__({"last_played": 0})
 
 
 async def check_for_removed_stats(player):

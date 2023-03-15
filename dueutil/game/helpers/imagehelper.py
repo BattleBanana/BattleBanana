@@ -22,8 +22,10 @@ from ..customizations import _Themes
 try:
     from .speedup import quest_colorize_helper
 except ImportError:
+
     def quest_colorize_helper(*args):
         raise ImportError("Something broke, please tell Theelx#4980")
+
 
 """
 Worst code in the bot.
@@ -78,10 +80,10 @@ def set_opacity(image, opacity_level):
 def colourize(image, colours, intensity, **extras):
     image = image.copy()
     pixel_data = list(image.getdata())
-    threshold = extras.get('threshold', 0)
+    threshold = extras.get("threshold", 0)
     if not isinstance(colours, list):
         colours = [colours]
-    cycle_colours = extras.get('cycle_colours', image.size[0] // len(colours))
+    cycle_colours = extras.get("cycle_colours", image.size[0] // len(colours))
     if not isinstance(cycle_colours, list):
         cycle_colours = [cycle_colours]
     colour_index = -1
@@ -95,8 +97,9 @@ def colourize(image, colours, intensity, **extras):
             colour_index += 1
             colour = colours[colour_index % len(colours)]
         if sum(pixel) > threshold:
-            pixel_data[i] = tuple(
-                int(pi * (1 - intensity) + ci * intensity) for pi, ci in zip(pixel[:3], colour)) + pixel[3:]
+            pixel_data[i] = (
+                tuple(int(pi * (1 - intensity) + ci * intensity) for pi, ci in zip(pixel[:3], colour)) + pixel[3:]
+            )
         pixel_count += 1
     image.putdata(pixel_data)
     return image
@@ -130,23 +133,19 @@ async def check_url(url: str):
     otherwise return False.
     """
     try:
-        headers = {
-            "Range": "bytes=0-10",
-            "User-Agent": "BattleBanana",
-            "Accept": "*/*"
-        }
-        
+        headers = {"Range": "bytes=0-10", "User-Agent": "BattleBanana", "Accept": "*/*"}
+
         connector = util.get_vpn_connector()
         async with aiohttp.ClientSession(connector=connector) as session:
             async with session.get(url, headers=headers) as response:
-                return (response.status in range(200, 300)) and response.content_type.lower().startswith('image')
+                return (response.status in range(200, 300)) and response.content_type.lower().startswith("image")
     except asyncio.TimeoutError:
         util.logger.warning(f"Timeout error when checking url {url}")
     except Exception as e:
         util.logger.warning(f"Error when checking url {url}: {e}")
     finally:
         await session.close()
-    
+
     return False
 
 
@@ -160,9 +159,13 @@ async def is_url_image(url: str):
 
 async def warn_on_invalid_image(channel: discord.TextChannel):
     # A generic warning.
-    await util.say(channel,
-                (":warning: The image url provided does not seem to be correct!\n"
-                    + "The url must point directly to an image file such as <https://battlebanana.xyz/img/slime.png>."))
+    await util.say(
+        channel,
+        (
+            ":warning: The image url provided does not seem to be correct!\n"
+            + "The url must point directly to an image file such as <https://battlebanana.xyz/img/slime.png>."
+        ),
+    )
 
 
 async def load_image_url(url, **kwargs):
@@ -170,9 +173,11 @@ async def load_image_url(url, **kwargs):
         return None
     parsed_url = urlparse(url)
     do_not_compress = kwargs.get("raw", False)
-    if (parsed_url.hostname is not None
-            and "battlebanana.xyz" in parsed_url.hostname
-            and parsed_url.path.startswith("/imagecache/")):
+    if (
+        parsed_url.hostname is not None
+        and "battlebanana.xyz" in parsed_url.hostname
+        and parsed_url.path.startswith("/imagecache/")
+    ):
         # We don't want to download imagecache images again.
         filename = "assets" + parsed_url.path
         url = ""  # We don't want to cache any battlebanana.xyz stuff
@@ -213,7 +218,7 @@ def image_to_discord_file(image, filename):
     if image is None:
         return None
     with BytesIO() as image_binary:
-        image.save(image_binary, format='PNG')
+        image.save(image_binary, format="PNG")
         image_binary.seek(0)
         return discord.File(fp=image_binary, filename=filename)
 
@@ -239,8 +244,9 @@ async def level_up_screen(ctx, player, cash):
     draw = ImageDraw.Draw(image)
     draw.text((159, 18), str(level), "white", font=font_big)
     draw.text((127, 40), util.format_number(cash, money=True), "white", font=font_big)
-    await send_image(ctx, image, "s", file_name="level_up.png",
-                     content=e.LEVEL_UP + " **" + player.name_clean + "** Level Up!")
+    await send_image(
+        ctx, image, "s", file_name="level_up.png", content=e.LEVEL_UP + " **" + player.name_clean + "** Level Up!"
+    )
 
 
 async def new_quest(ctx, quest, player):
@@ -255,29 +261,33 @@ async def new_quest(ctx, quest, player):
     draw.text((72, 20), get_text_limit_len(draw, quest.info.task, font_med, 167), "white", font=font_med)
     level_text = " LEVEL " + str(math.trunc(quest.level))
     width = draw.textsize(level_text, font=font_big)[0]
-    draw.text((71, 39), get_text_limit_len(draw, quest.name,
-                                           font_big, 168 - width) + level_text, "white", font=font_big)
+    draw.text(
+        (71, 39), get_text_limit_len(draw, quest.name, font_big, 168 - width) + level_text, "white", font=font_big
+    )
     quest_index = len(player.quests)
     quest_bubble_position = (6, 6)
     quest_index_text = str(quest_index)
     quest_index_width = draw.textsize(quest_index_text, font=font_small)[0]
     draw.rectangle(
         (quest_bubble_position, (quest_bubble_position[0] + quest_index_width + 5, quest_bubble_position[1] + 11)),
-        fill="#2a52be", outline="#a1caf1")
+        fill="#2a52be",
+        outline="#a1caf1",
+    )
     draw.text((9, quest_bubble_position[1]), quest_index_text, "white", font=font_small)
-    
+
     return image
 
 
 async def new_quest_screen(ctx, quest, player):
     image = await new_quest(ctx, quest, player)
-    
-    await send_image(ctx, image, "s", file_name="new_quest.png",
-                     content=e.QUEST + " **" + player.name_clean + "** New Quest!")
+
+    await send_image(
+        ctx, image, "s", file_name="new_quest.png", content=e.QUEST + " **" + player.name_clean + "** New Quest!"
+    )
 
 
 async def awards_screen(ctx, player, page, **kwargs):
-    for_player = kwargs.get('is_player_sender', False)
+    for_player = kwargs.get("is_player_sender", False)
     image = awards_screen_template.copy()
 
     draw = ImageDraw.Draw(image)
@@ -306,9 +316,16 @@ async def awards_screen(ctx, player, page, **kwargs):
                 command = "myawards"
                 if not for_player:
                     command = "awards @User"
-                msg = ("+ " + str(len(player.awards) - (5 * (page + 1))) + " More. Do "
-                       + dueserverconfig.server_cmd_key(ctx.channel.guild) + command
-                       + " " + str(page + 2) + " for the next page.")
+                msg = (
+                    "+ "
+                    + str(len(player.awards) - (5 * (page + 1)))
+                    + " More. Do "
+                    + dueserverconfig.server_cmd_key(ctx.channel.guild)
+                    + command
+                    + " "
+                    + str(page + 2)
+                    + " for the next page."
+                )
             break
     msg = ""
     if player_award == 0:
@@ -318,8 +335,13 @@ async def awards_screen(ctx, player, page, **kwargs):
         msg = name + " doesn't have any awards!"
     width = draw.textsize(msg, font=font_small)[0]
     draw.text(((256 - width) / 2, 42 + 44 * count), msg, "white", font=font_small)
-    await send_image(ctx, image, "r", file_name="awards_list.png",
-                     content=":trophy: **" + player.get_name_possession_clean() + "** Awards!")
+    await send_image(
+        ctx,
+        image,
+        "r",
+        file_name="awards_list.png",
+        content=":trophy: **" + player.get_name_possession_clean() + "** Awards!",
+    )
 
 
 async def quests_screen(ctx, player, page):
@@ -352,8 +374,11 @@ async def quests_screen(ctx, player, page):
         quest_name = get_text_limit_len(draw, quest.name, font_med, 182 - level_width)
         draw.text((52, 47 + 44 * count), quest_name, DUE_BLACK, font=font_med)
         name_width = draw.textsize(quest_name, font=font_med)[0]
-        draw.rectangle(((53 + name_width, 48 + 44 * count), (50 + name_width + level_width, 48 + 44 * count + 11)),
-                       fill="#C5505B", outline="#83444A")
+        draw.rectangle(
+            ((53 + name_width, 48 + 44 * count), (50 + name_width + level_width, 48 + 44 * count + 11)),
+            fill="#C5505B",
+            outline="#83444A",
+        )
         draw.text((53 + name_width + 1, 48 + 44 * count), level, "white", font=font_small)
         home = "Unknown"
         quest_info = quest.info
@@ -368,14 +393,22 @@ async def quests_screen(ctx, player, page):
         quest_index_width = draw.textsize(quest_index_text, font=font_small)[0]
         draw.rectangle(
             (quest_bubble_position, (quest_bubble_position[0] + quest_index_width + 5, quest_bubble_position[1] + 11)),
-            fill="#2a52be", outline="#a1caf1")
+            fill="#2a52be",
+            outline="#a1caf1",
+        )
         draw.text((15, quest_bubble_position[1]), quest_index_text, "white", font=font_small)
         count += 1
         if count == 5:
             if quest_index != 0:
-                msg = ("+ " + str(len(player.quests) - (5 * (page + 1))) + " More. Do "
-                       + dueserverconfig.server_cmd_key(ctx.channel.guild)
-                       + "myquests " + str(page + 2) + " for the next page.")
+                msg = (
+                    "+ "
+                    + str(len(player.quests) - (5 * (page + 1)))
+                    + " More. Do "
+                    + dueserverconfig.server_cmd_key(ctx.channel.guild)
+                    + "myquests "
+                    + str(page + 2)
+                    + " for the next page."
+                )
             break
     msg = ""
     if quest_index == 0:
@@ -384,8 +417,13 @@ async def quests_screen(ctx, player, page):
         msg = "You don't have any quests!"
     width = draw.textsize(msg, font=font_small)[0]
     draw.text(((256 - width) / 2, 42 + 44 * count), msg, "white", font=font_small)
-    await send_image(ctx, image, "r", file_name="myquests.png",
-                     content=e.QUEST + " **" + player.get_name_possession_clean() + "** Quests!")
+    await send_image(
+        ctx,
+        image,
+        "r",
+        file_name="myquests.png",
+        content=e.QUEST + " **" + player.get_name_possession_clean() + "** Quests!",
+    )
 
 
 async def stats_screen(ctx, player):
@@ -426,7 +464,7 @@ async def stats_screen(ctx, player):
         pass
 
     if player.benfont:
-        name = get_text_limit_len(draw, player.name_clean.replace(u"\u2026", "..."), font_epic, 149)
+        name = get_text_limit_len(draw, player.name_clean.replace("\u2026", "..."), font_epic, 149)
         draw.text((96, 36), name, player.rank_colour, font=font_epic)
     else:
         name = get_text_limit_len(draw, player.name, font, 149)
@@ -474,9 +512,12 @@ async def stats_screen(ctx, player):
     draw.text((241 - width, 253), str(player.quests_won), main_colour, font=font)
     width = draw.textsize(str(player.wagers_won), font=font)[0]
     draw.text((241 - width, 267), str(player.wagers_won), main_colour, font=font)
-    wep = get_text_limit_len(draw, player.weapon.name if not hasattr(player,
-                                                                     "weapon_hidden") or not player.weapon_hidden else "Hidden",
-                             font, 95)
+    wep = get_text_limit_len(
+        draw,
+        player.weapon.name if not hasattr(player, "weapon_hidden") or not player.weapon_hidden else "Hidden",
+        font,
+        95,
+    )
     width = draw.textsize(wep, font=font)[0]
     draw.text((241 - width, 232), wep, main_colour, font=font)
 
@@ -498,8 +539,13 @@ async def stats_screen(ctx, player):
     elif len(player.awards) == 0:
         draw.text((38, 183), "None", side_colour, font=font)
 
-    await send_image(ctx, image, "r", file_name="myinfo.png",
-                     content=":pen_fountain: **" + player.get_name_possession_clean() + "** information.")
+    await send_image(
+        ctx,
+        image,
+        "r",
+        file_name="myinfo.png",
+        content=":pen_fountain: **" + player.get_name_possession_clean() + "** information.",
+    )
 
 
 async def quest_screen(ctx, quest):
@@ -608,7 +654,6 @@ async def googly_eyes(ctx, eye_descriptor):
         return eye_type.replace(modifier, "").strip()
 
     def random_eyes():
-
         """
         Returns a random eye postion
         """
@@ -616,7 +661,6 @@ async def googly_eyes(ctx, eye_descriptor):
         return secrets.choice(eye_types)
 
     def random_eye_type():
-
         """
         A random eye type pos + mods
         """
@@ -686,8 +730,9 @@ async def googly_eyes(ctx, eye_descriptor):
 
         draw.ellipse([x, y, x + width // 2, height], fill=border_colour)
         border_width = int(width // 20 * border_scale)
-        draw.ellipse([x + border_width, y + border_width, x + width // 2 - border_width, height - border_width],
-                     fill=eye_colour)
+        draw.ellipse(
+            [x + border_width, y + border_width, x + width // 2 - border_width, height - border_width], fill=eye_colour
+        )
         inner_width = width // 2 - 2 * border_width
         inner_height = height - y - 2 * border_width
         pupil_x_centre = x + (width // 2 - pupil_width) // 2
@@ -727,16 +772,16 @@ async def googly_eyes(ctx, eye_descriptor):
 
 def get_text_limit_len(draw, text, given_font, length):
     removed_chars = False
-    text = re.sub(r'[\u200B-\u200D\uFEFF]', '', text)
+    text = re.sub(r"[\u200B-\u200D\uFEFF]", "", text)
     for _ in range(0, len(text)):
         width = draw.textsize(text, font=given_font)[0]
         if width > length:
-            text = text[:len(text) - 1]
+            text = text[: len(text) - 1]
             removed_chars = True
         else:
             if removed_chars:
                 if given_font != font_epic:
-                    return text[:-1] + u"\u2026"
+                    return text[:-1] + "\u2026"
                 else:
                     return text[:-3] + "..."
             return text
@@ -759,7 +804,7 @@ def _load_profile_parts():
 def _init_banners():
     for banner in customizations.banners.values():
         if banner.image is None:
-            banner.image = set_opacity(Image.open('screens/info_banners/' + banner.image_name), 0.9)
+            banner.image = set_opacity(Image.open("screens/info_banners/" + banner.image_name), 0.9)
 
 
 _init_banners()

@@ -3,6 +3,7 @@ from typing import Set
 from dueutil import util
 from . import dbconn
 
+
 class BlacklistedUser:
     """
     A class to handle the blacklisted users
@@ -11,6 +12,7 @@ class BlacklistedUser:
         id (int): The user's ID
         reason (str): The reason for the blacklist
     """
+
     def __init__(self, id: int, reason: str):
         self.id = id
         self.reason = reason
@@ -20,11 +22,13 @@ class BlacklistedUser:
 
     def __repr__(self):
         return f"{self.id} - {self.reason}"
-    
+
     def __hash__(self) -> int:
         return hash(self.id)
 
+
 blacklist: Set[BlacklistedUser] = set()
+
 
 def add(id: int, reason: str) -> None:
     """
@@ -68,7 +72,7 @@ def __load() -> None:
     """
     for cursor in dbconn.get_blacklist():
         add(cursor["_id"], cursor["reason"])
-    
+
     util.logger.info("Loaded %s blacklisted users", len(blacklist))
 
 

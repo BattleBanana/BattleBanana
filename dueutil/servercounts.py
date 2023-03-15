@@ -32,22 +32,19 @@ async def __post_shard_count_bod(site, key):
 
 
 async def __post_shard_count_discord_labs(site, key):
-    payload = {"server_count": util.get_server_count(),
-               "shard_count": util.get_shard_count()}
+    payload = {"server_count": util.get_server_count(), "shard_count": util.get_shard_count()}
 
     await __post_server_count(site, key, payload)
 
 
 async def __post_shard_count_topgg(site, key):
-    payload = {"server_count": util.get_server_count(),
-               "shard_count": util.get_shard_count()}
+    payload = {"server_count": util.get_server_count(), "shard_count": util.get_shard_count()}
 
     await __post_server_count(site, key, payload)
 
 
 async def __post_server_count(site, key, payload):
-    headers = {"content-type": "application/json",
-               "authorization": key}
+    headers = {"content-type": "application/json", "authorization": key}
 
     async with aiohttp.ClientSession() as session:
         async with session.post(site, data=json.dumps(payload), headers=headers) as response:

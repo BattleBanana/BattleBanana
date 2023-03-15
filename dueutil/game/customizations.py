@@ -20,6 +20,7 @@ BACKGROUND_PATH = "assets/backgrounds/backgrounds.json"
 # Both Theme & Background used to be an extension of dict and DUObj
 # but had to be changed due to __slots__
 
+
 class Customization(BattleBananaObject):
     __slots__ = ["_customization_info"]
 
@@ -29,7 +30,7 @@ class Customization(BattleBananaObject):
         super().__init__(id, self["name"])
 
     def is_hidden(self):
-        return self._customization_info.get('hidden', False)
+        return self._customization_info.get("hidden", False)
 
     def __getattr__(self, name):
         """
@@ -56,10 +57,11 @@ class Theme(Customization):
     """
     Simple class to hold them data and
     be able to access DUObj methods
-    
+
     Needs item setting & copying to support
     overriding theme attributes
     """
+
     DEFAULT_THEME = "default"
 
     __slots__ = []
@@ -127,6 +129,7 @@ class Background(Customization):
     Unlike Theme copy() & setting background data should
     never be needed
     """
+
     DEFAULT_BACKGROUND = "default"
     __slots__ = ["image"]
 
@@ -136,7 +139,7 @@ class Background(Customization):
 
 
 class _Backgrounds(dict):
-    BASE_PATH = 'assets/backgrounds/'
+    BASE_PATH = "assets/backgrounds/"
 
     def __init__(self):
         super().__init__()
@@ -144,9 +147,9 @@ class _Backgrounds(dict):
 
     def _load_backgrounds(self):
         self.clear()
-        with open(self.BASE_PATH + 'stockbackgrounds.json') as stock_backgrounds_file:
+        with open(self.BASE_PATH + "stockbackgrounds.json") as stock_backgrounds_file:
             background_details = json.load(stock_backgrounds_file)
-            added_backgrounds_path = self.BASE_PATH + 'backgrounds.json'
+            added_backgrounds_path = self.BASE_PATH + "backgrounds.json"
             if os.path.isfile(added_backgrounds_path):
                 with open(added_backgrounds_path) as uploaded_backgrounds_file:
                     try:
@@ -162,14 +165,15 @@ class Banner(Customization):
     This class is based off a legacy class from DueUtil V1
     and hence does not properly Customization
     """
+
     DEFAULT_BANNER = "discord blue"
 
     def __init__(self, id, **banner_data):
         self.price = banner_data["price"]
-        self.donor = banner_data.get('donor', False)
-        self.admin_only = banner_data.get('admin_only', False)
-        self.mod_only = banner_data.get('mod_only', False)
-        self.unlock_level = banner_data.get('unlock_level', 0)
+        self.donor = banner_data.get("donor", False)
+        self.admin_only = banner_data.get("admin_only", False)
+        self.mod_only = banner_data.get("mod_only", False)
+        self.unlock_level = banner_data.get("unlock_level", 0)
         self.image = Image.open("assets/banners/" + banner_data["image"])
         self.image_name = banner_data["image"]
         self.icon = banner_data["icon"]
@@ -178,10 +182,9 @@ class Banner(Customization):
 
     def banner_restricted(self, player):
         member = player.to_member()
-        return ((not self.admin_only or self.admin_only
-                 and permissions.has_permission(member, Permission.BANANA_ADMIN))
-                and (not self.mod_only or self.mod_only
-                     and permissions.has_permission(member, Permission.BANANA_MOD)))
+        return (
+            not self.admin_only or self.admin_only and permissions.has_permission(member, Permission.BANANA_ADMIN)
+        ) and (not self.mod_only or self.mod_only and permissions.has_permission(member, Permission.BANANA_MOD))
 
     def can_use_banner(self, player):
         return (not self.donor or self.donor and player.donor) and self.banner_restricted(player)
@@ -194,7 +197,7 @@ class _Banners(dict):
 
     def _load_banners(self):
         self.clear()
-        with open('assets/banners/banners.json') as banners_file:
+        with open("assets/banners/banners.json") as banners_file:
             banners_details = json.load(banners_file)
             for banner_id, banner in banners_details.items():
                 self[banner_id] = Banner(banner_id, **banner)

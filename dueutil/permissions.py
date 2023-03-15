@@ -13,20 +13,37 @@ BattleBanana permissions
 
 @total_ordering
 class Permission(Enum):
-
     def __lt__(self, other):
         return permissions.index(self) < permissions.index(other)
 
     BANNED = (lambda member: has_special_permission(member, permissions[0]), "banned", "NoInherit")
-    DISCORD_USER = (lambda member: (has_special_permission(member, permissions[1])
-                                    or util.has_role_name(member, gconf.OPTOUT_ROLE)), "discord_user")
-    PLAYER = (lambda _: True, "player",)
-    SERVER_ADMIN = (lambda member: (member.guild_permissions.manage_guild
-                                    or util.has_role_name(member, gconf.COMMANDER_ROLE)), "server_admin",)
+    DISCORD_USER = (
+        lambda member: (
+            has_special_permission(member, permissions[1]) or util.has_role_name(member, gconf.OPTOUT_ROLE)
+        ),
+        "discord_user",
+    )
+    PLAYER = (
+        lambda _: True,
+        "player",
+    )
+    SERVER_ADMIN = (
+        lambda member: (member.guild_permissions.manage_guild or util.has_role_name(member, gconf.COMMANDER_ROLE)),
+        "server_admin",
+    )
     REAL_SERVER_ADMIN = (lambda member: member.guild_permissions.manage_guild, "real_server_admin")
-    BANANA_MOD = (lambda member: has_special_permission(member, permissions[5]), "BattleBanana_mod",)
-    BANANA_ADMIN = (lambda member: has_special_permission(member, permissions[6]), "BattleBanana_admin",)
-    BANANA_OWNER = (lambda member: has_special_permission(member, permissions[7]), "BattleBanana_owner",)
+    BANANA_MOD = (
+        lambda member: has_special_permission(member, permissions[5]),
+        "BattleBanana_mod",
+    )
+    BANANA_ADMIN = (
+        lambda member: has_special_permission(member, permissions[6]),
+        "BattleBanana_admin",
+    )
+    BANANA_OWNER = (
+        lambda member: has_special_permission(member, permissions[7]),
+        "BattleBanana_owner",
+    )
 
 
 permissions = [permission for permission in Permission]
@@ -40,7 +57,7 @@ def has_permission(member, permission):
         if permission.value[0](member) or has_special_permission(member, permission):
             return True
         elif len(permission.value) < 3:
-            for higher_permission in permissions[permissions.index(permission):]:
+            for higher_permission in permissions[permissions.index(permission) :]:
                 if higher_permission.value[0](member):
                     return True
     return False
@@ -52,15 +69,16 @@ def has_special_permission(member, permission):
 
 def give_permission(member, permission):
     if permission != Permission.PLAYER:
-        dbconn.conn()["permissions"].update_one({'_id': member.id}, {"$set": {'permission': permission.value[1]}},
-                                            upsert=True)
+        dbconn.conn()["permissions"].update_one(
+            {"_id": member.id}, {"$set": {"permission": permission.value[1]}}, upsert=True
+        )
         special_permissions[member.id] = permission.value[1]
     else:
         strip_permissions(member)
 
 
 def strip_permissions(member):
-    dbconn.conn()["permissions"].delete_many({'_id': member.id})
+    dbconn.conn()["permissions"].delete_many({"_id": member.id})
     if member.id in special_permissions:
         del special_permissions[member.id]
 

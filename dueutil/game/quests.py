@@ -31,22 +31,32 @@ QUEST_NOT_FOUND = "Quest not found!"
 class Quest(BattleBananaObject, SlotPickleMixin):
     """A class to hold info about a guild quest"""
 
-    __slots__ = ["server_id", "created_by",
-                 "task", "w_id", "spawn_chance", "image_url",
-                 "base_attack", "base_strg", "base_accy", "base_hp",
-                 "channel", "times_beaten"]
+    __slots__ = [
+        "server_id",
+        "created_by",
+        "task",
+        "w_id",
+        "spawn_chance",
+        "image_url",
+        "base_attack",
+        "base_strg",
+        "base_accy",
+        "base_hp",
+        "channel",
+        "times_beaten",
+    ]
 
     DEFAULT_IMAGE = "https://i.imgur.com/zOIJM9T.png"
 
     _BaseStats = namedtuple("BaseStats", ["attack", "strg", "accy", "hp"])
 
     def __init__(self, name, base_attack, base_strg, base_accy, base_hp, **extras):
-        message = extras.get('ctx', None)
-        given_spawn_chance = extras.get('spawn_chance', 4)
+        message = extras.get("ctx", None)
+        given_spawn_chance = extras.get("spawn_chance", 4)
 
         if message is not None:
             if message.guild in quests and name.lower() in quests[message.guild]:
-                    raise util.BattleBananaException(message.channel, "A foe with that name already exists on this guild!")
+                raise util.BattleBananaException(message.channel, "A foe with that name already exists on this guild!")
 
             if base_accy < 1 or base_attack < 1 or base_strg < 1:
                 raise util.BattleBananaException(message.channel, "No quest stats can be less than 1!")
@@ -63,20 +73,20 @@ class Quest(BattleBananaObject, SlotPickleMixin):
             self.server_id = message.guild.id
             self.created_by = message.author.id
         else:
-            self.server_id = extras.get('server_id', "DEFAULT")
+            self.server_id = extras.get("server_id", "DEFAULT")
             self.created_by = ""
 
         self.name = name
         super().__init__(self._quest_id(), **extras)
-        self.task = extras.get('task', "Battle a")
-        self.w_id = extras.get('weapon_id', weapons.NO_WEAPON_ID)
+        self.task = extras.get("task", "Battle a")
+        self.w_id = extras.get("weapon_id", weapons.NO_WEAPON_ID)
         self.spawn_chance = given_spawn_chance / 100
-        self.image_url = extras.get('image_url', Quest.DEFAULT_IMAGE)
+        self.image_url = extras.get("image_url", Quest.DEFAULT_IMAGE)
         self.base_attack = base_attack
         self.base_strg = base_strg
         self.base_accy = base_accy
         self.base_hp = base_hp
-        self.channel = extras.get('channel', "ALL")
+        self.channel = extras.get("channel", "ALL")
         self.times_beaten = 0
         self._add()
         self.save()
@@ -90,8 +100,12 @@ class Quest(BattleBananaObject, SlotPickleMixin):
             quests[self.id] = self
 
     def base_values(self):
-        return self._BaseStats(self.base_attack, self.base_strg,
-                               self.base_accy, self.base_hp, )
+        return self._BaseStats(
+            self.base_attack,
+            self.base_strg,
+            self.base_accy,
+            self.base_hp,
+        )
 
     def get_channel_mention(self, guild):
         if self.channel in ("ALL", "NONE"):
@@ -128,9 +142,20 @@ class Quest(BattleBananaObject, SlotPickleMixin):
 
 
 class ActiveQuest(Player, util.SlotPickleMixin):
-    __slots__ = ["level", "attack", "strg", "hp",
-                 "equipped", "q_id", "quester_id", "cash_iv",
-                 "quester", "accy", "exp", "total_exp"]
+    __slots__ = [
+        "level",
+        "attack",
+        "strg",
+        "hp",
+        "equipped",
+        "q_id",
+        "quester_id",
+        "cash_iv",
+        "quester",
+        "accy",
+        "exp",
+        "total_exp",
+    ]
 
     def __init__(self):
         pass  # Use async factory method create instead
@@ -150,10 +175,9 @@ class ActiveQuest(Player, util.SlotPickleMixin):
         """ The quests equipped items.
            Quests only have weapons but I may add more things a quest
            can have so a default dict will help with that """
-        active_quest.equipped = defaultdict(lambda: "default",
-                                            weapon=base_quest.w_id)
+        active_quest.equipped = defaultdict(lambda: "default", weapon=base_quest.w_id)
 
-        target_exp = random.uniform(quester.total_exp, quester.total_exp*1.8)
+        target_exp = random.uniform(quester.total_exp, quester.total_exp * 1.8)
         active_quest.level = gamerules.get_level_from_exp(target_exp)
         active_quest.total_exp = active_quest.exp = 0
         await active_quest._calculate_stats()
@@ -162,8 +186,7 @@ class ActiveQuest(Player, util.SlotPickleMixin):
         return active_quest
 
     async def _calculate_stats(self):
-        base_attack, base_strg, base_accy, base_hp = tuple(base_value / 1.7 for base_value in
-                                                           self.info.base_values())
+        base_attack, base_strg, base_accy, base_hp = tuple(base_value / 1.7 for base_value in self.info.base_values())
         self.attack = self.accy = self.strg = 1
         target_level = self.level
         self.level = 0
@@ -175,11 +198,13 @@ class ActiveQuest(Player, util.SlotPickleMixin):
             if self.exp >= exp_next_level:
                 self.level += 1
                 self.exp = 0
-            self.progress(increment * random.uniform(0.6, 1),
-                          increment * random.uniform(0.6, 1),
-                          increment * random.uniform(0.6, 1),
-                          max_attr=math.inf,
-                          max_exp=math.inf)
+            self.progress(
+                increment * random.uniform(0.6, 1),
+                increment * random.uniform(0.6, 1),
+                increment * random.uniform(0.6, 1),
+                max_attr=math.inf,
+                max_exp=math.inf,
+            )
             self.attack += -increment + increment * base_attack
             self.strg += -increment + increment * base_strg
             self.accy += -increment + increment * base_accy
@@ -203,8 +228,9 @@ class ActiveQuest(Player, util.SlotPickleMixin):
         stat_difference = (avg_stats - self.quester.get_avg_stat()) / avg_stats
         weapon_damage_difference = (quest_weapon.damage - quester_weapon.damage) / quest_weapon.damage
         weapon_accy_difference = (quest_weapon.accy - quester_weapon.accy) / quest_weapon.accy
-        return (stat_difference * 10 + weapon_damage_difference
-                / 3 + weapon_accy_difference * 5 + hp_difference * 5) / 20
+        return (
+            stat_difference * 10 + weapon_damage_difference / 3 + weapon_accy_difference * 5 + hp_difference * 5
+        ) / 20
 
     def get_threat_level(self, player):
         return [
@@ -212,7 +238,7 @@ class ActiveQuest(Player, util.SlotPickleMixin):
             player.strg / max(player.strg, self.strg),
             player.accy / max(player.accy, self.accy),
             self.money / max(player.money, self.money),
-            player.weapon.damage / max(player.weapon.damage, self.weapon.damage)
+            player.weapon.damage / max(player.weapon.damage, self.weapon.damage),
         ]
 
     @property
@@ -253,7 +279,7 @@ def get_quest_on_server(guild: discord.Guild, quest_name: str) -> Quest:
 def remove_quest_from_server(guild: discord.Guild, quest_name: str):
     quest_id = f"{guild.id}/{quest_name.lower()}"
     del quests[quest_id]
-    dbconn.get_collection_for_object(Quest).delete_one({'_id': quest_id})
+    dbconn.get_collection_for_object(Quest).delete_one({"_id": quest_id})
 
 
 def get_quest_from_id(quest_id: str) -> Quest:
@@ -271,22 +297,24 @@ def get_random_quest_in_channel(channel: discord.abc.GuildChannel):
 
 def add_default_quest_to_server(guild):
     default = secrets.choice(list(quests["DEFAULT"].values()))
-    Quest(default.name,
-          default.base_attack,
-          default.base_strg,
-          default.base_accy,
-          default.base_hp,
-          task=default.task,
-          weapon_id=default.w_id,
-          image_url=default.image_url,
-          spawn_chance=default.spawn_chance * 100,
-          server_id=guild.id,
-          no_save=False)
+    Quest(
+        default.name,
+        default.base_attack,
+        default.base_strg,
+        default.base_accy,
+        default.base_hp,
+        task=default.task,
+        weapon_id=default.w_id,
+        image_url=default.image_url,
+        spawn_chance=default.spawn_chance * 100,
+        server_id=guild.id,
+        no_save=False,
+    )
 
 
 def remove_all_quests(guild):
     if guild in quests:
-        result = dbconn.delete_objects(Quest, '%s/.*' % guild.id)
+        result = dbconn.delete_objects(Quest, "%s/.*" % guild.id)
         del quests[guild]
         return result.deleted_count
     return 0
@@ -300,32 +328,34 @@ def has_quests(place):
     return False
 
 
-REFERENCE_QUEST = Quest('Reference', 1, 1, 1, 1, server_id="", no_save=True)
+REFERENCE_QUEST = Quest("Reference", 1, 1, 1, 1, server_id="", no_save=True)
 
 
 def _load():
     def load_default_quests():
-        with open('dueutil/game/configs/defaultquests.json') as defaults_file:
+        with open("dueutil/game/configs/defaultquests.json") as defaults_file:
             defaults = json.load(defaults_file)
             for quest_data in defaults.values():
-                Quest(quest_data["name"],
-                      quest_data["baseAttack"],
-                      quest_data["baseStrg"],
-                      quest_data["baseAccy"],
-                      quest_data["baseHP"],
-                      task=quest_data["task"],
-                      weapon_id=weapons.stock_weapon(quest_data["weapon"]),
-                      image_url=quest_data["image"],
-                      spawn_chance=quest_data["spawnChance"],
-                      no_save=True)
+                Quest(
+                    quest_data["name"],
+                    quest_data["baseAttack"],
+                    quest_data["baseStrg"],
+                    quest_data["baseAccy"],
+                    quest_data["baseHP"],
+                    task=quest_data["task"],
+                    weapon_id=weapons.stock_weapon(quest_data["weapon"]),
+                    image_url=quest_data["image"],
+                    spawn_chance=quest_data["spawnChance"],
+                    no_save=True,
+                )
 
     load_default_quests()
     for quest in dbconn.get_collection_for_object(Quest).find():
-        loaded_quest: Quest = jsonpickle.decode(quest['data'])
+        loaded_quest: Quest = jsonpickle.decode(quest["data"])
 
         if isinstance(loaded_quest.channel, str) and loaded_quest.channel not in ("ALL", None, "NONE"):
             loaded_quest.channel = int(loaded_quest.channel)
-        
+
         if isinstance(loaded_quest.server_id, str):
             loaded_quest.server_id = int(loaded_quest.server_id)
 

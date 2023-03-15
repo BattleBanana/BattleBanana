@@ -25,17 +25,20 @@ from ..permissions import Permission
 async def permissions(ctx, **_):
     """
     [CMD_KEY]permissions
-    
+
     A check command for the permissions system.
-    
+
     """
 
     permissions_report = ""
     for permission in dueutil.permissions.permissions:
-        permissions_report += ("``" + permission.value[1] + "`` → "
-                               + (":white_check_mark:" if dueutil.permissions.has_permission(ctx.author,
-                                                                                             permission)
-                                  else ":no_entry:") + "\n")
+        permissions_report += (
+            "``"
+            + permission.value[1]
+            + "`` → "
+            + (":white_check_mark:" if dueutil.permissions.has_permission(ctx.author, permission) else ":no_entry:")
+            + "\n"
+        )
     await util.reply(ctx, permissions_report)
 
 
@@ -43,10 +46,10 @@ async def permissions(ctx, **_):
 async def add(ctx, first_number, second_number, **_):
     """
     [CMD_KEY]add (number) (number)
-    
+
     One of the first test commands for Due2
     I keep it for sentimental reasons
-    
+
     """
 
     result = first_number + second_number
@@ -57,13 +60,13 @@ async def add(ctx, first_number, second_number, **_):
 async def wish(*_, **details):
     """
     [CMD_KEY]wish
-    
+
     Does this increase the chance of a quest spawn?!
-    
+
     Who knows?
-    
+
     Me.
-    
+
     """
 
     player = details["author"]
@@ -74,18 +77,18 @@ async def wish(*_, **details):
 async def uploadbg(ctx, icon, name, description, url, price, submitter=None, **details):
     """
     [CMD_KEY]uploadbg (a bunch of args)
-    
+
     Takes:
       icon
       name
       desc
       url
       price
-      
+
     in that order.
-    
+
     NOTE: Make event/shitty backgrounds (xmas) etc **free** (so we can delete them)
-    
+
     """
 
     if not (util.char_is_emoji(icon) or util.is_server_emoji(ctx.guild, icon)):
@@ -93,7 +96,7 @@ async def uploadbg(ctx, icon, name, description, url, price, submitter=None, **d
 
     if name != util.filter_string(name):
         raise util.BattleBananaException(ctx.channel, "Invalid background name!")
-    name = re.sub(' +', ' ', name)
+    name = re.sub(" +", " ", name)
 
     if name.lower() in customizations.backgrounds:
         raise util.BattleBananaException(ctx.channel, "That background name has already been used!")
@@ -108,20 +111,25 @@ async def uploadbg(ctx, icon, name, description, url, price, submitter=None, **d
     if not imagehelper.has_dimensions(image, (256, 299)):
         raise util.BattleBananaException(ctx.channel, "Image must be ``256*299``!")
 
-    image_name = name.lower().replace(' ', '_') + ".png"
-    image.save('assets/backgrounds/' + image_name)
+    image_name = name.lower().replace(" ", "_") + ".png"
+    image.save("assets/backgrounds/" + image_name)
 
     try:
-        backgrounds_file = open(customizations.BACKGROUND_PATH, 'r+')
+        backgrounds_file = open(customizations.BACKGROUND_PATH, "r+")
     except IOError:
-        backgrounds_file = open(customizations.BACKGROUND_PATH, 'w+')
+        backgrounds_file = open(customizations.BACKGROUND_PATH, "w+")
     with backgrounds_file:
         try:
             backgrounds = json.load(backgrounds_file)
         except ValueError:
             backgrounds = {}
-        backgrounds[name.lower()] = {"name": name, "icon": icon, "description": description, "image": image_name,
-                                     "price": price}
+        backgrounds[name.lower()] = {
+            "name": name,
+            "icon": icon,
+            "description": description,
+            "image": image_name,
+            "price": price,
+        }
         backgrounds_file.seek(0)
         backgrounds_file.truncate()
         json.dump(backgrounds, backgrounds_file, indent=4)
@@ -141,7 +149,7 @@ async def testbg(ctx, url, **_):
     [CMD_KEY]testbg (image url)
 
     Tests if a background is the correct dimensions.
-    
+
     """
 
     image = await imagehelper.load_image_url(url)
@@ -150,24 +158,33 @@ async def testbg(ctx, url, **_):
 
     if not imagehelper.has_dimensions(image, (256, 299)):
         width, height = image.size
-        await util.reply(ctx, (":thumbsdown: **That does not meet the requirements!**\n"
-                               + "The tested image had the dimensions ``" + str(width)
-                               + "*" + str(height) + "``!\n"
-                               + "It should be ``256*299``!"))
+        await util.reply(
+            ctx,
+            (
+                ":thumbsdown: **That does not meet the requirements!**\n"
+                + "The tested image had the dimensions ``"
+                + str(width)
+                + "*"
+                + str(height)
+                + "``!\n"
+                + "It should be ``256*299``!"
+            ),
+        )
     else:
-        await util.reply(ctx, (":thumbsup: **That looks good to me!**\n"
-                               + "P.s. I can't check for low quality images!"))
+        await util.reply(
+            ctx, (":thumbsup: **That looks good to me!**\n" + "P.s. I can't check for low quality images!")
+        )
 
 
 @commands.command(permission=Permission.BANANA_MOD, args_pattern="S")
 async def deletebg(ctx, background_to_delete, **details):
     """
     [CMD_KEY]deletebg (background name)
-    
+
     Deletes a background.
-    
+
     DO NOT DO THIS UNLESS THE BACKGROUND IS FREE
-    
+
     """
     background_to_delete = background_to_delete.lower()
     if background_to_delete not in customizations.backgrounds:
@@ -177,7 +194,7 @@ async def deletebg(ctx, background_to_delete, **details):
     background = customizations.backgrounds[background_to_delete]
 
     try:
-        with open(customizations.BACKGROUND_PATH, 'r+') as backgrounds_file:
+        with open(customizations.BACKGROUND_PATH, "r+") as backgrounds_file:
             backgrounds = json.load(backgrounds_file)
             if background_to_delete not in backgrounds:
                 raise util.BattleBananaException(ctx.channel, "You cannot delete this background!")
@@ -186,33 +203,35 @@ async def deletebg(ctx, background_to_delete, **details):
             backgrounds_file.truncate()
             json.dump(backgrounds, backgrounds_file, indent=4)
     except IOError:
-        raise util.BattleBananaException(ctx.channel,
-                                         "Only uploaded backgrounds can be deleted and there are no uploaded backgrounds!")
+        raise util.BattleBananaException(
+            ctx.channel, "Only uploaded backgrounds can be deleted and there are no uploaded backgrounds!"
+        )
     os.remove("assets/backgrounds/" + background["image"])
 
     customizations.backgrounds._load_backgrounds()
 
     await util.reply(ctx, ":wastebasket: Background **" + background.name_clean + "** has been deleted!")
     await util.duelogger.info(
-        "**%s** deleted the background **%s**" % (details["author"].name_clean, background.name_clean))
+        "**%s** deleted the background **%s**" % (details["author"].name_clean, background.name_clean)
+    )
 
 
 def cleanup_code(content):
     """Automatically removes code blocks from the code."""
     # remove ```py\n```
-    if content.startswith('```') and content.endswith('```'):
-        return '\n'.join(content.split('\n')[1:-1])
+    if content.startswith("```") and content.endswith("```"):
+        return "\n".join(content.split("\n")[1:-1])
     else:
         return content
 
 
 def get_syntax_error(e):
     if e.text is None:
-        return f'```py\n{e.__class__.__name__}: {e}\n```'
+        return f"```py\n{e.__class__.__name__}: {e}\n```"
     return f'```py\n{e.text}{"^":>{e.offset}}\n{e.__class__.__name__}: {e}```'
 
 
-@commands.command(permission=Permission.BANANA_OWNER, args_pattern="S", aliases=['evaluate'])
+@commands.command(permission=Permission.BANANA_OWNER, args_pattern="S", aliases=["evaluate"])
 async def eval(ctx, body, **details):
     """
     [CMD_KEY]eval (code)
@@ -223,12 +242,12 @@ async def eval(ctx, body, **details):
     """
 
     env = {
-        'bot': util.clients[0],
-        'ctx': ctx,
-        'channel': ctx.channel,
-        'author': ctx.author,
-        'guild': ctx.guild,
-        'player': details["author"]
+        "bot": util.clients[0],
+        "ctx": ctx,
+        "channel": ctx.channel,
+        "author": ctx.author,
+        "guild": ctx.guild,
+        "player": details["author"],
     }
 
     env.update(globals())
@@ -252,8 +271,8 @@ async def eval(ctx, body, **details):
     try:
         exec(to_compile, env)
     except Exception as e:
-        return await util.edit_message(msg, content=f'```py\n{code_in}\n{e.__class__.__name__}: {e}\n```')
-    func = env['func']
+        return await util.edit_message(msg, content=f"```py\n{code_in}\n{e.__class__.__name__}: {e}\n```")
+    func = env["func"]
     try:
         with redirect_stdout(stdout):
             ret = await func()
@@ -263,17 +282,17 @@ async def eval(ctx, body, **details):
         value = stdout.getvalue()
         t2 = time.time()
         timep = f"#{(round((t2 - t1) * 1000000)) / 1000} ms"
-        await util.edit_message(msg, content=f'```py\n{code_in}\n{value}{traceback.format_exc()}\n{timep}\n```')
+        await util.edit_message(msg, content=f"```py\n{code_in}\n{value}{traceback.format_exc()}\n{timep}\n```")
     else:
         value = stdout.getvalue()
 
         if ret is None:
             if value:
-                await util.edit_message(msg, content=f'```py\n{code_in}\n{value}\n{timep}\n```')
+                await util.edit_message(msg, content=f"```py\n{code_in}\n{value}\n{timep}\n```")
             else:
                 await util.edit_message(msg, content=f"```py\n{code_in}\n{timep}\n```")
         else:
-            await util.edit_message(msg, content=f'```py\n{code_in}\n{value}{ret}\n{timep}\n```')
+            await util.edit_message(msg, content=f"```py\n{code_in}\n{value}{ret}\n{timep}\n```")
 
 
 @commands.command(permission=Permission.BANANA_OWNER, args_pattern="S?", hidden=True)
@@ -301,7 +320,8 @@ async def generatecode(ctx, value, count=1, show=True, **details):
         code_embed = discord.Embed(title="New codes!", type="rich", colour=gconf.DUE_COLOUR)
         code_embed.add_field(name="Codes:", value="\n".join([code.code for code in new_codes]))
         code_embed.set_footer(
-            text="These codes can only be used once! Use %sredeem (code) to redeem the prize!" % (details["cmd_key"]))
+            text="These codes can only be used once! Use %sredeem (code) to redeem the prize!" % (details["cmd_key"])
+        )
         await util.reply(ctx, embed=code_embed)
 
 
@@ -318,9 +338,13 @@ async def showcodes(ctx, page=1, **details):
         raise util.BattleBananaException(ctx.channel, "Page not found")
 
     code_embed = discord.Embed(title="New codes!", type="rich", colour=gconf.DUE_COLOUR)
-    code_embed.add_field(name="Codes:", value="\n".join([code.code for code in paged_codes]) if len(paged_codes) != 0 else "No code to display!")
+    code_embed.add_field(
+        name="Codes:",
+        value="\n".join([code.code for code in paged_codes]) if len(paged_codes) != 0 else "No code to display!",
+    )
     code_embed.set_footer(
-        text="These codes can only be used once! Use %sredeem (code) to redeem the prize!" % (details["cmd_key"]))
+        text="These codes can only be used once! Use %sredeem (code) to redeem the prize!" % (details["cmd_key"])
+    )
     await util.reply(ctx, embed=code_embed)
 
 
@@ -347,7 +371,7 @@ async def redeem(ctx, code, **details):
 async def sudo(ctx, victim, command, **_):
     """
     [CMD_KEY]sudo victim command
-    
+
     Infect a victims mind to make them run any command you like!
     """
 
@@ -367,8 +391,9 @@ async def sudo(ctx, victim, command, **_):
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PC")
 async def setpermlevel(ctx, player, level, **_):
     if dueutil.permissions.get_special_permission(ctx.author) <= dueutil.permissions.get_special_permission(player):
-        raise util.BattleBananaException(ctx.channel,
-                                            "You cannot change the permissions for someone with a higher or equal permission level to you!")
+        raise util.BattleBananaException(
+            ctx.channel, "You cannot change the permissions for someone with a higher or equal permission level to you!"
+        )
 
     member = player.to_member(ctx.guild)
     permission_index = level - 1
@@ -379,8 +404,7 @@ async def setpermlevel(ctx, player, level, **_):
             raise util.BattleBananaException(ctx.channel, "You do not have permission to set this permission")
 
         dueutil.permissions.give_permission(member, permission)
-        await util.reply(ctx,
-                         "**" + player.name_clean + "** permission level set to ``" + permission.value[1] + "``.")
+        await util.reply(ctx, "**" + player.name_clean + "** permission level set to ``" + permission.value[1] + "``.")
         if permission == Permission.BANANA_MOD:
             await awards.give_award(ctx.channel, player, "Mod", "Become an mod!")
             await util.duelogger.info("**%s** is now a BattleBanana mod! (%s)" % (player.name_clean, str(player.id)))
@@ -400,8 +424,9 @@ async def setpermlevel(ctx, player, level, **_):
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="P", aliases=["giveban"])
 async def ban(ctx, player, **_):
     if dueutil.permissions.get_special_permission(ctx.author) <= dueutil.permissions.get_special_permission(player):
-        raise util.BattleBananaException(ctx.channel,
-                                            "You cannot ban someone with a higher or equal permission level to you!")
+        raise util.BattleBananaException(
+            ctx.channel, "You cannot ban someone with a higher or equal permission level to you!"
+        )
 
     dueutil.permissions.give_permission(player.to_member(ctx.guild), Permission.BANNED)
     await util.reply(ctx, emojis.MACBAN + " **" + player.name_clean + "** banned!")
@@ -425,8 +450,8 @@ async def bans(ctx, page=1, **_):
     string = ""
 
     start = (page - 1) * 10
-    for cursor in dbconn.conn()['permissions'].find({'permission': "banned"}, {'_id': 1}).skip(start).limit(10):
-        string += "<@%s> (%s)\n" % (cursor['_id'], cursor['_id'])
+    for cursor in dbconn.conn()["permissions"].find({"permission": "banned"}, {"_id": 1}).skip(start).limit(10):
+        string += "<@%s> (%s)\n" % (cursor["_id"], cursor["_id"])
 
     bans_embed.add_field(name="There is what I collected about bad people:", value=string or "Nobody is banned!")
 
@@ -460,7 +485,9 @@ async def givecash(ctx, amount, *players, **_):
         if amount >= 0:
             to_send += "Added ``" + amount_str + "`` to **" + player.get_name_possession_clean() + "** account!\n"
         else:
-            to_send += "Subtracted ``" + amount_str + "`` from **" + player.get_name_possession_clean() + "** account!\n"
+            to_send += (
+                "Subtracted ``" + amount_str + "`` from **" + player.get_name_possession_clean() + "** account!\n"
+            )
         player.save()
 
     await util.reply(ctx, to_send)
@@ -494,10 +521,10 @@ async def giveexp(ctx, player, exp, **_):
     if exp < 0.1:
         raise util.BattleBananaException(ctx.channel, "The minimum exp that can be given is 0.1!")
     increase_stat = exp / 300
-    player.progress(increase_stat, increase_stat, increase_stat,
-                    max_exp=math.inf, max_attr=math.inf)
-    await util.reply(ctx, "**%s** has been given **%s** exp!"
-                     % (player.name_clean, util.format_number(exp, full_precision=True)))
+    player.progress(increase_stat, increase_stat, increase_stat, max_exp=math.inf, max_attr=math.inf)
+    await util.reply(
+        ctx, "**%s** has been given **%s** exp!" % (player.name_clean, util.format_number(exp, full_precision=True))
+    )
     await game.check_for_level_up(ctx, player)
     player.save()
 
@@ -513,7 +540,7 @@ async def updateleaderboard(ctx, **_):
 async def updatebot(ctx, **_):
     """
     [CMD_KEY]updatebot
-    
+
     Updates BattleBanana to the latest version.
     """
 
@@ -530,11 +557,18 @@ async def updatebot(ctx, **_):
         update_result = "No output."
     update_embed = discord.Embed(title=":gear: Updating BattleBanana!", type="rich", color=gconf.DUE_COLOUR)
     update_embed.description = "Pulling lastest version from **github**!"
-    update_embed.add_field(name='Changes', value='```' + update_result[:1018] + '```', inline=False)
+    update_embed.add_field(name="Changes", value="```" + update_result[:1018] + "```", inline=False)
     await util.reply(ctx, embed=update_embed)
     update_result = update_result.strip()
-    if not (update_result.endswith("is up to date.") or update_result.endswith("up-to-date.") or update_result == "Something went wrong!"):
-        await util.clients[0].change_presence(activity=discord.Activity(name="BattleBanana update...", type=discord.ActivityType.watching), status=discord.Status.idle)
+    if not (
+        update_result.endswith("is up to date.")
+        or update_result.endswith("up-to-date.")
+        or update_result == "Something went wrong!"
+    ):
+        await util.clients[0].change_presence(
+            activity=discord.Activity(name="BattleBanana update...", type=discord.ActivityType.watching),
+            status=discord.Status.idle,
+        )
         await util.duelogger.concern("BattleBanana updating!")
         await util.run_script("start.sh")
 
@@ -543,7 +577,10 @@ async def updatebot(ctx, **_):
 async def stopbot(ctx, **_):
     await util.reply(ctx, ":wave: Stopping BattleBanana!")
     await util.duelogger.concern("BattleBanana shutting down!")
-    await util.clients[0].change_presence(activity=discord.Activity(name="BattleBanana stop...", type=discord.ActivityType.watching), status=discord.Status.idle)
+    await util.clients[0].change_presence(
+        activity=discord.Activity(name="BattleBanana stop...", type=discord.ActivityType.watching),
+        status=discord.Status.idle,
+    )
     os._exit(0)
 
 
@@ -551,7 +588,10 @@ async def stopbot(ctx, **_):
 async def restartbot(ctx, **_):
     await util.reply(ctx, ":ferris_wheel: Restarting BattleBanana!")
     await util.duelogger.concern("BattleBanana restarting!!")
-    await util.clients[0].change_presence(activity=discord.Activity(name="BattleBanana restart...", type=discord.ActivityType.watching), status=discord.Status.idle)
+    await util.clients[0].change_presence(
+        activity=discord.Activity(name="BattleBanana restart...", type=discord.ActivityType.watching),
+        status=discord.Status.idle,
+    )
     await util.run_script("start.sh")
 
 
@@ -569,12 +609,12 @@ async def meminfo(ctx, **_):
 async def ping(ctx, **_):
     """
     [CMD_KEY]ping
-    
+
     Pong! Gives you the response time.
     """
     message = await util.reply(ctx, ":ping_pong:")
     t1 = time.time()
-    dbconn.db.command('ping')
+    dbconn.db.command("ping")
     t2 = time.time()
     dbms = round((t2 - t1) * 1000)
 
@@ -602,7 +642,7 @@ async def pong(ctx, **_):
     """
     message = await util.reply(ctx, ":ping_pong:")
     t1 = time.time()
-    dbconn.db.command('ping')
+    dbconn.db.command("ping")
     t2 = time.time()
     dbms = round((t2 - t1) * 1000)
 
@@ -615,7 +655,7 @@ async def pong(ctx, **_):
         embed.add_field(name="API Latency:", value=f"`{latency}ms`")
     except OverflowError:
         embed.add_field(name="API Latency:", value="``NaN``")
-    
+
     embed.add_field(name="Bot Latency:", value=f"`{apims}ms`")
 
     embed.add_field(name="Database Latency:", value=f"``{dbms}ms``", inline=False)
@@ -631,9 +671,12 @@ async def vote(ctx, **_):
     """
 
     vote_embed = discord.Embed(title="Vote for your favorite Discord Bot", type="rich", colour=gconf.DUE_COLOUR)
-    vote_embed.add_field(name="Vote:", value="[top.gg](https://top.gg/bot/464601463440801792/vote)\n"
-                                        "[discordbotlist.com](https://discordbotlist.com/bots/battlebanana/upvote)\n"
-                                        "[bots.ondiscord.xyz](https://bots.ondiscord.xyz/bots/464601463440801792)")
+    vote_embed.add_field(
+        name="Vote:",
+        value="[top.gg](https://top.gg/bot/464601463440801792/vote)\n"
+        "[discordbotlist.com](https://discordbotlist.com/bots/battlebanana/upvote)\n"
+        "[bots.ondiscord.xyz](https://bots.ondiscord.xyz/bots/464601463440801792)",
+    )
     vote_embed.set_footer(text="You will receive your reward shortly after voting! (Up to 5 minutes)")
 
     await util.reply(ctx, embed=vote_embed)

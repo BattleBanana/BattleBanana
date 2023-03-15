@@ -14,15 +14,18 @@ _LocalLeaderboard = namedtuple("LocalLeaderboard", ["updated", "data"])
 
 
 def calculate_player_rankings(rank_name, sort_function, reverse=True):
-    ranked_players = sorted(filter(lambda player: player.id != util.gconf.DEAD_BOT_ID, players.players.values()),
-                            key=sort_function, reverse=reverse)
+    ranked_players = sorted(
+        filter(lambda player: player.id != util.gconf.DEAD_BOT_ID, players.players.values()),
+        key=sort_function,
+        reverse=reverse,
+    )
 
     leaderboards[rank_name] = (tuple(player.id for player in ranked_players), sort_function, reverse)
 
     ranks = []
     for rank, player_id in enumerate(leaderboards[rank_name][0]):
         ranks.append({"rank": rank + 1, "player_id": player_id})
-    
+
     if len(ranks) > 0:
         db = dbconn.conn()
         db.drop_collection(rank_name)
@@ -45,8 +48,11 @@ def get_local_leaderboard(guild, rank_name):
     rankings = get_leaderboard(rank_name)
     if rankings is not None:
         rankings = list(
-            filter(lambda player_id: guild.get_member(player_id) is not None and player_id != util.gconf.DEAD_BOT_ID,
-                   rankings))
+            filter(
+                lambda player_id: guild.get_member(player_id) is not None and player_id != util.gconf.DEAD_BOT_ID,
+                rankings,
+            )
+        )
         return _LocalLeaderboard(updated=last_leaderboard_update, data=rankings)
 
 

@@ -12,7 +12,7 @@ General config for a particular guild
 
 
 def update_server_config(guild, **update):
-    dbconn.conn()["serverconfigs"].update_one({'_id': guild.id}, {"$set": update}, upsert=True)
+    dbconn.conn()["serverconfigs"].update_one({"_id": guild.id}, {"$set": update}, upsert=True)
 
 
 def mute_level(channel):
@@ -42,7 +42,7 @@ def set_command_whitelist(channel, command_list):
 def mute_channel(channel, **options):
     key = f"{channel.guild.id}/{channel.id}"
     prior_mute_level = mute_level(channel)
-    new_level = options.get('mute_all', False)
+    new_level = options.get("mute_all", False)
     if prior_mute_level != new_level:
         muted_channels[key] = new_level
         update_server_config(channel.guild, **{"muted_channels": muted_channels[channel.guild]})
@@ -80,8 +80,12 @@ def _load():
             muted_channels[server_id] = config["muted_channels"]
         if "command_whitelist" in config:
             command_whitelist[server_id] = config["command_whitelist"]
-    util.logger.info("%d guild keys, %d muted channels, and %d whitelists loaded",
-                     len(server_keys), len(muted_channels), len(command_whitelist))
+    util.logger.info(
+        "%d guild keys, %d muted channels, and %d whitelists loaded",
+        len(server_keys),
+        len(muted_channels),
+        len(command_whitelist),
+    )
 
 
 _load()

@@ -14,7 +14,7 @@ def item_preview(thing_info_preview):
     """
     Generic mything command (time saver)
     Pass function that returns a dict
-    
+
     Expects:
       thing_type
       thing_lister
@@ -39,19 +39,36 @@ def item_preview(thing_info_preview):
             page -= 1
             thing_list = things_info["thing_list"]
             title = player.get_name_possession_clean() + " " + thing_type.title() + "s"
-            thing_embed = things_info["thing_lister"](thing_list, page, title, price_divisor=4 / 3,
-                                                      footer_more="But wait there's more! Do " + details["cmd_key"] +
-                                                                  things_info["my_command"] + " " + str(page + 2))
+            thing_embed = things_info["thing_lister"](
+                thing_list,
+                page,
+                title,
+                price_divisor=4 / 3,
+                footer_more="But wait there's more! Do "
+                + details["cmd_key"]
+                + things_info["my_command"]
+                + " "
+                + str(page + 2),
+            )
             await util.reply(ctx, embed=thing_embed)
         else:
             thing_name = page.lower()
             thing = things_info["thing_getter"](thing_name)
             if thing is None:
                 raise util.BattleBananaException(ctx.channel, thing_type.title() + " not found!")
-            thing_embed = things_info["thing_info"](thing_name, **details,
-                                                    embed=discord.Embed(type="rich", color=gconf.DUE_COLOUR))
-            thing_embed.set_footer(text="Do " + details["cmd_key"] + things_info[
-                "set_command"] + " " + thing.name + " to use this " + thing_type + "!")
+            thing_embed = things_info["thing_info"](
+                thing_name, **details, embed=discord.Embed(type="rich", color=gconf.DUE_COLOUR)
+            )
+            thing_embed.set_footer(
+                text="Do "
+                + details["cmd_key"]
+                + things_info["set_command"]
+                + " "
+                + thing.name
+                + " to use this "
+                + thing_type
+                + "!"
+            )
             await util.reply(ctx, embed=thing_embed)
 
     return mything
@@ -59,8 +76,8 @@ def item_preview(thing_info_preview):
 
 def item_setter(item_info_setter):
     """
-    Generic setthing command 
-    
+    Generic setthing command
+
     Excects func that returns dict with:
       thing_type
       thing_inventory_slot
@@ -80,8 +97,7 @@ def item_setter(item_info_setter):
             # This should be a property returning the 'thing' object
             thing = getattr(player, thing_type)
             player.save()
-            await util.reply(ctx,
-                             ":white_check_mark: " + thing_type.title() + " set to **" + thing.name_clean + "**")
+            await util.reply(ctx, ":white_check_mark: " + thing_type.title() + " set to **" + thing.name_clean + "**")
         else:
             raise util.BattleBananaException(ctx.channel, thing_type.title() + " not found!")
 

@@ -33,7 +33,7 @@ async def process_votes():
 
                 player = players.find_player(user_id)
                 if player is None:
-                    dbconn.conn()["Votes"].delete_one({'_id': vote_id})
+                    dbconn.conn()["Votes"].delete_one({"_id": vote_id})
                     continue
 
                 reward = DAILY_AMOUNT * player.level * player.prestige_multiplicator()
@@ -44,7 +44,7 @@ async def process_votes():
 
                 client.run_task(notify_complete, user_id, vote, reward)
 
-                dbconn.conn()["Votes"].delete_one({'_id': vote_id})
+                dbconn.conn()["Votes"].delete_one({"_id": vote_id})
 
                 embed = Embed(title="New vote", type="rich", colour=gconf.DUE_COLOUR)
                 embed.add_field(name="Voter: ", value=user_id)

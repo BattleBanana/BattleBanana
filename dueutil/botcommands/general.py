@@ -73,8 +73,9 @@ def _should_show_in_shop(customization):
 
 
 def filter_customizations(customization_items):
-    items_hidden_removed = [customization for customization
-                            in customization_items if _should_show_in_shop(customization)]
+    items_hidden_removed = [
+        customization for customization in customization_items if _should_show_in_shop(customization)
+    ]
     items_hidden_removed.sort(key=_shop_sort)
     return items_hidden_removed
 
@@ -83,21 +84,26 @@ def shop_weapons_list(page, **details):
     shop_weapons = list(weapons.get_weapons_for_server(details["server"]).values())
     shop_weapons.remove(weapons.NO_WEAPON)
     shop_weapons.sort(key=lambda weapon: weapon.price)
-    shop_list = weap_cmds.weapons_page(shop_weapons, page, "BattleBanana's Weapon Shop!",
-                                       footer_more=("But wait there's more! Do "
-                                                    + details["cmd_key"] + "shop weapons " + str(page + 2)),
-                                       footer_end=('Want more? Ask an admin on '
-                                                   + details["server_name"] + ' to add some!'))
+    shop_list = weap_cmds.weapons_page(
+        shop_weapons,
+        page,
+        "BattleBanana's Weapon Shop!",
+        footer_more=("But wait there's more! Do " + details["cmd_key"] + "shop weapons " + str(page + 2)),
+        footer_end=("Want more? Ask an admin on " + details["server_name"] + " to add some!"),
+    )
     return shop_list
 
 
 def shop_theme_list(page, **details):
     themes = list(customizations.get_themes().values())
     themes = filter_customizations(themes)
-    shop_list = player_cmds.theme_page(themes, page, "BattleBanana's Theme Shop!",
-                                       footer_more=("But wait there's more! Do "
-                                                    + details["cmd_key"] + "shop themes " + str(page + 2)),
-                                       footer_end='More themes coming soon!')
+    shop_list = player_cmds.theme_page(
+        themes,
+        page,
+        "BattleBanana's Theme Shop!",
+        footer_more=("But wait there's more! Do " + details["cmd_key"] + "shop themes " + str(page + 2)),
+        footer_end="More themes coming soon!",
+    )
     return shop_list
 
 
@@ -105,10 +111,13 @@ def shop_background_list(page, **details):
     backgrounds = list(customizations.backgrounds.values())
     backgrounds = filter_customizations(backgrounds)
     # Allow for hidden backgrounds (only used for certain themes - probably won't need for other things)
-    shop_list = player_cmds.background_page(backgrounds, page, "BattleBanana's Background Shop!",
-                                            footer_more="But wait there's more! Do "
-                                                        + details["cmd_key"] + "shop bgs " + str(page + 2),
-                                            footer_end='More backgrounds coming soon!')
+    shop_list = player_cmds.background_page(
+        backgrounds,
+        page,
+        "BattleBanana's Background Shop!",
+        footer_more="But wait there's more! Do " + details["cmd_key"] + "shop bgs " + str(page + 2),
+        footer_end="More backgrounds coming soon!",
+    )
     return shop_list
 
 
@@ -116,35 +125,48 @@ def shop_banner_list(page, **details):
     banners = list(customizations.banners.values())
     banners = [banner for banner in banners if banner.can_use_banner(details["author"]) and banner.id != DEFAULT_BANNER]
     banners.sort(key=_shop_sort)
-    shop_list = player_cmds.banner_page(banners, page, "BattleBanana's Banner Shop!",
-                                        footer_more="But wait there's more! Do " + details[
-                                            "cmd_key"] + "shop banners " + str(page + 2),
-                                        footer_end='More banners coming soon!')
+    shop_list = player_cmds.banner_page(
+        banners,
+        page,
+        "BattleBanana's Banner Shop!",
+        footer_more="But wait there's more! Do " + details["cmd_key"] + "shop banners " + str(page + 2),
+        footer_end="More banners coming soon!",
+    )
     return shop_list
 
 
 def get_department_from_name(name):
     return next(
-        (department_info for department_info in departments.values() if name.lower() in department_info["alias"]),
-        None)
+        (department_info for department_info in departments.values() if name.lower() in department_info["alias"]), None
+    )
 
 
 async def item_action(item_name, action, department=None, **details):
     # Does not support list action page. Since I have no case where I need that.
-    exists_check = details.get('exists_check', "item_exists")
+    exists_check = details.get("exists_check", "item_exists")
     if department is None:
         # We have to find where it could be
-        message = details.get('error', "An item with that name exists in multiple departments!")
-        possible_departments = [department_info for department_info in departments.values() if
-                                department_info[exists_check](details, item_name)]
+        message = details.get("error", "An item with that name exists in multiple departments!")
+        possible_departments = [
+            department_info
+            for department_info in departments.values()
+            if department_info[exists_check](details, item_name)
+        ]
         if len(possible_departments) > 1:
-            error = (":confounded: " + message + "\n"
-                     + "Please be more specific!\n")
-            if ' ' in item_name:
+            error = ":confounded: " + message + "\n" + "Please be more specific!\n"
+            if " " in item_name:
                 item_name = '"%s"' % item_name
             for department_info in possible_departments:
-                error += "``" + details["cmd_key"] + details["command_name"] + " " + department_info["alias"][
-                    0] + " " + item_name + "``\n"
+                error += (
+                    "``"
+                    + details["cmd_key"]
+                    + details["command_name"]
+                    + " "
+                    + department_info["alias"][0]
+                    + " "
+                    + item_name
+                    + "``\n"
+                )
             await util.say(details["channel"], error)
             return  # Too many possible departments
         elif len(possible_departments) == 0:
@@ -152,7 +174,7 @@ async def item_action(item_name, action, department=None, **details):
         department = possible_departments[0]
     # We should know have a department if we get this far
     # First condition we found it so must exist. 2nd We were given the department.
-    if 'possible_departments' in locals() or department[exists_check](details, item_name):
+    if "possible_departments" in locals() or department[exists_check](details, item_name):
         action = department["actions"][action]
         if inspect.iscoroutinefunction(action):
             action_result = await action(item_name, **details)
@@ -172,72 +194,57 @@ def _placeholder(_, **details):
 
 departments = {
     "weapons": {
-        "alias": [
-            "weapons",
-            "weaps",
-            "weap",
-            "weapon"
-        ],
+        "alias": ["weapons", "weaps", "weap", "weapon"],
         "actions": {
             "info_action": weap_cmds.weapon_info,
             "list_action": shop_weapons_list,
             "buy_action": weap_cmds.buy_weapon,
-            "sell_action": weap_cmds.sell_weapon
+            "sell_action": weap_cmds.sell_weapon,
         },
-        "item_exists": lambda details, name: name.lower() != "none" and weapons.does_weapon_exist(details["server_id"],
-                                                                                                  name),
-        "item_exists_sell": lambda details, name: (name != "none" and details["author"].weapon.name.lower() == name
-                                                   or details["author"].owns_weapon(name))
+        "item_exists": lambda details, name: name.lower() != "none"
+        and weapons.does_weapon_exist(details["server_id"], name),
+        "item_exists_sell": lambda details, name: (
+            name != "none" and details["author"].weapon.name.lower() == name or details["author"].owns_weapon(name)
+        ),
     },
     "themes": {
-        "alias": [
-            "themes",
-            "skins",
-            "theme",
-            "skin"
-        ],
+        "alias": ["themes", "skins", "theme", "skin"],
         "actions": {
             "info_action": player_cmds.theme_info,
             "list_action": shop_theme_list,
             "buy_action": buy_sell_themes.buy_item,
-            "sell_action": buy_sell_themes.sell_item
+            "sell_action": buy_sell_themes.sell_item,
         },
-        "item_exists": lambda _, name: (name.lower() != "default"
-                                        and _should_show_in_shop(customizations.get_theme(name))),
-        "item_exists_sell": lambda details, name: name.lower() in details["author"].inventory["themes"]
-
+        "item_exists": lambda _, name: (
+            name.lower() != "default" and _should_show_in_shop(customizations.get_theme(name))
+        ),
+        "item_exists_sell": lambda details, name: name.lower() in details["author"].inventory["themes"],
     },
     "backgrounds": {
-        "alias": [
-            "backgrounds",
-            "bgs",
-            "bg",
-            "background"
-        ],
+        "alias": ["backgrounds", "bgs", "bg", "background"],
         "actions": {
             "info_action": player_cmds.background_info,
             "list_action": shop_background_list,
             "buy_action": buy_sell_backgrounds.buy_item,
-            "sell_action": buy_sell_backgrounds.sell_item
+            "sell_action": buy_sell_backgrounds.sell_item,
         },
         "item_exists": lambda _, name: (name.lower() != "default" and name.lower() in customizations.backgrounds),
-        "item_exists_sell": lambda details, name: name.lower() in details["author"].inventory["backgrounds"]
+        "item_exists_sell": lambda details, name: name.lower() in details["author"].inventory["backgrounds"],
     },
     "banners": {
-        "alias": [
-            "banners",
-            "banner"
-        ],
+        "alias": ["banners", "banner"],
         "actions": {
             "info_action": player_cmds.banner_info,
             "list_action": shop_banner_list,
             "buy_action": buy_sell_banners.buy_item,
-            "sell_action": buy_sell_banners.sell_item
+            "sell_action": buy_sell_banners.sell_item,
         },
-        "item_exists": lambda details, name: (name.lower() != DEFAULT_BANNER
-                                              and name.lower() in customizations.banners
-                                              and customizations.get_banner(name).can_use_banner(details["author"])),
-        "item_exists_sell": lambda details, name: name.lower() in details["author"].inventory["banners"]
+        "item_exists": lambda details, name: (
+            name.lower() != DEFAULT_BANNER
+            and name.lower() in customizations.banners
+            and customizations.get_banner(name).can_use_banner(details["author"])
+        ),
+        "item_exists_sell": lambda details, name: name.lower() in details["author"].inventory["banners"],
     }
     #    "shields": {
     #        "alias": [
@@ -271,12 +278,12 @@ def try_again(general_command):
         except util.BattleBananaException as command_error:
             if command_error.message == DEPARTMENT_NOT_FOUND:
                 # Try with just one arg (i.e the args being an item name)
-                probable_item_name = ' '.join((str(arg) for arg in args))
+                probable_item_name = " ".join((str(arg) for arg in args))
                 await general_command(ctx, probable_item_name, **details)
-            elif command_error.message == ITEM_NOT_FOUND and args[0].count(' ') >= 2:
+            elif command_error.message == ITEM_NOT_FOUND and args[0].count(" ") >= 2:
                 # A fix for a less common mistake. Missing quotes around
                 # item name with spaces in it while setting a department too.
-                args = args[0].split(' ', 1)
+                args = args[0].split(" ", 1)
                 await general_command(ctx, *args, **details)
             else:
                 raise command_error
@@ -284,18 +291,18 @@ def try_again(general_command):
     return wrapped_command
 
 
-@commands.command(args_pattern='S?M?')
+@commands.command(args_pattern="S?M?")
 @try_again
 async def shop(ctx, *args, **details):
     """
     [CMD_KEY]shop department (page or name)
-    
-    A place to see all the backgrounds, banners, themes 
+
+    A place to see all the backgrounds, banners, themes
     and weapons on sale.
-    
-    e.g. [CMD_KEY]shop weapons 
+
+    e.g. [CMD_KEY]shop weapons
     will show all weapons currenly in store.
-    [CMD_KEY]shop item 
+    [CMD_KEY]shop item
     will show extra details about that item.
     If you want anything from the shop use the
     [CMD_KEY]buy command!
@@ -332,7 +339,7 @@ async def shop(ctx, *args, **details):
             raise util.BattleBananaException(ctx.channel, DEPARTMENT_NOT_FOUND)
 
 
-@commands.command(args_pattern='SS?')
+@commands.command(args_pattern="SS?")
 @try_again
 async def buy(ctx, *args, **details):
     """
@@ -349,7 +356,7 @@ async def buy(ctx, *args, **details):
             raise util.BattleBananaException(ctx.channel, DEPARTMENT_NOT_FOUND)
 
 
-@commands.command(args_pattern='SS?')
+@commands.command(args_pattern="SS?")
 @try_again
 async def sell(ctx, *args, **details):
     """

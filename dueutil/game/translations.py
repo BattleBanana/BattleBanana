@@ -24,7 +24,7 @@ def _get_translation(language: str, full_key: str) -> str:
 def find_translation(_: commands.Context, key: str, *args, force_update: bool = False):
     """
     Finds the translation for a key in the current language
-    
+
     Parameters
     ----------
     ctx: :class:`discord.ext.commands.Context`
@@ -43,7 +43,7 @@ def find_translation(_: commands.Context, key: str, *args, force_update: bool = 
     """
     if translations == {} or force_update:
         _load()
-    
+
     # Get the language of the server
     # TODO: Fetch it from serverconfigs
     language = DEFAULT_LANGUAGE
@@ -54,7 +54,7 @@ def find_translation(_: commands.Context, key: str, *args, force_update: bool = 
     # Replace the arguments
     for arg in args:
         translation = translation.replace("{}", arg, 1)
-    
+
     return translation
 
 
@@ -73,8 +73,9 @@ def _load():
             for file in os.listdir(LOCALIZATION_PATH + language + "/" + category):
                 file_name = file.split(".")[0]
                 temp_translations[language][category][file_name] = json.load(
-                    open(LOCALIZATION_PATH + language + "/" + category + "/" + file, "r", encoding="utf-8"))
-    
+                    open(LOCALIZATION_PATH + language + "/" + category + "/" + file, "r", encoding="utf-8")
+                )
+
     translations.update(temp_translations)
     util.logger.info(f"Loaded {len(translations)} translations")
 

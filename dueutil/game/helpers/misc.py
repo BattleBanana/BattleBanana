@@ -11,11 +11,13 @@ import generalconfig as gconf
 from dueutil import dbconn, util
 from . import imagecache
 
-POSITIVE_BOOLS = ('true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh')
+POSITIVE_BOOLS = ("true", "1", "t", "y", "yes", "yeah", "yup", "certainly", "uh-huh")
 auto_replies = []
-GLITTER_TEXT_URL = ("https://www.gigaglitters.com/procesing.php?text=%s"
-                    + "&size=90&text_color=img/DCdarkness.gif"
-                    + "&angle=0&border=0&border_yes_no=4&shadows=1&font='fonts/Super 911.ttf'")
+GLITTER_TEXT_URL = (
+    "https://www.gigaglitters.com/procesing.php?text=%s"
+    + "&size=90&text_color=img/DCdarkness.gif"
+    + "&angle=0&border=0&border_yes_no=4&shadows=1&font='fonts/Super 911.ttf'"
+)
 
 
 class AutoReply:
@@ -27,9 +29,9 @@ class AutoReply:
     def __init__(self, server_id, message, key, **kwargs):
         self.message = message
         self.key = key
-        self.target = kwargs.get('target_user', None)
+        self.target = kwargs.get("target_user", None)
         self.server_id = server_id
-        kwargs.get('channel_id', "all")
+        kwargs.get("channel_id", "all")
 
 
 class BattleBananaObject:
@@ -111,24 +113,24 @@ class BattleBananaObject:
 #### MacDue's wacky data clases (monkey patches)
 class DueMap(collections.abc.MutableMapping):
     """
-    
+
     A 2D Mapping for things & items
     E.g. Key "ServerID/Name"
     or Guild & Item
     where the key is Guild.id/Item.name
-    
+
     or key with addtional data:
       some.id+data/item.name
       (some id can't contain any '/' or '+'s)
       and the data can't contain any '/'s
-   
+
     This mapping will return an empty dict or None
     if the guild or item does not exist!
-    
+
     Happens to be quite useful
-    
+
     TODO: REWRITE (if becomes apparent this mapping is slow)
-    
+
     """
 
     def __init__(self):
@@ -188,9 +190,9 @@ class DueMap(collections.abc.MutableMapping):
             return str(key.id)
         elif "/" not in key:
             return key
-        key = key.split('/', 1)
-        if '+' in key[0]:
-            key[0] = key[0].split('+')[0]
+        key = key.split("/", 1)
+        if "+" in key[0]:
+            key[0] = key[0].split("+")[0]
         return key
 
 
@@ -236,6 +238,7 @@ class Ring(list):
 
 #### End - MacDue's wacky data classes
 
+
 class Wizzard(ABC):
     """
     WIP - Setup wizzard
@@ -251,7 +254,7 @@ class Wizzard(ABC):
         progress = self.complete // self.question_count
         bar_complete_len = progress * bar_width
         bar_incomplete_len = bar_width - bar_complete_len
-        return '[' + ('"' * bar_complete_len) + (' ' * bar_incomplete_len) + ']'
+        return "[" + ('"' * bar_complete_len) + (" " * bar_incomplete_len) + "]"
 
 
 def paginator(item_add):
@@ -261,8 +264,9 @@ def paginator(item_add):
 
     def page_getter(item_list, page, title, **extras):
         page_size = 12
-        page_embed = discord.Embed(title=title + (" : Page " + str(page + 1) if page > 0 else ""), type="rich",
-                                   color=gconf.DUE_COLOUR)
+        page_embed = discord.Embed(
+            title=title + (" : Page " + str(page + 1) if page > 0 else ""), type="rich", color=gconf.DUE_COLOUR
+        )
         if len(item_list) > 0 or page != 0:
             if page * page_size >= len(item_list):
                 raise util.BattleBananaException(None, "Page not found")
@@ -293,7 +297,6 @@ async def get_glitter_text(gif_text):
             box = soup.find("textarea", {"id": "dLink"})
             gif_text_area = str(box)
             gif_url = gif_text_area.replace(
-                '<textarea class="field" cols="12" id="dLink" onclick="this.focus();this.select()" readonly="">',
-                "",
-                1).replace('</textarea>', "", 1)
+                '<textarea class="field" cols="12" id="dLink" onclick="this.focus();this.select()" readonly="">', "", 1
+            ).replace("</textarea>", "", 1)
             return await util.download_file(gif_url)

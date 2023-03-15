@@ -13,7 +13,7 @@ DESCENDING = pymongo.DESCENDING
 def conn():
     global db
     if db is None:
-        db = MongoClient(username=config['user'], password=config['pwd'], host=config['host']).dueutil
+        db = MongoClient(username=config["user"], password=config["pwd"], host=config["host"]).dueutil
 
         return db
     else:
@@ -23,11 +23,11 @@ def conn():
 def insert_object(id, pickleable_object):
     if isinstance(id, str) and id.strip() == "":
         return
-    
+
     # TODO: Insert values atomicly instead of saving them as a JSON string
-    conn()[type(pickleable_object).__name__].update_one({'_id': id},
-                                                    {"$set": {'data': jsonpickle.encode(pickleable_object)}},
-                                                    upsert=True)
+    conn()[type(pickleable_object).__name__].update_one(
+        {"_id": id}, {"$set": {"data": jsonpickle.encode(pickleable_object)}}, upsert=True
+    )
 
 
 def drop_and_insert(collection, data):
@@ -41,25 +41,25 @@ def get_collection_for_object(object_class):
 
 
 def delete_objects(object_class, id_pattern):
-    return conn()[object_class.__name__].delete_many({'_id': {'$regex': id_pattern}})
+    return conn()[object_class.__name__].delete_many({"_id": {"$regex": id_pattern}})
 
 
 def delete_player(player):
-    conn()["Player"].delete_one({'_id': player.id})
+    conn()["Player"].delete_one({"_id": player.id})
 
 
 def update_guild_joined(count):
     month = datetime.now().strftime("%Y-%m")
-    update_query = {'$inc': {'joined': 1} if count > 0 else {'left': 1}}
-    conn()["GuildStats"].update_one({'_id': month}, update_query, upsert=True)
+    update_query = {"$inc": {"joined": 1} if count > 0 else {"left": 1}}
+    conn()["GuildStats"].update_one({"_id": month}, update_query, upsert=True)
 
 
 def blacklist_member(id: int, reason: str):
-    conn()["Blacklist"].update_one({'_id': id}, {'$set': {'reason': reason}}, upsert=True)
+    conn()["Blacklist"].update_one({"_id": id}, {"$set": {"reason": reason}}, upsert=True)
 
 
 def unblacklist_member(id: int):
-    conn()["Blacklist"].delete_one({'_id': id})
+    conn()["Blacklist"].delete_one({"_id": id})
 
 
 def get_blacklist():
@@ -68,7 +68,7 @@ def get_blacklist():
 
 def _load_config():
     global config
-    with open('dbconfig.json') as config_file:
+    with open("dbconfig.json") as config_file:
         config = json.load(config_file)
 
 

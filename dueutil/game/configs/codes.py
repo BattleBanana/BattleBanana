@@ -8,7 +8,7 @@ from dueutil import dbconn
 class PromoCode:
     def __init__(self, code, price):
         self.code: str = code
-        self.price: float = price        
+        self.price: float = price
 
 
 codes: List[PromoCode] = []
@@ -18,7 +18,7 @@ def __new_code():
     return f"BATTLEBANANA_{secrets.token_hex(5).upper()}"
 
 
-def generate(price, quantity = 1):
+def generate(price, quantity=1):
     new_codes: List[PromoCode] = []
 
     for _ in range(quantity):
@@ -63,12 +63,12 @@ def get_paged(page: int, per_page: int):
     if page * 30 >= len(codes):
         return None
 
-    return codes[(page - 1) * per_page:page * per_page]
+    return codes[(page - 1) * per_page : page * per_page]
 
 
 def _load():
     global codes
     codes = [PromoCode(c["code"], c["price"]) for c in dbconn.conn()["Codes"].find()]
 
-    
+
 _load()

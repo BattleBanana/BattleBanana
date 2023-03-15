@@ -15,19 +15,27 @@ TOPDOGS_PER_PAGE = 10
 async def glitter_text(channel, text):
     try:
         gif_text = await misc.get_glitter_text(text)
-        await util.say(channel, ":sparkles: Your glitter text!", file=discord.File(fp=gif_text, filename="glittertext.gif"))
+        await util.say(
+            channel, ":sparkles: Your glitter text!", file=discord.File(fp=gif_text, filename="glittertext.gif")
+        )
     except (ValueError, asyncio.TimeoutError):
         await util.say(channel, ":cry: Could not fetch glitter text! Please try again later.")
 
 
-@commands.command(args_pattern='S', aliases=("gt", "glittertext",))
+@commands.command(
+    args_pattern="S",
+    aliases=(
+        "gt",
+        "glittertext",
+    ),
+)
 @commands.imagecommand()
 async def glitter(ctx, text, **details):
     """
     [CMD_KEY]glitter(text)
-    
+
     Creates a glitter text gif!
-    
+
     (Glitter text from https://www.gigaglitters.com/)
     """
     details["author"].misc_stats["art_created"] += 1
@@ -39,7 +47,7 @@ async def glitter(ctx, text, **details):
 async def eyes(ctx, eye_description="", **details):
     """
     [CMD_KEY]eyes modifiers
-    
+
     __Modifiers:__
         snek - Snek eyes (slits)
         ogre - Ogre colours
@@ -81,15 +89,15 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
     or for global ranks
     [CMD_KEY]leaderboard global (page)
     [CMD_KEY]globalranks (page)
-    
+
     The global leaderboard of BattleBanana!
-    
+
     The leaderboard updated every hour*.
-    
+
     **Now with local**
 
     *May be longer.
-    
+
     """
 
     page_size = 10
@@ -117,12 +125,10 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
         last_updated = leaderboards.last_leaderboard_update
 
     if leaderboard_data is None or len(leaderboard_data) == 0:
-        await util.reply(ctx, "The %s leaderboard has yet to be calculated!\n" % ranks
-                         + "Check again soon!")
+        await util.reply(ctx, "The %s leaderboard has yet to be calculated!\n" % ranks + "Check again soon!")
         return
 
-    leaderboard_embed = discord.Embed(title="%s %s" % (emojis.QUESTER, title),
-                                      type="rich", color=gconf.DUE_COLOUR)
+    leaderboard_embed = discord.Embed(title="%s %s" % (emojis.QUESTER, title), type="rich", color=gconf.DUE_COLOUR)
 
     if page > 0:
         leaderboard_embed.title += ": Page %d" % (page + 1)
@@ -144,19 +150,24 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
         user_info = ctx.guild.get_member(player.id)
         if user_info is None:
             user_info = player.id
-        leaderboard_embed \
-            .add_field(name="#%s" % (index + 1) + bonus,
-                       value="[%s **``Level %s``**](https://battlebanana.xyz/player/id/%s) (%s) | **Total EXP** %d"
-                             % (player.name_clean, player.level, player.id,
-                                util.ultra_escape_string(str(user_info)), player.total_exp), inline=False)
+        leaderboard_embed.add_field(
+            name="#%s" % (index + 1) + bonus,
+            value="[%s **``Level %s``**](https://battlebanana.xyz/player/id/%s) (%s) | **Total EXP** %d"
+            % (player.name_clean, player.level, player.id, util.ultra_escape_string(str(user_info)), player.total_exp),
+            inline=False,
+        )
 
     if index < len(leaderboard_data) - 1:
         remaining_players = len(leaderboard_data) - page_size * (page + 1)
-        leaderboard_embed.add_field(name="+%d more!" % remaining_players,
-                                    value="Do ``%sleaderboard%s %d`` for the next page!"
-                                          % (details["cmd_key"], "" if local else " global", page + 2), inline=False)
-    leaderboard_embed.set_footer(text="Leaderboard calculated "
-                                      + repoze.timeago.get_elapsed(datetime.utcfromtimestamp(last_updated)))
+        leaderboard_embed.add_field(
+            name="+%d more!" % remaining_players,
+            value="Do ``%sleaderboard%s %d`` for the next page!"
+            % (details["cmd_key"], "" if local else " global", page + 2),
+            inline=False,
+        )
+    leaderboard_embed.set_footer(
+        text="Leaderboard calculated " + repoze.timeago.get_elapsed(datetime.utcfromtimestamp(last_updated))
+    )
     await util.reply(ctx, embed=leaderboard_embed)
 
 
@@ -176,16 +187,28 @@ async def rank_command(ctx, player, ranks="", **details):
 
     if position != -1:
         page = position // 10 + (1 * position % 10 != 0)
-        await util.reply(ctx, (":sparkles: " + ("You're" if player_is_author else player_name + " is")
-                               + (" **{0}** on the{4}{3} leaderboard!\n"
-                                  + "That's on page {1} (``{2}leaderboard{4}{3} {5}``)!")
-                               .format(util.int_to_ordinal(position), page,
-                                       details["cmd_key"], ranks, padding, page if page > 1 else "")))
+        await util.reply(
+            ctx,
+            (
+                ":sparkles: "
+                + ("You're" if player_is_author else player_name + " is")
+                + (
+                    " **{0}** on the{4}{3} leaderboard!\n" + "That's on page {1} (``{2}leaderboard{4}{3} {5}``)!"
+                ).format(
+                    util.int_to_ordinal(position), page, details["cmd_key"], ranks, padding, page if page > 1 else ""
+                )
+            ),
+        )
     else:
-        await util.reply(ctx, (":confounded: I can't find "
-                               + ("you" if player_is_author else player_name)
-                               + " on the {}{}leaderboard!?\n".format(ranks, padding)
-                               + "You'll need to wait till it next updates!" * player_is_author))
+        await util.reply(
+            ctx,
+            (
+                ":confounded: I can't find "
+                + ("you" if player_is_author else player_name)
+                + " on the {}{}leaderboard!?\n".format(ranks, padding)
+                + "You'll need to wait till it next updates!" * player_is_author
+            ),
+        )
 
 
 @commands.command(args_pattern="S?")
@@ -236,16 +259,16 @@ async def give_emoji(channel, sender, receiver, emoji):
     await util.say(channel, "**" + receiver.name_clean + "** " + emoji + " :heart: **" + sender.name_clean + "**")
 
 
-@commands.command(args_pattern='PS', aliases=("emoji",))
+@commands.command(args_pattern="PS", aliases=("emoji",))
 async def giveemoji(ctx, receiver, emoji, **details):
     """
     [CMD_KEY]giveemoji player emoji
-    
+
     Give a friend an emoji.
     Why? Who knows.
     I'm sure you can have loads of game with the :cancer: emoji though!
     Also see ``[CMD_KEY]givepotato``
-    
+
     """
     sender = details["author"]
 
@@ -257,27 +280,25 @@ async def giveemoji(ctx, receiver, emoji, **details):
     if emoji == "🍆":
         await awards.give_award(ctx.channel, sender, "Sauce", "*Saucy*")
     if sender.misc_stats["emojis_given"] >= 100 and "EmojiKing" not in sender.awards:
-        await awards.give_award(ctx.channel, sender, "EmojiKing",
-                                ":biohazard: **__WIPEOUT HUMANITY__** :radioactive:")
+        await awards.give_award(ctx.channel, sender, "EmojiKing", ":biohazard: **__WIPEOUT HUMANITY__** :radioactive:")
 
 
-@commands.command(args_pattern='P', aliases=("potato",))
+@commands.command(args_pattern="P", aliases=("potato",))
 async def givepotato(ctx, receiver, **details):
     """
     [CMD_KEY]givepotato player
-    
+
     Who doesn't like potatoes?
     """
     sender = details["author"]
 
-    await give_emoji(ctx.channel, sender, receiver, '🥔')
+    await give_emoji(ctx.channel, sender, receiver, "🥔")
     sender.misc_stats["potatoes_given"] += 1
     receiver.misc_stats["potatoes"] += 1
 
     await awards.give_award(ctx.channel, sender, "Potato", ":potato: Bringer Of Potatoes :potato:")
     if sender.misc_stats["potatoes_given"] >= 100 and "KingTat" not in sender.awards:
-        await awards.give_award(ctx.channel, sender, "KingTat",
-                                ":crown: :potato: **Potato King!** :potato: :crown:")
+        await awards.give_award(ctx.channel, sender, "KingTat", ":crown: :potato: **Potato King!** :potato: :crown:")
 
 
 @commands.command(args_pattern=None)
@@ -290,9 +311,11 @@ async def topdog(ctx, **_):
     top_dog_stats = awards.get_award_stat("TopDog")
     if top_dog_stats is not None and "top_dog" in top_dog_stats:
         top_dog = players.find_player(int(top_dog_stats["top_dog"]))
-        await util.reply(ctx, (":dog: The current top dog is **%s** (%s)!\n"
-                               + "They are the **%s** to earn the rank of top dog!")
-                         % (top_dog, top_dog.id, util.int_to_ordinal(top_dog_stats["times_given"])))
+        await util.reply(
+            ctx,
+            (":dog: The current top dog is **%s** (%s)!\n" + "They are the **%s** to earn the rank of top dog!")
+            % (top_dog, top_dog.id, util.int_to_ordinal(top_dog_stats["times_given"])),
+        )
     else:
         await util.reply(ctx, "There is not a top dog yet!")
 
@@ -350,8 +373,7 @@ async def show_awards(ctx, top_dog, page=0):
     if page != 0 and page * 5 >= len(top_dog.awards):
         raise util.BattleBananaException(ctx.channel, "Page not found")
 
-    await imagehelper.awards_screen(ctx, top_dog, page,
-                                    is_top_dog_sender=ctx.author.id == top_dog.id)
+    await imagehelper.awards_screen(ctx, top_dog, page, is_top_dog_sender=ctx.author.id == top_dog.id)
 
 
 @commands.command(args_pattern=None)
@@ -368,32 +390,40 @@ async def pandemic(ctx, **_):
         return
 
     warning_symbols = {0: ":heart: - Healthy", 1: ":yellow_heart: - Worrisome", 2: ":black_heart: - Doomed"}
-    thumbnails = {0: "https://i.imgur.com/NENJMOP.jpg",
-                  1: "https://i.imgur.com/we6XgpG.gif",
-                  2: "https://i.imgur.com/EJVYJ9C.gif"}
+    thumbnails = {
+        0: "https://i.imgur.com/NENJMOP.jpg",
+        1: "https://i.imgur.com/we6XgpG.gif",
+        2: "https://i.imgur.com/EJVYJ9C.gif",
+    }
 
     total_players = dbconn.get_collection_for_object(players.Player).estimated_document_count()
     total_infected = virus_stats["times_given"]
     total_uninfected = total_players - total_infected
     percent_infected = (total_infected / total_players) * 100
     pandemic_level = percent_infected // 33
-    pandemic_embed = discord.Embed(title=":biohazard: BattleBanana Pandemic :biohazard:", type="rich",
-                                   color=gconf.DUE_COLOUR)
-    pandemic_embed.description = ("Oh my god! In the last news, infected people are invading our world!\n"
-                                  + "This is the current infection rate!")
+    pandemic_embed = discord.Embed(
+        title=":biohazard: BattleBanana Pandemic :biohazard:", type="rich", color=gconf.DUE_COLOUR
+    )
+    pandemic_embed.description = (
+        "Oh my god! In the last news, infected people are invading our world!\n" + "This is the current infection rate!"
+    )
     pandemic_embed.set_thumbnail(url=thumbnails.get(pandemic_level, thumbnails[2]))
     pandemic_embed.description = "Monitoring the spread of the __loser__ pandemic."
-    pandemic_embed.add_field(name="Pandemic stats", value=("Out of a total of **%s** players:\n"
-                                                           + ":biohazard: **%s** "
-                                                           + ("are" if total_infected > 1 else "is") + " infected.\n"
-                                                           + ":pill: **%s** "
-                                                           + ("are" if total_uninfected > 1 else "is")
-                                                           + " uninfected.\n\n"
-                                                           + "This means **%.2g**%% of all players are infected!")
-                                                          % (total_players, total_infected,
-                                                             total_uninfected, percent_infected))
-    pandemic_embed.add_field(name="Health level",
-                             value=warning_symbols.get(pandemic_level, warning_symbols[2]))
+    pandemic_embed.add_field(
+        name="Pandemic stats",
+        value=(
+            "Out of a total of **%s** players:\n"
+            + ":biohazard: **%s** "
+            + ("are" if total_infected > 1 else "is")
+            + " infected.\n"
+            + ":pill: **%s** "
+            + ("are" if total_uninfected > 1 else "is")
+            + " uninfected.\n\n"
+            + "This means **%.2g**%% of all players are infected!"
+        )
+        % (total_players, total_infected, total_uninfected, percent_infected),
+    )
+    pandemic_embed.add_field(name="Health level", value=warning_symbols.get(pandemic_level, warning_symbols[2]))
 
     await util.reply(ctx, embed=pandemic_embed)
 
@@ -426,8 +456,13 @@ async def topdoghistory(ctx, page=1, **_):
     if TOPDOGS_PER_PAGE * page > count:
         raise util.BattleBananaException(ctx.channel, "Page not found!")
 
-    topdogs = dbconn.conn()["Topdogs"].find({}, {'_id': 0}).sort('date', -1).skip(TOPDOGS_PER_PAGE * page).limit(
-        TOPDOGS_PER_PAGE)
+    topdogs = (
+        dbconn.conn()["Topdogs"]
+        .find({}, {"_id": 0})
+        .sort("date", -1)
+        .skip(TOPDOGS_PER_PAGE * page)
+        .limit(TOPDOGS_PER_PAGE)
+    )
 
     embed = discord.Embed(title="Topdog History", type="rich", color=gconf.DUE_COLOUR)
     embed.set_footer(text="Times are displayed according to your timezone.")
@@ -441,9 +476,9 @@ async def topdoghistory(ctx, page=1, **_):
 
     tdstring = ""
     for topdog in topdogs:
-        player = players.find_player(topdog.get('user_id'))
+        player = players.find_player(topdog.get("user_id"))
         if player is not None:
-            date: datetime = topdog.get('date')
+            date: datetime = topdog.get("date")
 
             if util.is_today(date):
                 tdstring += f"- **{player.name}**, today until <t:{round(date.timestamp())}:t>\n"

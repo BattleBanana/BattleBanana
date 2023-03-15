@@ -26,16 +26,16 @@ class Weapon(BattleBananaObject, SlotPickleMixin):
     PRICE_CONSTANT = 0.04375
     DEFAULT_IMAGE = "https://i.imgur.com/QFyiU6O.png"
 
-    __slots__ = ["damage", "accy", "price",
-                 "_icon", "hit_message", "melee", "image_url",
-                 "weapon_sum", "server_id"]
+    __slots__ = ["damage", "accy", "price", "_icon", "hit_message", "melee", "image_url", "weapon_sum", "server_id"]
 
     def __init__(self, name, hit_message, damage, accy, **extras):
-        message = extras.get('ctx', None)
+        message = extras.get("ctx", None)
 
         if message is not None:
             if does_weapon_exist(message.guild.id, name):
-                raise util.BattleBananaException(message.channel, "A weapon with that name already exists on this guild!")
+                raise util.BattleBananaException(
+                    message.channel, "A weapon with that name already exists on this guild!"
+                )
 
             if not Weapon.acceptable_string(name, 30):
                 raise util.BattleBananaException(message.channel, "Weapon names must be between 1 and 30 characters!")
@@ -49,10 +49,12 @@ class Weapon(BattleBananaObject, SlotPickleMixin):
             if accy < 1 or accy > 86:
                 raise util.BattleBananaException(message.channel, "Accuracy must be between 1% and 86%!")
 
-            icon = extras.get('icon', emojis.DAGGER)
+            icon = extras.get("icon", emojis.DAGGER)
             if not (util.char_is_emoji(icon) or util.is_server_emoji(message.guild, icon)):
-                raise util.BattleBananaException(message.channel, (":eyes: Weapon icons must be emojis! :ok_hand:**"
-                                                              + "(custom emojis must be on this guild)**​"))
+                raise util.BattleBananaException(
+                    message.channel,
+                    (":eyes: Weapon icons must be emojis! :ok_hand:**" + "(custom emojis must be on this guild)**​"),
+                )
 
             self.server_id = message.guild.id
 
@@ -66,10 +68,10 @@ class Weapon(BattleBananaObject, SlotPickleMixin):
 
         super().__init__(self._weapon_id(), **extras)
 
-        self._icon = extras.get('icon', emojis.DAGGER)
+        self._icon = extras.get("icon", emojis.DAGGER)
         self.hit_message = util.ultra_escape_string(hit_message)
-        self.melee = extras.get('melee', True)
-        self.image_url = extras.get('image_url', Weapon.DEFAULT_IMAGE)
+        self.melee = extras.get("melee", True)
+        self.image_url = extras.get("image_url", Weapon.DEFAULT_IMAGE)
 
         self.weapon_sum = self._weapon_sum()
         self._add()
@@ -125,11 +127,12 @@ class Weapon(BattleBananaObject, SlotPickleMixin):
         if not hasattr(self, "server_id"):
             # Fix an old bug. Weapons missing server_id.
             # Get the proper server_id from the first part of the id.
-            self.server_id = self.id.split('+')[0]
+            self.server_id = self.id.split("+")[0]
             updated = True
 
         if updated:
             self.save()
+
 
 # The 'None'/No weapon weapon
 NO_WEAPON = Weapon("None", None, 1, 66, no_save=True, image_url="https://i.imgur.com/gNn7DyW.png", icon="👊")
@@ -160,17 +163,15 @@ def get_weapon_for_server(server_id: int, weapon_name: str) -> Weapon:
 
 
 def get_weapon_summary_from_id(weapon_id: str) -> Summary:
-    summary = weapon_id.split('/', 1)[0].split('+')[1].split('|')
-    return Summary(price=int(summary[0]),
-                   damage=int(summary[1]),
-                   accy=float(summary[2]))
+    summary = weapon_id.split("/", 1)[0].split("+")[1].split("|")
+    return Summary(price=int(summary[0]), damage=int(summary[1]), accy=float(summary[2]))
 
 
 def remove_weapon_from_shop(guild: discord.Guild, weapon_name: str) -> bool:
     weapon = get_weapon_for_server(guild.id, weapon_name)
     if weapon is not None:
         del weapons[weapon.id]
-        dbconn.get_collection_for_object(Weapon).delete_one({'_id': weapon.id})
+        dbconn.get_collection_for_object(Weapon).delete_one({"_id": weapon.id})
         return True
     return False
 
@@ -197,7 +198,7 @@ def stock_weapon(weapon_name: str) -> str:
 
 def remove_all_weapons(guild):
     if guild in weapons:
-        result = dbconn.delete_objects(Weapon, '%s\+.*' % guild.id)
+        result = dbconn.delete_objects(Weapon, "%s\+.*" % guild.id)
         del weapons[guild]
         return result.deleted_count
     return 0
@@ -205,28 +206,30 @@ def remove_all_weapons(guild):
 
 def _load():
     def load_stock_weapons():
-        with open('dueutil/game/configs/defaultweapons.json') as defaults_file:
+        with open("dueutil/game/configs/defaultweapons.json") as defaults_file:
             defaults = json.load(defaults_file)
             for weapon_name, weapon_data in defaults.items():
                 stock_weapons.append(weapon_name)
-                Weapon(weapon_data["name"],
-                       weapon_data["useText"],
-                       weapon_data["damage"],
-                       weapon_data["accy"],
-                       icon=weapon_data["icon"],
-                       image_url=weapon_data["image"],
-                       melee=weapon_data["melee"],
-                       no_save=True)
+                Weapon(
+                    weapon_data["name"],
+                    weapon_data["useText"],
+                    weapon_data["damage"],
+                    weapon_data["accy"],
+                    icon=weapon_data["icon"],
+                    image_url=weapon_data["image"],
+                    melee=weapon_data["melee"],
+                    no_save=True,
+                )
 
     load_stock_weapons()
 
     # Load from db
     for weapon in dbconn.get_collection_for_object(Weapon).find():
-        loaded_weapon: Weapon = jsonpickle.decode(weapon['data'])
+        loaded_weapon: Weapon = jsonpickle.decode(weapon["data"])
 
         if isinstance(loaded_weapon.server_id, str):
             loaded_weapon.server_id = int(loaded_weapon.server_id)
-            
+
         weapons[loaded_weapon.id] = loaded_weapon
     util.logger.info("Loaded %s weapons", len(weapons))
 

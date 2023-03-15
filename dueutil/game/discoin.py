@@ -75,16 +75,10 @@ async def update_discoin():
 
 
 async def make_transaction(sender_id, amount, to, cfrom=CURRENCY_CODE):
-    transaction_data = {
-        "amount": amount,
-        "from": cfrom,
-        "to": to,
-        "user": str(sender_id)
-    }
+    transaction_data = {"amount": amount, "from": cfrom, "to": to, "user": str(sender_id)}
 
     async with aiohttp.ClientSession(conn_timeout=10) as session:
-        async with session.post(TRANSACTIONS,
-                                data=json.dumps(transaction_data), headers=headers) as response:
+        async with session.post(TRANSACTIONS, data=json.dumps(transaction_data), headers=headers) as response:
             return await response.json()
 
 
@@ -101,8 +95,9 @@ async def unprocessed_transactions():
 
 async def mark_as_completed(transaction):
     async with aiohttp.ClientSession() as session:
-        async with session.patch(url=TRANSACTIONS + "/" + transaction['id'],
-                                 data=json.dumps(handled), headers=headers) as response:
+        async with session.patch(
+            url=TRANSACTIONS + "/" + transaction["id"], data=json.dumps(handled), headers=headers
+        ) as response:
             return await response.json()
 
 
@@ -127,16 +122,16 @@ async def process_transactions():
 
         for transaction in unprocessed:
             if type(transaction) == dict:
-                transaction_id = transaction.get('id')
-                user_id = int(transaction.get('user'))
-                payout = transaction.get('payout')
+                transaction_id = transaction.get("id")
+                user_id = int(transaction.get("user"))
+                payout = transaction.get("payout")
                 if payout is None:
                     continue
                 payout = int(payout)
-                amount = float(transaction.get('amount'))
+                amount = float(transaction.get("amount"))
 
-                source = transaction.get('from')
-                source_id = source.get('id')
+                source = transaction.get("from")
+                source_id = source.get("id")
 
                 player = players.find_player(user_id)
                 if player is None or payout < 1:
@@ -149,12 +144,16 @@ async def process_transactions():
                 player.save()
                 client.run_task(notify_complete, user_id, transaction)
 
-                embed = Embed(title="Discion Transaction", description="Receipt ID: [%s](%s)" % (
-                    transaction["id"], f"{DISCOINDASH}/{transaction['id']}/show"),
-                              type="rich", colour=gconf.DUE_COLOUR)
+                embed = Embed(
+                    title="Discion Transaction",
+                    description="Receipt ID: [%s](%s)" % (transaction["id"], f"{DISCOINDASH}/{transaction['id']}/show"),
+                    type="rich",
+                    colour=gconf.DUE_COLOUR,
+                )
                 embed.add_field(name="User:", value=f"{user_id}")
-                embed.add_field(name="Exchange", value="%.2f %s => %s %s" % (amount, source_id, payout, CURRENCY_CODE),
-                                inline=False)
+                embed.add_field(
+                    name="Exchange", value="%.2f %s => %s %s" % (amount, source_id, payout, CURRENCY_CODE), inline=False
+                )
 
                 util.logger.info("Processed discoin transaction %s", transaction_id)
                 await util.say(gconf.discoin_channel, embed=embed)
@@ -169,33 +168,39 @@ async def notify_complete(user_id, transaction, failed=False):
     user = await client.fetch_user(user_id)
     try:
         await user.create_dm()
-        embed = Embed(title="Discion Transaction", description="Receipt ID: %s" % (transaction["id"]), type="rich",
-                      colour=gconf.DUE_COLOUR)
+        embed = Embed(
+            title="Discion Transaction",
+            description="Receipt ID: %s" % (transaction["id"]),
+            type="rich",
+            colour=gconf.DUE_COLOUR,
+        )
         embed.set_footer(text="Keep the receipt in case something goes wrong!")
 
         if not failed:
-            payout = int(transaction.get('payout'))
-            amount = float(transaction.get('amount'))
+            payout = int(transaction.get("payout"))
+            amount = float(transaction.get("amount"))
 
-            source = transaction.get('from')
-            source_id = source.get('id')
+            source = transaction.get("from")
+            source_id = source.get("id")
 
-            embed.add_field(name="Exchange amount (%s):" % source_id,
-                            value="$" + util.format_number_precise(amount))
-            embed.add_field(name=f"Result amount ({CURRENCY_CODE}):",
-                            value=util.format_number(payout, money=True, full_precision=True))
-            embed.add_field(name="Receipt:",
-                            value="%s/%s/show" % (DISCOINDASH, transaction['id']),
-                            inline=False)
+            embed.add_field(name="Exchange amount (%s):" % source_id, value="$" + util.format_number_precise(amount))
+            embed.add_field(
+                name=f"Result amount ({CURRENCY_CODE}):",
+                value=util.format_number(payout, money=True, full_precision=True),
+            )
+            embed.add_field(name="Receipt:", value="%s/%s/show" % (DISCOINDASH, transaction["id"]), inline=False)
         elif failed:
-            embed.add_field(name=":warning: Your Discoin exchange has been reversed",
-                            value="To exchange to BattleBanana you must be a player and the amount has to be worth at least 1 BBT.")
+            embed.add_field(
+                name=":warning: Your Discoin exchange has been reversed",
+                value="To exchange to BattleBanana you must be a player and the amount has to be worth at least 1 BBT.",
+            )
 
         try:
             await user.send(embed=embed)
         except Exception as error:
             util.logger.error(
-                f"Could not notify the {'successful' if not failed else 'failed'} transaction to the user: %s", error)
+                f"Could not notify the {'successful' if not failed else 'failed'} transaction to the user: %s", error
+            )
 
     except Exception as error:
         util.logger.error("Could not notify discoin complete %s", error)

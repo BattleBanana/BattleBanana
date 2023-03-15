@@ -35,7 +35,7 @@ async def cache_resized_image(image, url):
     filename = get_resized_cached_filename(url, image.width, image.height)
     try:
         # cache image
-        image.convert('RGB').save(filename, optimize=True, quality=100)
+        image.convert("RGB").save(filename, optimize=True, quality=100)
         return image
     except Exception:
         # We don't care what went wrong
@@ -59,14 +59,14 @@ def get_cached_resized_image(url, width, height):
 def get_resized_cached_filename(name, width, height):
     if name is None:
         name = ""
-    filename = 'assets/imagecache/' + re.sub(r'\W+', '', name)
+    filename = "assets/imagecache/" + re.sub(r"\W+", "", name)
     if len(filename) > 128:
         filename = filename[:128]
 
     if None not in (width, height):
         filename += f"{width}_{height}"
 
-    return filename + '.jpg'
+    return filename + ".jpg"
 
 
 async def cache_image(url):
@@ -75,7 +75,7 @@ async def cache_image(url):
         image_data = await util.download_file(url)
         image = Image.open(image_data)
         # cache image
-        image.convert('RGB').save(filename, optimize=True, quality=100)
+        image.convert("RGB").save(filename, optimize=True, quality=100)
         return image
     except Exception:
         # We don't care what went wrong
@@ -101,10 +101,10 @@ def uncache(url):
 
 
 def get_cached_filename(name):
-    filename = 'assets/imagecache/' + re.sub(r'\W+', '', name)
+    filename = "assets/imagecache/" + re.sub(r"\W+", "", name)
     if len(filename) > 128:
         filename = filename[:128]
-    return filename + '.jpg'
+    return filename + ".jpg"
 
 
 @tasks.task(timeout=3600)

@@ -23,20 +23,20 @@ Have fun kiddos!
 async def blackjack(ctx, price, **details):
     """
     [CMD_KEY]blackjack (bet)
-    
+
     Play blackjack with BattleBanana.
-    
+
     Game objective: Obtain 21 or the closest to win!
     [Card Values](https://battlebanana.xyz/img/21Values.png)
     """
     if price < 1:
         raise util.BattleBananaException(ctx.channel, "You cannot bet under ¤1")
-    
+
     player = details["author"]
     if price > player.money:
         raise util.BattleBananaException(ctx.channel, "You cannot bet more than you have!")
 
-    player.command_rate_limits['blackjack_saved_cooldown'] = int(time.time()) + 120
+    player.command_rate_limits["blackjack_saved_cooldown"] = int(time.time()) + 120
 
     # Create new deck, make player playing
     deck = Deck() + Deck() + Deck() + Deck()
@@ -47,12 +47,15 @@ async def blackjack(ctx, price, **details):
     user_hand = deck.deal(2)
     user_value, dealer_value = blackjackGame.compare_decks(user_hand, dealer_hand)
 
-    blackjack_embed = discord.Embed(title="Blackjack dealer", description="%s game. Current bet: ¤%s"
-                                                                          % (player.get_name_possession(), price),
-                                    type="rich", colour=gconf.DUE_COLOUR)
+    blackjack_embed = discord.Embed(
+        title="Blackjack dealer",
+        description="%s game. Current bet: ¤%s" % (player.get_name_possession(), price),
+        type="rich",
+        colour=gconf.DUE_COLOUR,
+    )
     blackjack_embed.add_field(name=f"Your hand ({user_value})", value=user_hand)
     blackjack_embed.add_field(name=f"Dealer's hand ({dealer_value})", value=dealer_hand)
-    blackjack_embed.set_footer(text="Click on \"hit\" or \"stand\". This prompt will close in 120 seconds")
+    blackjack_embed.set_footer(text='Click on "hit" or "stand". This prompt will close in 120 seconds')
 
     blackjack_buttons: ui.View = blackjackGame.BlackjackInteraction(ctx.author)
     msg = await util.reply(ctx, embed=blackjack_embed, view=blackjack_buttons)
@@ -60,7 +63,7 @@ async def blackjack(ctx, price, **details):
     while user_value < 21 and dealer_value < 21:
         player.last_played = time.time()
 
-        player.command_rate_limits['blackjack_saved_cooldown'] = int(time.time()) + 120
+        player.command_rate_limits["blackjack_saved_cooldown"] = int(time.time()) + 120
         content = await blackjack_buttons.start()
         if content == "hit":
             user_hand += deck.deal(1)
@@ -81,7 +84,7 @@ async def blackjack(ctx, price, **details):
         dealer_hand += deck.deal()
 
         dealer_value = blackjackGame.get_deck_value(dealer_hand)
-    
+
     # Manage who wins/loses
     user_value, dealer_value = blackjackGame.compare_decks(user_hand, dealer_hand)
     gain = 0
@@ -114,7 +117,7 @@ async def blackjack(ctx, price, **details):
     # Manage the message
     gain = math.floor(gain)
     player.money += gain
-    player.command_rate_limits['blackjack_saved_cooldown'] = int(time.time())
+    player.command_rate_limits["blackjack_saved_cooldown"] = int(time.time())
     player.save()
 
     if gain > 0:
@@ -143,18 +146,18 @@ async def blackjack(ctx, price, **details):
 @commands.ratelimit(cooldown=5, error="You can't use russian roulette again for **[COOLDOWN]**!", save=True)
 async def russianroulette(ctx, price, **details):
     """
-   [CMD_KEY]russianroulette (bet)
-    
-    Play Russian Roulette with your friends, the gun.
-    
-    Game objective: Pray to survive.
+    [CMD_KEY]russianroulette (bet)
+
+     Play Russian Roulette with your friends, the gun.
+
+     Game objective: Pray to survive.
     """
     if price < 1:
         raise util.BattleBananaException(ctx.channel, "You cannot bet under ¤1")
 
     player = details["author"]
     if price > player.money:
-            raise util.BattleBananaException(ctx.channel, "You cannot bet more than you have!")
+        raise util.BattleBananaException(ctx.channel, "You cannot bet more than you have!")
 
     message = await util.reply(ctx, "Click...")
     await asyncio.sleep(random.random() * 2)

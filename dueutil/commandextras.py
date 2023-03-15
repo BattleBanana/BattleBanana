@@ -9,7 +9,6 @@ from .game import emojis
 
 def dict_command(**spec):
     def wrap(command_func):
-
         expected = expand_spec(spec.get("expected", {}))
         optional = expand_spec(spec.get("optional", {}))
 
@@ -18,14 +17,16 @@ def dict_command(**spec):
             # Find the last positional. That is where the dict_args will be passed.
             args_spec = inspect.signature(command_func)
             params = list(args_spec.parameters.values())
-            args_dict_param = next((param for param in reversed(params)
-                                    if param.kind is Parameter.POSITIONAL_OR_KEYWORD))
+            args_dict_param = next(
+                (param for param in reversed(params) if param.kind is Parameter.POSITIONAL_OR_KEYWORD)
+            )
 
             # Get all args after and including the position of the arg for the dict_args
             # Those will be processed into a dict.
             arg_dict_index = params.index(args_dict_param) - 1  # -1 to ignore ctx arg
-            dict_args = determine_dict_args(list(args[arg_dict_index:]), wrapped_command, ctx,
-                                            expected=expected, optional=optional)
+            dict_args = determine_dict_args(
+                list(args[arg_dict_index:]), wrapped_command, ctx, expected=expected, optional=optional
+            )
 
             if dict_args is False:
                 # Invalid

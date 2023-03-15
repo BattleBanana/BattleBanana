@@ -22,8 +22,9 @@ def in_a_team(player: players.Player):
     if team is None:
         player.team = None
         player.save()
-    
+
     return player.team is not None
+
 
 @commands.command(args_pattern="SS?B?C?")
 async def createteam(ctx, name, description="This is a new and awesome team!", is_open=True, level=1, **details):
@@ -125,8 +126,12 @@ async def showinvites(ctx, **details):
 
     player = details["author"]
 
-    invites_embed = discord.Embed(title="Displaying your team invites!", description="You were invited to join these teams!",
-                          type="rich", colour=gconf.DUE_COLOUR)
+    invites_embed = discord.Embed(
+        title="Displaying your team invites!",
+        description="You were invited to join these teams!",
+        type="rich",
+        colour=gconf.DUE_COLOUR,
+    )
     if len(player.team_invites) == 0:
         invites_embed.add_field(name="No invites!", value="You do not have invites!")
     else:
@@ -134,11 +139,19 @@ async def showinvites(ctx, **details):
             team = teams.find_team(id)
             if team:
                 owner = players.find_player(team.owner)
-                invites_embed.add_field(name=team.name,
-                                value="**Owner:** %s (%s)\n**Average level:** %s\n**Members:** %s\n**Required Level:** %s\n**Recruiting:** %s"
-                                      % (owner.name, owner.id, team.avgLevel, len(team.members), team.level,
-                                         ("Yes" if team.open else "No")),
-                                inline=False)
+                invites_embed.add_field(
+                    name=team.name,
+                    value="**Owner:** %s (%s)\n**Average level:** %s\n**Members:** %s\n**Required Level:** %s\n**Recruiting:** %s"
+                    % (
+                        owner.name,
+                        owner.id,
+                        team.avgLevel,
+                        len(team.members),
+                        team.level,
+                        ("Yes" if team.open else "No"),
+                    ),
+                    inline=False,
+                )
             else:
                 player.team_invites.remove(id)
 
@@ -192,9 +205,9 @@ async def myteam(ctx, **details):
 
     Display your team!
 
-    Couldn't find 
-    a longer description 
-    for this than 
+    Couldn't find
+    a longer description
+    for this than
     that :shrug:
     So now it is longer
     """
@@ -320,14 +333,16 @@ async def leaveteam(ctx, **details):
     player = details["author"]
 
     if not in_a_team(player):
-        raise util.BattleBananaException(ctx.channel,
-                                         "You are not in any team.. You can't leave the void.. *My void!* :smiling_imp:")
+        raise util.BattleBananaException(
+            ctx.channel, "You are not in any team.. You can't leave the void.. *My void!* :smiling_imp:"
+        )
 
     team = teams.find_team(player.team)
     if team.owner == player.id:
-        raise util.BattleBananaException(ctx.channel,
-                                         "You cannot leave this team! If you want to disband it, use `%sdeleteteam`" % (
-                                             details["cmd_key"]))
+        raise util.BattleBananaException(
+            ctx.channel,
+            "You cannot leave this team! If you want to disband it, use `%sdeleteteam`" % (details["cmd_key"]),
+        )
 
     team.kick(ctx, player)
     await util.reply(ctx, "You successfully left your team!")
@@ -346,11 +361,12 @@ async def showteams(ctx, page=1, **details):
     if page < 0:
         raise util.BattleBananaException(ctx.channel, "Page not found!")
 
-    teams_embed = discord.Embed(title="There is the teams lists", description="Display all existant teams", type="rich",
-                               colour=gconf.DUE_COLOUR)
+    teams_embed = discord.Embed(
+        title="There is the teams lists", description="Display all existant teams", type="rich", colour=gconf.DUE_COLOUR
+    )
 
     db_teams = list(dbconn.get_collection_for_object(teams.Team).find())
-    top = (page * page_size + page_size)
+    top = page * page_size + page_size
     if page != 0 and page * 5 >= len(db_teams):
         raise util.BattleBananaException(ctx.channel, "Page not found")
 
@@ -369,13 +385,18 @@ async def showteams(ctx, page=1, **details):
             name=team.name,
             value=f"Owner: **{owner.name}** ({owner.id})\nDescription: **{team.description}**\nMembers: **{len(team.members)}**"
             + f"\nAverage Level: **{team.avgLevel}**\nRequired Level: **{team.level}**\nRecruiting: **{'Yes' if team.open else 'No'}**",
-            inline=False
+            inline=False,
         )
 
-
     limit = page_size * page + page_size < len(db_teams)
-    teams_embed.set_footer(text="%s" % (("Do %sshowteams %d for the next page!" % (
-        details["cmd_key"], page + 2)) if limit else "That's all the teams!"))
+    teams_embed.set_footer(
+        text="%s"
+        % (
+            ("Do %sshowteams %d for the next page!" % (details["cmd_key"], page + 2))
+            if limit
+            else "That's all the teams!"
+        )
+    )
     await util.reply(ctx, embed=teams_embed)
 
 
@@ -394,7 +415,7 @@ async def showteaminfo(ctx, team, **_):
 async def jointeam(ctx, team, **details):
     """
     [CMD_KEY]jointeam (team)
-    
+
     Join a team or the pending list
     """
 
@@ -408,17 +429,19 @@ async def jointeam(ctx, team, **details):
         await util.reply(ctx, "You successfully joined **%s**!" % (team.name))
 
     elif player.level < team.level:
-        raise util.BattleBananaException(ctx.channel,
-                                         "You must be level %s or higher to join this team!" % (team.level))
+        raise util.BattleBananaException(
+            ctx.channel, "You must be level %s or higher to join this team!" % (team.level)
+        )
 
     else:
         team.add_pending(ctx, player)
         await util.reply(ctx, "You have been added to **%s** pending list!" % (team.get_name_possession()))
 
 
-@commands.command(args_pattern='S*', aliases=["ts"])
+@commands.command(args_pattern="S*", aliases=["ts"])
 @commands.extras.dict_command(
-    optional={"min level/minimum level/level": "I", "open/recruiting": "B", "description/desc": "S"})
+    optional={"min level/minimum level/level": "I", "open/recruiting": "B", "description/desc": "S"}
+)
 async def editteam(ctx, updates, **details):
     """
     [CMD_KEY]editteam param (value)+
@@ -467,7 +490,7 @@ async def editteam(ctx, updates, **details):
         result = "**Settings changed:**\n"
 
         for prop, value in updates.items():
-            result += ("``%s`` → %s\n" % (prop, value))
+            result += "``%s`` → %s\n" % (prop, value)
 
         await util.reply(ctx, result)
 
@@ -491,13 +514,20 @@ async def showpendings(ctx, page=1, **details):
         raise util.BattleBananaException(ctx.channel, "Page not found!")
 
     team = teams.find_team(player.team)
-    top = ((page_size * page) + page_size) if ((page_size * page) + page_size < len(team.pendings)) else len(team.pendings)
+    top = (
+        ((page_size * page) + page_size)
+        if ((page_size * page) + page_size < len(team.pendings))
+        else len(team.pendings)
+    )
     if page != 0 and page * page_size >= len(team.pendings):
         raise util.BattleBananaException(ctx.channel, "Page not found")
 
-    pendings_embed = discord.Embed(title="**%s** pendings list" % (team.name),
-                                   description="Displaying players pending to your team", type="rich",
-                                   colour=gconf.DUE_COLOUR)
+    pendings_embed = discord.Embed(
+        title="**%s** pendings list" % (team.name),
+        description="Displaying players pending to your team",
+        type="rich",
+        colour=gconf.DUE_COLOUR,
+    )
     for index in range((page_size * page), top, 1):
         pending_id = team.pendings[index]
         player = players.find_player(pending_id)
@@ -507,8 +537,14 @@ async def showpendings(ctx, page=1, **details):
         pendings_embed.add_field(name="The list is empty!", value="Nobody is pending to your team!")
 
     limit = (5 * page) + 5 < len(team.pendings)
-    pendings_embed.set_footer(text="%s" % (("Do %sshowpendings %d for the next page!" % (
-        details["cmd_key"], page + 2)) if limit else "That's all the pendings!"))
+    pendings_embed.set_footer(
+        text="%s"
+        % (
+            ("Do %sshowpendings %d for the next page!" % (details["cmd_key"], page + 2))
+            if limit
+            else "That's all the pendings!"
+        )
+    )
 
     await util.reply(ctx, embed=pendings_embed)
 
