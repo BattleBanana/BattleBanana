@@ -53,7 +53,7 @@ class Weapon(BattleBananaObject, SlotPickleMixin):
             if not (util.char_is_emoji(icon) or util.is_server_emoji(message.guild, icon)):
                 raise util.BattleBananaException(
                     message.channel,
-                    (":eyes: Weapon icons must be emojis! :ok_hand:**" + "(custom emojis must be on this guild)**​"),
+                    (":eyes: Weapon icons must be emojis! :ok_hand:**" + "(custom emojis must be on this guild)**"),
                 )
 
             self.server_id = message.guild.id
@@ -198,7 +198,7 @@ def stock_weapon(weapon_name: str) -> str:
 
 def remove_all_weapons(guild):
     if guild in weapons:
-        result = dbconn.delete_objects(Weapon, "%s\+.*" % guild.id)
+        result = dbconn.delete_objects(Weapon, rf"{guild.id}\+.*")
         del weapons[guild]
         return result.deleted_count
     return 0
