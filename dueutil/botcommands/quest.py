@@ -23,7 +23,7 @@ from ..permissions import Permission
 async def spawnquest(ctx, *args, **details):
     """
     [CMD_KEY]spawnquest (name) (@user) (level)
-    
+
     A command for TESTING only please (awais) do not abuse this power.
     All arguments are optional however the final three must all be entered
     to use them.
@@ -58,7 +58,7 @@ async def spawnquest(ctx, *args, **details):
 async def questinfo(ctx, quest_index, **details):
     """
     [CMD_KEY]questinfo index
-    
+
     Shows a simple stats page for the quest
     """
 
@@ -75,7 +75,7 @@ async def questinfo(ctx, quest_index, **details):
 async def myquests(ctx, page=1, **details):
     """
     [CMD_KEY]myquests
-    
+
     Shows the list of active quests you have pending.
     """
 
@@ -184,7 +184,7 @@ async def acceptquest(ctx, quest_index, **details):
 
 @commands.command(args_pattern=None, aliases=['aaq'])
 @commands.require_cnf(warning=f"Check your equipped weapon, cash and stats.\nThis command will accept **all your quests** and could potentially result in :bangbang:**MASSIVE money loss**:bangbang: {e.NOT_STONK}.\nAre you sure you want to continue?")
-async def acceptallquests(ctx, **details): 
+async def acceptallquests(ctx, **details):
     """
     [CMD_KEY]acceptallquests
 
@@ -225,7 +225,7 @@ async def acceptallquests(ctx, **details):
         quest_turns_list.append(battle_log.turn_count)
         winner = battle_log.winner
         stats.increment_stat(stats.Stat.QUESTS_ATTEMPTED)
-        
+
         if winner == quest:
             lose += 1
             player.money -= quest.money // 2
@@ -252,11 +252,11 @@ async def acceptallquests(ctx, **details):
                 quest_info.save()
             await game.check_for_level_up(ctx, player)
             player.misc_stats["quest_losing_streak"] = 0
-            
+
         else:
             draw += 1
 
-        player.quests.remove(quest) 
+        player.quests.remove(quest)
 
     average_turns = round(sum(quest_turns_list) / len(quest_turns_list), 2)
     player.misc_stats["average_quest_battle_turns"] = average_turns
@@ -329,12 +329,12 @@ async def createquest(ctx, name, attack, strg, accy, hp,
                       task=None, weapon=None, image_url=None, spawn_chance=25, **_):
     """
     [CMD_KEY]createquest name (base attack) (base strg) (base accy) (base hp)
-    
+
     You can also add (task string) (weapon) (image url) (spawn chance)
     after the first four args.
-    
+
     Note a base value is how strong the quest would be at level 1
-    
+
     __Example__:
     Basic Quest:
         ``[CMD_KEY]createquest "Mega Mouse" 1.3 2 1.1 32``
@@ -435,12 +435,23 @@ async def editquest(ctx, quest_name, updates, **_):
                 quest.channel = value.upper()
                 updates[quest_property] = value.title()
             else:
-                channel_id = value.replace("<#", "").replace(">", "")
-                channel = util.get_channel(channel_id)
-                if channel is not None:
-                    quest.channel = channel.id
-                else:
-                    updates[quest_property] = "Channel not found!"
+                new_value = [i.strip() for i in value.split(',')] # split through comma
+                new_value = [i.split() for i in new_value] #split through space
+                new_value = [id for l in new_value for id in l] # flatten the list - final output will always be list with list containing single elements
+                quest_channels = []
+                channel_list_string = ""
+                for channel in new_value:
+                    channel_id = channel.replace("<#", "").replace(">", "")
+                    ret_channel = util.get_channel(channel_id)
+                    if ret_channel is not None:
+                        if ret_channel not in quest_channels: # avoid duplicates
+                            quest_channels.append(channel_id)
+                            channel_list_string += f"\n\t{ret_channel.mention}"
+                    else:
+                        channel_list_string += f"\n\t{channel} Channel not found!"
+                if quest_channels:
+                    quest.channel = quest_channels
+                updates[quest_property] = channel_list_string
         else:
             updates[quest_property] = util.ultra_escape_string(value)
             if quest_property == "image":
@@ -461,7 +472,7 @@ async def editquest(ctx, quest_name, updates, **_):
             quest.image_url = quest.DEFAULT_IMAGE
             updates["image"] = None
             await imagehelper.warn_on_invalid_image(ctx.channel)
-        
+
         for quest_property, update_result in updates.items():
             result += ("``%s`` → %s\n" % (quest_property, update_result))
 
@@ -473,7 +484,7 @@ async def editquest(ctx, quest_name, updates, **_):
 async def removequest(ctx, quest_name, **_):
     """
     [CMD_KEY]removequest (quest name)
-    
+
     Systematically exterminates all instances of the quest...
     ...Even those yet to be born
     """
