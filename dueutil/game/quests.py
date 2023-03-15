@@ -264,7 +264,7 @@ def get_quest_from_id(quest_id: str) -> Quest:
 
 
 def get_channel_quests(channel: discord.abc.GuildChannel) -> List[Quest]:
-    return [quest for quest in quests[channel.guild].values() if quest.channel == 'ALL' or str(channel.id) in quest.channel]
+    return [quest for quest in quests[channel.guild].values() if quest.channel == "ALL" or str(channel.id) in quest.channel]
 
 
 def get_random_quest_in_channel(channel: discord.abc.GuildChannel):
