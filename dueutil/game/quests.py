@@ -327,6 +327,9 @@ def _load():
     for quest in dbconn.get_collection_for_object(Quest).find():
         loaded_quest: Quest = jsonpickle.decode(quest['data'])
 
+        if isinstance(loaded_quest.channel,int):
+            loaded_quest.channel = [str(loaded_quest.channel)]
+            
         if isinstance(loaded_quest.server_id, str):
             loaded_quest.server_id = int(loaded_quest.server_id)
 
