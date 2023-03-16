@@ -313,9 +313,8 @@ class BattleBananaClient(discord.AutoShardedClient):
             return
 
         owner = message.author
-        owner.id == config["owner"] and not permissions.has_permission(
-            owner, Permission.BANANA_OWNER
-        ) and permissions.give_permission(owner, Permission.BANANA_OWNER)
+        if owner.id == config["owner"] and not permissions.has_permission(owner, Permission.BANANA_OWNER):
+            permissions.give_permission(owner, Permission.BANANA_OWNER)
 
         # what are you doing daughter - dev
         # fixing mac's shitty slow regex parser - me, theel
