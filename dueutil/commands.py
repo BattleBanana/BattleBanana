@@ -171,7 +171,7 @@ def imagecommand():
         @ratelimit(slow_command=True, cooldown=IMAGE_REQUEST_COOLDOWN, error=":cold_sweat: Please don't break me!")
         @wraps(command_func)
         async def wrapped_command(ctx, *args, **kwargs):
-            await util.typing(ctx.channel)
+            await ctx.channel.typing()
             await asyncio.ensure_future(command_func(ctx, *args, **kwargs))
 
         return wrapped_command
@@ -250,13 +250,12 @@ def require_cnf(warning):
             message = await util.reply(ctx, f"Are you sure?! {warning}", view=interaction)
 
             response = await interaction.start()
+            await message.delete()
             if response == "confirm":
                 if args is None:
                     await command_func(ctx, *args, **details)
                 else:
                     await command_func(ctx, **details)
-
-            await util.delete_message(message)
 
         return wrapped_command
 

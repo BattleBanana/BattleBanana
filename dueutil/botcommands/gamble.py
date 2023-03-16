@@ -1,21 +1,24 @@
+"""
+This is a super cool category with some ~~gambling~~ surprise mechanics.
+
+Have fun kiddos!
+"""
+
 import asyncio
-import secrets
-import discord
 import math
 import random
+import secrets
 import time
+
+import discord
 from discord import ui
 from pydealer import Deck
 
 import generalconfig as gconf
+
 from .. import commands, util
-from ..game import blackjack as blackjackGame, players
-
-"""
-This is a super cool category with some ~~gambling~~ surprise mechanics. 
-
-Have fun kiddos!
-"""
+from ..game import blackjack as blackjackGame
+from ..game import players
 
 
 @commands.command(args_pattern="I", aliases=["bj"])
@@ -74,7 +77,7 @@ async def blackjack(ctx, price, **details):
             blackjack_embed.add_field(name="Dealer's hand (%s)" % (dealer_value), value=dealer_hand)
 
             blackjack_buttons = blackjackGame.BlackjackInteraction(ctx.author)
-            await util.edit_message(msg, embed=blackjack_embed, view=blackjack_buttons)
+            await msg.edit(embed=blackjack_embed, view=blackjack_buttons)
         elif content == "stand":
             break
 
@@ -139,7 +142,7 @@ async def blackjack(ctx, price, **details):
     blackjack_embed.set_footer()
 
     blackjack_buttons.clear_items()
-    await util.edit_message(msg, embed=blackjack_embed, view=None)
+    await msg.edit(embed=blackjack_embed, view=None)
 
 
 @commands.command(args_pattern="I", aliases=["rr"])
@@ -164,12 +167,12 @@ async def russianroulette(ctx, price, **details):
     if secrets.randbelow(6) == 1:
         reward = price * 5
         player.money += reward
-        await util.edit_message(message, content=message.content + "\nYou survived and won `¤%s`!" % (reward))
+        await message.edit(content=message.content + "\nYou survived and won `¤%s`!" % (reward))
     else:
         player.money -= price
         battle_banana = players.find_player(ctx.guild.me.id)
         if battle_banana is not None:
             battle_banana.money += price
             battle_banana.save()
-        await util.edit_message(message, content=message.content + "\nYou died and lost `¤%s`!" % (price))
+        await message.edit(content=message.content + "\nYou died and lost `¤%s`!" % (price))
     player.save()

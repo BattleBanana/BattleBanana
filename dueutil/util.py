@@ -32,8 +32,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("battlebanana")
 logging.getLogger("discord.state").setLevel(logging.ERROR)
 
-trello_client = TrelloClient(api_key=gconf.trello_api_key, api_token=gconf.trello_api_token)
-
 
 class DueLog:
     @staticmethod
@@ -170,8 +168,8 @@ async def tax(amount, bb):
     return taxed_amount
 
 
-async def reply(ctx, *args, **kwargs):
-    if type(ctx.channel) is str:
+async def reply(ctx: discord.Message, *args, **kwargs):
+    if isinstance(ctx.channel, str):
         # Guild/Channel id
         server_id, channel_id = ctx.channel.split("/")
         ctx.channel = get_guild(int(server_id)).get_channel(int(channel_id))
@@ -182,13 +180,14 @@ async def reply(ctx, *args, **kwargs):
         try:
             return await ctx.reply(*args, mention_author=False, **kwargs)
         except discord.errors.HTTPException:
-            return await say(ctx.channel, *args, **kwargs)
-        except discord.errors.Forbidden as send_error:
-            raise SendMessagePermMissing(send_error)
+            try:
+                return await say(ctx.channel, *args, **kwargs)
+            except discord.Forbidden as send_error:
+                raise SendMessagePermMissing(send_error) from send_error
 
 
 async def say(channel: discord.TextChannel, *args, **kwargs):
-    if type(channel) is str:
+    if isinstance(channel, str):
         # Guild/Channel id
         server_id, channel_id = channel.split("/")
         channel = get_guild(int(server_id)).get_channel(int(channel_id))
@@ -199,36 +198,12 @@ async def say(channel: discord.TextChannel, *args, **kwargs):
         try:
             return await channel.send(*args, **kwargs)
         except discord.Forbidden as send_error:
-            raise SendMessagePermMissing(send_error)
+            raise SendMessagePermMissing(send_error) from send_error
 
 
 async def save_old_topdog(player):
     topdogs = dbconn.conn()["Topdogs"]
     topdogs.insert_one({"user_id": player.id, "date": datetime.utcnow()})
-
-
-async def typing(channel):
-    await channel.typing()
-
-
-async def wait_for_message(ctx, author, timeout=120):
-    channel = ctx.channel
-
-    def check(message):
-        msg = message.content.lower()
-        return msg in ("hit", "stand") and message.author == author and message.channel == channel
-
-    try:
-        return await clients[0].wait_for("message", timeout=timeout, check=check)
-    except asyncio.exceptions.TimeoutError:
-        return None
-
-
-async def edit_message(message, **kwargs):
-    content = kwargs.pop("content", " ")
-    embed = kwargs.pop("embed", None)
-
-    await message.edit(content=content, embed=embed, **kwargs)
 
 
 async def fetch_user(user_id):
@@ -237,10 +212,6 @@ async def fetch_user(user_id):
         # User not in cache
         user = await clients[0].fetch_user(int(user_id))
     return user
-
-
-async def delete_message(message):
-    await message.delete()
 
 
 def load_and_update(reference, bot_object):
@@ -277,7 +248,7 @@ def get_guild_id(source):
         return source.id
 
 
-def get_guild(server_id: int):
+def get_guild(server_id: int) -> discord.Guild:
     return clients[0].get_guild(server_id)
 
 

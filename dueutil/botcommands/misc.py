@@ -271,7 +271,7 @@ async def eval(ctx, body, **details):
     try:
         exec(to_compile, env)
     except Exception as e:
-        return await util.edit_message(msg, content=f"```py\n{code_in}\n{e.__class__.__name__}: {e}\n```")
+        return await msg.edit(content=f"```py\n{code_in}\n{e.__class__.__name__}: {e}\n```")
     func = env["func"]
     try:
         with redirect_stdout(stdout):
@@ -282,17 +282,17 @@ async def eval(ctx, body, **details):
         value = stdout.getvalue()
         t2 = time.time()
         timep = f"#{(round((t2 - t1) * 1000000)) / 1000} ms"
-        await util.edit_message(msg, content=f"```py\n{code_in}\n{value}{traceback.format_exc()}\n{timep}\n```")
+        await msg.edit(content=f"```py\n{code_in}\n{value}{traceback.format_exc()}\n{timep}\n```")
     else:
         value = stdout.getvalue()
 
         if ret is None:
             if value:
-                await util.edit_message(msg, content=f"```py\n{code_in}\n{value}\n{timep}\n```")
+                await msg.edit(content=f"```py\n{code_in}\n{value}\n{timep}\n```")
             else:
-                await util.edit_message(msg, content=f"```py\n{code_in}\n{timep}\n```")
+                await msg.edit(content=f"```py\n{code_in}\n{timep}\n```")
         else:
-            await util.edit_message(msg, content=f"```py\n{code_in}\n{value}{ret}\n{timep}\n```")
+            await msg.edit(content=f"```py\n{code_in}\n{value}{ret}\n{timep}\n```")
 
 
 @commands.command(permission=Permission.BANANA_OWNER, args_pattern="S?", hidden=True)
@@ -630,7 +630,7 @@ async def ping(ctx, **_):
         embed.add_field(name="API Latency:", value="``NaN``")
 
     embed.add_field(name="Database Latency:", value=f"``{dbms}ms``", inline=False)
-    await util.edit_message(message, embed=embed)
+    await message.edit(embed=embed)
 
 
 @commands.command(args_pattern=None)
@@ -659,9 +659,9 @@ async def pong(ctx, **_):
     embed.add_field(name="Bot Latency:", value=f"`{apims}ms`")
 
     embed.add_field(name="Database Latency:", value=f"``{dbms}ms``", inline=False)
-    await util.edit_message(message, embed=embed)
+    await message.edit(embed=embed)
 
-    await util.edit_message(message, embed=embed)
+    await message.edit(embed=embed)
 
 
 @commands.command(args_pattern=None)

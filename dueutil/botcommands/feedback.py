@@ -1,12 +1,15 @@
 import discord
 
 import generalconfig as gconf
-from .. import util, commands
-from ..permissions import Permission
+from dueutil.trello import TrelloClient
 
+from .. import commands, util
+from ..permissions import Permission
 
 BUG_REPORT = "Bug report"
 SUGGESTION = "Suggestion"
+
+TRELLO_CLIENT = TrelloClient(api_key=gconf.trello_api_key, api_token=gconf.trello_api_token)
 
 
 class FeedbackHandler:
@@ -23,7 +26,7 @@ class FeedbackHandler:
         author = ctx.author
         author_name = str(author)
 
-        trello_link = await util.trello_client.add_card(
+        trello_link = await TRELLO_CLIENT.add_card(
             board_url=gconf.trello_board,
             name=message,
             desc=("Automated %s added by BattleBanana\n" % self.type + "Author: %s (id %s)" % (author_name, author.id)),
