@@ -1,22 +1,3 @@
-import aiohttp
-import asyncio
-from aiohttp_socks import ProxyConnector
-import cpuinfo
-from datetime import datetime
-import discord
-import emoji  # The emoji list in this is outdated/not complete.
-import io
-from itertools import chain
-import logging
-import math
-import platform
-import time
-
-import generalconfig as gconf
-from dueutil import dbconn
-from .trello import TrelloClient
-from .game import stats
-
 """
 A random jumble of classes & functions that are some how
 utilities.
@@ -24,9 +5,29 @@ utilities.
 Other than that no two things in this module have much in common
 """
 
+import asyncio
+import io
+import logging
+import math
+import platform
+import time
+from datetime import datetime
+from itertools import chain
+
+import aiohttp
+import cpuinfo
+import discord
+import emoji  # The emoji list in this is outdated/not complete.
+from aiohttp_socks import ProxyConnector
+
+import generalconfig as gconf
+from dueutil import dbconn
+
+from .game import stats
+
 client = None
 clients = []
-processor = ""
+_PROCESSOR = ""
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("battlebanana")
 logging.getLogger("discord.state").setLevel(logging.ERROR)
@@ -112,10 +113,10 @@ def get_vpn_connector():
 
 
 def get_cpu_info():
-    global processor
-    if processor == "":
-        processor = cpuinfo.get_cpu_info()["brand_raw"]
-    return processor
+    global _PROCESSOR
+    if _PROCESSOR == "":
+        _PROCESSOR = cpuinfo.get_cpu_info()["brand_raw"]
+    return _PROCESSOR
 
 
 async def download_file(url):
