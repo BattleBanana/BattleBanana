@@ -1,18 +1,16 @@
+"""
+Basic classes to store themes, backgrounds and banners.
+"""
+
 import json
 import os
-from PIL import Image
 from typing import Dict
+
+from PIL import Image
 
 from .. import permissions, util
 from ..game.helpers.misc import BattleBananaObject
 from ..permissions import Permission
-
-"""
-
-Basic classes to store themes, backgrounds and banners.
-
-"""
-
 
 BACKGROUND_PATH = "assets/backgrounds/backgrounds.json"
 
@@ -182,9 +180,9 @@ class Banner(Customization):
 
     def banner_restricted(self, player):
         member = player.to_member()
-        return (
-            not self.admin_only or (self.admin_only and permissions.has_permission(member, Permission.BANANA_ADMIN))
-        ) and (not self.mod_only or (self.mod_only and permissions.has_permission(member, Permission.BANANA_MOD)))
+        return (not self.admin_only or permissions.has_permission(member, Permission.BANANA_ADMIN)) and (
+            not self.mod_only or permissions.has_permission(member, Permission.BANANA_MOD)
+        )
 
     def can_use_banner(self, player):
         return (not self.donor or self.donor and player.donor) and self.banner_restricted(player)
