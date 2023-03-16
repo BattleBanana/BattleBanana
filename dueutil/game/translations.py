@@ -65,19 +65,26 @@ def _load():
 
     temp_translations = {}
     for language in os.listdir(LOCALIZATION_PATH):
+        if not os.path.isdir(LOCALIZATION_PATH + language):
+            continue
+
         if language == ".git":
             continue
+
         temp_translations[language] = {}
         for category in os.listdir(LOCALIZATION_PATH + language):
             temp_translations[language][category] = {}
+
             for file in os.listdir(LOCALIZATION_PATH + language + "/" + category):
                 file_name = file.split(".")[0]
-                temp_translations[language][category][file_name] = json.load(
-                    open(LOCALIZATION_PATH + language + "/" + category + "/" + file, "r", encoding="utf-8")
-                )
+
+                with open(
+                    LOCALIZATION_PATH + language + "/" + category + "/" + file, "r", encoding="utf-8"
+                ) as json_file:
+                    temp_translations[language][category][file_name] = json.load(json_file)
 
     translations.update(temp_translations)
-    util.logger.info(f"Loaded {len(translations)} translations")
+    util.logger.info("Loaded %s translations", len(translations))
 
 
 _load()
