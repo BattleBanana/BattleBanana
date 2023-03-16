@@ -2,11 +2,8 @@ FROM python:3.11-slim
 
 WORKDIR /usr/src/app
 
-# Create a virtual environment
-RUN python3 -m venv battlebanana && . ./battlebanana/bin/activate
-
 # Install dependencies for ssdeep
-RUN apt-get update && apt-get install -y build-essential libfuzzy-dev
+RUN apt-get update && apt-get install --no-install-recommends -y build-essential libfuzzy-dev
 
 # Copy the requirements file and install dependencies
 COPY requirements.txt .
