@@ -2,7 +2,7 @@ import importlib
 import pkgutil
 import sys
 
-from . import events, util, dbconn
+from . import dbconn, events, util
 
 MODULE_EXTENSIONS = (".py", ".pyc", ".pyo")
 GAME = "dueutil.game"
@@ -12,12 +12,12 @@ loaded_modules = []
 
 
 def loader(action, packages=BOT_PACKAGES):
-    if isinstance(packages, str):
-        packages = (packages,)
     """
     Inefficient - but allows me to load all the modules (needed to register commands & load game stuff)
     and produce a pretty list
     """
+    if isinstance(packages, str):
+        packages = (packages,)
 
     for package_name in packages:
         package = importlib.import_module(package_name)

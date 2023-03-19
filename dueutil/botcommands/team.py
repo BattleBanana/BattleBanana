@@ -2,11 +2,13 @@ import discord
 import jsonpickle
 
 import generalconfig as gconf
-from .. import commands, util, dbconn
+
+from .. import commands, dbconn, util
 from ..game import players, teams
 
 NOT_IN_TEAM = "You are not in a team!"
 ALREADY_IN_TEAM = "You are already in a team!"
+NOT_IN_YOUR_TEAM = "This player is not in your team!"
 
 
 def in_a_team(player: players.Player):
@@ -113,7 +115,7 @@ async def teaminvite(ctx, member, **details):
 
     member.team_invites.append(player.team)
     member.save()
-    await util.reply(ctx, ":thumbsup: Invite has been sent to **%s**!" % member.name)
+    await util.reply(ctx, f":thumbsup: Invite has been sent to **{member.name}**!")
 
 
 @commands.command(args_pattern=None, aliases=["si"])
@@ -141,14 +143,12 @@ async def showinvites(ctx, **details):
                 owner = players.find_player(team.owner)
                 invites_embed.add_field(
                     name=team.name,
-                    value="**Owner:** %s (%s)\n**Average level:** %s\n**Members:** %s\n**Required Level:** %s\n**Recruiting:** %s"
-                    % (
-                        owner.name,
-                        owner.id,
-                        team.avgLevel,
-                        len(team.members),
-                        team.level,
-                        ("Yes" if team.open else "No"),
+                    value=(
+                        f"**Owner:** {owner.name} ({owner.id})\n"
+                        + f"**Average level:** {team.avgLevel}\n"
+                        + f"**Members:** {len(team.members)}\n"
+                        + f"**Required Level:** {team.level}\n"
+                        + f"**Recruiting:** {'Yes' if team.open else 'No'}"
                     ),
                     inline=False,
                 )
@@ -177,7 +177,7 @@ async def acceptinvite(ctx, team, **details):
 
     team.add_member(ctx, player)
 
-    await util.reply(ctx, "Successfully joined **%s**!" % team)
+    await util.reply(ctx, f"Successfully joined **{team}**!")
 
 
 @commands.command(args_pattern="T", aliases=["di"])
@@ -195,7 +195,7 @@ async def declineinvite(ctx, team, **details):
 
     player.team_invites.remove(team.id)
     player.save()
-    await util.reply(ctx, "Successfully deleted **%s** invite!" % team.name)
+    await util.reply(ctx, f"Successfully deleted **{team.name}** invite!")
 
 
 @commands.command(args_pattern=None, aliases=["mt"])
@@ -242,14 +242,14 @@ async def promoteuser(ctx, target, **details):
         raise util.BattleBananaException(ctx.channel, NOT_IN_TEAM)
 
     if target.team != player.team:
-        raise util.BattleBananaException(ctx.channel, "This player is not in your team!")
+        raise util.BattleBananaException(ctx.channel, NOT_IN_YOUR_TEAM)
 
     team = teams.find_team(player.team)
     if player.id != team.owner:
         raise util.BattleBananaException(ctx.channel, "You are not allowed to promote users! (You must be owner!)")
 
     team.add_admin(ctx, target)
-    await util.reply(ctx, "Successfully promoted **%s** as an **admin**!" % (target.get_name_possession_clean()))
+    await util.reply(ctx, f"Successfully promoted **{target.get_name_possession_clean()}** as an **admin**!")
 
 
 @commands.command(args_pattern="P", aliases=["du"])
@@ -271,7 +271,7 @@ async def demoteuser(ctx, target, **details):
         raise util.BattleBananaException(ctx.channel, NOT_IN_TEAM)
 
     if target.team != player.team:
-        raise util.BattleBananaException(ctx.channel, "This player is not in your team!")
+        raise util.BattleBananaException(ctx.channel, NOT_IN_YOUR_TEAM)
 
     team = teams.find_team(player.team)
     if player.id != team.owner:
@@ -281,7 +281,7 @@ async def demoteuser(ctx, target, **details):
         raise util.BattleBananaException(ctx.channel, "This player is already a member!")
 
     team.remove_admin(ctx, target)
-    await util.reply(ctx, "**%s** has been demoted to **Member**" % (target.name))
+    await util.reply(ctx, f"**{target.name}** has been demoted to **Member**")
 
 
 @commands.command(args_pattern="P", aliases=["tk"])
@@ -306,7 +306,7 @@ async def teamkick(ctx, target, **details):
         raise util.BattleBananaException(ctx.channel, NOT_IN_TEAM)
 
     if not in_a_team(target) or target.team != player.team:
-        raise util.BattleBananaException(ctx.channel, "This player is not in your team!")
+        raise util.BattleBananaException(ctx.channel, NOT_IN_YOUR_TEAM)
 
     team = teams.find_team(player.team)
     if not team.is_admin(player):
@@ -316,7 +316,7 @@ async def teamkick(ctx, target, **details):
         raise util.BattleBananaException(ctx.channel, "You must be the owner to kick this player from the team!")
 
     team.kick(ctx, target)
-    await util.reply(ctx, "Successfully kicked **%s** from your team, adios amigos!" % target.name)
+    await util.reply(ctx, f"Successfully kicked **{target.name}** from your team, adios amigos!")
 
 
 @commands.command(args_pattern=None, aliases=["lt"])
@@ -341,7 +341,7 @@ async def leaveteam(ctx, **details):
     if team.owner == player.id:
         raise util.BattleBananaException(
             ctx.channel,
-            "You cannot leave this team! If you want to disband it, use `%sdeleteteam`" % (details["cmd_key"]),
+            f"You cannot leave this team! If you want to disband it, use `{details['cmd_key']}deleteteam`",
         )
 
     team.kick(ctx, player)
@@ -383,19 +383,20 @@ async def showteams(ctx, page=1, **details):
         owner = players.find_player(team.owner)
         teams_embed.add_field(
             name=team.name,
-            value=f"Owner: **{owner.name}** ({owner.id})\nDescription: **{team.description}**\nMembers: **{len(team.members)}**"
-            + f"\nAverage Level: **{team.avgLevel}**\nRequired Level: **{team.level}**\nRecruiting: **{'Yes' if team.open else 'No'}**",
+            value=(
+                f"Owner: **{owner.name}** ({owner.id})\n"
+                + f"Description: **{team.description}**\n"
+                + f"Members: **{len(team.members)}**\n"
+                + f"Average Level: **{team.avgLevel}**\n"
+                + f"Required Level: **{team.level}**\n"
+                + f"Recruiting: **{'Yes' if team.open else 'No'}**"
+            ),
             inline=False,
         )
 
     limit = page_size * page + page_size < len(db_teams)
     teams_embed.set_footer(
-        text="%s"
-        % (
-            ("Do %sshowteams %d for the next page!" % (details["cmd_key"], page + 2))
-            if limit
-            else "That's all the teams!"
-        )
+        text=f"Do {details['cmd_key']}showteams {page + 2} for the next page!" if limit else "That's all the teams!"
     )
     await util.reply(ctx, embed=teams_embed)
 
@@ -426,16 +427,14 @@ async def jointeam(ctx, team, **details):
 
     if (team.open or team.id in player.team_invites) and player.level >= team.level:
         team.add_member(ctx, player)
-        await util.reply(ctx, "You successfully joined **%s**!" % (team.name))
+        await util.reply(ctx, f"You successfully joined **{team.name}**!")
 
     elif player.level < team.level:
-        raise util.BattleBananaException(
-            ctx.channel, "You must be level %s or higher to join this team!" % (team.level)
-        )
+        raise util.BattleBananaException(ctx.channel, f"You must be level {team.level} or higher to join this team!")
 
     else:
         team.add_pending(ctx, player)
-        await util.reply(ctx, "You have been added to **%s** pending list!" % (team.get_name_possession()))
+        await util.reply(ctx, f"You have been added to **{team.get_name_possession()}** pending list!")
 
 
 @commands.command(args_pattern="S*", aliases=["ts"])
@@ -490,7 +489,7 @@ async def editteam(ctx, updates, **details):
         result = "**Settings changed:**\n"
 
         for prop, value in updates.items():
-            result += "``%s`` → %s\n" % (prop, value)
+            result += f"``{prop}`` → {value}\n"
 
         await util.reply(ctx, result)
 
@@ -523,7 +522,7 @@ async def showpendings(ctx, page=1, **details):
         raise util.BattleBananaException(ctx.channel, "Page not found")
 
     pendings_embed = discord.Embed(
-        title="**%s** pendings list" % (team.name),
+        title=f"**{team.name}** pendings list" % (),
         description="Displaying players pending to your team",
         type="rich",
         colour=gconf.DUE_COLOUR,
@@ -531,16 +530,15 @@ async def showpendings(ctx, page=1, **details):
     for index in range((page_size * page), top, 1):
         pending_id = team.pendings[index]
         player = players.find_player(pending_id)
-        pendings_embed.add_field(name=index, value="%s (%s)" % (player.name, player.id), inline=False)
+        pendings_embed.add_field(name=index, value=f"{player.name} ({player.id})", inline=False)
 
     if len(pendings_embed.fields) == 0:
         pendings_embed.add_field(name="The list is empty!", value="Nobody is pending to your team!")
 
     limit = (5 * page) + 5 < len(team.pendings)
     pendings_embed.set_footer(
-        text="%s"
-        % (
-            ("Do %sshowpendings %d for the next page!" % (details["cmd_key"], page + 2))
+        text=(
+            f"Do {details['cmd_key']}showpendings {page + 2} for the next page!"
             if limit
             else "That's all the pendings!"
         )
@@ -570,7 +568,7 @@ async def acceptpending(ctx, target, **details):
         raise util.BattleBananaException(ctx.channel, "Pending player not found!")
 
     team.add_member(ctx, target)
-    await util.reply(ctx, "Accepted **%s** in your team!" % (target.name))
+    await util.reply(ctx, f"Accepted **{target.name}** in your team!")
 
 
 @commands.command(args_pattern="P", aliases=["dp"])
@@ -592,4 +590,4 @@ async def declinepending(ctx, target, **details):
 
     team.remove_pending(ctx, target)
 
-    await util.reply(ctx, "Removed **%s** from pendings!" % (target.name))
+    await util.reply(ctx, f"Removed **{target.name}** from pendings!")

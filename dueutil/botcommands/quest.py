@@ -1,14 +1,13 @@
-import discord
-import math
 import random
 import time
 
+import discord
+
 import generalconfig as gconf
+
 from .. import commands, util
-from ..game import emojis as e
-from ..game import quests, game, battles, weapons, stats, awards, players
-from ..game.helpers import imagehelper
-from ..game.helpers import misc
+from ..game import awards, battles, emojis, game, players, quests, stats, weapons
+from ..game.helpers import imagehelper, misc
 from ..permissions import Permission
 
 
@@ -42,8 +41,8 @@ async def spawnquest(ctx, *args, **details):
         await util.reply(
             ctx, ":cloud_lightning: Spawned **" + quest.name_clean + "** [Level " + str(active_quest.level) + "]"
         )
-    except Exception:
-        raise util.BattleBananaException(ctx.channel, "Failed to spawn quest!")
+    except Exception as error:
+        raise util.BattleBananaException(ctx.channel, "Failed to spawn quest!") from error
 
 
 @commands.command(args_pattern="C", aliases=["qi"])
@@ -162,8 +161,8 @@ async def acceptquest(ctx, quest_index, **details):
         add_strg = min(attr_gain(quest.strg), max_stats_gain)
         # Limit these with add_strg. Since if the quest is super strong. It would not be beatable.
         # Add a little random so the limit is not super visible
-        add_attack = min(attr_gain(quest.attack), min(add_strg * 3 * random.uniform(0.6, 1.5), max_stats_gain))
-        add_accy = min(attr_gain(quest.accy), min(add_strg * 3 * random.uniform(0.6, 1.5), max_stats_gain))
+        add_attack = min(attr_gain(quest.attack), add_strg * 3 * random.uniform(0.6, 1.5), max_stats_gain)
+        add_accy = min(attr_gain(quest.accy), add_strg * 3 * random.uniform(0.6, 1.5), max_stats_gain)
 
         stats_reward = players.STAT_GAIN_FORMAT % (add_attack, add_strg, add_accy)
 
@@ -200,7 +199,12 @@ async def acceptquest(ctx, quest_index, **details):
 
 @commands.command(args_pattern=None, aliases=["aaq"])
 @commands.require_cnf(
-    warning=f"Check your equipped weapon, cash and stats.\nThis command will accept **all your quests** and could potentially result in :bangbang:**MASSIVE money loss**:bangbang: {e.NOT_STONK}.\nAre you sure you want to continue?"
+    warning=(
+        "Check your equipped weapon, cash and stats.\n"
+        + "This command will accept **all your quests** "
+        + "and could potentially result in :bangbang:**MASSIVE money loss**:bangbang: "
+        + f"{emojis.NOT_STONK}.\nAre you sure you want to continue?"
+    )
 )
 async def acceptallquests(ctx, **details):
     """
@@ -288,11 +292,24 @@ async def acceptallquests(ctx, **details):
     battle_embed = discord.Embed(title="Battle Results", type="rich", color=gconf.DUE_COLOUR)
     battle_embed.add_field(
         name="Quests Fought",
-        value=f"Total quests: {total_quests}\nWon: {wins}\nLost: {lose}\nDraw: {draw}\n Total Turns: {int(sum(quest_turns_list))}\n Average Turns: {average_turns}",
+        value=(
+            f"Total quests: {total_quests}\n"
+            + f"Won: {wins}\n"
+            + f"Lost: {lose}\n"
+            + f"Draw: {draw}\n"
+            + f"Total Turns: {int(sum(quest_turns_list))}\n"
+            + f"Average Turns: {average_turns}"
+        ),
     )
     battle_embed.add_field(
         name="Results",
-        value=f"{e.ATK}: {round(player.attack - previous_attack, 2)}\n{e.ACCY}: {round(player.accy - previous_accuracy, 2)}\n{e.STRG}: {round(player.strg - previous_strength, 2)}\nMoney: ¤{player.money - previous_money}\nEXP: {round(player.exp - previous_exp)}",
+        value=(
+            f"{emojis.ATK}: {round(player.attack - previous_attack, 2)}\n"
+            + f"{emojis.ACCY}: {round(player.accy - previous_accuracy, 2)}\n"
+            + f"{emojis.STRG}: {round(player.strg - previous_strength, 2)}\n"
+            + f"Money: ¤{player.money - previous_money}\n"
+            + f"EXP: {round(player.exp - previous_exp)}"
+        ),
     )
     battle_embed.set_footer(
         text="If the money is negative, then you lost more money from losing battles than you gained from winning them."
@@ -331,17 +348,7 @@ async def declinequest(ctx, quest_index, **details):
             quest_task = "do a long forgotten quest:"
         await util.reply(
             ctx,
-            (
-                "**"
-                + player.name_clean
-                + "** declined to "
-                + quest_task
-                + " **"
-                + quest.name_clean
-                + " [Level "
-                + str(math.trunc(quest.level))
-                + "]**!"
-            ),
+            f"**{player.name_clean}** declined to {quest_task} **{quest.name_clean} [Level {quest.level}]**!",
         )
     else:
         raise util.BattleBananaException(ctx.channel, quests.QUEST_NOT_FOUND)
@@ -358,14 +365,14 @@ async def declineallquests(ctx, **details):
 
     player = details["author"]
 
-    quests = len(player.quests)
-    if quests == 0:
+    quests_count = len(player.quests)
+    if quests_count == 0:
         raise util.BattleBananaException(ctx.channel, "You have no quests to decline!")
 
     player.quests.clear()
     player.save()
 
-    await util.reply(ctx, "Declined %s quests!" % quests)
+    await util.reply(ctx, f"Declined {quests_count} quests!")
 
 
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern="SRRRRS?S?S?%?")
@@ -394,7 +401,7 @@ async def createquest(ctx, name, attack, strg, accy, hp, task=None, weapon=None,
     """
     if len(quests.get_server_quest_list(ctx.guild)) >= gconf.THING_AMOUNT_CAP:
         raise util.BattleBananaException(
-            ctx.guild, "Whoa, you've reached the limit of %d quests!" % gconf.THING_AMOUNT_CAP
+            ctx.guild, f"Whoa, you've reached the limit of {gconf.THING_AMOUNT_CAP} quests!"
         )
 
     extras = {"spawn_chance": spawn_chance}
@@ -409,7 +416,7 @@ async def createquest(ctx, name, attack, strg, accy, hp, task=None, weapon=None,
     if image_url is not None:
         extras["image_url"] = image_url
 
-    if "image_url" in extras and not (await imagehelper.is_url_image(image_url)):
+    if "image_url" in extras and not await imagehelper.is_url_image(image_url):
         extras.pop("image_url")
         await imagehelper.warn_on_invalid_image(ctx.channel)
 
@@ -521,22 +528,22 @@ async def editquest(ctx, quest_name, updates, **_):
             else:
                 # Task
                 quest.task = value
-                updates[quest_property] = '"%s"' % updates[quest_property]
+                updates[quest_property] = f'"{updates[quest_property]}"'
 
     # Format result.
     if len(updates) == 0:
         await util.reply(ctx, "You need to provide a valid list of changes for the quest!")
     else:
         quest.save()
-        result = e.QUEST + " **%s** updates!\n" % quest.name_clean
+        result = f"{emojis.QUEST} **{quest.name_clean}** updates!\n"
 
-        if new_image_url is not None and not (await imagehelper.is_url_image(new_image_url)):
+        if new_image_url is not None and not await imagehelper.is_url_image(new_image_url):
             quest.image_url = quest.DEFAULT_IMAGE
             updates["image"] = None
             await imagehelper.warn_on_invalid_image(ctx.channel)
 
         for quest_property, update_result in updates.items():
-            result += "``%s`` → %s\n" % (quest_property, update_result)
+            result += f"``{quest_property}`` → {update_result}\n"
 
         quest.save()
         await util.reply(ctx, result)
@@ -574,8 +581,10 @@ async def resetquests(ctx, **_):
     if quests_deleted > 0:
         await util.reply(
             ctx,
-            ":wastebasket: Your quests have been reset—**%d %s** deleted."
-            % (quests_deleted, util.s_suffix("quest", quests_deleted)),
+            (
+                ":wastebasket: Your quests have been reset — "
+                + f"**{quests_deleted} {util.s_suffix('quest', quests_deleted)}** deleted."
+            ),
         )
     else:
         await util.reply(ctx, "There's no quests to delete!")
@@ -593,63 +602,60 @@ async def serverquests(ctx, page=1, **details):
     Remember you can edit any of the quests on your guild with [CMD_KEY]editquest
     """
 
-    @misc.paginator
-    def quest_list(quests_embed, current_quest, **_):
-        quests_embed.add_field(
-            name=current_quest.name_clean,
-            value="Completed %s time" % current_quest.times_beaten
-            + ("s" if current_quest.times_beaten != 1 else "")
-            + "\n"
-            + "Active channel: %s" % current_quest.get_channel_mention(ctx.guild),
-        )
-
-    if type(page) is int:
+    if isinstance(page, int):
         page -= 1
 
         quests_list = list(quests.get_server_quest_list(ctx.guild).values())
         quests_list.sort(key=lambda server_quest: server_quest.times_beaten, reverse=True)
 
+        @misc.paginator
+        def quest_list(quests_embed, current_quest, **_):
+            quests_embed.add_field(
+                name=current_quest.name_clean,
+                value=f"Completed {current_quest.times_beaten} {util.s_suffix('time', current_quest.times_beaten)}\n"
+                + f"Active channel: {current_quest.get_channel_mention(ctx.guild)}",
+            )
+
         # misc.paginator handles all the messy checks.
         quest_list_embed = quest_list(
             quests_list,
             page,
-            e.QUEST + " Quests on " + details["server_name_clean"],
-            footer_more="But wait there more! Do %sserverquests %d" % (details["cmd_key"], page + 2),
+            title=emojis.QUEST + " Quests on " + details["server_name_clean"],
+            footer_more=f"But wait there more! Do {details['cmd_key']}serverquests {page + 2}",
             empty_list="There are no quests on this guild!\nHow sad.",
         )
 
         await util.reply(ctx, embed=quest_list_embed)
     else:
         # TODO: Improve
-        quest_info_embed = discord.Embed(type="rich", color=gconf.DUE_COLOUR)
         quest_name = page
         quest = quests.get_quest_on_server(ctx.guild, quest_name)
         if quest is None:
             raise util.BattleBananaException(ctx.channel, quests.QUEST_NOT_FOUND)
-        quest_info_embed.title = "Quest information for the %s " % quest.name_clean
-        quest_info_embed.description = "You can edit these values with %seditquest %s (values)" % (
-            details["cmd_key"],
-            quest.name_command_clean.lower(),
+
+        quest_info_embed = discord.Embed(
+            type="rich",
+            color=gconf.DUE_COLOUR,
+            title=f"Quest information for the {quest.name_clean}",
+            description=(
+                "You can edit these values with"
+                + f"{details['cmd_key']}editquest {quest.name_command_clean.lower()} (values)"
+            ),
         )
 
         attributes_formatted = tuple(
             util.format_number(base_value, full_precision=True)
-            for base_value in quest.base_values() + (quest.spawn_chance * 100,)
+            for base_value in (*quest.base_values(), quest.spawn_chance * 100)
         )
         quest_info_embed.add_field(
             name="Base stats",
             value=(
                 (
-                    e.ATK
-                    + " **ATK** - %s \n"
-                    + e.STRG
-                    + " **STRG** - %s\n"
-                    + e.ACCY
-                    + " **ACCY** - %s\n"
-                    + e.HP
-                    + " **HP** - %s\n"
-                    + e.QUEST
-                    + " **Spawn %%** - %s\n"
+                    f"{emojis.ATK} **ATK** - %s \n"
+                    + f"{emojis.STRG} **STRG** - %s\n"
+                    + f"{emojis.ACCY} **ACCY** - %s\n"
+                    + f"{emojis.HP} **HP** - %s\n"
+                    + f"{emojis.QUEST} **Spawn %%** - %s\n"
                 )
                 % attributes_formatted
             ),
@@ -658,13 +664,10 @@ async def serverquests(ctx, page=1, **details):
         quest_info_embed.add_field(
             name="Other attributes",
             value=(
-                e.QUESTINFO
-                + " **Image** - [Click to view](%s)\n" % util.ultra_escape_string(quest.image_url)
-                + ':speech_left: **Task message** - "%s"\n' % util.ultra_escape_string(quest.task)
-                + e.WPN
-                + " **Weapon** - %s\n" % quest_weapon
-                + e.CHANNEL
-                + " **Channel** - %s\n" % quest.get_channel_mention(ctx.guild)
+                f"{emojis.QUESTINFO} **Image** - [Click to view]({util.ultra_escape_string(quest.image_url)})\n"
+                + f':speech_left: **Task message** - "{util.ultra_escape_string(quest.task)}"\n'
+                + f"{emojis.WPN} **Weapon** - {quest_weapon}\n"
+                + f"{emojis.CHANNEL} **Channel** - {quest.get_channel_mention(ctx.guild)}\n"
             ),
             inline=False,
         )

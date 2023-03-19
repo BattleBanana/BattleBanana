@@ -1,7 +1,5 @@
-import discord
 import json
 import math
-import objgraph
 import os
 import re
 import shlex
@@ -12,12 +10,16 @@ import traceback
 from contextlib import redirect_stdout
 from io import StringIO
 
+import discord
+import objgraph
+
 import dueutil.permissions
 import generalconfig as gconf
-from .. import commands, util, events, dbconn, loader
-from ..game import customizations, awards, leaderboards, game, emojis
-from ..game.helpers import imagehelper
+
+from .. import commands, dbconn, events, loader, util
+from ..game import awards, customizations, emojis, game, leaderboards
 from ..game.configs import codes
+from ..game.helpers import imagehelper
 from ..permissions import Permission
 
 
@@ -115,9 +117,9 @@ async def uploadbg(ctx, icon, name, description, url, price, submitter=None, **d
     image.save("assets/backgrounds/" + image_name)
 
     try:
-        backgrounds_file = open(customizations.BACKGROUND_PATH, "r+")
+        backgrounds_file = open(customizations.BACKGROUND_PATH, "r+", encoding="utf-8")
     except IOError:
-        backgrounds_file = open(customizations.BACKGROUND_PATH, "w+")
+        backgrounds_file = open(customizations.BACKGROUND_PATH, "w+", encoding="utf-8")
     with backgrounds_file:
         try:
             backgrounds = json.load(backgrounds_file)
@@ -136,8 +138,8 @@ async def uploadbg(ctx, icon, name, description, url, price, submitter=None, **d
 
     customizations.backgrounds._load_backgrounds()
 
-    await util.reply(ctx, ":white_check_mark: Background **" + name + "** has been uploaded!")
-    await util.duelogger.info("**%s** added the background **%s**" % (details["author"].name_clean, name))
+    await util.reply(ctx, f":white_check_mark: Background **{name}** has been uploaded!")
+    await util.duelogger.info(f"**{details['author'].name_clean}** added the background **{name}**")
 
     if submitter is not None:
         await awards.give_award(ctx.channel, submitter, "BgAccepted", "Background Accepted!")
@@ -171,9 +173,7 @@ async def testbg(ctx, url, **_):
             ),
         )
     else:
-        await util.reply(
-            ctx, (":thumbsup: **That looks good to me!**\n" + "P.s. I can't check for low quality images!")
-        )
+        await util.reply(ctx, ":thumbsup: **That looks good to me!**\nP.s. I can't check for low quality images!")
 
 
 @commands.command(permission=Permission.BANANA_MOD, args_pattern="S")
@@ -194,7 +194,7 @@ async def deletebg(ctx, background_to_delete, **details):
     background = customizations.backgrounds[background_to_delete]
 
     try:
-        with open(customizations.BACKGROUND_PATH, "r+") as backgrounds_file:
+        with open(customizations.BACKGROUND_PATH, "r+", encoding="utf-8") as backgrounds_file:
             backgrounds = json.load(backgrounds_file)
             if background_to_delete not in backgrounds:
                 raise util.BattleBananaException(ctx.channel, "You cannot delete this background!")
@@ -202,18 +202,16 @@ async def deletebg(ctx, background_to_delete, **details):
             backgrounds_file.seek(0)
             backgrounds_file.truncate()
             json.dump(backgrounds, backgrounds_file, indent=4)
-    except IOError:
+    except IOError as io_error:
         raise util.BattleBananaException(
             ctx.channel, "Only uploaded backgrounds can be deleted and there are no uploaded backgrounds!"
-        )
+        ) from io_error
     os.remove("assets/backgrounds/" + background["image"])
 
     customizations.backgrounds._load_backgrounds()
 
     await util.reply(ctx, ":wastebasket: Background **" + background.name_clean + "** has been deleted!")
-    await util.duelogger.info(
-        "**%s** deleted the background **%s**" % (details["author"].name_clean, background.name_clean)
-    )
+    await util.duelogger.info(f"**{details['author'].name_clean}** deleted the background **{background.name_clean}**")
 
 
 def cleanup_code(content):
@@ -231,8 +229,8 @@ def get_syntax_error(e):
     return f'```py\n{e.text}{"^":>{e.offset}}\n{e.__class__.__name__}: {e}```'
 
 
-@commands.command(permission=Permission.BANANA_OWNER, args_pattern="S", aliases=["evaluate"])
-async def eval(ctx, body, **details):
+@commands.command(permission=Permission.BANANA_OWNER, args_pattern="S", aliases=["eval"])
+async def evaluate(ctx, body, **details):
     """
     [CMD_KEY]eval (code)
 
@@ -296,7 +294,7 @@ async def eval(ctx, body, **details):
 
 
 @commands.command(permission=Permission.BANANA_OWNER, args_pattern="S?", hidden=True)
-async def oseval(ctx, cmd, **details):
+async def oseval(ctx, cmd, **_):
     temp = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     stdout, stderr = temp.communicate()
 
@@ -320,7 +318,7 @@ async def generatecode(ctx, value, count=1, show=True, **details):
         code_embed = discord.Embed(title="New codes!", type="rich", colour=gconf.DUE_COLOUR)
         code_embed.add_field(name="Codes:", value="\n".join([code.code for code in new_codes]))
         code_embed.set_footer(
-            text="These codes can only be used once! Use %sredeem (code) to redeem the prize!" % (details["cmd_key"])
+            text=f"These codes can only be used once! Use {details['cmd_key']}redeem (code) to redeem the prize!"
         )
         await util.reply(ctx, embed=code_embed)
 
@@ -343,7 +341,7 @@ async def showcodes(ctx, page=1, **details):
         value="\n".join([code.code for code in paged_codes]) if len(paged_codes) != 0 else "No code to display!",
     )
     code_embed.set_footer(
-        text="These codes can only be used once! Use %sredeem (code) to redeem the prize!" % (details["cmd_key"])
+        text=f"These codes can only be used once! Use {details['cmd_key']}redeem (code) to redeem the prize!"
     )
     await util.reply(ctx, embed=code_embed)
 
@@ -364,7 +362,7 @@ async def redeem(ctx, code, **details):
     player.money += price
     player.save()
 
-    await util.reply(ctx, "You successfully redeemed **%s** !!" % (util.format_money(price)))
+    await util.reply(ctx, f"You successfully redeemed **{util.format_money(price)}** !!")
 
 
 @commands.command(permission=Permission.BANANA_OWNER, args_pattern="PS")
@@ -382,10 +380,10 @@ async def sudo(ctx, victim, command, **_):
             ctx.author = victim.to_member(ctx.guild)
             ctx.author.guild = ctx.guild  # Lie about what guild they're on.
         ctx.content = command
-        await util.reply(ctx, ":smiling_imp: Sudoing **" + victim.name_clean + "**!")
+        await util.reply(ctx, f":smiling_imp: Sudoing **{victim.name_clean}**!")
         await events.command_event(ctx)
     except util.BattleBananaException as command_failed:
-        raise util.BattleBananaException(ctx.channel, 'Sudo failed! "%s"' % command_failed.message)
+        raise util.BattleBananaException(ctx.channel, f'Sudo failed! "{command_failed.message}"')
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PC")
@@ -404,19 +402,19 @@ async def setpermlevel(ctx, player, level, **_):
             raise util.BattleBananaException(ctx.channel, "You do not have permission to set this permission")
 
         dueutil.permissions.give_permission(member, permission)
-        await util.reply(ctx, "**" + player.name_clean + "** permission level set to ``" + permission.value[1] + "``.")
+        await util.reply(ctx, f"**{player.name_clean}** permission level set to ``{permission.value[1]}``.")
         if permission == Permission.BANANA_MOD:
             await awards.give_award(ctx.channel, player, "Mod", "Become an mod!")
-            await util.duelogger.info("**%s** is now a BattleBanana mod! (%s)" % (player.name_clean, str(player.id)))
+            await util.duelogger.info(f"**{player.name_clean}** is now a BattleBanana mod! ({player.id})")
         elif "Mod" in player.awards:
             player.awards.remove("Mod")
         if permission == Permission.BANANA_ADMIN:
             await awards.give_award(ctx.channel, player, "Admin", "Become an admin!")
-            await util.duelogger.info("**%s** is now a BattleBanana admin! (%s)" % (player.name_clean, str(player.id)))
+            await util.duelogger.info(f"**{player.name_clean}** is now a BattleBanana admin! ({player.id})")
         elif "Admin" in player.awards:
             player.awards.remove("Admin")
         if permission == Permission.BANANA_OWNER:
-            await util.duelogger.info("**%s** is now a BattleBanana Owner! (%s)" % (player.name_clean, str(player.id)))
+            await util.duelogger.info(f"**{player.name_clean}** is now a BattleBanana Owner! ({player.id})")
     else:
         raise util.BattleBananaException(ctx.channel, "Permission not found")
 
@@ -430,18 +428,18 @@ async def ban(ctx, player, **_):
 
     dueutil.permissions.give_permission(player.to_member(ctx.guild), Permission.BANNED)
     await util.reply(ctx, emojis.MACBAN + " **" + player.name_clean + "** banned!")
-    await util.duelogger.concern("**%s** has been banned! (%s)" % (player.name_clean, str(player.id)))
+    await util.duelogger.concern(f"**{player.name_clean}** has been banned! ({player.id})")
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="P", aliases=["pardon"])
 async def unban(ctx, player, **_):
     member = player.to_member(ctx.guild)
     if not dueutil.permissions.has_special_permission(member, Permission.BANNED):
-        await util.reply(ctx, "**%s** is not banned..." % player.name_clean)
+        await util.reply(ctx, f"**{player.name_clean}** is not banned...")
         return
     dueutil.permissions.give_permission(member, Permission.PLAYER)
-    await util.reply(ctx, ":unicorn: **" + player.name_clean + "** has been unbanned!")
-    await util.duelogger.info("**%s** has been unbanned (%s)" % (player.name_clean, str(player.id)))
+    await util.reply(ctx, f":unicorn: **{player.name_clean}** has been unbanned!")
+    await util.duelogger.info(f"**{player.name_clean}** has been unbanned ({player.id})")
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="C?", hidden=True)
@@ -451,7 +449,7 @@ async def bans(ctx, page=1, **_):
 
     start = (page - 1) * 10
     for cursor in dbconn.conn()["permissions"].find({"permission": "banned"}, {"_id": 1}).skip(start).limit(10):
-        string += "<@%s> (%s)\n" % (cursor["_id"], cursor["_id"])
+        string += f"<@{cursor['_id']}> ({cursor['_id']})\n"
 
     bans_embed.add_field(name="There is what I collected about bad people:", value=string or "Nobody is banned!")
 
@@ -462,9 +460,9 @@ async def bans(ctx, page=1, **_):
 async def toggledonor(ctx, player, **_):
     player.donor = not player.donor
     if player.donor:
-        await util.reply(ctx, "**%s** is now a donor!" % player.name_clean)
+        await util.reply(ctx, f"**{player.name_clean}** is now a donor!")
     else:
-        await util.reply(ctx, "**%s** is no longer donor" % player.name_clean)
+        await util.reply(ctx, f"**{player.name_clean}** is no longer donor")
     player.save()
 
 
@@ -483,11 +481,9 @@ async def givecash(ctx, amount, *players, **_):
         player.money += amount
         amount_str = util.format_number(abs(amount), money=True, full_precision=True)
         if amount >= 0:
-            to_send += "Added ``" + amount_str + "`` to **" + player.get_name_possession_clean() + "** account!\n"
+            to_send += f"Added ``{amount_str}`` to **{player.get_name_possession_clean()}** account!\n"
         else:
-            to_send += (
-                "Subtracted ``" + amount_str + "`` from **" + player.get_name_possession_clean() + "** account!\n"
-            )
+            to_send += f"Subtracted ``{amount_str}`` to **{player.get_name_possession_clean()}** account!\n"
         player.save()
 
     await util.reply(ctx, to_send)
@@ -497,14 +493,14 @@ async def givecash(ctx, amount, *players, **_):
 async def setcash(ctx, player, amount, **_):
     player.money = amount
     amount_str = util.format_number(amount, money=True, full_precision=True)
-    await util.reply(ctx, "Set **%s** balance to ``%s``" % (player.get_name_possession_clean(), amount_str))
+    await util.reply(ctx, f"Set **{player.get_name_possession_clean()}** balance to ``{amount_str}``")
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PI")
 async def setprestige(ctx, player, prestige, **_):
     player.prestige_level = prestige
     player.save()
-    await util.reply(ctx, "Set prestige to **%s** for **%s**" % (prestige, player.get_name_possession_clean()))
+    await util.reply(ctx, f"Set prestige to **{prestige}** for **{player.get_name_possession_clean()}**")
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PS")
@@ -523,7 +519,7 @@ async def giveexp(ctx, player, exp, **_):
     increase_stat = exp / 300
     player.progress(increase_stat, increase_stat, increase_stat, max_exp=math.inf, max_attr=math.inf)
     await util.reply(
-        ctx, "**%s** has been given **%s** exp!" % (player.name_clean, util.format_number(exp, full_precision=True))
+        ctx, f"**{player.name_clean}** has been given **{util.format_number(exp, full_precision=True)}** exp!"
     )
     await game.check_for_level_up(ctx, player)
     player.save()
@@ -599,13 +595,13 @@ async def restartbot(ctx, **_):
 async def meminfo(ctx, **_):
     mem_info = StringIO()
     objgraph.show_most_common_types(file=mem_info)
-    await util.reply(ctx, "```%s```" % mem_info.getvalue())
+    await util.reply(ctx, f"```{mem_info.getvalue()}```")
     mem_info = StringIO()
     objgraph.show_growth(file=mem_info)
-    await util.reply(ctx, "```%s```" % mem_info.getvalue())
+    await util.reply(ctx, f"```{mem_info.getvalue()}```")
 
 
-@commands.command(args_pattern=None)
+@commands.command(args_pattern=None, aliases=["pong"])
 async def ping(ctx, **_):
     """
     [CMD_KEY]ping
@@ -630,37 +626,6 @@ async def ping(ctx, **_):
         embed.add_field(name="API Latency:", value="``NaN``")
 
     embed.add_field(name="Database Latency:", value=f"``{dbms}ms``", inline=False)
-    await message.edit(embed=embed)
-
-
-@commands.command(args_pattern=None)
-async def pong(ctx, **_):
-    """
-    [CMD_KEY]pong
-
-    Ping! Gives you the response time.
-    """
-    message = await util.reply(ctx, ":ping_pong:")
-    t1 = time.time()
-    dbconn.db.command("ping")
-    t2 = time.time()
-    dbms = round((t2 - t1) * 1000)
-
-    apims = round((message.created_at - ctx.created_at).total_seconds() * 1000)
-
-    embed = discord.Embed(title=":ping_pong: Ping!", type="rich", colour=gconf.DUE_COLOUR)
-    try:
-        latency = round(util.clients[0].latencies[util.get_shard_index(ctx.guild.id)][1] * 1000)
-
-        embed.add_field(name="API Latency:", value=f"`{latency}ms`")
-    except OverflowError:
-        embed.add_field(name="API Latency:", value="``NaN``")
-
-    embed.add_field(name="Bot Latency:", value=f"`{apims}ms`")
-
-    embed.add_field(name="Database Latency:", value=f"``{dbms}ms``", inline=False)
-    await message.edit(embed=embed)
-
     await message.edit(embed=embed)
 
 

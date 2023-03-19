@@ -1,12 +1,11 @@
 import asyncio
-from datetime import datetime
 import json
 import os
 import sys
 import time
+from datetime import datetime
 from itertools import chain
 
-import cpuinfo
 import discord
 import psutil
 import repoze.timeago
@@ -17,9 +16,7 @@ from .. import blacklist as bl
 from .. import commands, events, permissions, util
 
 # Shorthand for emoji as I use gconf to hold emoji constants
-from ..game import awards, discoin
-from ..game import emojis as e
-from ..game import players, stats
+from ..game import awards, emojis, players, stats
 from ..game.configs import dueserverconfig
 from ..game.stats import Stat
 from ..permissions import Permission
@@ -102,7 +99,7 @@ async def help(ctx, *args, **details):
         help_embed.description = "Welcome to the help!\n Simply do " + server_key + "help (category) or (command name)."
         help_embed.add_field(name=":file_folder: Command categories", value=", ".join(categories))
         help_embed.add_field(
-            name=e.THINKY_FONK + " Tips",
+            name=emojis.THINKY_FONK + " Tips",
             value=(
                 "If BattleBanana reacts to your command it means something is wrong!\n"
                 + ":question: - Something is wrong with the command's syntax.\n"
@@ -112,7 +109,7 @@ async def help(ctx, *args, **details):
         help_embed.add_field(
             name=":link: Links",
             value=(
-                "**Invite me: %s**\n" % gconf.BOT_INVITE
+                f"**Invite me: {gconf.BOT_INVITE}**\n"
                 + "BattleBanana guide: https://battlebanana.xyz/howto\n"
                 + "Need more help?: https://discord.gg/P7DBDEC\n"
                 + "Support BattleBanana: https://patreon.com/developeranonymous"
@@ -136,7 +133,7 @@ async def invite(ctx, **_):
 
     invite_embed = discord.Embed(title="BattleBanana's invites", type="rich", color=gconf.DUE_COLOUR)
     invite_embed.description = "Here are 2 important links about me! :smiley:"
-    invite_embed.add_field(name="Invite me:", value=("[Here](%s)" % gconf.BOT_INVITE), inline=True)
+    invite_embed.add_field(name="Invite me:", value=f"[Here]({gconf.BOT_INVITE})", inline=True)
     invite_embed.add_field(name="Support server:", value="[Here](https://discord.gg/P7DBDEC)", inline=True)
     await util.reply(ctx, embed=invite_embed)
 
@@ -170,10 +167,10 @@ async def botinfo(ctx, **_):
     info_embed.add_field(name="Owner", value="[DeveloperAnonymous#9830](https://battlebanana.xyz/)")
     info_embed.add_field(
         name="Framework",
-        value="[discord.py %s :two_hearts:](https://discordpy.readthedocs.io/en/latest/)" % (discord.__version__),
+        value=f"[discord.py {discord.__version__} :two_hearts:](https://discordpy.readthedocs.io/en/latest/)",
     )
-    info_embed.add_field(name="Version", value=gconf.VERSION),
-    info_embed.add_field(name="Invite BB!", value="%s" % gconf.BOT_INVITE, inline=False)
+    info_embed.add_field(name="Version", value=gconf.VERSION)
+    info_embed.add_field(name="Invite BB!", value=gconf.BOT_INVITE, inline=False)
     info_embed.add_field(
         name="Support server", value="For help with the bot or a laugh join **https://discord.gg/P7DBDEC**!"
     )
@@ -189,7 +186,7 @@ async def prefix(ctx, **details):
     """
 
     server_prefix = dueserverconfig.server_cmd_key(ctx.guild)
-    await util.reply(ctx, "The prefix on **%s** is ``%s``" % (details.get("server_name_clean"), server_prefix))
+    await util.reply(ctx, f"The prefix on **{details['server_name_clean']}** is ``{server_prefix}``")
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
@@ -205,41 +202,43 @@ async def botstats(ctx: discord.Message, **_):
 
     created_at = datetime.utcfromtimestamp(ctx.guild.me.created_at.timestamp())
     stats_embed.description = (
-        "The numbers and stuff of BattleBanana right now!\n"
-        + "The **worst** Discord bot since %s, %s!"
-        % (created_at.strftime("%d/%m/%Y"), repoze.timeago.get_elapsed(created_at))
+        "The numbers and stuff of BattleBanana right now!\nThe **worst** Discord bot since"
+        + f" {created_at.strftime('%d/%m/%Y')}, {repoze.timeago.get_elapsed(created_at)}!"
     )
 
     # General
+    commands_used = game_stats[Stat.COMMANDS_USED]
+    discoin_received = game_stats[Stat.DISCOIN_RECEIVED]
+    images_served = game_stats[Stat.IMAGES_SERVED]
+
     stats_embed.add_field(
         name="General",
         value=(
-            e.MYINFO
-            + " **%s** images served.\n" % util.format_number_precise(game_stats[Stat.IMAGES_SERVED])
-            + e.DISCOIN
-            + " **Đ%s** Discoin received.\n" % util.format_number_precise(game_stats[Stat.DISCOIN_RECEIVED])
-        )
-        + e.CHANNEL
-        + " **%s** commands used.\n" % util.format_number_precise(game_stats[Stat.COMMANDS_USED]),
+            f"{emojis.MYINFO} **{util.format_number_precise(images_served)}** images served.\n"
+            + f"{emojis.DISCOIN} **Đ{util.format_number_precise(discoin_received)}** Discoin received.\n"
+            + f"{emojis.CHANNEL} **%s** commands used.\n" % util.format_number_precise(commands_used),
+        ),
     )
 
     # Game
+    new_players = game_stats[Stat.NEW_PLAYERS_JOINED]
+    quests_given = game_stats[Stat.QUESTS_GIVEN]
+    quests_attempted = game_stats[Stat.QUESTS_ATTEMPTED]
+    players_leveled = game_stats[Stat.PLAYERS_LEVELED]
+    money_created = game_stats[Stat.MONEY_CREATED]
+    money_transferred = game_stats[Stat.MONEY_TRANSFERRED]
+    money_taxed = game_stats[Stat.MONEY_TAXED]
+
     stats_embed.add_field(
         name="Game",
         value=(
-            e.QUESTER
-            + " **%s** players.\n" % util.format_number_precise(game_stats[Stat.NEW_PLAYERS_JOINED])
-            + e.QUEST
-            + " **%s** quests given.\n" % util.format_number_precise(game_stats[Stat.QUESTS_GIVEN])
-            + e.FIST
-            + " **%s** quests attempted.\n" % util.format_number_precise(game_stats[Stat.QUESTS_ATTEMPTED])
-            + e.LEVEL_UP
-            + " **%s** level ups.\n" % util.format_number_precise(game_stats[Stat.PLAYERS_LEVELED])
-            + e.BBT
-            + " **%s** awarded.\n" % util.format_money(game_stats[Stat.MONEY_CREATED])
-            + e.BBT_WITH_WINGS
-            + " **%s** transferred between players.\n" % util.format_money(game_stats[Stat.MONEY_TRANSFERRED])
-            + " **%s** taxed." % util.format_money(game_stats[Stat.MONEY_TAXED])
+            f"{emojis.QUESTER} **{util.format_number_precise(new_players)}** players.\n"
+            + f"{emojis.QUEST} **{util.format_number_precise(quests_given)}** quests given.\n"
+            + f"{emojis.FIST} **{util.format_number_precise(quests_attempted)}** quests attempted.\n"
+            + f"{emojis.LEVEL_UP} **{util.format_number_precise(players_leveled)}** level ups.\n"
+            + f"{emojis.BBT} **{util.format_money(money_created)}** awarded.\n"
+            + f"{emojis.BBT_WITH_WINGS} **{util.format_money(money_transferred)}** transferred between players.\n"
+            + f"{emojis.RECEIPT} **{util.format_money(money_taxed)}** taxed."
         ),
         inline=False,
     )
@@ -250,9 +249,9 @@ async def botstats(ctx: discord.Message, **_):
     stats_embed.add_field(
         name="Shard",
         value=(
-            "You're connected to shard **%d/%d** (that is named %s).\n"
-            % (current_shard + 1, client.shard_count, gconf.shard_names[current_shard])
-            + "Current uptime is %s." % util.display_time(time.time() - client.start_time, granularity=4)
+            f"You're connected to shard **{current_shard + 1}/{client.shard_count}** "
+            + f"(that is named {gconf.shard_names[current_shard]}).\n"
+            + f"Current uptime is {util.display_time(time.time() - client.start_time, granularity=4)}."
         ),
         inline=False,
     )
@@ -281,9 +280,9 @@ async def botstats(ctx: discord.Message, **_):
     stats_embed.add_field(
         name="System infos",
         value=(
-            f"{e.OS} **{os_platform}**\n"
-            f"{e.CPU} **{cpu_model} ({cpu_usage}% usage)**\n"
-            f"{e.RAM} **{used_ram}/{total_ram} GB ({percent_ram}%)**"
+            f"{emojis.OS} **{os_platform}**\n"
+            f"{emojis.CPU} **{cpu_model} ({cpu_usage}% usage)**\n"
+            f"{emojis.RAM} **{used_ram}/{total_ram} GB ({percent_ram}%)**"
         ),
         inline=False,
     )
@@ -530,9 +529,9 @@ async def setuproles(ctx, **_):
     roles_made = await util.set_up_roles(ctx.guild)
     roles_count = len(roles_made)
     if roles_count > 0:
-        result = ":white_check_mark: Created **%d %s**!\n" % (roles_count, util.s_suffix("role", roles_count))
+        result = f":white_check_mark: Created **{roles_count} {util.s_suffix('role', roles_count)}**!\n"
         for role in roles_made:
-            result += "→ ``%s``\n" % role["name"]
+            result += f"→ ``{role['name']}``\n"
         await util.reply(ctx, result)
     else:
         await util.reply(ctx, "No roles need to be created!")
@@ -586,7 +585,7 @@ async def optout(ctx, **details):
             ctx,
             (
                 "You've already opted out everywhere!\n"
-                + "You can join the fun again with ``%soptin``." % details["cmd_key"]
+                + f"You can join the fun again with ``{details['cmd_key']}optin``."
             ),
         )
 
@@ -613,7 +612,7 @@ async def optin(ctx, **details):
         else:
             await util.reply(
                 ctx,
-                ("You've only opted out on this guild!\n" + "To optin here do ``%soptinhere``" % details["cmd_key"]),
+                f"You've only opted out on this guild!\nTo optin here do ``{details['cmd_key']}optinhere``",
             )
     else:
         permissions.give_permission(ctx.author, Permission.PLAYER)
@@ -650,7 +649,7 @@ async def optouthere(ctx, **details):
                 ctx,
                 (
                     "There is no optout role on this guild!\n"
-                    + "Ask an admin to run ``%ssetuproles``" % details["cmd_key"]
+                    + f"Ask an admin to run ``{details['cmd_key']}setuproles``"
                 ),
             )
         else:
@@ -669,7 +668,7 @@ async def optouthere(ctx, **details):
             ctx,
             (
                 "You've already opted out on this sever!\n"
-                + "Join the fun over here do ``%soptinhere``" % details["cmd_key"]
+                + f"Join the fun over here do ``{details['cmd_key']}optinhere``"
             ),
         )
 
@@ -697,7 +696,7 @@ async def optinhere(ctx, **details):
                 "You've opted in on this guild!\n"
                 + (
                     "However this is overridden by your global optout.\n"
-                    + "To optin everywhere to ``%soptin``" % details["cmd_key"]
+                    + f"To optin everywhere to ``{details['cmd_key']}optin``"
                 )
                 * globally_opted_out
             ),
@@ -708,7 +707,7 @@ async def optinhere(ctx, **details):
                 ctx,
                 (
                     "You've opted out of BattleBanana everywhere!\n"
-                    + "To use BattleBanana do ``%soptin``" % details["cmd_key"]
+                    + f"To use BattleBanana do ``{details['cmd_key']}optin``"
                 ),
             )
         else:
@@ -739,7 +738,7 @@ async def exchange(ctx, amount, currency, **details):
 
 
 @commands.command(args_pattern="S?", permission=Permission.BANANA_ADMIN, hidden=True)
-async def status(ctx, message=None, **details):
+async def status(ctx, message=None, **_):
     """
     If message is none the status will be reset to the default one.
 
@@ -750,7 +749,7 @@ async def status(ctx, message=None, **details):
         count = client.shard_count
         for shard_id in range(0, count):
             game = discord.Activity(
-                name="battlebanana.xyz | shard %d/%d" % (shard_id, count), type=discord.ActivityType.watching
+                name=f"battlebanana.xyz | shard {shard_id}/{count}", type=discord.ActivityType.watching
             )
             await client.change_presence(activity=game, shard_id=shard_id)
     else:
@@ -765,7 +764,7 @@ async def status(ctx, message=None, **details):
 )
 @commands.ratelimit(cooldown=604800, error="You can't transfer your data again for **[COOLDOWN]**!", save=True)
 async def transferdata(ctx, **details):
-    reader, writer = await asyncio.open_connection(
+    _, writer = await asyncio.open_connection(
         gconf.other_configs["connectionIP"], gconf.other_configs["connectionPort"]
     )
     attributes_to_remove = [
@@ -799,8 +798,8 @@ async def get_stuff(self):
             continue
 
 
-@commands.command(permission=Permission.BANANA_OWNER, args_pattern=None, aliases=["sss"], hidden=True)
-async def startsocketserver(ctx, **details):
+@commands.command(permission=Permission.BANANA_OWNER, args_pattern=None, hidden=True)
+async def startsocketserver(ctx, **_):
     """
     [CMD_KEY]sss
 
@@ -811,11 +810,11 @@ async def startsocketserver(ctx, **details):
     server_port = async_server.sockets[0].getsockname()[
         1
     ]  # get port that the server is on, to confirm it started on 4000
-    await util.say(ctx.channel, "Listening on port %s!" % server_port)
+    await util.say(ctx.channel, f"Listening on port {server_port}!")
 
 
 @commands.command(permission=Permission.BANANA_OWNER, args_pattern="PS?", aliases=["cldr"], hidden=True)
-async def cooldownreset(ctx, player, cooldown=None, **details):
+async def cooldownreset(ctx, player, cooldown=None, **_):
     if cooldown is None:
         player.command_rate_limits = {}
     else:
@@ -828,8 +827,8 @@ async def cooldownreset(ctx, player, cooldown=None, **details):
 
 
 @commands.command(permission=Permission.BANANA_OWNER, args_pattern="PS?", aliases=["scld"], hidden=True)
-async def showcooldown(ctx, player, **details):
-    await util.say(ctx.channel, ["%s" % cooldown for cooldown in player.command_rate_limits])
+async def showcooldown(ctx, player, **_):
+    await util.say(ctx.channel, [cooldown for cooldown in player.command_rate_limits])
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="MS", hidden=True)

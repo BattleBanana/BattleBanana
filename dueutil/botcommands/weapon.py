@@ -1,11 +1,20 @@
 import discord
 
 import generalconfig as gconf
+
 from .. import commands, util
-from ..game import battles, weapons, stats, awards
-from ..game import players
+from ..game import awards, battles, players, stats, weapons
 from ..game.helpers import imagehelper, misc
 from ..permissions import Permission
+
+
+@misc.paginator
+def weapons_page(weapons_embed, weapon, **extras):
+    price_divisor = extras.get("price_divisor", 1)
+    weapons_embed.add_field(
+        name=str(weapon),
+        value="``" + util.format_number(weapon.price // price_divisor, full_precision=True, money=True) + "``",
+    )
 
 
 @commands.command(args_pattern="M?", aliases=["mw"])
@@ -22,7 +31,7 @@ async def myweapons(ctx, *args, **details):
     if len(args) == 1:
         page = args[0]
 
-    if type(page) is int:
+    if isinstance(page, int):
         weapon_store = weapons_page(
             player_weapons,
             page - 1,
@@ -109,15 +118,6 @@ async def equip(ctx, weapon_name, **details):
     await util.reply(ctx, ":white_check_mark: **" + weapon.name_clean + "** equipped!")
 
 
-@misc.paginator
-def weapons_page(weapons_embed, weapon, **extras):
-    price_divisor = extras.get("price_divisor", 1)
-    weapons_embed.add_field(
-        name=str(weapon),
-        value="``" + util.format_number(weapon.price // price_divisor, full_precision=True, money=True) + "``",
-    )
-
-
 @commands.command(args_pattern="PP?", aliases=["bt"])
 @commands.imagecommand()
 async def battle(ctx, *args, **details):
@@ -171,7 +171,7 @@ async def wagerbattle(ctx, receiver, money, **details):
 
     if len(receiver.received_wagers) >= gconf.THING_AMOUNT_CAP:
         raise util.BattleBananaException(
-            ctx.channel, "**%s** wager inbox is full!" % receiver.get_name_possession_clean()
+            ctx.channel, f"**{receiver.get_name_possession_clean()}** wager inbox is full!"
         )
 
     battles.BattleRequest(sender, receiver, money)
@@ -204,8 +204,8 @@ async def mywagers(ctx, page=1, **details):
         if not sender:
             return
         wagers_embed.add_field(
-            name="%d. Request from %s" % (extras["index"] + 1, sender.name_clean),
-            value="<@%s> ``%s``" % (sender.id, util.format_money(current_wager.wager_amount)),
+            name=f"{extras['index'] + 1}. Request from {sender.name_clean}",
+            value=f"<@{sender.id}> ``{util.format_money(current_wager.wager_amount)}``",
         )
 
     player = details["author"]
@@ -213,7 +213,7 @@ async def mywagers(ctx, page=1, **details):
         player.received_wagers,
         page - 1,
         title=player.get_name_possession_clean() + " Received Wagers",
-        footer_more="But wait there's more! Do %smywagers %d" % (details["cmd_key"], page + 1),
+        footer_more=f"But wait there's more! Do {details['cmd_key']}mywagers {page + 1}",
         empty_list="",
     )
 
@@ -388,14 +388,14 @@ async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon=
 
     if len(weapons.get_weapons_for_server(ctx.guild)) >= gconf.THING_AMOUNT_CAP:
         raise util.BattleBananaException(
-            ctx.channel, "Sorry you've used all %s slots in your shop!" % gconf.THING_AMOUNT_CAP
+            ctx.channel, f"Sorry you've used all {gconf.THING_AMOUNT_CAP} slots in your shop!"
         )
 
     extras = {"melee": not ranged, "icon": icon}
     if image_url is not None:
         extras["image_url"] = image_url
 
-    if "image_url" in extras and not (await imagehelper.is_url_image(image_url)):
+    if "image_url" in extras and not await imagehelper.is_url_image(image_url):
         extras.pop("image_url")
         await imagehelper.warn_on_invalid_image(ctx.channel)
 
@@ -455,22 +455,22 @@ async def editweapon(ctx, weapon_name, updates, **_):
             else:
                 if weapon.acceptable_string(value, 32):
                     weapon.hit_message = value
-                    updates[weapon_property] = '"%s"' % updates[weapon_property]
+                    updates[weapon_property] = f'"{updates[weapon_property]}"'
                 else:
                     updates[weapon_property] = "Cannot be over 32 characters!"
 
     if len(updates) == 0:
         await util.reply(ctx, "You need to provide a list of valid changes for the weapon!")
     else:
-        result = weapon.icon + " **%s** updates!\n" % weapon.name_clean
+        result = weapon.icon + f" **{weapon.name_clean}** updates!\n"
 
-        if new_image_url is not None and not (await imagehelper.is_url_image(new_image_url)):
+        if new_image_url is not None and not await imagehelper.is_url_image(new_image_url):
             weapon.image_url = weapon.DEFAULT_IMAGE
             updates["image"] = None
             await imagehelper.warn_on_invalid_image(ctx.channel)
 
         for weapon_property, update_result in updates.items():
-            result += "``%s`` → %s\n" % (weapon_property, update_result)
+            result += f"``{weapon_property}`` → {update_result}\n"
 
         weapon.save()
         await util.reply(ctx, result)
@@ -491,7 +491,7 @@ async def removeweapon(ctx, weapon_name, **_):
     if weapon.id != weapons.NO_WEAPON_ID and weapons.stock_weapon(weapon_name) != weapons.NO_WEAPON_ID:
         raise util.BattleBananaException(ctx.channel, "You can't remove stock weapons!")
     weapons.remove_weapon_from_shop(ctx.guild, weapon_name)
-    await util.reply(ctx, "**" + weapon.name_clean + "** has been removed from the shop!")
+    await util.reply(ctx, f"**{weapon.name_clean}** has been removed from the shop!")
 
 
 @commands.command(permission=Permission.REAL_SERVER_ADMIN, args_pattern="S?")
@@ -508,8 +508,8 @@ async def resetweapons(ctx, **_):
     if weapons_deleted > 0:
         await util.reply(
             ctx,
-            ":wastebasket: Your weapon shop has been reset—**%d %s** deleted."
-            % (weapons_deleted, util.s_suffix("weapon", weapons_deleted)),
+            ":wastebasket: Your weapon shop has been reset — "
+            + f"**{weapons_deleted} {util.s_suffix('weapon', weapons_deleted)}** deleted.",
         )
     else:
         await util.reply(ctx, "There's no weapons to delete!")

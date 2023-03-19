@@ -34,21 +34,23 @@ logging.getLogger("discord.state").setLevel(logging.ERROR)
 
 
 class DueLog:
+    """A class for logging things to the log channel"""
+
     @staticmethod
     async def bot(message, **kwargs):
-        await say(gconf.log_channel, ":robot: %s" % message, **kwargs)
+        await say(gconf.log_channel, f":robot: {message}", **kwargs)
 
     @staticmethod
     async def info(message, **kwargs):
-        await say(gconf.log_channel, ":grey_exclamation: %s" % message, **kwargs)
+        await say(gconf.log_channel, f":grey_exclamation: {message}", **kwargs)
 
     @staticmethod
     async def concern(message, **kwargs):
-        await say(gconf.log_channel, ":warning: %s" % message, **kwargs)
+        await say(gconf.log_channel, f":warning: {message}", **kwargs)
 
     @staticmethod
     async def error(message, **kwargs):
-        await say(gconf.error_channel, ":bangbang: %s" % message, **kwargs)
+        await say(gconf.error_channel, f":bangbang: {message}", **kwargs)
 
 
 duelogger = DueLog()
@@ -59,6 +61,8 @@ class BotException(Exception):
 
 
 class BattleBananaException(BotException):
+    """A class for exceptions that are not errors, but are still worth logging"""
+
     def __init__(self, channel, message, **kwargs):
         self.message = message
         self.channel = channel
@@ -295,8 +299,8 @@ def ultra_escape_string(string):
 def format_number(number, **kwargs):
     def small_format():
         nonlocal number
-        full_number = "{:,.2f}".format(number).rstrip("0").rstrip(".")
-        return full_number if len(full_number) < 27 else "{:,g}".format(number)
+        full_number = f"{number:,.2f}".rstrip("0").rstrip(".")
+        return full_number if len(full_number) < 27 else f"{number:,g}"
 
     def really_large_format():
         nonlocal number
@@ -319,7 +323,7 @@ def format_number(number, **kwargs):
         except IndexError:
             string = " Bazillion"
         number = int(number * 100) / float(100)
-        formatted_number = "{0:g}".format(number)
+        formatted_number = f"{number:g}"
         return formatted_number + string if len(formatted_number) < 17 else str(math.trunc(number)) + string
 
     if number >= 1000000 and not kwargs.get("full_precision", False):
@@ -351,8 +355,8 @@ def is_server_emoji(guild, possible_emoji):
     return possible_emoji in possible_emojis
 
 
-def is_discord_emoji(guild, emoji):
-    return char_is_emoji(emoji) or is_server_emoji(guild, emoji)
+def is_discord_emoji(guild, possible_emoji):
+    return char_is_emoji(possible_emoji) or is_server_emoji(guild, possible_emoji)
 
 
 def clamp(number, min_val, max_val):
@@ -411,7 +415,7 @@ def display_time(seconds, granularity=2):
             seconds -= value * count
             if value == 1:
                 name = name.rstrip("s")
-            result.append("{:d} {}".format(int(value), name))
+            result.append(f"{int(value)} {name}")
     return ", ".join(result[:granularity])
 
 

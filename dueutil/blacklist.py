@@ -1,7 +1,6 @@
 from typing import Set
 
-from dueutil import util
-from . import dbconn
+from dueutil import dbconn, util
 
 
 class BlacklistedUser:
@@ -66,7 +65,7 @@ def exists(id: int) -> bool:
     return False
 
 
-def __load() -> None:
+def _load() -> None:
     """
     Load the blacklist from the database
     """
@@ -76,4 +75,4 @@ def __load() -> None:
     util.logger.info("Loaded %s blacklisted users", len(blacklist))
 
 
-__load()
+_load()

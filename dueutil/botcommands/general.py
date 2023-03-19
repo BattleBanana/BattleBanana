@@ -18,6 +18,8 @@ DEFAULT_BANNER = "discord blue"
 
 
 class BuySellTheme(ShopBuySellItem):
+    """A class for buying and selling themes."""
+
     item_type = "theme"
     inventory_slot = "themes"
 
@@ -32,6 +34,8 @@ class BuySellTheme(ShopBuySellItem):
 
 
 class BuySellBanner(ShopBuySellItem):
+    """A class for buying and selling banners."""
+
     item_type = "banner"
     inventory_slot = "banners"
     default_item = DEFAULT_BANNER
@@ -47,6 +51,8 @@ class BuySellBanner(ShopBuySellItem):
 
 
 class BuySellBackground(BuySellTheme):
+    """A class for buying and selling backgrounds."""
+
     item_type = "background"
     inventory_slot = "backgrounds"
     set_name = "bg"
@@ -89,9 +95,9 @@ def shop_weapons_list(page, **details):
     shop_list = weap_cmds.weapons_page(
         shop_weapons,
         page,
-        "BattleBanana's Weapon Shop!",
-        footer_more=("But wait there's more! Do " + details["cmd_key"] + "shop weapons " + str(page + 2)),
-        footer_end=("Want more? Ask an admin on " + details["server_name"] + " to add some!"),
+        title="BattleBanana's Weapon Shop!",
+        footer_more=f"But wait there's more! Do {details['cmd_key']}shop weapons {page + 2}",
+        footer_end=(f"Want more? Ask an admin on {details['server_name']} to add some!"),
     )
     return shop_list
 
@@ -102,8 +108,8 @@ def shop_theme_list(page, **details):
     shop_list = player_cmds.theme_page(
         themes,
         page,
-        "BattleBanana's Theme Shop!",
-        footer_more=("But wait there's more! Do " + details["cmd_key"] + "shop themes " + str(page + 2)),
+        title="BattleBanana's Theme Shop!",
+        footer_more=f"But wait there's more! Do {details['cmd_key']}shop themes {page + 2}",
         footer_end="More themes coming soon!",
     )
     return shop_list
@@ -116,7 +122,7 @@ def shop_background_list(page, **details):
     shop_list = player_cmds.background_page(
         backgrounds,
         page,
-        "BattleBanana's Background Shop!",
+        title="BattleBanana's Background Shop!",
         footer_more="But wait there's more! Do " + details["cmd_key"] + "shop bgs " + str(page + 2),
         footer_end="More backgrounds coming soon!",
     )
@@ -130,7 +136,7 @@ def shop_banner_list(page, **details):
     shop_list = player_cmds.banner_page(
         banners,
         page,
-        "BattleBanana's Banner Shop!",
+        title="BattleBanana's Banner Shop!",
         footer_more="But wait there's more! Do " + details["cmd_key"] + "shop banners " + str(page + 2),
         footer_end="More banners coming soon!",
     )
@@ -157,7 +163,7 @@ async def item_action(item_name, action, department=None, **details):
         if len(possible_departments) > 1:
             error = ":confounded: " + message + "\n" + "Please be more specific!\n"
             if " " in item_name:
-                item_name = '"%s"' % item_name
+                item_name = f'"{item_name}"'
             for department_info in possible_departments:
                 error += (
                     "``"
@@ -247,25 +253,22 @@ departments = {
             and customizations.get_banner(name).can_use_banner(details["author"])
         ),
         "item_exists_sell": lambda details, name: name.lower() in details["author"].inventory["banners"],
-    }
-    #    "shields": {
-    #        "alias": [
-    #            "shields",
-    #            "shield",
-    #            "armors",
-    #            "armor"
-    #        ],
-    #        "actions": {
-    #            "info_action": player_cmds.banner_info,
-    #            "list_action": shop_banner_list,
-    #            "buy_action": buy_sell_banners.buy_item,
-    #            "sell_action": buy_sell_banners.sell_item
-    #        },
-    #        "item_exists": lambda details, name: (name.lower() != DEFAULT_BANNER
-    #                                              and name.lower() in customizations.banners
-    #                                              and customizations.get_banner(name).can_use_banner(details["author"])),
-    #        "item_exists_sell": lambda details, name: name.lower() in details["author"].inventory["banners"]
-    #     }
+    },
+    # "shields": {
+    #     "alias": ["shields", "shield", "armors", "armor"],
+    #     "actions": {
+    #         "info_action": player_cmds.banner_info,
+    #         "list_action": shop_banner_list,
+    #         "buy_action": buy_sell_banners.buy_item,
+    #         "sell_action": buy_sell_banners.sell_item,
+    #     },
+    #     "item_exists": lambda details, name: (
+    #         name.lower() != DEFAULT_BANNER
+    #         and name.lower() in customizations.banners
+    #         and customizations.get_banner(name).can_use_banner(details["author"])
+    #     ),
+    #     "item_exists_sell": lambda details, name: name.lower() in details["author"].inventory["banners"],
+    # },
 }
 
 
@@ -330,7 +333,7 @@ async def shop(ctx, *args, **details):
             if len(args) == 1:
                 await util.reply(ctx, embed=list_action(0, **details))
             else:
-                if type(args[1]) is int:
+                if isinstance(args[1], int):
                     await util.reply(ctx, embed=list_action(args[1] - 1, **details))
                 else:
                     # Use item_action since it will do the check if item exists

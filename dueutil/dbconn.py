@@ -1,7 +1,8 @@
 import json
+from datetime import datetime
+
 import jsonpickle
 import pymongo
-from datetime import datetime
 from pymongo import MongoClient
 
 db = None
@@ -68,7 +69,7 @@ def get_blacklist():
 
 def _load_config():
     global config
-    with open("dbconfig.json") as config_file:
+    with open("dbconfig.json", encoding="utf-8") as config_file:
         config = json.load(config_file)
 
 

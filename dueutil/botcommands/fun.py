@@ -1,15 +1,17 @@
 import asyncio
-import discord
-import repoze.timeago
 from datetime import datetime
 
+import discord
+import repoze.timeago
+
 import generalconfig as gconf
-from .. import commands, util, dbconn
-from ..game import awards, players, leaderboards, battles
-from ..game import emojis
-from ..game.helpers import misc, imagehelper
+
+from .. import commands, dbconn, util
+from ..game import awards, battles, emojis, leaderboards, players
+from ..game.helpers import imagehelper, misc
 
 TOPDOGS_PER_PAGE = 10
+TOPDOG_NOT_FOUND = "Sorry there was an error trying to find the topdog!"
 
 
 async def glitter_text(channel, text):
@@ -103,7 +105,7 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
     page_size = 10
 
     # Handle weird page args
-    if type(mixed) is int:
+    if isinstance(mixed, int):
         page = mixed - 1
         local = True
         ranks = "local"
@@ -114,7 +116,7 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
 
     # Local/Global
     if local:
-        title = "BattleBanana Leaderboard on %s" % details["server_name_clean"]
+        title = f"BattleBanana Leaderboard on {details['server_name_clean']}"
         # Cached.
         local_leaderboard = leaderboards.get_local_leaderboard(ctx.guild, "levels")
         leaderboard_data = local_leaderboard.data
@@ -125,13 +127,13 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
         last_updated = leaderboards.last_leaderboard_update
 
     if leaderboard_data is None or len(leaderboard_data) == 0:
-        await util.reply(ctx, "The %s leaderboard has yet to be calculated!\n" % ranks + "Check again soon!")
+        await util.reply(ctx, f"The {ranks} leaderboard has yet to be calculated!\nCheck again soon!")
         return
 
-    leaderboard_embed = discord.Embed(title="%s %s" % (emojis.QUESTER, title), type="rich", color=gconf.DUE_COLOUR)
+    leaderboard_embed = discord.Embed(title=f"{emojis.QUESTER} {title}", type="rich", color=gconf.DUE_COLOUR)
 
     if page > 0:
-        leaderboard_embed.title += ": Page %d" % (page + 1)
+        leaderboard_embed.title += f": Page {page + 1}"
     if page * page_size >= len(leaderboard_data):
         raise util.BattleBananaException(ctx.channel, "Page not found")
 
@@ -151,18 +153,20 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
         if user_info is None:
             user_info = player.id
         leaderboard_embed.add_field(
-            name="#%s" % (index + 1) + bonus,
-            value="[%s **``Level %s``**](https://battlebanana.xyz/player/id/%s) (%s) | **Total EXP** %d"
-            % (player.name_clean, player.level, player.id, util.ultra_escape_string(str(user_info)), player.total_exp),
+            name=f"#{index + 1 + bonus}",
+            value=(
+                f"[{player.name_clean} **``Level {player.level}``**]"
+                + f"(https://battlebanana.xyz/player/id/{player.id}) "
+                + f"({util.ultra_escape_string(str(user_info))}) | **Total EXP** {player.total_exp}"
+            ),
             inline=False,
         )
 
     if index < len(leaderboard_data) - 1:
         remaining_players = len(leaderboard_data) - page_size * (page + 1)
         leaderboard_embed.add_field(
-            name="+%d more!" % remaining_players,
-            value="Do ``%sleaderboard%s %d`` for the next page!"
-            % (details["cmd_key"], "" if local else " global", page + 2),
+            name=f"+{remaining_players} more!",
+            value=f"Do ``{details['cmd_key']}leaderboard{'' if local else ' global'} {page + 2}`` for the next page!",
             inline=False,
         )
     leaderboard_embed.set_footer(
@@ -183,7 +187,7 @@ async def rank_command(ctx, player, ranks="", **details):
         padding = " "
 
     player_is_author = ctx.author.id == player.id
-    player_name = "**%s**" % player.name_clean
+    player_name = f"**{player.name_clean}**"
 
     if position != -1:
         page = position // 10 + (1 * position % 10 != 0)
@@ -205,7 +209,7 @@ async def rank_command(ctx, player, ranks="", **details):
             (
                 ":confounded: I can't find "
                 + ("you" if player_is_author else player_name)
-                + " on the {}{}leaderboard!?\n".format(ranks, padding)
+                + f" on the {ranks}{padding}leaderboard!?\n"
                 + "You'll need to wait till it next updates!" * player_is_author
             ),
         )
@@ -329,11 +333,11 @@ async def battletopdog(ctx, **details):
     """
     top_dog_stats = awards.get_award_stat("TopDog")
     if top_dog_stats is None or "top_dog" not in top_dog_stats:
-        raise util.BattleBananaException(ctx.channel, "Sorry there was an error trying to find the topdog!")
+        raise util.BattleBananaException(ctx.channel, TOPDOG_NOT_FOUND)
 
     top_dog = players.find_player(int(top_dog_stats["top_dog"]))
     if top_dog is None:
-        raise util.BattleBananaException(ctx.channel, "Sorry there was an error trying to find the topdog!")
+        raise util.BattleBananaException(ctx.channel, TOPDOG_NOT_FOUND)
 
     player = details["author"]
     if top_dog == player:
@@ -359,11 +363,11 @@ async def viewtopdog(ctx, **_):
     """
     top_dog_stats = awards.get_award_stat("TopDog")
     if top_dog_stats is None or "top_dog" not in top_dog_stats:
-        raise util.BattleBananaException(ctx.channel, "Sorry there was an error trying to find the topdog!")
+        raise util.BattleBananaException(ctx.channel, TOPDOG_NOT_FOUND)
 
     top_dog = players.find_player(int(top_dog_stats["top_dog"]))
     if top_dog is None:
-        raise util.BattleBananaException(ctx.channel, "Sorry there was an error trying to find the topdog!")
+        raise util.BattleBananaException(ctx.channel, TOPDOG_NOT_FOUND)
 
     await imagehelper.stats_screen(ctx, top_dog)
 
@@ -467,18 +471,18 @@ async def topdoghistory(ctx, page=1, **_):
     embed = discord.Embed(title="Topdog History", type="rich", color=gconf.DUE_COLOUR)
     embed.set_footer(text="Times are displayed according to your timezone.")
 
-    topdog = awards.get_award_stat("TopDog")
-    if topdog is None or "top_dog" not in topdog:
+    top_dog = awards.get_award_stat("TopDog")
+    if top_dog is None or "top_dog" not in top_dog:
         embed.add_field(name="Current topdog:", value=":bangbang: Failed to parse current topdog")
     else:
-        topdog = players.find_player(int(topdog["top_dog"]))
-        embed.add_field(name="Current topdog:", value=topdog.name)
+        top_dog = players.find_player(int(top_dog["top_dog"]))
+        embed.add_field(name="Current topdog:", value=top_dog.name)
 
     tdstring = ""
-    for topdog in topdogs:
-        player = players.find_player(topdog.get("user_id"))
+    for top_dog in topdogs:
+        player = players.find_player(top_dog.get("user_id"))
         if player is not None:
-            date: datetime = topdog.get("date")
+            date: datetime = top_dog.get("date")
 
             if util.is_today(date):
                 tdstring += f"- **{player.name}**, today until <t:{round(date.timestamp())}:t>\n"

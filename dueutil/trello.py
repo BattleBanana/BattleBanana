@@ -1,8 +1,8 @@
-import aiohttp
-
 """
 Some basic trello actions
 """
+
+import aiohttp
 
 
 class TrelloClient:
@@ -22,7 +22,7 @@ class TrelloClient:
         return await self.fetch_json("members/me/boards")
 
     async def get_lists(self, board_id):
-        return await self.fetch_json("boards/%s/lists" % board_id)
+        return await self.fetch_json(f"boards/{board_id}/lists")
 
     async def fetch_json(self, url):
         async with aiohttp.ClientSession() as session:
@@ -31,7 +31,7 @@ class TrelloClient:
                 return json
 
     async def get_labels(self, board_id):
-        return await self.fetch_json("boards/%s/labels" % board_id)
+        return await self.fetch_json(f"boards/{board_id}/labels")
 
     async def add_card(self, board_url, list_name, name, desc, labels=None):
         """

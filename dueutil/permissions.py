@@ -1,18 +1,21 @@
-from enum import Enum
-from functools import total_ordering
-
-import generalconfig as gconf
-from . import dbconn, util
-
-special_permissions = dict()
-
 """
 BattleBanana permissions
 """
 
+from enum import Enum
+from functools import total_ordering
+
+import generalconfig as gconf
+
+from . import dbconn, util
+
+special_permissions = {}
+
 
 @total_ordering
 class Permission(Enum):
+    """Permissions for BattleBanana"""
+
     def __lt__(self, other):
         return permissions.index(self) < permissions.index(other)
 
@@ -46,7 +49,7 @@ class Permission(Enum):
     )
 
 
-permissions = [permission for permission in Permission]
+permissions = list(Permission)
 
 
 def has_permission(member, permission):
@@ -83,7 +86,7 @@ def strip_permissions(member):
         del special_permissions[member.id]
 
 
-def load_dueutil_roles():
+def load_battlebanana_permissions():
     loaded_permissions = dbconn.conn()["permissions"].find()
     for permission in loaded_permissions:
         special_permissions[permission["_id"]] = permission["permission"]
@@ -102,4 +105,4 @@ def get_permission_from_name(permission_name: str):
     return None
 
 
-load_dueutil_roles()
+load_battlebanana_permissions()

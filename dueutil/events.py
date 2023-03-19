@@ -1,7 +1,8 @@
 import inspect
-from discord import Message
 from itertools import chain
 from typing import Callable
+
+from discord import Message
 
 from . import commands
 from .game.configs import dueserverconfig
@@ -9,18 +10,20 @@ from .game.helpers.misc import DueMap
 
 
 class MessageEvent(list):
+    """Message event subscription."""
+
     async def __call__(self, ctx: Message):
         for listener in self:
             if await listener(ctx):
                 break
 
     def __repr__(self):
-        return "Event(%s)" % list.__repr__(self)
+        return f"Event({list.__repr__(self)})"
 
     def append(self, listener_function: Callable[[Message], None]):
         old = find_old(listener_function, self)
         if old == -1:
-            super(MessageEvent, self).append(listener_function)
+            super().append(listener_function)
         else:
             self[old] = listener_function
 
@@ -47,10 +50,10 @@ class CommandEvent(dict):
         return [category for category in self.command_categories.keys()]
 
     def __str__(self):
-        return "Command(%s)" % self.command_list()
+        return f"Command({self.command_list()})"
 
     def __repr__(self):
-        return "Command(%s)" % dict.__repr__(self)
+        return f"Command({dict.__repr__(self)})"
 
     def __setitem__(self, key: str, command: Callable[..., None]):
         module_name = inspect.getmodule(command).__name__.rsplit(".", 1)[1]

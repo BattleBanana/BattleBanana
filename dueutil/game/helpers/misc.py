@@ -1,14 +1,15 @@
-import aiohttp
 import collections
-import discord
 import threading
 import urllib
+
+import aiohttp
+import discord
 import validators
-from abc import ABC
 from bs4 import BeautifulSoup
 
 import generalconfig as gconf
 from dueutil import dbconn, util
+
 from . import imagecache
 
 POSITIVE_BOOLS = ("true", "1", "t", "y", "yes", "yeah", "yup", "certainly", "uh-huh")
@@ -27,10 +28,10 @@ class BattleBananaObject:
 
     __slots__ = ["no_save", "id", "name"]
 
-    NAME_LENGTH_RANGE = range(1, 33)
+    NAME_LENGTH_RANGE = range(3, 33)
 
-    def __init__(self, id, *args, **kwargs):
-        self.id = id
+    def __init__(self, object_id, *args, **kwargs):
+        self.id = object_id
         self.no_save = kwargs.get("no_save", False)
         if len(args) > 0:
             self.name = args[0]
@@ -59,12 +60,9 @@ class BattleBananaObject:
         # Support objects that might have icons.
         # (Customizations, weapons, possibly more)
         try:
-            return "%s | %s" % (self.icon, self.name_clean)
+            return f"{self.icon} | {self.name_clean}"
         except AttributeError:
-            try:
-                return "%s | %s" % (self["icon"], self.name_clean)
-            except (TypeError, KeyError):
-                return self.name_clean
+            return self.name_clean
 
     def save(self):
         if not self.no_save:
@@ -91,7 +89,7 @@ class BattleBananaObject:
             if hasattr(self, "image_url"):
                 if dbconn.get_collection_for_object(self.__class__).find_one({"_id": self.id}) is None:
                     imagecache.uncache(self.image_url)
-                    util.logger.info("%s, (%s) has been deleted" % (self.__class__.__name__, self.id))
+                    util.logger.info("%s, (%s) has been deleted", self.__class__.__name__, self.id)
         except (TypeError, AttributeError):
             pass  # del is being called as the script as been stopped.
 
@@ -164,7 +162,7 @@ class DueMap(collections.abc.MutableMapping):
         return len(self.collection)
 
     def __str__(self):
-        return "DueMap(%s)" % str(self.collection)
+        return f"DueMap({self.collection})"
 
     @staticmethod
     def _parse_key(key, value=None):
@@ -223,24 +221,6 @@ class Ring(list):
 
 
 #### End - MacDue's wacky data classes
-
-
-class Wizzard(ABC):
-    """
-    WIP - Setup wizzard
-    """
-
-    def __init__(self, name, question_count):
-        self.name = name
-        self.complete = 0
-        self.question_count = 0
-
-    def progress_bar(self):
-        bar_width = 20
-        progress = self.complete // self.question_count
-        bar_complete_len = progress * bar_width
-        bar_incomplete_len = bar_width - bar_complete_len
-        return "[" + ('"' * bar_complete_len) + (" " * bar_incomplete_len) + "]"
 
 
 def paginator(item_add):

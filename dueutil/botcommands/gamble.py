@@ -52,7 +52,7 @@ async def blackjack(ctx, price, **details):
 
     blackjack_embed = discord.Embed(
         title="Blackjack dealer",
-        description="%s game. Current bet: ¤%s" % (player.get_name_possession(), price),
+        description=f"{player.get_name_possession()} game. Current bet: ¤{price}",
         type="rich",
         colour=gconf.DUE_COLOUR,
     )
@@ -73,11 +73,10 @@ async def blackjack(ctx, price, **details):
             user_value = blackjackGame.get_deck_value(user_hand)
 
             blackjack_embed.clear_fields()
-            blackjack_embed.add_field(name="Your hand (%s)" % (user_value), value=user_hand)
-            blackjack_embed.add_field(name="Dealer's hand (%s)" % (dealer_value), value=dealer_hand)
+            blackjack_embed.add_field(name=f"Your hand ({user_value})", value=user_hand)
+            blackjack_embed.add_field(name=f"Dealer's hand ({dealer_value})", value=dealer_hand)
 
-            blackjack_buttons = blackjackGame.BlackjackInteraction(ctx.author)
-            await msg.edit(embed=blackjack_embed, view=blackjack_buttons)
+            await msg.edit(embed=blackjack_embed, view=blackjackGame.BlackjackInteraction(ctx.author))
         elif content == "stand":
             break
 
@@ -100,7 +99,7 @@ async def blackjack(ctx, price, **details):
             result = "You win with a blackjack!"
         else:
             gain += price
-            result = "You win with an hand of %s against %s." % (user_value, dealer_value)
+            result = f"You win with an hand of {user_value} against {dealer_value}."
     elif user_value < dealer_value:
         if dealer_value > 21:
             if user_value == 21:  # If you have 21 and dealer busted
@@ -113,9 +112,9 @@ async def blackjack(ctx, price, **details):
             result = "Dealer win with a blackjack!"
         else:
             gain -= price
-            result = "Dealer win with an hand of %s against %s." % (dealer_value, user_value)
+            result = f"Dealer win with an hand of {dealer_value} against {user_value}."
     else:
-        result = "This is a tie! %s-%s" % (user_value, dealer_value)
+        result = f"This is a tie! {user_value}-{dealer_value}"
 
     # Manage the message
     gain = math.floor(gain)
@@ -124,9 +123,9 @@ async def blackjack(ctx, price, **details):
     player.save()
 
     if gain > 0:
-        result += " You were rewarded with `¤%s`" % (gain)
+        result += f" You were rewarded with `¤{gain}`"
     elif gain < 0:
-        result += " You lost `¤%s`." % (price)
+        result += f" You lost `¤{price}`."
 
         battle_banana = players.find_player(ctx.guild.me.id)
         if battle_banana is not None:
@@ -136,8 +135,8 @@ async def blackjack(ctx, price, **details):
         result += " You got your bet back!"
 
     blackjack_embed.clear_fields()
-    blackjack_embed.add_field(name="Your hand (%s)" % (user_value), value=user_hand)
-    blackjack_embed.add_field(name="Dealer's hand (%s)" % (dealer_value), value=dealer_hand)
+    blackjack_embed.add_field(name=f"Your hand ({user_value})", value=user_hand)
+    blackjack_embed.add_field(name=f"Dealer's hand ({dealer_value})", value=dealer_hand)
     blackjack_embed.add_field(name="Result", value=result, inline=False)
     blackjack_embed.set_footer()
 
@@ -167,12 +166,12 @@ async def russianroulette(ctx, price, **details):
     if secrets.randbelow(6) == 1:
         reward = price * 5
         player.money += reward
-        await message.edit(content=message.content + "\nYou survived and won `¤%s`!" % (reward))
+        await message.edit(content=message.content + f"\nYou survived and won `¤{reward}`!")
     else:
         player.money -= price
         battle_banana = players.find_player(ctx.guild.me.id)
         if battle_banana is not None:
             battle_banana.money += price
             battle_banana.save()
-        await message.edit(content=message.content + "\nYou died and lost `¤%s`!" % (price))
+        await message.edit(content=message.content + f"\nYou died and lost `¤{price}`!")
     player.save()

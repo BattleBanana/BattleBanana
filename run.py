@@ -13,9 +13,8 @@ import pymongo
 import sentry_sdk
 
 import generalconfig as gconf
-from dueutil import blacklist, dbconn, events, loader, permissions, servercounts, util
-from dueutil.game import emojis as e
-from dueutil.game import players
+from dueutil import blacklist, dbconn, events, loader, permissions, servercounts, tasks, util
+from dueutil.game import emojis, players
 from dueutil.game.configs import dueserverconfig
 from dueutil.game.helpers import imagecache
 from dueutil.permissions import Permission
@@ -75,7 +74,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         server_port = async_server.sockets[0].getsockname()[
             1
         ]  # get port that the server is on, to confirm it started on 4000
-        util.logger.info("Listening for data transfer requests on port %s!" % server_port)
+        util.logger.info("Listening for data transfer requests on port %s!", server_port)
 
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
 
@@ -110,7 +109,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         if server_count % 250 == 0:
             await util.say(
                 gconf.announcement_channel,
-                ":confetti_ball: I'm on __**%d SERVERS**__ now!1!111!\n@everyone" % server_count,
+                f":confetti_ball: I'm on __**{server_count} SERVERS**__ now!1!111!",
             )
 
         util.logger.info("Joined guild name: %s id: %s", guild.name, guild.id)
@@ -165,8 +164,8 @@ class BattleBananaClient(discord.AutoShardedClient):
                         break
                     except discord.Forbidden:
                         continue
-        except Exception as e:
-            util.logger.warning("Unable to send on join message: %s", e)
+        except Exception as error:
+            util.logger.warning("Unable to send on join message: %s", error)
 
         # Update stats
         await servercounts.update_server_count()
@@ -184,13 +183,13 @@ class BattleBananaClient(discord.AutoShardedClient):
             "bot_server": bot_server,
         }
 
-    async def on_error(self, event, *args):
+    async def on_error(self, _, *args):
         ctx = args[0] if len(args) == 1 else None
         ctx_is_message = isinstance(ctx, discord.Message)
         error = sys.exc_info()[1]
         if ctx is None:
             await util.duelogger.error(
-                ("**BattleBanana experienced an error!**\n" + STACKTRACE_FORMAT % (traceback.format_exc()))
+                "**BattleBanana experienced an error!**\n" + STACKTRACE_FORMAT % (traceback.format_exc())
             )
             util.logger.error("None message/command error: %s", error)
         elif isinstance(error, util.BattleBananaException):
@@ -218,16 +217,22 @@ class BattleBananaClient(discord.AutoShardedClient):
                         perms = ctx.channel.permissions_for(ctx.guild.me)
                         await util.say(
                             ctx.channel,
-                            "The action could not be performed as I'm **missing permissions**! Make sure I have the following permissions:\n"
-                            + "- Manage Roles %s;\n" % (e.CHECK_REACT if perms.manage_roles else e.CROSS_REACT)
-                            + "- Manage messages %s;\n" % (e.CHECK_REACT if perms.manage_messages else e.CROSS_REACT)
-                            + "- Embed links %s;\n" % (e.CHECK_REACT if perms.embed_links else e.CROSS_REACT)
-                            + "- Attach files %s;\n" % (e.CHECK_REACT if perms.attach_files else e.CROSS_REACT)
-                            + "- Read Message History %s;\n"
-                            % (e.CHECK_REACT if perms.read_message_history else e.CROSS_REACT)
-                            + "- Use external emojis %s;\n"
-                            % (e.CHECK_REACT if perms.external_emojis else e.CROSS_REACT)
-                            + "- Add reactions%s" % (e.CHECK_REACT if perms.add_reactions else e.CROSS_REACT),
+                            "The action could not be performed as I'm **missing permissions**! "
+                            + "Make sure I have the following permissions:\n"
+                            + "- Manage Roles "
+                            + f"{emojis.CHECK_REACT if perms.manage_roles else emojis.CROSS_REACT};\n"
+                            + "- Manage messages "
+                            + f"{emojis.CHECK_REACT if perms.manage_messages else emojis.CROSS_REACT};\n"
+                            + "- Embed links "
+                            + f"{emojis.CHECK_REACT if perms.embed_links else emojis.CROSS_REACT};\n"
+                            + "- Attach files "
+                            + f"{emojis.CHECK_REACT if perms.attach_files else emojis.CROSS_REACT};\n"
+                            + "- Read Message History "
+                            + f"{emojis.CHECK_REACT if perms.read_message_history else emojis.CROSS_REACT};\n"
+                            + "- Use external emojis "
+                            + f"{emojis.CHECK_REACT if perms.external_emojis else emojis.CROSS_REACT};\n"
+                            + "- Add reactions "
+                            + f"{emojis.CHECK_REACT if perms.add_reactions else emojis.CROSS_REACT}",
                         )
                     except util.SendMessagePermMissing:
                         pass  # They've block sending messages too.
@@ -282,7 +287,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         elif isinstance(
             error, (OSError, aiohttp.ClientConnectionError, asyncio.exceptions.TimeoutError)
         ):  # 99% of time its just network errors
-            util.logger.warn(error.message)
+            util.logger.warning(error.message)
         elif isinstance(error, pymongo.errors.ServerSelectionTimeoutError):
             util.duelogger.error(
                 "Something went wrong and we disconnected from database " + f"<@{gconf.other_configs['owner']}>"
@@ -353,29 +358,28 @@ class BattleBananaClient(discord.AutoShardedClient):
 
         for collection in dbconn.db.list_collection_names():
             if collection not in ("Player", "Topdogs"):
-                dbconn.db[collection].delete_many({"_id": {"$regex": "%s.*" % guild.id}})
+                dbconn.db[collection].delete_many({"_id": {"$regex": f"{guild.id}.*"}})
                 dbconn.db[collection].delete_many({"_id": guild.id})
                 dbconn.db[collection].delete_many({"_id": str(guild.id)})
         await util.duelogger.info(
-            "BattleBanana has been removed from the guild **%s** (%s members)"
-            % (util.ultra_escape_string(guild.name), guild.member_count)
+            "BattleBanana has been removed from the guild"
+            + f"**{util.ultra_escape_string(guild.name)}** ({guild.member_count} members)"
         )
         # Update stats
         dbconn.update_guild_joined(-1)
         await servercounts.update_server_count()
 
     async def on_ready(self):
-        global async_server
         util.logger.info(
             "Bot (re)started after %.2fs & Shards started after %.2fs",
             time.time() - start_time,
             time.time() - shard_time,
         )
-        await util.duelogger.bot("BattleBanana has *(re)*started\nBot version → ``%s``" % gconf.VERSION)
+        await util.duelogger.bot(f"BattleBanana has *(re)*started\nBot version → ``{gconf.VERSION}``")
 
     async def on_shard_ready(self, shard_id: int):
         game = discord.Activity(
-            name="battlebanana.xyz | shard %d/%d" % (shard_id + 1, self.shard_count), type=discord.ActivityType.watching
+            name=f"battlebanana.xyz | shard {shard_id + 1}/{self.shard_count}", type=discord.ActivityType.watching
         )
         try:
             await self.change_presence(activity=game, shard_id=shard_id)
@@ -444,7 +448,6 @@ def run_bb():
 
         ### Tasks
         loop = asyncio.new_event_loop()
-        from dueutil import tasks
 
         for task in tasks.tasks:
             asyncio.ensure_future(task(), loop=loop)

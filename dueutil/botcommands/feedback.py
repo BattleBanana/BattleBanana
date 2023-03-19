@@ -29,7 +29,7 @@ class FeedbackHandler:
         trello_link = await TRELLO_CLIENT.add_card(
             board_url=gconf.trello_board,
             name=message,
-            desc=("Automated %s added by BattleBanana\n" % self.type + "Author: %s (id %s)" % (author_name, author.id)),
+            desc=f"Automated {self.type} added by BattleBanana\nAuthor: {author_name} (id {author.id})",
             list_name=self.trello_list,
             labels=["automated", "Bug" if self.type == BUG_REPORT else SUGGESTION],
         )
@@ -38,18 +38,16 @@ class FeedbackHandler:
             author_icon_url = author.display_avatar.url
         report = discord.Embed(color=gconf.DUE_COLOUR)
         report.set_author(name=author_name, icon_url=author_icon_url)
-        report.add_field(name=self.type.title(), value="%s\n\n[Trello card](%s)" % (message, trello_link), inline=False)
+        report.add_field(name=self.type.title(), value=f"{message}\n\n[Trello card]({trello_link})", inline=False)
         report.add_field(name=ctx.guild.name, value=ctx.guild.id)
         report.add_field(name=ctx.channel.name, value=ctx.channel.id)
         report.set_footer(text="Sent at " + util.pretty_time())
-        await util.reply(ctx, ":mailbox_with_mail: Sent! You can view your %s here: <%s>" % (self.type, trello_link))
+        await util.reply(ctx, f":mailbox_with_mail: Sent! You can view your {self.type} here: <{trello_link}>")
         await util.reply(ctx, embed=report)
 
         log_report = discord.Embed(color=gconf.DUE_COLOUR)
         log_report.set_author(name=author_name, icon_url=author_icon_url)
-        log_report.add_field(
-            name=self.type.title(), value="%s\n\n[Trello card](%s)" % (message, trello_link), inline=False
-        )
+        log_report.add_field(name=self.type.title(), value=f"{message}\n\n[Trello card]({trello_link})", inline=False)
         log_report.add_field(name=ctx.guild.name, value=ctx.guild.id)
         log_report.add_field(name="author", value=ctx.author.id)
         log_report.set_footer(text="Received at " + util.pretty_time())

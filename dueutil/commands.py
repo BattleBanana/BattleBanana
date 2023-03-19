@@ -1,26 +1,26 @@
-import asyncio
-import time
-from functools import wraps
-import discord
-
-from discord.enums import ButtonStyle
-
-from dueutil.game import stats
-from . import commandextras
-from . import events, util, commandtypes
-from . import permissions
-from .game import players, emojis
-from .game.configs import dueserverconfig
-from .permissions import Permission
-
-from discord import ui
-
-extras = commandextras
-IMAGE_REQUEST_COOLDOWN = 3
-
 """
 BattleBanana random command system.
 """
+
+import asyncio
+import time
+from functools import wraps
+
+import discord
+from discord import ui
+from discord.enums import ButtonStyle
+
+from dueutil.game import stats
+
+from . import commandextras, commandtypes, events, permissions, util
+from .game import emojis, players
+from .game.configs import dueserverconfig
+from .permissions import Permission
+
+extras = commandextras
+
+IMAGE_REQUEST_COOLDOWN = 3
+DEFAULT_TIMEOUT = 10
 
 
 def command(**command_rules):
@@ -123,9 +123,9 @@ def command(**command_rules):
                 ):
                     local_optout = not player.is_playing(ctx.author, local=True)
                     if local_optout:
-                        await util.reply(ctx, "You are opted out. Use ``%soptinhere``!" % prefix)
+                        await util.reply(ctx, f"You are opted out. Use `{prefix}optinhere`!")
                     else:
-                        await util.reply(ctx, "You are opted out. Use ``%soptin``!" % prefix)
+                        await util.reply(ctx, f"You are opted out. Use `{prefix}optin`!")
                 else:
                     await ctx.add_reaction(emojis.CROSS_REACT)
             return True
@@ -206,10 +206,15 @@ def ratelimit(**command_info):
     return wrap
 
 
-DEFAULT_TIMEOUT = 10
-
-
 class ConfirmInteraction(ui.View):
+    """
+    A view that asks the user to confirm an action.
+
+    Args:
+        author: The author of the interaction.
+        timeout: The timeout for the view. Defaults to 10 seconds.
+    """
+
     def __init__(self, author=None, timeout=DEFAULT_TIMEOUT):
         self._author = author
         super().__init__(timeout=timeout)
@@ -229,13 +234,13 @@ class ConfirmInteraction(ui.View):
         return self.value
 
     @ui.button(label="Confirm", style=ButtonStyle.green)
-    async def confirm(self, interaction: discord.Interaction, button: ui.Button):
+    async def confirm(self, interaction: discord.Interaction, _: ui.Button):
         self.value = "confirm"
         await interaction.response.send_message("Gotcha! Doing it chief.", ephemeral=True)
         self.stop()
 
     @ui.button(label="Cancel", style=ButtonStyle.red)
-    async def cancel(self, interaction: discord.Interaction, button: ui.Button):
+    async def cancel(self, interaction: discord.Interaction, _: ui.Button):
         self.value = "cancel"
         await interaction.response.send_message("Understood! I won't do it.", ephemeral=True)
         self.stop()
@@ -462,12 +467,10 @@ async def determine_args(pattern, args, called, ctx):
     if checks_satisfied == len(args) and not guessing_arguments and valid_args_len(args, pattern):
         return args
     elif guessing_arguments:
-        """
-        If they've forgot quotes for the last sting
-        so !command arg0 arg1 arg2 "A String here"
-        and they've done
-        !command arg0 arg1 arg2 A String here
-        """
+        # If they've forgot quotes for the last sting
+        # so !command arg0 arg1 arg2 "A String here"
+        # and they've done
+        # !command arg0 arg1 arg2 A String here
         if len(args) > len(pattern):
             last_string = -1
             # Find the last type that could be a string in the pattern.
