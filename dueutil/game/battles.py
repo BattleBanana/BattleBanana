@@ -1,12 +1,13 @@
 import secrets
+from collections import OrderedDict, namedtuple
+
 import discord
-from collections import OrderedDict
-from collections import namedtuple
 
 import generalconfig as gconf
+
 from .. import util
-from ..game import weapons, awards
-from ..game.players import Player, permissions, Permission
+from ..game import awards, weapons
+from ..game.players import Permission, Player, permissions
 
 # Some tuples for use within this module.
 _BattleResults = namedtuple(
@@ -18,9 +19,9 @@ _OpponentInfo = namedtuple("OpponentInfo", ["prefix", "player"])
 _Opponents = namedtuple("Opponents", ["p1", "p2"])
 
 """
-        ===################===============                                           
+        ===################===============
         ===###   ####   ###   |   |   O  =====================================================
-        ===################   |===|   |  I was meant to fill up white space but python sucks ===    
+        ===################   |===|   |  I was meant to fill up white space but python sucks ===
         ===###          ###   |   |   |  =====================================================
         ===################===============
 """
@@ -58,8 +59,8 @@ async def give_awards_for_battle(channel, battle_log: _BattleLog):
     if battle_log.winner is not None:
         winner = battle_log.winner
         loser = battle_log.loser
-        # if "Duerus" in winner.awards:
-        #     await awards.give_award(channel, loser, "Duerus")
+        if "Duerus" in winner.awards:
+            await awards.give_award(channel, loser, "Duerus")
         if "TopDog" in loser.awards:
             if not permissions.has_permission(winner, Permission.BANANA_ADMIN):
                 loser.awards.remove("TopDog")
@@ -93,7 +94,7 @@ def get_battle_log(**battleargs):
         if move_repetition <= 1:
             battle_log += move.message + "\n"
         else:
-            battle_log += "(%s) × %d\n" % (move.message, move.repetitions)
+            battle_log += f"({move.message}) × {move.repetitions}\n"
     if len(battle_log) > MAX_BATTLE_LOG_LEN:
         # Too long battle.
         # Mini summary.
@@ -102,18 +103,13 @@ def get_battle_log(**battleargs):
         battle_embed.description = "Oh no! The battle was too long!\n" + "Here's a mini summary!"
         battle_embed.add_field(
             name="Mini summary",
-            value="%s**%s** hit **%d** %s and %s**%s** hit **%d** %s!\n"
-            % (
-                player_one.prefix.title(),
-                player_one.player.name_clean,
-                battle_result.p1_hits,
-                util.s_suffix("time", battle_result.p1_hits),
-                player_two.prefix,
-                player_two.player.name_clean,
-                battle_result.p2_hits,
-                util.s_suffix("time", battle_result.p2_hits),
-            )
-            + battle_moves[-1].message,
+            value=(
+                f"{player_one.prefix.title()}**{player_one.player.name_clean}** hit "
+                + f"**{battle_result.p1_hits}** {util.s_suffix('time', battle_result.p1_hits)} "
+                + f"and {player_two.prefix}**{player_two.player.name_clean}** hit "
+                + f"**{battle_result.p2_hits}** {util.s_suffix('time', battle_result.p2_hits)}!\n"
+                + f"{battle_moves[-1].message}"
+            ),
         )
     else:
         battle_embed.add_field(name="Battle log", value=battle_log)
@@ -156,10 +152,10 @@ def battle(**battleargs):
                 message = weapon.hit_message
 
         player_num = opponents.index(attacker)
-        moves["%d/%d" % (player_num, current_move)] = _Move(
+        moves[f"{player_num}/{current_move}"] = _Move(
             message=(
-                "%s**%s** %s %s**%s**"
-                % (attacker.prefix.title(), attacker.player.name_clean, message, other.prefix, other.player.name_clean)
+                f"{attacker.prefix.title()}**{attacker.player.name_clean}** "
+                + f"{message} {other.prefix}**{other.player.name_clean}**"
             ),
             repetitions=1,
         )
@@ -207,7 +203,7 @@ def battle(**battleargs):
                 last_move = moves_to_shrink[last_move_id]
                 moves_shrink_duos[last_move_id] = last_move._replace(repetitions=last_move.repetitions - 1)
 
-                moves_shrink_duos["Duo%d" % count] = _Move(
+                moves_shrink_duos[f"Duo{count}"] = _Move(
                     message=last_move.message + " ⇆ " + move.message, repetitions=1
                 )
                 moves_shrink_duos[move_id] = move._replace(repetitions=move.repetitions - 1)
@@ -262,8 +258,8 @@ def battle(**battleargs):
     turns = current_move - 1
     moves["winner"] = _Move(
         message=(
-            ":trophy: %s**%s** wins in **%d** %s!"
-            % (winner.prefix.title(), winner.player.name_clean, turns, util.s_suffix("turn", turns))
+            f":trophy: {winner.prefix.title()}**{winner.player.name_clean}** "
+            + f"wins in **{turns}** {util.s_suffix('turn', turns)}!"
         ),
         repetitions=1,
     )

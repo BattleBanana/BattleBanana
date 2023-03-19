@@ -1,10 +1,9 @@
-import os
 import json
+import os
 
 from discord.ext import commands
 
 from dueutil import util
-
 
 LOCALIZATION_PATH = "dueutil/game/configs/localization/"
 DEFAULT_LANGUAGE = "en"
@@ -41,7 +40,7 @@ def find_translation(_: commands.Context, key: str, *args, force_update: bool = 
     translation: :class:`str`
         The translated string or the key if no translation was found
     """
-    if translations == {} or force_update:
+    if not translations or force_update:
         _load()
 
     # Get the language of the server

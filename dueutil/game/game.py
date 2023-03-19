@@ -1,17 +1,15 @@
 import json
-import random
 import re
 import secrets
 import time
 
 import generalconfig as gconf
-from . import gamerules
-from .. import events
-from .. import util, dbconn
-from ..game import players
-from ..game import stats, weapons, quests, awards
+
+from .. import dbconn, events, util
+from ..game import awards, players, quests, stats, weapons
 from ..game.configs import dueserverconfig
 from ..game.helpers import imagehelper
+from . import gamerules
 
 try:
     import ssdeep
@@ -20,12 +18,12 @@ except ImportError:
 
 SPAM_TOLERANCE = 50
 # For awards in the first week. Not permanent.
-old_players = open("oldplayers.txt").read()  # For comeback award
-testers = open("testers.txt").read()  # For testers award
+old_players = open("oldplayers.txt", encoding="utf-8").read()  # For comeback award
+testers = open("testers.txt", encoding="utf-8").read()  # For testers award
 
 
 def get_responses():
-    return json.load(open("dueutil/game/configs/daily.json", "r"))
+    return json.load(open("dueutil/game/configs/daily.json", "r", encoding="utf-8"))
 
 
 def get_spam_level(player, message_content):
@@ -62,7 +60,7 @@ async def player_message(message, player, spam_level):
     """
 
     def get_words():
-        return re.compile("\w+").findall(message.content)
+        return re.compile(r"\w+").findall(message.content)
 
     # Mention the old bot award
     if gconf.DEAD_BOT_ID in message.raw_mentions:
@@ -102,12 +100,11 @@ async def player_message(message, player, spam_level):
         # The non-thread safe Apsell calls
         # spelling_lock.acquire()
         # DISABLED: Spell checking due to random seg faults (even with locks).
-        """lang = guess_language(message.content)
-        if lang in enchant.list_languages():
-            spelling_dict = enchant.Dict(lang)
-        else:
-            spelling_dict = enchant.Dict("en_GB")
-        """
+        # lang = guess_language(message.content)
+        # if lang in enchant.list_languages():
+        #     spelling_dict = enchant.Dict(lang)
+        # else:
+        #     spelling_dict = enchant.Dict("en_GB")
 
         spelling_score = 0
         big_word_count = 1
@@ -163,7 +160,7 @@ async def check_for_level_up(ctx, player):
             util.logger.info("Won't send level up image - channel blocked.")
         rank = player.rank
         if 1 <= rank <= 10:
-            await awards.give_award(ctx.channel, player, "Rank%d" % rank, "Attain rank %d." % rank)
+            await awards.give_award(ctx.channel, player, f"Rank{rank}", f"Attain rank {rank}.")
 
 
 async def manage_quests(message, player, spam_level):
@@ -180,22 +177,21 @@ async def manage_quests(message, player, spam_level):
     # Testing
     if len(quests.get_server_quest_list(channel.guild)) == 0:
         quests.add_default_quest_to_server(message.guild)
-    if quest_time(player) and spam_level < SPAM_TOLERANCE:
-        if (
-            quests.has_quests(channel)
-            and len(player.quests) < quests.MAX_ACTIVE_QUESTS
-            and player.quests_completed_today < quests.MAX_DAILY_QUESTS
-        ):
-            player.last_quest = time.time()
-            quest = quests.get_random_quest_in_channel(channel)
-            new_quest = await quests.ActiveQuest.create(quest.q_id, player)
-            stats.increment_stat(stats.Stat.QUESTS_GIVEN)
-            player.quest_spawn_build_up = 1
-            if dueserverconfig.mute_level(message.channel) < 0:
-                await imagehelper.new_quest_screen(message, new_quest, player)
-            else:
-                util.logger.info("Won't send new quest image - channel blocked.")
-            util.logger.info("%s has received a quest [%s]", player.name_assii, new_quest.q_id)
+    if (quest_time(player) and spam_level < SPAM_TOLERANCE) and (
+        quests.has_quests(channel)
+        and len(player.quests) < quests.MAX_ACTIVE_QUESTS
+        and player.quests_completed_today < quests.MAX_DAILY_QUESTS
+    ):
+        player.last_quest = time.time()
+        quest = quests.get_random_quest_in_channel(channel)
+        new_quest = await quests.ActiveQuest.create(quest.q_id, player)
+        stats.increment_stat(stats.Stat.QUESTS_GIVEN)
+        player.quest_spawn_build_up = 1
+        if dueserverconfig.mute_level(message.channel) < 0:
+            await imagehelper.new_quest_screen(message, new_quest, player)
+        else:
+            util.logger.info("Won't send new quest image - channel blocked.")
+        util.logger.info("%s has received a quest [%s]", player.name_assii, new_quest.q_id)
 
 
 async def check_for_recalls(ctx, player):

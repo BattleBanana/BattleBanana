@@ -1,15 +1,17 @@
+"""
+General game stats
+"""
+
 from collections import defaultdict
 from enum import Enum
 from typing import Dict
 
 from .. import dbconn
 
-"""
-General game stats
-"""
-
 
 class Stat(Enum):
+    """Enum of all the stats we track"""
+
     MONEY_CREATED = "moneycreated"
     MONEY_TRANSFERRED = "moneytransferred"
     MONEY_TAXED = "moneytaxed"

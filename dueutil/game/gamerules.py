@@ -2,7 +2,7 @@ import json
 
 from .. import dbconn
 
-exp_per_level = dict()
+exp_per_level = {}
 
 """
 Some values needed for player, quests & etc
@@ -10,11 +10,11 @@ Some values needed for player, quests & etc
 
 
 def _load_game_rules():
-    with open("dueutil/game/configs/progression.json") as progression_file:
+    with open("dueutil/game/configs/progression.json", encoding="utf-8") as progression_file:
         progression = json.load(progression_file)
         exp = progression["dueutil-ranks"]
         # for web
-        expanded_exp_per_level = dict()
+        expanded_exp_per_level = {}
         for levels, exp_details in exp.items():
             if "," in levels:
                 level_range = eval("range(" + levels + "+1)")
@@ -33,7 +33,7 @@ def get_exp_for_next_level(level):
 
 
 def get_exp_for_level(level):
-    return sum([get_exp_for_next_level(level) for level in range(1, level)])
+    return sum(get_exp_for_next_level(level) for level in range(1, level))
 
 
 def get_level_from_exp(exp):

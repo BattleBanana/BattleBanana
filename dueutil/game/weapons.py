@@ -1,14 +1,14 @@
-import discord
 import json
-import jsonpickle
 from collections import namedtuple
-from typing import Union, Dict
+from typing import Dict, Union
 
-from . import emojis
-from .. import dbconn
-from .. import util
+import discord
+import jsonpickle
+
+from .. import dbconn, util
 from ..game.helpers.misc import BattleBananaObject, DueMap
 from ..util import SlotPickleMixin
+from . import emojis
 
 stock_weapons = ["none"]
 weapons = DueMap()
@@ -81,10 +81,10 @@ class Weapon(BattleBananaObject, SlotPickleMixin):
         return self.id
 
     def _weapon_id(self):
-        return "%s+%s/%s" % (self.server_id, self._weapon_sum(), self.name.lower())
+        return f"{self.server_id}+{self._weapon_sum()}/{self.name.lower()}"
 
     def _weapon_sum(self):
-        return "%d|%d|%.2f" % (self.price, self.damage, self.accy)
+        return f"{self.price}|{self.damage}|{self.accy:.2f}"
 
     def _price(self):
         return int(self.accy * self.damage / self.PRICE_CONSTANT) + 1
@@ -206,7 +206,7 @@ def remove_all_weapons(guild):
 
 def _load():
     def load_stock_weapons():
-        with open("dueutil/game/configs/defaultweapons.json") as defaults_file:
+        with open("dueutil/game/configs/defaultweapons.json", encoding="utf-8") as defaults_file:
             defaults = json.load(defaults_file)
             for weapon_name, weapon_data in defaults.items():
                 stock_weapons.append(weapon_name)

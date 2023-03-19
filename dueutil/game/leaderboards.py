@@ -1,9 +1,10 @@
 import threading
 import time
-from cachetools.func import ttl_cache
 from collections import namedtuple
 
-from .. import events, util, dbconn
+from cachetools.func import ttl_cache
+
+from .. import dbconn, events, util
 from ..game import players
 
 leaderboards = dict()

@@ -1,18 +1,21 @@
-import discord
-import json
-from PIL import Image
-
-from .. import util, dbconn
-from ..game.configs import dueserverconfig
-
-awards = dict()
-
 """
 BattleBanana awards
 """
 
+import json
+
+import discord
+from PIL import Image
+
+from .. import dbconn, util
+from ..game.configs import dueserverconfig
+
+awards = {}
+
 
 class Award:
+    """Award class for BattleBanana awards"""
+
     __slots__ = ["name", "description", "icon", "special"]
 
     # Colour for special award text & stuff
@@ -55,7 +58,7 @@ async def give_award(channel, player, award_id, text=None):
 
 def update_award_stat(award_id, stat, value, increment=True):
     if get_award(award_id) is not None:
-        if increment and type(value) is int:
+        if increment and isinstance(value, int):
             update = {"$inc": {stat: value}}
         else:
             update = {"$set": {stat: value}}

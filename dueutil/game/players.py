@@ -1,39 +1,42 @@
-import discord
+""" Player related classes & functions """
+
 import gc
 import json
-import jsonpickle
 import math
-import numpy
 import random
 import time
 from collections import defaultdict
 from copy import copy
 from itertools import chain
 
+import discord
+import jsonpickle
+import numpy
+
 import generalconfig as gconf
-from . import customizations
-from . import emojis as e
-from .customizations import Theme
+
 from .. import dbconn, permissions, util
 from ..game import awards, gamerules, weapons
 from ..game.helpers.misc import BattleBananaObject, Ring
 from ..permissions import Permission
 from ..util import SlotPickleMixin
+from . import customizations, emojis
+from .customizations import Theme
 
-""" Player related classes & functions """
-
-STAT_GAIN_FORMAT = e.ATK + ": +%.2f " + e.STRG + ": +%.2f " + e.ACCY + ": +%.2f"
+STAT_GAIN_FORMAT = emojis.ATK + ": +%.2f " + emojis.STRG + ": +%.2f " + emojis.ACCY + ": +%.2f"
 
 
 class FakeMember:
-    def __init__(self, user_id: int, name: str, roles=None):
+    def __init__(self, user_id: int, name: str = "<Dummy>", roles=None):
         self.id = user_id
         self.mention = f"<@{user_id}>"
-        self.name = "<Dummy>"
+        self.name = name
         self.roles = roles or []
 
 
 class Players(dict):
+    """A dict of cached players."""
+
     # Amount of time before the bot will prune a player.
     PRUNE_INACTIVITY_TIME = 3600 * 6
 
@@ -45,9 +48,9 @@ class Players(dict):
         fetched directly from the database
         """
         players_pruned = 0
-        for id, player in list(self.items()):
+        for player_id, player in list(self.items()):
             if time.time() - player.last_progress >= Players.PRUNE_INACTIVITY_TIME:
-                del self[id]
+                del self[player_id]
                 players_pruned += 1
         gc.collect()
         util.logger.info("Pruned %d players for inactivity", players_pruned)
@@ -269,8 +272,8 @@ class Player(BattleBananaObject, SlotPickleMixin):
         add_strg = min(attr_gain(quest.strg), max_stats_gain)
         # Limit these with add_strg. Since if the quest is super strong. It would not be beatable.
         # Add a little random so the limit is not super visible
-        add_attack = min(attr_gain(quest.attack), min(add_strg * 3 * random.uniform(0.6, 1.5), max_stats_gain))
-        add_accy = min(attr_gain(quest.accy), min(add_strg * 3 * random.uniform(0.6, 1.5), max_stats_gain))
+        add_attack = min(attr_gain(quest.attack), add_strg * 3 * random.uniform(0.6, 1.5), max_stats_gain)
+        add_accy = min(attr_gain(quest.accy), add_strg * 3 * random.uniform(0.6, 1.5), max_stats_gain)
 
         return add_strg, add_attack, add_accy, max_stats_gain
 
@@ -332,7 +335,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
     async def get_avatar_url(self, guild=None, **extras):
         if guild is None:
             member = extras.get("member")
-        elif guild is not None:
+        else:
             member = await guild.fetch_member(self.id)
 
         if member is None:
@@ -459,7 +462,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
         elif isinstance(value, str):
             self.equipped[thing] = value
         else:
-            raise util.BotException("%s cannot be set to %s" % (thing, value))
+            raise util.BotException(f"{thing} cannot be set to {value}")
 
     def __setstate__(self, object_state):
         SlotPickleMixin.__setstate__(self, object_state)
@@ -542,18 +545,17 @@ async def handle_client(reader, writer):
         player = find_player(player_id)
         if player is None:  # no account on BattleBanana
             player = Player(FakeMember(player_id))
-    except json.decoder.JSONDecodeError as e:
+    except json.decoder.JSONDecodeError as json_error:
         player = None
-        error_found = e
+        error_found = json_error
 
     if player:
-        player_data = {i async for i in get_stuff(player)}
-        for attr in set(request.keys()).intersection(player_data):  # shared attrs between request and player
+        for attr in set(request.keys()).intersection(get_stuff(player)):  # shared attrs between request and player
             setattr(player, attr, request[attr])
         writer.write("200 OK".encode())
         user: discord.User = util.fetch_user(player.id)
         if user:
             await user.send("Your data has been received and transferred! You can transfer again in 7 days.")
     else:
-        writer.write("smh {}".format(error_found).encode())
+        writer.write(f"smh {error_found}".encode())
     writer.close()  # close it

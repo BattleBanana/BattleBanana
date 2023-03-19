@@ -1,13 +1,14 @@
-import discord
-from functools import wraps
-
-import generalconfig as gconf
-from dueutil import util
-
 """
 Generic wrappers to make listing items (e.g. backgrounds)
 and setting them faster (to make)
 """
+
+from functools import wraps
+
+import discord
+
+import generalconfig as gconf
+from dueutil import util
 
 
 def item_preview(thing_info_preview):
@@ -35,10 +36,10 @@ def item_preview(thing_info_preview):
         if len(args) == 1:
             page = args[0]
 
-        if type(page) is int:
+        if isinstance(page, int):
             page -= 1
             thing_list = things_info["thing_list"]
-            title = player.get_name_possession_clean() + " " + thing_type.title() + "s"
+            title = f"{player.get_name_possession_clean()} {thing_type.title()}s"
             thing_embed = things_info["thing_lister"](
                 thing_list,
                 page,
@@ -55,7 +56,7 @@ def item_preview(thing_info_preview):
             thing_name = page.lower()
             thing = things_info["thing_getter"](thing_name)
             if thing is None:
-                raise util.BattleBananaException(ctx.channel, thing_type.title() + " not found!")
+                raise util.BattleBananaException(ctx.channel, f"{thing_type.title()} not found!")
             thing_embed = things_info["thing_info"](
                 thing_name, **details, embed=discord.Embed(type="rich", color=gconf.DUE_COLOUR)
             )
@@ -97,8 +98,8 @@ def item_setter(item_info_setter):
             # This should be a property returning the 'thing' object
             thing = getattr(player, thing_type)
             player.save()
-            await util.reply(ctx, ":white_check_mark: " + thing_type.title() + " set to **" + thing.name_clean + "**")
+            await util.reply(ctx, f":white_check_mark: {thing_type.title()} set to **{thing.name_clean}**")
         else:
-            raise util.BattleBananaException(ctx.channel, thing_type.title() + " not found!")
+            raise util.BattleBananaException(ctx.channel, f"{thing_type.title()} not found!")
 
     return setthing

@@ -1,14 +1,14 @@
-from ..helpers.misc import DueMap
-from ... import dbconn, util
-
-muted_channels = DueMap()
-command_whitelist = DueMap()
-server_keys = dict()
-DEFAULT_SERVER_KEY = "!"
-
 """
 General config for a particular guild
 """
+
+from dueutil import dbconn, util
+from dueutil.game.helpers.misc import DueMap
+
+muted_channels = DueMap()
+command_whitelist = DueMap()
+server_keys = {}
+DEFAULT_SERVER_KEY = "!"
 
 
 def update_server_config(guild, **update):
@@ -30,7 +30,6 @@ def whitelisted_commands(channel):
 
 def set_command_whitelist(channel, command_list):
     # Todo fix blacklist
-    global command_whitelist
     key = f"{channel.guild.id}/{channel.id}"
     if len(command_list) != 0:
         command_whitelist[key] = command_list

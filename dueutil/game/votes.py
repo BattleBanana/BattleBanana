@@ -1,9 +1,11 @@
 import traceback
+
 from discord import Embed
 
 import generalconfig as gconf
-from dueutil import util, tasks, dbconn
+from dueutil import dbconn, tasks, util
 from dueutil.botcommands.player import DAILY_AMOUNT
+
 from . import players
 
 
@@ -25,7 +27,7 @@ async def process_votes():
         client = util.clients[0]
 
         for vote in votes:
-            if type(vote) == dict:
+            if isinstance(vote, dict):
                 vote_id = vote.get("_id")
                 user_id = int(vote.get("user"))
                 is_weekend = vote.get("weekend", False)
@@ -54,7 +56,7 @@ async def process_votes():
                 util.logger.info("Processed vote for %s", user_id)
                 await util.say(gconf.votes_channel, embed=embed)
     except Exception as e:
-        util.logging.warn(e)
+        util.logging.warning(e)
 
 
 async def notify_complete(user_id, vote, reward):

@@ -1,12 +1,10 @@
+"""
+Helper classes to make sell/buy actions faster
+"""
+
 from abc import ABC, abstractmethod
 
 from dueutil import util
-
-"""
-
-Helper classes to make making sell/buy actions faster
-
-"""
 
 
 class ShopBuySellItem(ABC):
@@ -71,38 +69,20 @@ class ShopBuySellItem(ABC):
         if customer.money - item.price >= 0:
             customer.money -= item.price
             customer.inventory[self.inventory_slot].append(item_name)
+            message = (
+                f"**{customer.name_clean}** bought the {self.item_type} **{item.name_clean}** "
+                + f"for {util.format_number(item.price, money=True, ull_precision=True)}"
+            )
             if self.item_equipped_on_buy(customer, item_name):
-                await util.say(
-                    channel,
-                    (
-                        "**%s** bought the %s **%s** for %s"
-                        % (
-                            customer.name_clean,
-                            self.item_type,
-                            item.name_clean,
-                            util.format_number(item.price, money=True, ull_precision=True),
-                        )
-                    ),
-                )
+                await util.say(channel, message)
             else:
                 await util.say(
                     channel,
                     (
-                        (
-                            "**%s** bought the %s **%s** for %s\n"
-                            + ":warning: You have not yet set this %s! Do **%sset%s %s** to use this %s"
-                        )
-                        % (
-                            customer.name_clean,
-                            self.item_type,
-                            item.name_clean,
-                            util.format_number(item.price, money=True, full_precision=True),
-                            self.item_type,
-                            details["cmd_key"],
-                            self.set_name if hasattr(self, "set_name") else self.item_type,
-                            item_name,
-                            self.item_type,
-                        )
+                        message
+                        + f"\n:warning: You have not yet set this {self.item_type}! Do **{details['cmd_key']}"
+                        + (self.set_name if hasattr(self, "set_name") else self.item_type)
+                        + f" {item_name}** to use this {self.item_type}"
                     ),
                 )
             customer.save()
@@ -118,7 +98,6 @@ class ShopBuySellItem(ABC):
         Equips the item if possible
         Returns true/false
         """
-
         pass
 
     @abstractmethod

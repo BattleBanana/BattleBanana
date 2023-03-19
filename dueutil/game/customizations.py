@@ -20,6 +20,10 @@ BACKGROUND_PATH = "assets/backgrounds/backgrounds.json"
 
 
 class Customization(BattleBananaObject):
+    """
+    Base class for all customizations.
+    """
+
     __slots__ = ["_customization_info"]
 
     # Use kwargs so maybe I could neatly define customizations in code.
@@ -40,7 +44,7 @@ class Customization(BattleBananaObject):
         except KeyError as exception:
             #### ULTRA WARNING!!!!!!!
             #### THIS ERROR MAY LIE
-            raise AttributeError("%s has no attribute or index named %s" % (type(self).__name__, name)) from exception
+            raise AttributeError(f"{type(self).__name__} has no attribute or index named {name}") from exception
 
     # Most customizations are read only & don't need to set values
 
@@ -64,9 +68,6 @@ class Theme(Customization):
 
     __slots__ = []
 
-    def __init__(self, id, **theme_data):
-        super().__init__(id, **theme_data)
-
     def __copy__(self):
         return Theme(id, **self._customization_info)
 
@@ -75,6 +76,10 @@ class Theme(Customization):
 
 
 class _Themes(dict):
+    """
+    Stores all themes.
+    """
+
     PROFILE_PARTS = ("screen", "avatar", "icons")
 
     def __init__(self):
@@ -90,7 +95,7 @@ class _Themes(dict):
                 return os.path.join(path, part_name)
             else:
                 if path == "themes/":
-                    return "assets/themes/default/%s" % part_name
+                    return f"assets/themes/default/{part_name}"
                 else:
                     path = parent_path
 
@@ -107,10 +112,10 @@ class _Themes(dict):
         """
 
         self.clear()
-        for path, subdirs, files in os.walk("assets/themes/"):
+        for path, _, files in os.walk("assets/themes/"):
             for name in files:
                 if name.endswith(".json"):
-                    with open(os.path.join(path, name)) as theme_json:
+                    with open(os.path.join(path, name), encoding="utf-8") as theme_json:
                         theme_details = json.load(theme_json)["theme"]
                         theme_id = theme_details["name"].lower()
                         for part in _Themes.PROFILE_PARTS:
@@ -137,6 +142,10 @@ class Background(Customization):
 
 
 class _Backgrounds(dict):
+    """
+    Stores all backgrounds.
+    """
+
     BASE_PATH = "assets/backgrounds/"
 
     def __init__(self):
@@ -145,11 +154,11 @@ class _Backgrounds(dict):
 
     def _load_backgrounds(self):
         self.clear()
-        with open(self.BASE_PATH + "stockbackgrounds.json") as stock_backgrounds_file:
+        with open(self.BASE_PATH + "stockbackgrounds.json", encoding="utf-8") as stock_backgrounds_file:
             background_details = json.load(stock_backgrounds_file)
             added_backgrounds_path = self.BASE_PATH + "backgrounds.json"
             if os.path.isfile(added_backgrounds_path):
-                with open(added_backgrounds_path) as uploaded_backgrounds_file:
+                with open(added_backgrounds_path, encoding="utf-8") as uploaded_backgrounds_file:
                     try:
                         background_details.update(json.load(uploaded_backgrounds_file))
                     except ValueError:
@@ -189,13 +198,17 @@ class Banner(Customization):
 
 
 class _Banners(dict):
+    """
+    Stores all banners.
+    """
+
     def __init__(self):
         super().__init__()
         self._load_banners()
 
     def _load_banners(self):
         self.clear()
-        with open("assets/banners/banners.json") as banners_file:
+        with open("assets/banners/banners.json", encoding="utf-8") as banners_file:
             banners_details = json.load(banners_file)
             for banner_id, banner in banners_details.items():
                 self[banner_id] = Banner(banner_id, **banner)

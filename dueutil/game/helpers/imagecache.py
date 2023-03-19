@@ -1,9 +1,10 @@
 import json
 import os
 import re
+
 from PIL import Image
 
-from ... import dbconn, util, tasks
+from dueutil import dbconn, tasks, util
 
 
 class _CacheStats:
@@ -95,9 +96,9 @@ def uncache(url):
             filename = get_cached_filename(url)
             if os.path.isfile(filename):
                 os.remove(filename)
-                util.logger.info("Removed %s from image cache (no longer needed)" % url)
+                util.logger.info("Removed %s from image cache (no longer needed)", url)
         except IOError as exception:
-            util.logger.warning("Failed to delete cached image %s (%s)" % (url, exception))
+            util.logger.warning("Failed to delete cached image %s (%s)", url, exception)
 
 
 def get_cached_filename(name):

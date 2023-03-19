@@ -1,21 +1,20 @@
 import asyncio
-import secrets
-import discord
 import json
-import jsonpickle
 import math
 import random
+import secrets
 from collections import defaultdict, namedtuple
 from typing import Dict, List
 
-from . import gamerules
-from .players import Player
-from .. import dbconn
-from .. import util
-from ..game import players
-from ..game import weapons
+import discord
+import jsonpickle
+
+from .. import dbconn, util
+from ..game import players, weapons
 from ..game.helpers.misc import BattleBananaObject, DueMap
 from ..util import SlotPickleMixin
+from . import gamerules
+from .players import Player
 
 quests = DueMap()
 
@@ -48,7 +47,7 @@ class Quest(BattleBananaObject, SlotPickleMixin):
 
     DEFAULT_IMAGE = "https://i.imgur.com/zOIJM9T.png"
 
-    _BaseStats = namedtuple("BaseStats", ["attack", "strg", "accy", "hp"])
+    _BASE_STATS = namedtuple("BaseStats", ["attack", "strg", "accy", "hp"])
 
     def __init__(self, name, base_attack, base_strg, base_accy, base_hp, **extras):
         message = extras.get("ctx", None)
@@ -95,12 +94,11 @@ class Quest(BattleBananaObject, SlotPickleMixin):
         return f"{self.server_id}/{self.name.lower()}"
 
     def _add(self):
-        global quests
         if self.server_id != "":
             quests[self.id] = self
 
     def base_values(self):
-        return self._BaseStats(
+        return self._BASE_STATS(
             self.base_attack,
             self.base_strg,
             self.base_accy,
@@ -146,6 +144,8 @@ class Quest(BattleBananaObject, SlotPickleMixin):
 
 
 class ActiveQuest(Player, util.SlotPickleMixin):
+    """A class to hold info about a player's active quest"""
+
     __slots__ = [
         "level",
         "attack",
@@ -161,8 +161,10 @@ class ActiveQuest(Player, util.SlotPickleMixin):
         "total_exp",
     ]
 
+    # pylint: disable=W0231:super-init-not-called
     def __init__(self):
-        pass  # Use async factory method create instead
+        """Use async factory method `create` instead"""
+        pass
 
     @staticmethod
     async def create(q_id: str, quester: Player):
@@ -176,9 +178,9 @@ class ActiveQuest(Player, util.SlotPickleMixin):
         active_quest.quester_id = quester.id
         active_quest.quester = quester
 
-        """ The quests equipped items.
-           Quests only have weapons but I may add more things a quest
-           can have so a default dict will help with that """
+        # The quests equipped items.
+        # Quests only have weapons but I may add more things a quest
+        # can have so a default dict will help with that
         active_quest.equipped = defaultdict(lambda: "default", weapon=base_quest.w_id)
 
         target_exp = random.uniform(quester.total_exp, quester.total_exp * 1.8)
@@ -215,7 +217,7 @@ class ActiveQuest(Player, util.SlotPickleMixin):
             await asyncio.sleep(1 / 1000)
         self.cash_iv = min(self.info.base_values()) * 3 * random.uniform(0.8, 1.6)
 
-    async def get_avatar_url(self, *args):
+    async def get_avatar_url(self, *_):
         quest_info = self.info
         if quest_info is not None:
             return quest_info.image_url
@@ -250,7 +252,8 @@ class ActiveQuest(Player, util.SlotPickleMixin):
         return self.get_reward()
 
     @money.setter
-    def money(self, value):
+    def money(self, _):
+        # Quests don't have money
         pass
 
     @property
@@ -259,10 +262,9 @@ class ActiveQuest(Player, util.SlotPickleMixin):
 
     def __setstate__(self, object_state):
         SlotPickleMixin.__setstate__(self, object_state)
-        """ quester is set in the player's setstate
-        as quests are part of the player's save.
-        Also we don't want to inherit the Player setstate.
-         """
+        # quester is set in the player's setstate
+        # as quests are part of the player's save.
+        # Also we don't want to inherit the Player setstate.
         self.equipped = defaultdict(self.DEFAULT_FACTORIES["equipped"], **self.equipped)
 
     def __getstate__(self):
@@ -320,7 +322,7 @@ def add_default_quest_to_server(guild):
 
 def remove_all_quests(guild):
     if guild in quests:
-        result = dbconn.delete_objects(Quest, "%s/.*" % guild.id)
+        result = dbconn.delete_objects(Quest, rf"{guild.id}/.*")
         del quests[guild]
         return result.deleted_count
     return 0
@@ -339,7 +341,7 @@ REFERENCE_QUEST = Quest("Reference", 1, 1, 1, 1, server_id="", no_save=True)
 
 def _load():
     def load_default_quests():
-        with open("dueutil/game/configs/defaultquests.json") as defaults_file:
+        with open("dueutil/game/configs/defaultquests.json", encoding="utf-8") as defaults_file:
             defaults = json.load(defaults_file)
             for quest_data in defaults.values():
                 Quest(

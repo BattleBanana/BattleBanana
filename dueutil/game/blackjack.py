@@ -1,5 +1,5 @@
 import discord
-from discord import ui, ButtonStyle
+from discord import ButtonStyle, ui
 from pydealer.deck import Deck
 
 DEFAULT_TIMEOUT = 120
@@ -8,6 +8,14 @@ EQUIVALENTS = {"Jack": 10, "Queen": 10, "King": 10, "Ace": 11}
 
 
 class BlackjackInteraction(ui.View):
+    """
+    Interaction for blackjack game
+
+    Args:
+        author (discord.User): The author of the interaction
+        timeout (int, optional): The timeout of the interaction. Defaults to 120.
+    """
+
     def __init__(self, author: discord.User, timeout=DEFAULT_TIMEOUT):
         self._author = author
         self.value = "stand"
@@ -26,13 +34,13 @@ class BlackjackInteraction(ui.View):
         return self.value
 
     @ui.button(label="Hit", style=ButtonStyle.primary)
-    async def hit(self, interaction: discord.Interaction, button: ui.Button):
+    async def hit(self, interaction: discord.Interaction, _: ui.Button):
         await interaction.response.defer()
         self.value = "hit"
         self.stop()
 
     @ui.button(label="Stand", style=ButtonStyle.primary)
-    async def stand(self, interaction: discord.Interaction, button: ui.Button):
+    async def stand(self, interaction: discord.Interaction, _: ui.Button):
         await interaction.response.defer()
         self.value = "stand"
         self.stop()

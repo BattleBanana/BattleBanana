@@ -145,7 +145,7 @@ async def showinvites(ctx, **details):
                     name=team.name,
                     value=(
                         f"**Owner:** {owner.name} ({owner.id})\n"
-                        + f"**Average level:** {team.avgLevel}\n"
+                        + f"**Average level:** {team.average_level}\n"
                         + f"**Members:** {len(team.members)}\n"
                         + f"**Required Level:** {team.level}\n"
                         + f"**Recruiting:** {'Yes' if team.open else 'No'}"

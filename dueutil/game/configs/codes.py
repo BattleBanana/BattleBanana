@@ -14,7 +14,7 @@ class PromoCode:
 codes: List[PromoCode] = []
 
 
-def __new_code():
+def _new_code():
     return f"BATTLEBANANA_{secrets.token_hex(5).upper()}"
 
 
@@ -22,9 +22,9 @@ def generate(price, quantity=1):
     new_codes: List[PromoCode] = []
 
     for _ in range(quantity):
-        code = __new_code()
+        code = _new_code()
         while exists(code):
-            code = __new_code()
+            code = _new_code()
 
         new_codes.append(PromoCode(code, price))
 
@@ -37,7 +37,7 @@ def generate(price, quantity=1):
 
 
 def exists(code: str):
-    return any([code == c.code for c in codes])
+    return any(code == c.code for c in codes)
 
 
 def redeem(code: str):
@@ -47,7 +47,7 @@ def redeem(code: str):
     :param code: The code to redeem
     :return: The price of the code
     """
-    for c in codes:
+    for c in codes.copy():
         if c.code == code:
             codes.remove(c)
             dbconn.conn()["Codes"].delete_one({"code": c.code})
@@ -67,8 +67,7 @@ def get_paged(page: int, per_page: int):
 
 
 def _load():
-    global codes
-    codes = [PromoCode(c["code"], c["price"]) for c in dbconn.conn()["Codes"].find()]
+    codes.extend([PromoCode(code["code"], code["price"]) for code in dbconn.conn()["Codes"].find()])
 
 
 _load()

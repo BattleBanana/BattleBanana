@@ -30,8 +30,8 @@ class BattleBananaObject:
 
     NAME_LENGTH_RANGE = range(3, 33)
 
-    def __init__(self, object_id, *args, **kwargs):
-        self.id = object_id
+    def __init__(self, id, *args, **kwargs):
+        self.id = id
         self.no_save = kwargs.get("no_save", False)
         if len(args) > 0:
             self.name = args[0]
