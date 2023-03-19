@@ -1,23 +1,29 @@
+"""
+Worst code in the bot.
+Images very ugly throwaway code.
+"""
+
 import asyncio
-import secrets
-import aiohttp
-import discord
 import math
 import os
 import random
 import re
-from PIL import Image, ImageDraw, ImageFont
-from colour import Color
-from discord import File
+import secrets
 from io import BytesIO
 from urllib.parse import urlparse
 
+import aiohttp
+import discord
+from colour import Color
+from PIL import Image, ImageDraw, ImageFont
+
 from dueutil import util
-from . import imagecache
-from .. import awards, gamerules, stats, weapons, customizations
-from .. import emojis as e
+
+from .. import awards, customizations, emojis, gamerules, stats, weapons
 from ..configs import dueserverconfig
 from ..customizations import _Themes
+from ..players import Player
+from . import imagecache
 
 try:
     from .speedup import quest_colorize_helper
@@ -26,13 +32,6 @@ except ImportError:
     def quest_colorize_helper(*args):
         raise ImportError("Something broke, please tell Theelx#4980")
 
-
-"""
-Worst code in the bot.
-Images very ugly throwaway code.
-"""
-
-# TODO: Rewrite
 
 DUE_FONT = "assets/fonts/Due_Robo.ttf"
 # DueUtil fonts
@@ -52,7 +51,7 @@ battle_screen_template = Image.open("assets/screens/battle_screen.png")
 award_slot = Image.open("assets/screens/award_slot.png")
 quest_row = Image.open("assets/screens/quest_row.png")
 mini_icons = Image.open("assets/screens/mini_icons.png")
-profile_parts = dict()
+profile_parts = {}
 
 traffic_lights = list(Color("red").range_to(Color("#ffbf00"), 5)) + list(Color("#ffbf00").range_to(Color("green"), 5))
 
@@ -140,9 +139,9 @@ async def check_url(url: str):
             async with session.get(url, headers=headers) as response:
                 return (response.status in range(200, 300)) and response.content_type.lower().startswith("image")
     except asyncio.TimeoutError:
-        util.logger.warning(f"Timeout error when checking url {url}")
-    except Exception as e:
-        util.logger.warning(f"Error when checking url {url}: {e}")
+        util.logger.warning("Timeout error when checking url %s", url)
+    except asyncio.CancelledError as e:
+        util.logger.warning("Error when checking url %s: %s", url, e)
     finally:
         await session.close()
 
@@ -226,11 +225,11 @@ def image_to_discord_file(image, filename):
 async def send_image(ctx, image, send_type, **kwargs):
     stats.increment_stat(stats.Stat.IMAGES_SERVED)
 
-    file = image_to_discord_file(image, kwargs.pop("file_name"))
+    discord_file = image_to_discord_file(image, kwargs.pop("file_name"))
     if send_type == "s":
-        await util.say(ctx.channel, file=file, **kwargs)
-    else:
-        await util.reply(ctx, file=file, **kwargs)
+        await util.say(ctx.channel, file=discord_file, **kwargs)
+    elif send_type == "r":
+        await util.reply(ctx, file=discord_file, **kwargs)
 
 
 async def level_up_screen(ctx, player, cash):
@@ -245,7 +244,7 @@ async def level_up_screen(ctx, player, cash):
     draw.text((159, 18), str(level), "white", font=font_big)
     draw.text((127, 40), util.format_number(cash, money=True), "white", font=font_big)
     await send_image(
-        ctx, image, "s", file_name="level_up.png", content=e.LEVEL_UP + " **" + player.name_clean + "** Level Up!"
+        ctx, image, "s", file_name="level_up.png", content=emojis.LEVEL_UP + " **" + player.name_clean + "** Level Up!"
     )
 
 
@@ -282,7 +281,7 @@ async def new_quest_screen(ctx, quest, player):
     image = await new_quest(ctx, quest, player)
 
     await send_image(
-        ctx, image, "s", file_name="new_quest.png", content=e.QUEST + " **" + player.name_clean + "** New Quest!"
+        ctx, image, "s", file_name="new_quest.png", content=emojis.QUEST + " **" + player.name_clean + "** New Quest!"
     )
 
 
@@ -422,11 +421,11 @@ async def quests_screen(ctx, player, page):
         image,
         "r",
         file_name="myquests.png",
-        content=e.QUEST + " **" + player.get_name_possession_clean() + "** Quests!",
+        content=emojis.QUEST + " **" + player.get_name_possession_clean() + "** Quests!",
     )
 
 
-async def stats_screen(ctx, player):
+async def stats_screen(ctx, player: Player):
     theme = player.theme
 
     if "fontColour" in theme:
@@ -482,14 +481,14 @@ async def stats_screen(ctx, player):
     exp = "EXP: " + str(math.trunc(player.exp)) + " / " + str(next_level_exp)
     draw.text((144, 70), exp, DUE_BLACK, font=font_tiny, stroke_width=1, stroke_fill=exp_colour)
 
-    level = str(math.trunc(player.level))
+    level = str(player.level)
     attk = str(round(player.attack, 2))
     strg = str(round(player.strg, 2))
     accy = str(round(player.accy, 2))
     money = util.format_number(player.money, money=True)
 
     # Text
-    draw.text((96, 49), "LEVEL " + level, banner_colour, font=font_big)
+    draw.text((96, 49), f"LEVEL {level} ({player.prestige_level})", banner_colour, font=font_big)
     draw.text((94, 87), "INFORMATION", header_colour, font=font_big)
     draw.text((117, 121), "ATK", icon_colour, font=font)
     draw.text((117, 149), "STRG", icon_colour, font=font)
