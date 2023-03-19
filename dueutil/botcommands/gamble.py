@@ -76,7 +76,8 @@ async def blackjack(ctx, price, **details):
             blackjack_embed.add_field(name=f"Your hand ({user_value})", value=user_hand)
             blackjack_embed.add_field(name=f"Dealer's hand ({dealer_value})", value=dealer_hand)
 
-            await msg.edit(embed=blackjack_embed, view=blackjackGame.BlackjackInteraction(ctx.author))
+            blackjack_buttons = blackjackGame.BlackjackInteraction(ctx.author)
+            await msg.edit(embed=blackjack_embed, view=blackjack_buttons)
         elif content == "stand":
             break
 
