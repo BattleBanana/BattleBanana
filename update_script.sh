@@ -6,4 +6,4 @@ echo "Backup created.. pulling latest updates"
 
 git pull
 
-chmod -R 755 *
+find . -not -path "./logs/*" -exec chmod 755 {} \;
