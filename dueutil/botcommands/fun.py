@@ -153,7 +153,7 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
         if user_info is None:
             user_info = player.id
         leaderboard_embed.add_field(
-            name=f"#{index + 1 + bonus}",
+            name=f"#{index + 1}{bonus}",
             value=(
                 f"[{player.name_clean} **``Level {player.level}``**]"
                 + f"(https://battlebanana.xyz/player/id/{player.id}) "

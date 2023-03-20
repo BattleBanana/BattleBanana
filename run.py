@@ -362,7 +362,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                 dbconn.db[collection].delete_many({"_id": guild.id})
                 dbconn.db[collection].delete_many({"_id": str(guild.id)})
         await util.duelogger.info(
-            "BattleBanana has been removed from the guild"
+            "BattleBanana has been removed from the guild "
             + f"**{util.ultra_escape_string(guild.name)}** ({guild.member_count} members)"
         )
         # Update stats

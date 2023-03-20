@@ -10,7 +10,7 @@ config = generalconfig.other_configs
 
 BOTS_ON_DISCORD = "https://bots.ondiscord.xyz/bot-api/bots/464601463440801792/guilds"
 TOP_GG = "https://top.gg/api/bots/464601463440801792/stats"
-RBL_GA = "https://discord.rovelstars.com/api/bots/464601463440801792/servers"
+RBL_GA = "https://dscrdly.com.com/api/bots/464601463440801792/servers"
 DISCORD_LABS = "https://bots.discordlabs.org/v2/bot/464601463440801792/stats"
 
 
