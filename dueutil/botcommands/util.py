@@ -192,7 +192,7 @@ async def prefix(ctx, **details):
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
 async def botstats(ctx: discord.Message, **_):
     """
-    [CMD_KEY]stats
+    [CMD_KEY]botstats
 
     BattleBanana's stats since the dawn of time!
     """
@@ -216,7 +216,7 @@ async def botstats(ctx: discord.Message, **_):
         value=(
             f"{emojis.MYINFO} **{util.format_number_precise(images_served)}** images served.\n"
             + f"{emojis.DISCOIN} **Đ{util.format_number_precise(discoin_received)}** Discoin received.\n"
-            + f"{emojis.CHANNEL} **%s** commands used.\n" % util.format_number_precise(commands_used),
+            + f"{emojis.CHANNEL} **%s** commands used.\n" % util.format_number_precise(commands_used)
         ),
     )
 
