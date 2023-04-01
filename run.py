@@ -289,7 +289,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         ):  # 99% of time its just network errors
             util.logger.warning(error.message)
         elif isinstance(error, pymongo.errors.ServerSelectionTimeoutError):
-            util.duelogger.error(
+            await util.duelogger.error(
                 "Something went wrong and we disconnected from database " + f"<@{gconf.other_configs['owner']}>"
             )
             util.logger.critical("Something went wrong and we disconnected from database")
