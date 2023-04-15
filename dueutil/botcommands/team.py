@@ -387,7 +387,7 @@ async def showteams(ctx, page=1, **details):
                 f"Owner: **{owner.name}** ({owner.id})\n"
                 + f"Description: **{team.description}**\n"
                 + f"Members: **{len(team.members)}**\n"
-                + f"Average Level: **{team.avgLevel}**\n"
+                + f"Average Level: **{team.average_level}**\n"
                 + f"Required Level: **{team.level}**\n"
                 + f"Recruiting: **{'Yes' if team.open else 'No'}**"
             ),
