@@ -35,23 +35,24 @@
 </p>
 
 ## Overview
-BattleBanana can be a fun addition to your server allowing you to create customizable quests and weapons, giving your players the ability to fight those quests or eachother to gain EXP, stats and cash. It does not promise to provide you anything useful but you may be able to have some fun with it
+BattleBanana is a wonderfully entertaining and fun addition to your discord server! BattleBanana is a RPG/quest based bot that allows you to create customizable quests, which members of your server can then come across and battle! You can also create weapons for your server members to use to kill the enemies or each other to gain EXP, stats and cash. It does not promise to provide you anything useful (unless you have a gambling addiction) but you may be able to have some fun with it.
 
 ### Features
-Battlebanana has many feature like
-- Creating your own custom quests and weaponary
-- Battling your friends to decide whos the best of you, or become the top player of BattleBanana by fighting others to become the TopDog 
+Battlebanana is full of features like:
+- Creating your own custom quests and weaponry
+- Deciding rivalries through combat, or becoming top of the local or even global leaderboard!
 - Creating your own team for you and your friends
-- Customizable profiles to show off your own style
-- Trying your luck with gambling your cash
+- Customizable profiles to flex with
+- Trying your luck by gambling (all) your cash
 
 For more information on how to use the bot you can look at our ["how to"](https://battlebanana.xyz/howto/) guide!
 
 ## Join our community
-BattleBanana is still being developed with an active community behind it and supporting its development, you too can help its development by joining [our server](https://battlebanana.xyz/support), [contribute](https://github.com/DeveloperAnonymous/BattleBanana#Contribute) towards the source code, or [donating](https://patreon.com/developeranonymous) to help pay for server costs
+BattleBanana is still being developed with an active community behind it supporting its development, you too can help its development by joining [our server](https://battlebanana.xyz/support), [contributing](https://github.com/DeveloperAnonymous/BattleBanana#Contribute) towards the source code, or [donating](https://patreon.com/developeranonymous) to help pay for server costs.
+Feel free to join if you have any questions or if you need help!
 
 ## Contribute 
-If you have a soild understanding of python you can help BattleBanana by contributing towards the source code by fixing bugs, adding new features, or fixing up the repo.
+If you have a soild understanding of python you can help BattleBanana and contribute towards the source code by fixing bugs, adding new features, or fixing up the repo.
 Active contributers can receive perks like (TBD)
 
 ## Licence
