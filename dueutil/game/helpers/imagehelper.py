@@ -258,14 +258,14 @@ async def new_quest(ctx, quest, player):
 
     draw.text((72, 20), get_text_limit_len(draw, quest.info.task, font_med, 167), "white", font=font_med)
     level_text = " LEVEL " + str(math.trunc(quest.level))
-    width = draw.textsize(level_text, font=font_big)[0]
+    width = draw.textlength(text=level_text, font=font_big)
     draw.text(
         (71, 39), get_text_limit_len(draw, quest.name, font_big, 168 - width) + level_text, "white", font=font_big
     )
     quest_index = len(player.quests)
     quest_bubble_position = (6, 6)
     quest_index_text = str(quest_index)
-    quest_index_width = draw.textsize(quest_index_text, font=font_small)[0]
+    quest_index_width = draw.textlength(text=quest_index_text, font=font_small)
     draw.rectangle(
         (quest_bubble_position, (quest_bubble_position[0] + quest_index_width + 5, quest_bubble_position[1] + 11)),
         fill="#2a52be",
@@ -294,7 +294,7 @@ async def awards_screen(ctx, player, page, **kwargs):
     if page > 0:
         page_info = ": Page " + str(page + 1)
         suffix += page_info
-        page_no_string_len = draw.textsize(page_info, font=font)[0]
+        page_no_string_len = draw.textlength(text=page_info, font=font)
 
     name = get_text_limit_len(draw, player.get_name_possession(), font, 175 - page_no_string_len)
     title = name + suffix
@@ -331,7 +331,7 @@ async def awards_screen(ctx, player, page, **kwargs):
     if len(player.awards) == 0:
         name = get_text_limit_len(draw, player.name, font, 100)
         msg = name + " doesn't have any awards!"
-    width = draw.textsize(msg, font=font_small)[0]
+    width = draw.textlength(text=msg, font=font_small)
     draw.text(((256 - width) / 2, 42 + 44 * count), msg, "white", font=font_small)
     await send_image(
         ctx,
@@ -350,7 +350,7 @@ async def quests_screen(ctx, player, page):
     if page > 0:
         page_info = ": Page " + str(page + 1)
         suffix += page_info
-        page_no_string_len = draw.textsize(page_info, font=font)[0]
+        page_no_string_len = draw.textlength(text=page_info, font=font)
 
     name = get_text_limit_len(draw, player.get_name_possession(), font, 175 - page_no_string_len)
     title = name + suffix
@@ -368,10 +368,10 @@ async def quests_screen(ctx, player, page):
             warning_icons = colourize(mini_icons, warning_colours, 0.5, cycle_colours=[10, 10, 11, 10, 11])
         paste_alpha(image, warning_icons, (14 + row_size[0] - 53, row_size[1] * 2 - 12 + 44 * count))
         level = "Level " + str(math.trunc(quest.level))
-        level_width = draw.textsize(level, font=font_small)[0] + 5
+        level_width = draw.textlength(text=level, font=font_small) + 5
         quest_name = get_text_limit_len(draw, quest.name, font_med, 182 - level_width)
         draw.text((52, 47 + 44 * count), quest_name, DUE_BLACK, font=font_med)
-        name_width = draw.textsize(quest_name, font=font_med)[0]
+        name_width = draw.textlength(text=quest_name, font=font_med)
         draw.rectangle(
             ((53 + name_width, 48 + 44 * count), (50 + name_width + level_width, 48 + 44 * count + 11)),
             fill="#C5505B",
@@ -388,7 +388,7 @@ async def quests_screen(ctx, player, page):
             image.paste(quest_avatar, (20, 46 + 44 * count))
         quest_bubble_position = (12, row_size[1] - 2 + 44 * count)
         quest_index_text = str(quest_index + 1)
-        quest_index_width = draw.textsize(quest_index_text, font=font_small)[0]
+        quest_index_width = draw.textlength(text=quest_index_text, font=font_small)
         draw.rectangle(
             (quest_bubble_position, (quest_bubble_position[0] + quest_index_width + 5, quest_bubble_position[1] + 11)),
             fill="#2a52be",
@@ -413,7 +413,7 @@ async def quests_screen(ctx, player, page):
         msg = "That's all your quests!"
     if len(player.quests) == 0:
         msg = "You don't have any quests!"
-    width = draw.textsize(msg, font=font_small)[0]
+    width = draw.textlength(text=msg, font=font_small)
     draw.text(((256 - width) / 2, 42 + 44 * count), msg, "white", font=font_small)
     await send_image(
         ctx,
@@ -498,17 +498,17 @@ async def stats_screen(ctx, player: Player):
     draw.text((96, 267), "WAGERS WON", main_colour, font=font)
 
     # Player stats
-    width = draw.textsize(attk, font=font)[0]
+    width = draw.textlength(text=attk, font=font)
     draw.text((241 - width, 122), attk, main_colour, font=font)
-    width = draw.textsize(strg, font=font)[0]
+    width = draw.textlength(text=strg, font=font)
     draw.text((241 - width, 150), strg, main_colour, font=font)
-    width = draw.textsize(accy, font=font)[0]
+    width = draw.textlength(text=accy, font=font)
     draw.text((241 - width, 178), accy, main_colour, font=font)
-    width = draw.textsize(money, font=font)[0]
+    width = draw.textlength(text=money, font=font)
     draw.text((241 - width, 204), money, main_colour, font=font)
-    width = draw.textsize(str(player.quests_won), font=font)[0]
+    width = draw.textlength(text=str(player.quests_won), font=font)
     draw.text((241 - width, 253), str(player.quests_won), main_colour, font=font)
-    width = draw.textsize(str(player.wagers_won), font=font)[0]
+    width = draw.textlength(text=str(player.wagers_won), font=font)
     draw.text((241 - width, 267), str(player.wagers_won), main_colour, font=font)
     wep = get_text_limit_len(
         draw,
@@ -516,7 +516,7 @@ async def stats_screen(ctx, player: Player):
         font,
         95,
     )
-    width = draw.textsize(wep, font=font)[0]
+    width = draw.textlength(text=wep, font=font)
     draw.text((241 - width, 232), wep, main_colour, font=font)
 
     # Player awards
@@ -567,14 +567,14 @@ async def quest_screen(ctx, quest):
     draw.text((134, 58), " " + str(level), "white", font=font_big)
 
     # Fill data
-    width = draw.textsize(attk, font=font)[0]
+    width = draw.textlength(text=attk, font=font)
     draw.text((203 - width, 123), attk, "white", font=font)
-    width = draw.textsize(strg, font=font)[0]
+    width = draw.textlength(text=strg, font=font)
     draw.text((203 - width, 151), strg, "white", font=font)
-    width = draw.textsize(accy, font=font)[0]
+    width = draw.textlength(text=accy, font=font)
     draw.text((203 - width, 178), accy, "white", font=font)
     weapon_name = get_text_limit_len(draw, quest.weapon.name, font, 136)
-    width = draw.textsize(weapon_name, font=font)[0]
+    width = draw.textlength(text=weapon_name, font=font)
     draw.text((203 - width, 207), weapon_name, "white", font=font)
 
     if quest_info is not None:
@@ -584,11 +584,11 @@ async def quest_screen(ctx, quest):
         creator = "Unknown"
         home = "Unknown"
 
-    width = draw.textsize(creator, font=font)[0]
+    width = draw.textlength(text=creator, font=font)
     draw.text((203 - width, 228), creator, "white", font=font)
-    width = draw.textsize(home, font=font)[0]
+    width = draw.textlength(text=home, font=font)
     draw.text((203 - width, 242), home, "white", font=font)
-    width = draw.textsize(reward, font=font_med)[0]
+    width = draw.textlength(text=reward, font=font_med)
     draw.text((203 - width, 266), reward, DUE_BLACK, font=font_med)
 
     await send_image(ctx, image, "r", file_name="questinfo.png", content=":pen_fountain: Here you go.")
@@ -634,7 +634,7 @@ async def battle_screen(ctx, player_one, player_two):
     draw.text((7, 64), "LEVEL " + str(math.trunc(player_one.level)), "white", font=font_small)
     draw.text((190, 64), "LEVEL " + str(math.trunc(player_two.level)), "white", font=font_small)
     weap_one_name = get_text_limit_len(draw, weapon_one.name, font, 85)
-    width = draw.textsize(weap_one_name, font=font)[0]
+    width = draw.textlength(text=weap_one_name, font=font)
     draw.text((124 - width, 88), weap_one_name, "white", font=font)
     draw.text((132, 103), get_text_limit_len(draw, weapon_two.name, font, 85), "white", font=font)
 
@@ -772,7 +772,7 @@ def get_text_limit_len(draw, text, given_font, length):
     removed_chars = False
     text = re.sub(r"[\u200B-\u200D\uFEFF]", "", text)
     for _ in range(0, len(text)):
-        width = draw.textsize(text, font=given_font)[0]
+        width = draw.textlength(text=text, font=given_font)
         if width > length:
             text = text[: len(text) - 1]
             removed_chars = True
