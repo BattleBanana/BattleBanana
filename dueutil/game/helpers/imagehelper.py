@@ -134,8 +134,7 @@ async def check_url(url: str):
     try:
         headers = {"Range": "bytes=0-10", "User-Agent": "BattleBanana", "Accept": "*/*"}
 
-        connector = util.get_vpn_connector()
-        async with aiohttp.ClientSession(connector=connector) as session:
+        async with aiohttp.ClientSession() as session:
             async with session.get(url, headers=headers) as response:
                 return (response.status in range(200, 300)) and response.content_type.lower().startswith("image")
     except asyncio.TimeoutError:

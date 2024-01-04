@@ -66,8 +66,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         intents.guild_messages = True
         intents.message_content = True
 
-        connector = util.get_vpn_connector()
-        super().__init__(intents=intents, max_messages=None, connector=connector, **details)
+        super().__init__(intents=intents, max_messages=None, **details)
 
     async def setup_hook(self):
         async_server = await asyncio.start_server(players.handle_client, "", gconf.other_configs["connectionPort"])

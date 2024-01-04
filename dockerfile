@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3-slim
 
 WORKDIR /usr/src/app
 
@@ -17,4 +17,4 @@ RUN cd dueutil/game/helpers/ \
     && python3 setup.py build_ext --inplace \
     && cd ~
 
-CMD ["python3", "run.py"]
+CMD ["python3", "-O", "run.py"]

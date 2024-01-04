@@ -122,8 +122,7 @@ def get_cpu_info():
 
 
 async def download_file(url):
-    connector = get_vpn_connector()
-    async with aiohttp.ClientSession(conn_timeout=10, connector=connector) as session:
+    async with aiohttp.ClientSession(conn_timeout=10) as session:
         async with session.get(url) as response:
             file_data = io.BytesIO()
             while True:

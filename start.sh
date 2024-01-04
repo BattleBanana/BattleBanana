@@ -15,4 +15,4 @@ docker stop battlebanana
 docker rm battlebanana
 
 # Start the container
-docker run -d --net=host -v $(pwd)/assets/imagecache:/usr/src/app/assets/imagecache --name battlebanana battlebanana:latest
+docker run -d --net=host -v $(pwd)/assets/imagecache:/usr/src/app/assets/imagecache --label io.portainer.accesscontrol.teams=BattleBanana --name battlebanana battlebanana:latest
