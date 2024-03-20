@@ -247,7 +247,7 @@ class BattleBananaClient(discord.AutoShardedClient):
                         f"**Blacklisted user:** {ctx.author.mention}\n<@{gconf.other_configs["owner"]}>"
                     )
                     blacklist.add(ctx.author.id, "Ratelimit")
-                    await ctx.author.send("You have been blocked for exceeding rate limits. If you think this is a mistake, please join our [discord server]().")
+                    await ctx.author.send("You have been blocked for exceeding rate limits. If you think this is a mistake, please join our [discord server](https://discord.gg/P7DBDEC).")
                 return
 
             util.logger.error("Discord HTTP error: %s", error)
