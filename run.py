@@ -13,7 +13,8 @@ import pymongo
 import sentry_sdk
 
 import generalconfig as gconf
-from dueutil import blacklist, dbconn, events, loader, permissions, servercounts, tasks, util
+from dueutil import (blacklist, dbconn, events, loader, permissions,
+                     servercounts, tasks, util)
 from dueutil.game import emojis, players
 from dueutil.game.configs import dueserverconfig
 from dueutil.game.helpers import imagecache
@@ -239,13 +240,14 @@ class BattleBananaClient(discord.AutoShardedClient):
                         pass
                 return
         elif isinstance(error, discord.HTTPException):
-            if "The resource is being rate limited." in str(error):
+            if error.code == 429 or "rate limit" in str(error):
                 bl_entry = blacklist.find(ctx.author.id)
                 if not bl_entry:
                     await util.duelogger.error(
-                        f"**Blacklisted user:** {ctx.author.mention}\n<@{gconf.other_configs['owner']}>"
+                        f"**Blacklisted user:** {ctx.author.mention}\n<@{gconf.other_configs["owner"]}>"
                     )
                     blacklist.add(ctx.author.id, "Ratelimit")
+                    await ctx.author.send("You have been blocked for exceeding rate limits. If you think this is a mistake, please join our [discord server]().")
                 return
 
             util.logger.error("Discord HTTP error: %s", error)
