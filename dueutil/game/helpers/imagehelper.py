@@ -271,7 +271,7 @@ async def new_quest(ctx, quest, player):
         fill="#2a52be",
         outline="#a1caf1",
     )
-    draw.text((9, quest_bubble_position[1]), quest_index_text, "white", font=font_small)
+    draw.text((9, quest_bubble_position[1] - 1), quest_index_text, "white", font=font_small)
 
     return image
 
@@ -394,7 +394,7 @@ async def quests_screen(ctx, player, page):
             fill="#2a52be",
             outline="#a1caf1",
         )
-        draw.text((15, quest_bubble_position[1]), quest_index_text, "white", font=font_small)
+        draw.text((15, quest_bubble_position[1] - 1), quest_index_text, "white", font=font_small)
         count += 1
         if count == 5:
             if quest_index != 0:
