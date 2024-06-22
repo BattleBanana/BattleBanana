@@ -1,9 +1,11 @@
-﻿import aiohttp
 import json
+
+import aiohttp
 from discord import Embed
 
 import generalconfig as gconf
-from dueutil import util, tasks
+from dueutil import util
+
 from . import players, stats
 from .stats import Stat
 
@@ -121,7 +123,7 @@ async def process_transactions():
         client = util.clients[0]
 
         for transaction in unprocessed:
-            if type(transaction) == dict:
+            if isinstance(transaction, dict):
                 transaction_id = transaction.get("id")
                 user_id = int(transaction.get("user"))
                 payout = transaction.get("payout")

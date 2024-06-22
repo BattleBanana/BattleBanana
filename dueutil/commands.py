@@ -111,7 +111,9 @@ def command(**command_rules):
                         await command_func(ctx, *command_args, **get_command_details(ctx, **details))
                     else:
                         key = dueserverconfig.server_cmd_key(ctx.guild)
-                        command_string = ctx.content.replace(key, "", 1).replace("evaluate", "").replace("eval", "").strip()
+                        command_string = (
+                            ctx.content.replace(key, "", 1).replace("evaluate", "").replace("eval", "").strip()
+                        )
                         await command_func(ctx, command_string, **get_command_details(ctx, **details))
                 else:
                     raise util.BattleBananaException(ctx.channel, "Please don't include spam mentions in commands.")

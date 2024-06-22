@@ -100,7 +100,7 @@ def parse_type(arg_type, value, **extras):
     if arg_type in base_func_dict:
         return base_func_dict[arg_type](value)
 
-    match (arg_type):
+    match arg_type:
         case "P":
             called = extras.get("called")
             ctx = extras.get("ctx")

@@ -243,7 +243,11 @@ async def level_up_screen(ctx, player, cash):
     draw.text((159, 18), str(level), "white", font=font_big)
     draw.text((127, 40), util.format_number(cash, money=True), "white", font=font_big)
     await send_image(
-        ctx, image, "s", file_name="level_up.png", content=emojis.LEVEL_UP + " **" + player.name_clean + "** Level Up!"
+        ctx,
+        image,
+        "s",
+        file_name="level_up.png",
+        content=emojis.LEVEL_UP + " **" + player.name_clean + "** Level Up!",
     )
 
 
@@ -256,18 +260,32 @@ async def new_quest(ctx, quest, player):
         pass
     draw = ImageDraw.Draw(image)
 
-    draw.text((72, 20), get_text_limit_len(draw, quest.info.task, font_med, 167), "white", font=font_med)
+    draw.text(
+        (72, 20),
+        get_text_limit_len(draw, quest.info.task, font_med, 167),
+        "white",
+        font=font_med,
+    )
     level_text = " LEVEL " + str(math.trunc(quest.level))
     width = draw.textlength(text=level_text, font=font_big)
     draw.text(
-        (71, 39), get_text_limit_len(draw, quest.name, font_big, 168 - width) + level_text, "white", font=font_big
+        (71, 39),
+        get_text_limit_len(draw, quest.name, font_big, 168 - width) + level_text,
+        "white",
+        font=font_big,
     )
     quest_index = len(player.quests)
     quest_bubble_position = (6, 6)
     quest_index_text = str(quest_index)
     quest_index_width = draw.textlength(text=quest_index_text, font=font_small)
     draw.rectangle(
-        (quest_bubble_position, (quest_bubble_position[0] + quest_index_width + 5, quest_bubble_position[1] + 11)),
+        (
+            quest_bubble_position,
+            (
+                quest_bubble_position[0] + quest_index_width + 5,
+                quest_bubble_position[1] + 11,
+            ),
+        ),
         fill="#2a52be",
         outline="#a1caf1",
     )
@@ -280,7 +298,11 @@ async def new_quest_screen(ctx, quest, player):
     image = await new_quest(ctx, quest, player)
 
     await send_image(
-        ctx, image, "s", file_name="new_quest.png", content=emojis.QUEST + " **" + player.name_clean + "** New Quest!"
+        ctx,
+        image,
+        "s",
+        file_name="new_quest.png",
+        content=emojis.QUEST + " **" + player.name_clean + "** New Quest!",
     )
 
 
@@ -304,7 +326,12 @@ async def awards_screen(ctx, player, page, **kwargs):
     for player_award in range(len(player.awards) - 1 - (5 * page), -1, -1):
         image.paste(award_slot, (14, 40 + 44 * count))
         award = awards.get_award(player.awards[player_award])
-        draw.text((52, 47 + 44 * count), award.name, award.get_colour(default=DUE_BLACK), font=font_med)
+        draw.text(
+            (52, 47 + 44 * count),
+            award.name,
+            award.get_colour(default=DUE_BLACK),
+            font=font_med,
+        )
         draw.text((52, 61 + 44 * count), award.description, DUE_BLACK, font=font_small)
         image.paste(award.icon, (19, 45 + 44 * count))
         count += 1
@@ -366,14 +393,21 @@ async def quests_screen(ctx, player, page):
             warning_icons = quest_colorize(mini_icons, warning_colours, (10, 10, 11, 10, 11))
         except ImportError:
             warning_icons = colourize(mini_icons, warning_colours, 0.5, cycle_colours=[10, 10, 11, 10, 11])
-        paste_alpha(image, warning_icons, (14 + row_size[0] - 53, row_size[1] * 2 - 12 + 44 * count))
+        paste_alpha(
+            image,
+            warning_icons,
+            (14 + row_size[0] - 53, row_size[1] * 2 - 12 + 44 * count),
+        )
         level = "Level " + str(math.trunc(quest.level))
         level_width = draw.textlength(text=level, font=font_small) + 5
         quest_name = get_text_limit_len(draw, quest.name, font_med, 182 - level_width)
         draw.text((52, 47 + 44 * count), quest_name, DUE_BLACK, font=font_med)
         name_width = draw.textlength(text=quest_name, font=font_med)
         draw.rectangle(
-            ((53 + name_width, 48 + 44 * count), (50 + name_width + level_width, 48 + 44 * count + 11)),
+            (
+                (53 + name_width, 48 + 44 * count),
+                (50 + name_width + level_width, 48 + 44 * count + 11),
+            ),
             fill="#C5505B",
             outline="#83444A",
         )
@@ -382,7 +416,12 @@ async def quests_screen(ctx, player, page):
         quest_info = quest.info
         if quest_info is not None:
             home = quest_info.home
-        draw.text((52, 61 + 44 * count), get_text_limit_len(draw, home, font_small, 131), DUE_BLACK, font=font_small)
+        draw.text(
+            (52, 61 + 44 * count),
+            get_text_limit_len(draw, home, font_small, 131),
+            DUE_BLACK,
+            font=font_small,
+        )
         quest_avatar = await resize_avatar(quest, None, 28, 28)
         if quest_avatar is not None:
             image.paste(quest_avatar, (20, 46 + 44 * count))
@@ -390,7 +429,13 @@ async def quests_screen(ctx, player, page):
         quest_index_text = str(quest_index + 1)
         quest_index_width = draw.textlength(text=quest_index_text, font=font_small)
         draw.rectangle(
-            (quest_bubble_position, (quest_bubble_position[0] + quest_index_width + 5, quest_bubble_position[1] + 11)),
+            (
+                quest_bubble_position,
+                (
+                    quest_bubble_position[0] + quest_index_width + 5,
+                    quest_bubble_position[1] + 11,
+                ),
+            ),
             fill="#2a52be",
             outline="#a1caf1",
         )
@@ -478,7 +523,14 @@ async def stats_screen(ctx, player: Player):
     draw.rectangle(((97, 71), (239, 81)), fill=theme["expBarColour"][0])
     draw.rectangle(((98, 72), (98 + exp_bar_width, 80)), theme["expBarColour"][1])
     exp = "EXP: " + str(math.trunc(player.exp)) + " / " + str(next_level_exp)
-    draw.text((144, 70), exp, DUE_BLACK, font=font_tiny, stroke_width=1, stroke_fill=exp_colour)
+    draw.text(
+        (144, 70),
+        exp,
+        DUE_BLACK,
+        font=font_tiny,
+        stroke_width=1,
+        stroke_fill=exp_colour,
+    )
 
     level = str(player.level)
     attk = str(round(player.attack, 2))
@@ -487,7 +539,12 @@ async def stats_screen(ctx, player: Player):
     money = util.format_number(player.money, money=True)
 
     # Text
-    draw.text((96, 49), f"LEVEL {level} ({player.prestige_level})", banner_colour, font=font_big)
+    draw.text(
+        (96, 49),
+        f"LEVEL {level} ({player.prestige_level})",
+        banner_colour,
+        font=font_big,
+    )
     draw.text((94, 87), "INFORMATION", header_colour, font=font_big)
     draw.text((117, 121), "ATK", icon_colour, font=font)
     draw.text((117, 149), "STRG", icon_colour, font=font)
@@ -533,7 +590,12 @@ async def stats_screen(ctx, player: Player):
             break
 
     if len(player.awards) > 8:
-        draw.text((18, 267), "+ " + str(len(player.awards) - 8) + " More", side_colour, font=font)
+        draw.text(
+            (18, 267),
+            "+ " + str(len(player.awards) - 8) + " More",
+            side_colour,
+            font=font,
+        )
     elif len(player.awards) == 0:
         draw.text((38, 183), "None", side_colour, font=font)
 
@@ -591,7 +653,13 @@ async def quest_screen(ctx, quest):
     width = draw.textlength(text=reward, font=font_med)
     draw.text((203 - width, 266), reward, DUE_BLACK, font=font_med)
 
-    await send_image(ctx, image, "r", file_name="questinfo.png", content=":pen_fountain: Here you go.")
+    await send_image(
+        ctx,
+        image,
+        "r",
+        file_name="questinfo.png",
+        content=":pen_fountain: Here you go.",
+    )
 
 
 async def battle_screen(ctx, player_one, player_two):
@@ -604,7 +672,10 @@ async def battle_screen(ctx, player_one, player_two):
         pass
 
     try:
-        image.paste(await resize_avatar(player_two, ctx.channel.guild, 54, 54), (width - 9 - 55, 9))
+        image.paste(
+            await resize_avatar(player_two, ctx.channel.guild, 54, 54),
+            (width - 9 - 55, 9),
+        )
     except Exception:
         pass
 
@@ -632,11 +703,21 @@ async def battle_screen(ctx, player_one, player_two):
 
     draw = ImageDraw.Draw(image)
     draw.text((7, 64), "LEVEL " + str(math.trunc(player_one.level)), "white", font=font_small)
-    draw.text((190, 64), "LEVEL " + str(math.trunc(player_two.level)), "white", font=font_small)
+    draw.text(
+        (190, 64),
+        "LEVEL " + str(math.trunc(player_two.level)),
+        "white",
+        font=font_small,
+    )
     weap_one_name = get_text_limit_len(draw, weapon_one.name, font, 85)
     width = draw.textlength(text=weap_one_name, font=font)
     draw.text((124 - width, 88), weap_one_name, "white", font=font)
-    draw.text((132, 103), get_text_limit_len(draw, weapon_two.name, font, 85), "white", font=font)
+    draw.text(
+        (132, 103),
+        get_text_limit_len(draw, weapon_two.name, font, 85),
+        "white",
+        font=font,
+    )
 
     await send_image(ctx, image, "r", file_name="battle.png")
 
@@ -729,7 +810,13 @@ async def googly_eyes(ctx, eye_descriptor):
         draw.ellipse([x, y, x + width // 2, height], fill=border_colour)
         border_width = int(width // 20 * border_scale)
         draw.ellipse(
-            [x + border_width, y + border_width, x + width // 2 - border_width, height - border_width], fill=eye_colour
+            [
+                x + border_width,
+                y + border_width,
+                x + width // 2 - border_width,
+                height - border_width,
+            ],
+            fill=eye_colour,
         )
         inner_width = width // 2 - 2 * border_width
         inner_height = height - y - 2 * border_width
@@ -745,10 +832,16 @@ async def googly_eyes(ctx, eye_descriptor):
         if given_eye_type == "derp":
             pupil_x_limit_1 = border_width + pupil_width + pupil_x_centre - inner_width // 2
             pupil_x_limit_2 = pupil_x_centre - border_width - pupil_width + inner_width // 2
-            pupil_x = random.randrange(min(pupil_x_limit_1, pupil_x_limit_2), max(pupil_x_limit_1, pupil_x_limit_2))
+            pupil_x = random.randrange(
+                min(pupil_x_limit_1, pupil_x_limit_2),
+                max(pupil_x_limit_1, pupil_x_limit_2),
+            )
             pupil_y_limit_1 = border_width + pupil_height + pupil_y_centre - inner_height // 2
             pupil_y_limit_2 = pupil_y_centre - border_width - pupil_height + inner_height // 2
-            pupil_y = random.randrange(min(pupil_y_limit_1, pupil_y_limit_2), max(pupil_y_limit_1, pupil_y_limit_2))
+            pupil_y = random.randrange(
+                min(pupil_y_limit_1, pupil_y_limit_2),
+                max(pupil_y_limit_1, pupil_y_limit_2),
+            )
         else:
             pupil_x = pupil_x_centre
             pupil_y = pupil_y_centre
@@ -760,7 +853,10 @@ async def googly_eyes(ctx, eye_descriptor):
                 pupil_y -= shift_y
             if "bottom" in given_eye_type:
                 pupil_y += shift_y
-        draw.ellipse([pupil_x, pupil_y, pupil_x + pupil_width, pupil_y + pupil_height], fill=pupil_colour)
+        draw.ellipse(
+            [pupil_x, pupil_y, pupil_x + pupil_width, pupil_y + pupil_height],
+            fill=pupil_colour,
+        )
 
     draw_eye(0, 0)
     draw_eye(size[0] // 2, 0)

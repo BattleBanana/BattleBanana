@@ -194,7 +194,7 @@ class Banner(Customization):
         )
 
     def can_use_banner(self, player):
-        return (not self.donor or self.donor and player.donor) and self.banner_restricted(player)
+        return (not self.donor or player.donor) and self.banner_restricted(player)
 
 
 class _Banners(dict):

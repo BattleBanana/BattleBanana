@@ -206,7 +206,7 @@ async def say(channel: discord.TextChannel, *args, **kwargs):
 
 async def save_old_topdog(player):
     topdogs = dbconn.conn()["Topdogs"]
-    topdogs.insert_one({"user_id": player.id, "date": datetime.utcnow()})
+    topdogs.insert_one({"user_id": player.id, "date": datetime.now()})
 
 
 async def fetch_user(user_id):
@@ -290,7 +290,7 @@ def ultra_escape_string(string):
 
     # Escape the ultra annoying mentions that \@everyone does not block
     # Why? Idk
-    escaped_string = escaped_string.replace("@everyone", "@\u200Beveryone").replace("@here", "@\u200Bhere")
+    escaped_string = escaped_string.replace("@everyone", "@\u200beveryone").replace("@here", "@\u200bhere")
 
     return escaped_string
 

@@ -1,4 +1,4 @@
-""" Player related classes & functions """
+"""Player related classes & functions"""
 
 import gc
 import json

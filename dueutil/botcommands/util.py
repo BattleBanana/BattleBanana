@@ -186,7 +186,7 @@ async def prefix(ctx, **details):
     """
 
     server_prefix = dueserverconfig.server_cmd_key(ctx.guild)
-    await util.reply(ctx, f"The prefix on **{details['server_name_clean']}** is ``{server_prefix}``")
+    await util.reply(ctx, f"The prefix on **{details["server_name_clean"]}** is ``{server_prefix}``")
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
@@ -200,10 +200,10 @@ async def botstats(ctx: discord.Message, **_):
     game_stats = stats.get_stats()
     stats_embed = discord.Embed(title="BattleBanana's Statistics!", type="rich", color=gconf.DUE_COLOUR)
 
-    created_at = datetime.utcfromtimestamp(ctx.guild.me.created_at.timestamp())
+    created_at = datetime.fromtimestamp(ctx.guild.me.created_at.timestamp())
     stats_embed.description = (
         "The numbers and stuff of BattleBanana right now!\nThe **worst** Discord bot since"
-        + f" {created_at.strftime('%d/%m/%Y')}, {repoze.timeago.get_elapsed(created_at)}!"
+        + f" {created_at.strftime("%d/%m/%Y")}, {repoze.timeago.get_elapsed(created_at)}!"
     )
 
     # General

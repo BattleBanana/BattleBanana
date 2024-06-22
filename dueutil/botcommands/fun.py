@@ -116,7 +116,7 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
 
     # Local/Global
     if local:
-        title = f"BattleBanana Leaderboard on {details['server_name_clean']}"
+        title = f"BattleBanana Leaderboard on {details["server_name_clean"]}"
         # Cached.
         local_leaderboard = leaderboards.get_local_leaderboard(ctx.guild, "levels")
         leaderboard_data = local_leaderboard.data
@@ -130,6 +130,16 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
         await util.reply(ctx, f"The {ranks} leaderboard has yet to be calculated!\nCheck again soon!")
         return
 
+    leaderboard_embed = generate_leaderboard_embed(
+        ctx, details, page, page_size, title, leaderboard_data, local, last_updated
+    )
+
+    await util.reply(ctx, embed=leaderboard_embed)
+
+
+async def generate_leaderboard_embed(
+    ctx, details, page: int, page_size: int, title, leaderboard_data, local, last_updated
+):
     leaderboard_embed = discord.Embed(title=f"{emojis.QUESTER} {title}", type="rich", color=gconf.DUE_COLOUR)
 
     if page > 0:
@@ -166,13 +176,12 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
         remaining_players = len(leaderboard_data) - page_size * (page + 1)
         leaderboard_embed.add_field(
             name=f"+{remaining_players} more!",
-            value=f"Do ``{details['cmd_key']}leaderboard{'' if local else ' global'} {page + 2}`` for the next page!",
+            value=f"Do ``{details["cmd_key"]}leaderboard{"" if local else " global"} {page + 2}`` for the next page!",
             inline=False,
         )
     leaderboard_embed.set_footer(
-        text="Leaderboard calculated " + repoze.timeago.get_elapsed(datetime.utcfromtimestamp(last_updated))
+        text="Leaderboard calculated " + repoze.timeago.get_elapsed(datetime.fromtimestamp(last_updated))
     )
-    await util.reply(ctx, embed=leaderboard_embed)
 
 
 async def rank_command(ctx, player, ranks="", **details):
@@ -441,8 +450,8 @@ async def minecraft(ctx, **_):
     """
 
     embed = discord.Embed(title="BananaCraft", type="rich", color=gconf.DUE_COLOUR)
-    embed.add_field(name="Minecraft version:", value="1.18")
-    embed.add_field(name="Server address:", value="mc.battlebanana.xyz")
+    embed.add_field(name="Minecraft version:", value="1.21")
+    embed.add_field(name="Server address:", value="play.battlebanana.xyz")
 
     await util.reply(ctx, f"{emojis.QUESTER} Official BananaCraft server!", embed=embed)
 

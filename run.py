@@ -13,8 +13,7 @@ import pymongo
 import sentry_sdk
 
 import generalconfig as gconf
-from dueutil import (blacklist, dbconn, events, loader, permissions,
-                     servercounts, tasks, util)
+from dueutil import blacklist, dbconn, events, loader, permissions, servercounts, tasks, util
 from dueutil.game import emojis, players
 from dueutil.game.configs import dueserverconfig
 from dueutil.game.helpers import imagecache
@@ -151,7 +150,7 @@ class BattleBananaClient(discord.AutoShardedClient):
             )
         except (discord.Forbidden, AttributeError):
             for channel in guild.channels:
-                if isinstance(channel, discord.TextChannel):
+                if isinstance(channel, discord.TextChannel) and channel.permissions_for(guild.me).send_messages:
                     try:
                         await channel.send(
                             ":wave: __Thanks for adding me!__\n"
@@ -210,7 +209,11 @@ class BattleBananaClient(discord.AutoShardedClient):
             if ctx_is_message:
                 channel = ctx.channel
                 if isinstance(error, util.SendMessagePermMissing):
-                    util.logger.warning("Missing send permissions in channel %s (%s)", channel.name, channel.id)
+                    util.logger.warning(
+                        "Missing send permissions in channel %s (%s)",
+                        channel.name,
+                        channel.id,
+                    )
                 else:
                     try:
                         # Attempt to warn user
@@ -247,7 +250,9 @@ class BattleBananaClient(discord.AutoShardedClient):
                         f"**Blacklisted user:** {ctx.author.mention}\n<@{gconf.other_configs["owner"]}>"
                     )
                     blacklist.add(ctx.author.id, "Ratelimit")
-                    await ctx.author.send("You have been blocked for exceeding rate limits. If you think this is a mistake, please join our [discord server](https://discord.gg/P7DBDEC).")
+                    await ctx.author.send(
+                        "You have been blocked for exceeding rate limits. If you think this is a mistake, please join our [discord server](https://discord.gg/P7DBDEC)."
+                    )
                 return
 
             util.logger.error("Discord HTTP error: %s", error)
@@ -283,10 +288,14 @@ class BattleBananaClient(discord.AutoShardedClient):
             else:
                 util.logger.error(error)
         elif isinstance(error, RuntimeError) and ERROR_OF_DEATH in str(error):
-            util.logger.critical("Something went very wrong and the error of death came for us: %s", error)
+            util.logger.critical(
+                "Something went very wrong and the error of death came for us: %s",
+                error,
+            )
             os._exit(1)
         elif isinstance(
-            error, (OSError, aiohttp.ClientConnectionError, asyncio.exceptions.TimeoutError)
+            error,
+            (OSError, aiohttp.ClientConnectionError, asyncio.exceptions.TimeoutError),
         ):  # 99% of time its just network errors
             util.logger.warning(error.message)
         elif isinstance(error, pymongo.errors.ServerSelectionTimeoutError):
@@ -380,7 +389,8 @@ class BattleBananaClient(discord.AutoShardedClient):
 
     async def on_shard_ready(self, shard_id: int):
         game = discord.Activity(
-            name=f"battlebanana.xyz | shard {shard_id + 1}/{self.shard_count}", type=discord.ActivityType.watching
+            name=f"battlebanana.xyz | shard {shard_id + 1}/{self.shard_count}",
+            type=discord.ActivityType.watching,
         )
         try:
             await self.change_presence(activity=game, shard_id=shard_id)
