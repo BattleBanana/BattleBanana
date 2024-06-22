@@ -26,7 +26,7 @@
   "{user} won a hotdog eating contest and won {daily}",
   "{user} can somehow use magic and gave themselves {daily}",
   "oh goodie, {user} got {daily}",
-  "{user} stole {daily} from a whising well, I hope nobody was looking",
+  "{user} stole {daily} from a wishing well, I hope nobody was looking",
   "{user} ate water and earned {daily}",
   "{user} worked an extra shift for {daily}",
   "and on the 8th day God said `give {user} {daily}`",
@@ -90,7 +90,7 @@
   "{user} filled a lawsuit against another user and won {daily}",
   "{user} did well in the stock market and made {daily}",
   "{user} managed to get away with tax evasion and made a total of {daily}",
-  "An old lady though {user} was homeless and gave them {daily}",
+  "An old lady thought {user} was homeless and gave them {daily}",
   "{user} sold all of their personal possessions for {daily}",
   "{user} prevented a deadly terrorist attack and was awarded with {daily}",
   "{user} was fired from their job and given {daily} as their final pay check",
@@ -106,5 +106,8 @@
   "{user} broke their poor piggy bank and found {daily}",
   "{user} created a GoFundMe and somehow got {daily}",
   "{user} used the reality stone to get {daily}",
-  "{user} bought a bitcoin miner and mined {daily}"
+  "{user} bought a bitcoin miner and mined {daily}",
+  "{user} stumbled upon a dungeon but was too scared to go in, so they reported it to the authorities and got rewarded with {daily}",
+  "{user} took part in a medical study and recieved {daily}",
+  "{user} worked at the local market selling bananas and earned {daily}"
 ]
