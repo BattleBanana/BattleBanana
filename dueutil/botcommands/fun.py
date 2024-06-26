@@ -130,7 +130,7 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
         await util.reply(ctx, f"The {ranks} leaderboard has yet to be calculated!\nCheck again soon!")
         return
 
-    leaderboard_embed = generate_leaderboard_embed(
+    leaderboard_embed = await generate_leaderboard_embed(
         ctx, details, page, page_size, title, leaderboard_data, local, last_updated
     )
 
