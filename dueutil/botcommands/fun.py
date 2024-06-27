@@ -183,6 +183,8 @@ async def generate_leaderboard_embed(
         text="Leaderboard calculated " + repoze.timeago.get_elapsed(datetime.fromtimestamp(last_updated))
     )
 
+    return leaderboard_embed
+
 
 async def rank_command(ctx, player, ranks="", **details):
     ranks = ranks.lower()
