@@ -6,7 +6,7 @@ import generalconfig as gconf
 from dueutil import dbconn, tasks, util
 from dueutil.botcommands.player import DAILY_AMOUNT
 
-from . import players
+from dueutil.game import players
 
 
 @tasks.task(timeout=300)

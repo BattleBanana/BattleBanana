@@ -3,10 +3,11 @@ import jsonpickle
 
 import generalconfig as gconf
 
-from .. import dbconn, util
-from ..game import players
-from ..game.helpers.misc import BattleBananaObject
-from ..util import SlotPickleMixin
+from dueutil import dbconn, util
+from dueutil.game import players
+from dueutil.game.players import Player
+from dueutil.game.helpers.misc import BattleBananaObject
+from dueutil.util import SlotPickleMixin
 
 PLAYER_FORMAT = "%s (%s)\n"
 
@@ -20,7 +21,7 @@ class Team(BattleBananaObject, SlotPickleMixin):
 
     __slots__ = ("description", "level", "open", "owner", "admins", "members", "pendings")
 
-    def __init__(self, owner, name, description, level, is_open, **details):
+    def __init__(self, owner: Player, name: str, description: str, level: int, is_open: bool, **details):
         super().__init__(name.lower(), name)
         self.description = description
         self.level = level
@@ -48,16 +49,16 @@ class Team(BattleBananaObject, SlotPickleMixin):
 
         return f"{(level / len(self.members)):.2f}"
 
-    def is_pending(self, member):
+    def is_pending(self, member: Player):
         return member.id in self.pendings
 
-    def is_member(self, member):
+    def is_member(self, member: Player):
         return member.id in self.members
 
-    def is_admin(self, member):
+    def is_admin(self, member: Player):
         return member.id in self.admins
 
-    def add_member(self, ctx, member):
+    def add_member(self, ctx, member: Player):
         if self.is_member(member):
             raise util.BattleBananaException(ctx.channel, f"{member.name} is already a member!")
 
@@ -69,7 +70,7 @@ class Team(BattleBananaObject, SlotPickleMixin):
         member.team = self.id
         member.save()
 
-    def kick(self, ctx, member):
+    def kick(self, ctx, member: Player):
         if not self.is_member(member):
             raise util.BattleBananaException(ctx.channel, f"{member.name} is not in the team!")
 
@@ -81,28 +82,28 @@ class Team(BattleBananaObject, SlotPickleMixin):
         member.team = None
         member.save()
 
-    def add_admin(self, ctx, member):
+    def add_admin(self, ctx, member: Player):
         if self.is_admin(member):
             raise util.BattleBananaException(ctx.channel, f"{member.name} is already an admin!")
 
         self.admins.append(member.id)
         self.save()
 
-    def remove_admin(self, ctx, member):
+    def remove_admin(self, ctx, member: Player):
         if not self.is_admin(member):
             raise util.BattleBananaException(ctx.channel, f"{member.name} is not an admin!")
 
         self.admins.remove(member.id)
         self.save()
 
-    def add_pending(self, ctx, member):
+    def add_pending(self, ctx, member: Player):
         if self.is_pending(member):
             raise util.BattleBananaException(ctx.channel, f"{member.name} is already pending!")
 
         self.pendings.append(member.id)
         self.save()
 
-    def remove_pending(self, ctx, member):
+    def remove_pending(self, ctx, member: Player):
         if not self.is_pending(member):
             raise util.BattleBananaException(ctx.channel, f"{member.name} is not pending!")
 
@@ -178,22 +179,19 @@ class Team(BattleBananaObject, SlotPickleMixin):
         return embed
 
 
-def find_team(team_id: str) -> Team:
+def find_team(team_id: str) -> Team | None:
     if team_id in teams:
         return teams[team_id]
-    elif load_team(team_id):
-        team = teams[team_id]
-        team.id = team_id
-        return team
+    return load_team(team_id)
 
 
 REFERENCE_TEAM = Team(players.REFERENCE_PLAYER, "reference team", "Okay!", 1, False, no_save=True)
 
 
-def load_team(team_id):
+def load_team(team_id: int) -> Team | None:
     response = dbconn.get_collection_for_object(Team).find_one({"_id": team_id})
     if response is not None and "data" in response:
         team_data = response["data"]
-        loaded_team = jsonpickle.decode(team_data)
-        teams[loaded_team.id] = util.load_and_update(REFERENCE_TEAM, loaded_team)
-        return True
+        loaded_team: Team = jsonpickle.decode(team_data)
+        teams[loaded_team.id] = loaded_team
+        return loaded_team

@@ -6,8 +6,8 @@ from discord import Embed
 import generalconfig as gconf
 from dueutil import util
 
-from . import players, stats
-from .stats import Stat
+from dueutil.game import players, stats
+from dueutil.game.stats import Stat
 
 # A quick discoin implementation.
 

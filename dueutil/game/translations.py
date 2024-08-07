@@ -14,10 +14,7 @@ translations = {}
 def _get_translation(language: str, full_key: str) -> str:
     category, command, key = full_key.split(".")
 
-    try:
-        return translations[language][category][command][key]
-    except KeyError:
-        return translations.get(DEFAULT_LANGUAGE, {}).get(category, {}).get(command, {}).get(key, full_key)
+    return translations.get(language, translations.get(DEFAULT_LANGUAGE, {})).get(category, {}).get(command, {}).get(key, full_key)
 
 
 def find_translation(_: commands.Context, key: str, *args, force_update: bool = False):
@@ -58,7 +55,6 @@ def find_translation(_: commands.Context, key: str, *args, force_update: bool = 
 
 
 def _load():
-    # Check if path LOCALIZATION_PATH exists
     if not os.path.exists(LOCALIZATION_PATH):
         return util.logger.warning("Localization path does not exist, skipping translations")
 
