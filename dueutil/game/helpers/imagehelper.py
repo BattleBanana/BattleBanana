@@ -216,7 +216,7 @@ def image_to_discord_file(image, filename):
     if image is None:
         return None
     with BytesIO() as image_binary:
-        image.save(image_binary, format="PNG")
+        image.save(image_binary, format="webp")
         image_binary.seek(0)
         return discord.File(fp=image_binary, filename=filename)
 

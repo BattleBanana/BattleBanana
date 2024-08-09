@@ -358,7 +358,7 @@ class BattleBananaClient(discord.AutoShardedClient):
             if old_image != new_image:
                 imagecache.uncache(old_image)
 
-            if member.guild.id == gconf.THE_DEN and any(role.id == gconf.DONOR_ROLE_ID for role in member.roles):
+            if member.guild.id == gconf.THE_DEN and any(role.id in gconf.DONOR_ROLES_ID for role in member.roles):
                 player.donor = True
                 player.save()
 

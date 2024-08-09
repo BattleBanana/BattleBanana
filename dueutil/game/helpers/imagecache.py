@@ -2,6 +2,8 @@ import json
 import os
 import re
 
+from threading import Thread
+
 from PIL import Image
 
 from dueutil import dbconn, tasks, util
@@ -29,14 +31,21 @@ def image_used(url):
             repeated_usages[url] += 1
 
 
-async def cache_resized_image(image, url):
+async def save_image(filename: str, image: Image.Image):
+    try:
+        image.save(filename, minimize_size=True, lossless=True, quality=100)
+    except Exception:
+        pass
+
+
+async def cache_resized_image(image: Image.Image, url):
     if image is None:
         return None
 
     filename = get_resized_cached_filename(url, image.width, image.height)
     try:
         # cache image
-        image.convert("RGB").save(filename, optimize=True, quality=100)
+        Thread(target=save_image, args=(filename, image)).start()
         return image
     except Exception:
         # We don't care what went wrong
@@ -67,7 +76,7 @@ def get_resized_cached_filename(name, width, height):
     if None not in (width, height):
         filename += f"{width}_{height}"
 
-    return filename + ".jpg"
+    return filename + ".webp"
 
 
 async def cache_image(url):
@@ -76,7 +85,7 @@ async def cache_image(url):
         image_data = await util.download_file(url)
         image = Image.open(image_data)
         # cache image
-        image.convert("RGB").save(filename, optimize=True, quality=100)
+        Thread(target=save_image, args=(filename, image)).start()
         return image
     except Exception:
         # We don't care what went wrong
@@ -105,7 +114,7 @@ def get_cached_filename(name):
     filename = "assets/imagecache/" + re.sub(r"\W+", "", name)
     if len(filename) > 128:
         filename = filename[:128]
-    return filename + ".jpg"
+    return filename + ".webp"
 
 
 @tasks.task(timeout=3600)
