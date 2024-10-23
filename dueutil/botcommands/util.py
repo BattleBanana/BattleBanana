@@ -846,11 +846,11 @@ async def block(ctx, id, reason="No reason specified", **_):
 
 
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="M", hidden=True)
-async def unblacklist(ctx, id, **_):
+async def unblock(ctx, id, **_):
     """
-    [CMD_KEY]unblacklist (member id)
+    [CMD_KEY]unblock (member id)
 
-    Blocks the member from the on_message event.
+    Unblock the member from the on_message event.
     """
     if not bl.find(id):
         raise util.BattleBananaException(ctx.channel, "This member is not blacklisted!")

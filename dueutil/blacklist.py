@@ -45,7 +45,7 @@ def remove(id: int) -> None:
     blacklist.remove(find(id))
 
 
-def find(id: int) -> BlacklistedUser or None:
+def find(id: int) -> BlacklistedUser | None:
     """
     Find a user in the blacklist
     """

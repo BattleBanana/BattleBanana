@@ -8,6 +8,8 @@ from PIL import Image
 
 from dueutil import dbconn, tasks, util
 
+JPEG_EXTENSION = ".jpeg"
+WEBP_EXTENSION = ".png"
 
 class _CacheStats:
     # Simple holder class (to work with dbconn)
@@ -33,7 +35,7 @@ def image_used(url):
 
 async def save_image(filename: str, image: Image.Image):
     try:
-        image.save(filename, minimize_size=True, lossless=True, quality=100)
+        image.save(filename, exact=True, lossless=True, quality=100)
     except Exception:
         pass
 
@@ -66,6 +68,13 @@ def get_cached_resized_image(url, width, height):
         return None
 
 
+def rename_and_create_cached_image(old_filename, new_filename):
+    if os.path.isfile(old_filename):
+        image = Image.open(old_filename)
+        save_image(new_filename, image)
+        os.remove(old_filename)
+    return None
+
 def get_resized_cached_filename(name, width, height):
     if name is None:
         name = ""
@@ -76,7 +85,9 @@ def get_resized_cached_filename(name, width, height):
     if None not in (width, height):
         filename += f"{width}_{height}"
 
-    return filename + ".webp"
+    rename_and_create_cached_image(filename + JPEG_EXTENSION, filename + WEBP_EXTENSION)
+
+    return filename + WEBP_EXTENSION
 
 
 async def cache_image(url):
@@ -114,7 +125,7 @@ def get_cached_filename(name):
     filename = "assets/imagecache/" + re.sub(r"\W+", "", name)
     if len(filename) > 128:
         filename = filename[:128]
-    return filename + ".webp"
+    return filename + WEBP_EXTENSION
 
 
 @tasks.task(timeout=3600)

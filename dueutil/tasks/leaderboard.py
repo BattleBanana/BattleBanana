@@ -2,7 +2,7 @@ from datetime import datetime
 import jsonpickle
 from pymongo import CursorType
 
-from dueutil import tasks, dbconn, util
+from dueutil import dbconn, util
 from dueutil.game.players import Player
 
 async def set_calculating_leaderboard(is_calculating: bool) -> None:
