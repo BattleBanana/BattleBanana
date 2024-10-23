@@ -413,6 +413,50 @@ async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon=
     )
 
 
+@commands.command(permission=Permission.SERVER_ADMIN, args_pattern="SSC%B?S?S?")
+async def createglobalweapon(ctx, name, hit_message, damage, accy, ranged=False, icon="🔫", image_url=None, **_):
+    """
+    [CMD_KEY]createglobalweapon "weapon name" "hit message" damage accy
+
+    Creates a global weapon for the global shop!
+
+    For extra customization you add the following:
+
+    (ranged) (icon) (image url)
+
+    __Example__:
+    Basic Weapon:
+        ``[CMD_KEY]createglobalweapon "Laser" "FIRES THEIR LAZOR AT" 100 50``
+        This creates a weapon named "Laser" with the hit message
+        "FIRES THEIR LAZOR AT", 100 damage and 50% accy
+    Advanced Weapon:
+        ``[CMD_KEY]createglobalweapon "Banana Gun" "splats" 12 10 True :banana: https://i.imgur.com/6etFBta.png``
+        The first four properties work like before. This weapon also has ranged set to ``true``
+        as it fires projectiles, a icon (for the shop) ':banana:' and image of the weapon from the url.
+    """
+
+    extras = {"melee": not ranged, "icon": icon}
+    if image_url is not None:
+        extras["image_url"] = image_url
+
+    if "image_url" in extras and not await imagehelper.is_url_image(image_url):
+        extras.pop("image_url")
+        await imagehelper.warn_on_invalid_image(ctx.channel)
+
+    weapon = weapons.Weapon(name, hit_message, damage, accy, **extras, server_id="global")
+    await util.reply(
+        ctx,
+        (
+            weapon.icon
+            + " **"
+            + weapon.name_clean
+            + "** is available in the global shop for "
+            + util.format_number(weapon.price, money=True)
+            + "!"
+        ),
+    )
+
+
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern="SS*")
 @commands.extras.dict_command(optional={"message/hit/hit_message": "S", "ranged": "B", "icon": "S", "image": "S"})
 async def editweapon(ctx, weapon_name, updates, **_):
@@ -519,6 +563,8 @@ async def resetweapons(ctx, **_):
 async def buy_weapon(weapon_name, **details):
     customer = details["author"]
     weapon = weapons.get_weapon_for_server(details["server_id"], weapon_name)
+    if weapon is None:
+        weapon = weapons.get_weapon_for_server("global", weapon_name)
     channel = details["channel"]
 
     if weapon is None or weapon_name == "none":
@@ -620,6 +666,8 @@ def weapon_info(weapon_name=None, **details):
     weapon = details.get("weapon")
     if weapon is None:
         weapon = weapons.get_weapon_for_server(details["server_id"], weapon_name)
+        if weapon is None:
+            weapon = weapons.get_weapon_for_server("global", weapon_name)
         if weapon is None:
             raise util.BattleBananaException(details["channel"], weapons.WEAPON_NOT_FOUND)
     embed.title = weapon.icon + " | " + weapon.name_clean

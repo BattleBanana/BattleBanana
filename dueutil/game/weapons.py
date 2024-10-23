@@ -177,7 +177,11 @@ def remove_weapon_from_shop(guild: discord.Guild, weapon_name: str) -> bool:
 
 
 def get_weapons_for_server(guild: discord.Guild) -> Dict[str, Weapon]:
-    return dict(weapons[guild], **weapons["STOCK"])
+    return dict(weapons[guild], **weapons["STOCK"], **weapons["global"])
+
+
+def get_global_weapons() -> Dict[str, Weapon]:
+    return dict(weapons["global"])
 
 
 def find_weapon(guild: discord.Guild, weapon_name_or_id: str) -> Union[Weapon, None]:
