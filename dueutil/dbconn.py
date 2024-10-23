@@ -67,6 +67,19 @@ def get_blacklist():
     return conn()["Blacklist"].find()
 
 
+def insert_global_weapon(id, pickleable_object):
+    if isinstance(id, str) and id.strip() == "":
+        return
+
+    conn()["GlobalWeapon"].update_one(
+        {"_id": id}, {"$set": {"data": jsonpickle.encode(pickleable_object)}}, upsert=True
+    )
+
+
+def get_global_weapons():
+    return conn()["GlobalWeapon"].find()
+
+
 def _load_config():
     global config
     with open("dbconfig.json", encoding="utf-8") as config_file:

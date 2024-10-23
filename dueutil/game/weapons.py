@@ -12,6 +12,7 @@ from . import emojis
 
 stock_weapons = ["none"]
 weapons = DueMap()
+global_weapons = DueMap()
 
 MAX_STORED_WEAPONS = 6
 WEAPON_NOT_FOUND = "Weapon not found!"
@@ -134,6 +135,20 @@ class Weapon(BattleBananaObject, SlotPickleMixin):
             self.save()
 
 
+class GlobalWeapon(Weapon):
+    """A global weapon that can be used by any player in BattleBanana"""
+
+    __slots__ = ["validation_state"]
+
+    def __init__(self, name, hit_message, damage, accy, **extras):
+        super().__init__(name, hit_message, damage, accy, **extras)
+        self.validation_state = extras.get("validation_state", "pending")
+
+    def update_validation_state(self, new_state):
+        self.validation_state = new_state
+        self.save()
+
+
 # The 'None'/No weapon weapon
 NO_WEAPON = Weapon("None", None, 1, 66, no_save=True, image_url="https://i.imgur.com/gNn7DyW.png", icon="👊")
 NO_WEAPON_ID = NO_WEAPON.id
@@ -162,6 +177,12 @@ def get_weapon_for_server(server_id: int, weapon_name: str) -> Weapon:
         return weapons[weapon_id]
 
 
+def get_global_weapon(weapon_name: str) -> Weapon:
+    weapon_id = f"global/{weapon_name.lower()}"
+    if weapon_id in global_weapons:
+        return global_weapons[weapon_id]
+
+
 def get_weapon_summary_from_id(weapon_id: str) -> Summary:
     summary = weapon_id.split("/", 1)[0].split("+")[1].split("|")
     return Summary(price=int(summary[0]), damage=int(summary[1]), accy=float(summary[2]))
@@ -177,11 +198,11 @@ def remove_weapon_from_shop(guild: discord.Guild, weapon_name: str) -> bool:
 
 
 def get_weapons_for_server(guild: discord.Guild) -> Dict[str, Weapon]:
-    return dict(weapons[guild], **weapons["STOCK"], **weapons["global"])
+    return dict(weapons[guild], **weapons["STOCK"])
 
 
 def get_global_weapons() -> Dict[str, Weapon]:
-    return dict(weapons["global"])
+    return dict(global_weapons)
 
 
 def find_weapon(guild: discord.Guild, weapon_name_or_id: str) -> Union[Weapon, None]:
@@ -235,7 +256,17 @@ def _load():
             loaded_weapon.server_id = int(loaded_weapon.server_id)
 
         weapons[loaded_weapon.id] = loaded_weapon
+
+    for weapon in dbconn.get_collection_for_object(GlobalWeapon).find():
+        loaded_weapon: GlobalWeapon = jsonpickle.decode(weapon["data"])
+
+        if isinstance(loaded_weapon.server_id, str):
+            loaded_weapon.server_id = int(loaded_weapon.server_id)
+
+        global_weapons[loaded_weapon.id] = loaded_weapon
+
     util.logger.info("Loaded %s weapons", len(weapons))
+    util.logger.info("Loaded %s global weapons", len(global_weapons))
 
 
 _load()

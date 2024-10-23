@@ -103,3 +103,21 @@ class ShopBuySellItem(ABC):
     @abstractmethod
     def get_item(self, item_name):
         pass
+
+
+class GlobalShopBuySellItem(ShopBuySellItem):
+    """
+    A class for buying and selling global weapons.
+    """
+
+    item_type = "global weapon"
+    inventory_slot = "global_weapons"
+
+    def item_equipped_on_buy(self, player, item_name):
+        if player.equipped["weapon"] == "none":
+            player.weapon = item_name
+            return True
+        return False
+
+    def get_item(self, item_name):
+        return weapons.get_weapon_for_server("global", item_name)

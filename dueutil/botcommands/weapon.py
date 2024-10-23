@@ -6,6 +6,7 @@ from .. import commands, util
 from ..game import awards, battles, players, stats, weapons
 from ..game.helpers import imagehelper, misc
 from ..permissions import Permission
+from ..interactions import ValidationInteraction
 
 
 @misc.paginator
@@ -413,50 +414,6 @@ async def createweapon(ctx, name, hit_message, damage, accy, ranged=False, icon=
     )
 
 
-@commands.command(permission=Permission.SERVER_ADMIN, args_pattern="SSC%B?S?S?")
-async def createglobalweapon(ctx, name, hit_message, damage, accy, ranged=False, icon="🔫", image_url=None, **_):
-    """
-    [CMD_KEY]createglobalweapon "weapon name" "hit message" damage accy
-
-    Creates a global weapon for the global shop!
-
-    For extra customization you add the following:
-
-    (ranged) (icon) (image url)
-
-    __Example__:
-    Basic Weapon:
-        ``[CMD_KEY]createglobalweapon "Laser" "FIRES THEIR LAZOR AT" 100 50``
-        This creates a weapon named "Laser" with the hit message
-        "FIRES THEIR LAZOR AT", 100 damage and 50% accy
-    Advanced Weapon:
-        ``[CMD_KEY]createglobalweapon "Banana Gun" "splats" 12 10 True :banana: https://i.imgur.com/6etFBta.png``
-        The first four properties work like before. This weapon also has ranged set to ``true``
-        as it fires projectiles, a icon (for the shop) ':banana:' and image of the weapon from the url.
-    """
-
-    extras = {"melee": not ranged, "icon": icon}
-    if image_url is not None:
-        extras["image_url"] = image_url
-
-    if "image_url" in extras and not await imagehelper.is_url_image(image_url):
-        extras.pop("image_url")
-        await imagehelper.warn_on_invalid_image(ctx.channel)
-
-    weapon = weapons.Weapon(name, hit_message, damage, accy, **extras, server_id="global")
-    await util.reply(
-        ctx,
-        (
-            weapon.icon
-            + " **"
-            + weapon.name_clean
-            + "** is available in the global shop for "
-            + util.format_number(weapon.price, money=True)
-            + "!"
-        ),
-    )
-
-
 @commands.command(permission=Permission.SERVER_ADMIN, args_pattern="SS*")
 @commands.extras.dict_command(optional={"message/hit/hit_message": "S", "ranged": "B", "icon": "S", "image": "S"})
 async def editweapon(ctx, weapon_name, updates, **_):
@@ -564,7 +521,7 @@ async def buy_weapon(weapon_name, **details):
     customer = details["author"]
     weapon = weapons.get_weapon_for_server(details["server_id"], weapon_name)
     if weapon is None:
-        weapon = weapons.get_weapon_for_server("global", weapon_name)
+        weapon = weapons.get_global_weapon(weapon_name)
     channel = details["channel"]
 
     if weapon is None or weapon_name == "none":
@@ -667,7 +624,7 @@ def weapon_info(weapon_name=None, **details):
     if weapon is None:
         weapon = weapons.get_weapon_for_server(details["server_id"], weapon_name)
         if weapon is None:
-            weapon = weapons.get_weapon_for_server("global", weapon_name)
+            weapon = weapons.get_global_weapon(weapon_name)
         if weapon is None:
             raise util.BattleBananaException(details["channel"], weapons.WEAPON_NOT_FOUND)
     embed.title = weapon.icon + " | " + weapon.name_clean
@@ -680,3 +637,142 @@ def weapon_info(weapon_name=None, **details):
     embed.add_field(name="Hit Message", value=weapon.hit_message)
     embed.set_footer(text="Image supplied by weapon creator.")
     return embed
+
+
+@commands.command(permission=Permission.PLAYER, args_pattern="SSC%B?S?S?")
+async def submitglobalweapon(ctx, name, hit_message, damage, accy, ranged=False, icon="🔫", image_url=None, **_):
+    """
+    [CMD_KEY]submitglobalweapon "weapon name" "hit message" damage accy
+
+    Submits a global weapon for the global shop validation queue!
+
+    For extra customization you add the following:
+
+    (ranged) (icon) (image url)
+
+    __Example__:
+    Basic Weapon:
+        ``[CMD_KEY]submitglobalweapon "Laser" "FIRES THEIR LAZOR AT" 100 50``
+        This creates a weapon named "Laser" with the hit message
+        "FIRES THEIR LAZOR AT", 100 damage and 50% accy
+    Advanced Weapon:
+        ``[CMD_KEY]submitglobalweapon "Banana Gun" "splats" 12 10 True :banana: https://i.imgur.com/6etFBta.png``
+        The first four properties work like before. This weapon also has ranged set to ``true``
+        as it fires projectiles, a icon (for the shop) ':banana:' and image of the weapon from the url.
+    """
+
+    extras = {"melee": not ranged, "icon": icon}
+    if image_url is not None:
+        extras["image_url"] = image_url
+
+    if "image_url" in extras and not await imagehelper.is_url_image(image_url):
+        extras.pop("image_url")
+        await imagehelper.warn_on_invalid_image(ctx.channel)
+
+    weapon = weapons.GlobalWeapon(name, hit_message, damage, accy, **extras, ctx=ctx)
+    dbconn.insert_global_weapon(weapon.id, weapon)
+    await util.reply(
+        ctx,
+        (
+            weapon.icon
+            + " **"
+            + weapon.name_clean
+            + "** has been submitted for validation!"
+        ),
+    )
+
+
+@commands.command(permission=Permission.PLAYER, args_pattern="SS*")
+@commands.extras.dict_command(optional={"message/hit/hit_message": "S", "ranged": "B", "icon": "S", "image": "S"})
+async def editglobalweapon(ctx, weapon_name, updates, **_):
+    """
+    [CMD_KEY]editglobalweapon name (property value)+
+
+    Any number of properties can be set at once.
+
+    Properties:
+        __message__, __icon__, __ranged__, and __image__
+
+    Example usage:
+
+        [CMD_KEY]editglobalweapon laser message "pews at" icon :gun:
+
+        [CMD_KEY]editglobalweapon "a gun" image https://i.imgur.com/QuZQm4D.png
+    """
+
+    weapon = weapons.get_global_weapon(weapon_name)
+    if weapon is None:
+        raise util.BattleBananaException(ctx.channel, "Weapon not found!")
+
+    new_image_url = None
+    for weapon_property, value in updates.items():
+        if weapon_property == "icon":
+            if util.is_discord_emoji(ctx.guild, value):
+                weapon.icon = value
+            else:
+                updates[weapon_property] = "Must be an emoji! (custom emojis must be on this guild)"
+        elif weapon_property == "ranged":
+            weapon.melee = not value
+            updates[weapon_property] = str(value).lower()
+        else:
+            updates[weapon_property] = util.ultra_escape_string(value)
+            if weapon_property == "image":
+                new_image_url = weapon.image_url = value
+                updates[weapon_property] = f"<{new_image_url}>"
+            else:
+                if weapon.acceptable_string(value, 32):
+                    weapon.hit_message = value
+                    updates[weapon_property] = f'"{updates[weapon_property]}"'
+                else:
+                    updates[weapon_property] = "Cannot be over 32 characters!"
+
+    if len(updates) == 0:
+        await util.reply(ctx, "You need to provide a list of valid changes for the weapon!")
+    else:
+        result = weapon.icon + f" **{weapon.name_clean}** updates!\n"
+
+        if new_image_url is not None and not await imagehelper.is_url_image(new_image_url):
+            weapon.image_url = weapon.DEFAULT_IMAGE
+            updates["image"] = None
+            await imagehelper.warn_on_invalid_image(ctx.channel)
+
+        weapon.validation_state = "pending"
+        weapon.save()
+        await util.reply(ctx, result)
+
+
+@commands.command(permission=Permission.BANANA_MOD, args_pattern="S")
+async def validateglobalweapon(ctx, **details):
+    """
+    [CMD_KEY]validateglobalweapon
+
+    Validates a global weapon in the validation queue.
+    """
+
+    global_weapons = list(weapons.get_global_weapons().values())
+    pending_weapons = [weapon for weapon in global_weapons if weapon.validation_state == "pending"]
+
+    if not pending_weapons:
+        await util.reply(ctx, "No pending global weapons in the validation queue.")
+        return
+
+    for current_weapon in pending_weapons:
+
+        validation_interaction = ValidationInteraction(ctx.author)
+        embed = weapon_info(weapon=current_weapon, embed=discord.Embed(type="rich", color=gconf.DUE_COLOUR))
+        await ctx.send(
+            f"Validating global weapon **{current_weapon.name_clean}**. Please choose an action:",
+            embed=embed,
+            view=validation_interaction,
+        )
+        action = await validation_interaction.start()
+
+        if action == "accept":
+            current_weapon.update_validation_state("accepted")
+            await util.reply(ctx, f"Global weapon **{current_weapon.name_clean}** has been accepted!")
+        elif action == "refuse":
+            current_weapon.update_validation_state("rejected")
+            await util.reply(ctx, f"Global weapon **{current_weapon.name_clean}** has been rejected!")
+        elif action == "stop":
+            await util.reply(ctx, "Stopped reviewing global weapons.")
+            break
