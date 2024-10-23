@@ -1,7 +1,7 @@
 import discord
 from discord import ButtonStyle, ui
 
-DEFAULT_TIMEOUT = 120
+DEFAULT_TIMEOUT: int = 120
 
 class ValidationInteraction(ui.View):
     """
