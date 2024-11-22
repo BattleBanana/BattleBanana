@@ -12,7 +12,7 @@ from . import emojis
 
 stock_weapons = ["none"]
 weapons = DueMap()
-global_weapons = DueMap()
+global_weapons = {}
 
 MAX_STORED_WEAPONS = 6
 WEAPON_NOT_FOUND = "Weapon not found!"
@@ -148,6 +148,13 @@ class GlobalWeapon(Weapon):
         self.validation_state = new_state
         self.save()
 
+    def _weapon_id(self):
+        return f"{self._weapon_sum()}/{self.name.lower()}"
+
+    def _add(self):
+        global_weapons[self.id] = self
+        self.save()
+
 
 # The 'None'/No weapon weapon
 NO_WEAPON = Weapon("None", None, 1, 66, no_save=True, image_url="https://i.imgur.com/gNn7DyW.png", icon="👊")
@@ -169,6 +176,10 @@ def does_weapon_exist(server_id: int, weapon_name: str) -> bool:
     return get_weapon_for_server(server_id, weapon_name) is not None
 
 
+def does_global_weapon_exist(weapon_name: str) -> bool:
+    return get_global_weapon(weapon_name) is not None
+
+
 def get_weapon_for_server(server_id: int, weapon_name: str) -> Weapon:
     if weapon_name.lower() in stock_weapons:
         return weapons["STOCK/" + weapon_name.lower()]
@@ -177,10 +188,9 @@ def get_weapon_for_server(server_id: int, weapon_name: str) -> Weapon:
         return weapons[weapon_id]
 
 
-def get_global_weapon(weapon_name: str) -> Weapon:
-    weapon_id = f"global/{weapon_name.lower()}"
-    if weapon_id in global_weapons:
-        return global_weapons[weapon_id]
+def get_global_weapon(weapon_name: str) -> GlobalWeapon:
+    full_key = next((key for key in global_weapons if key.endswith(f'/{weapon_name.lower()}')), None)
+    return global_weapons[full_key] if full_key else None
 
 
 def get_weapon_summary_from_id(weapon_id: str) -> Summary:
@@ -197,12 +207,17 @@ def remove_weapon_from_shop(guild: discord.Guild, weapon_name: str) -> bool:
     return False
 
 
+def remove_global_weapon_from_shop(weapon_name: str) -> bool:
+    weapon = get_global_weapon(weapon_name)
+    if weapon is not None:
+        del global_weapons[weapon.id]
+        dbconn.get_collection_for_object(GlobalWeapon).delete_one({"_id": weapon.id})
+        return True
+    return False
+
+
 def get_weapons_for_server(guild: discord.Guild) -> Dict[str, Weapon]:
     return dict(weapons[guild], **weapons["STOCK"])
-
-
-def get_global_weapons() -> Dict[str, Weapon]:
-    return dict(global_weapons)
 
 
 def find_weapon(guild: discord.Guild, weapon_name_or_id: str) -> Union[Weapon, None]:

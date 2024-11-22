@@ -144,8 +144,7 @@ def shop_banner_list(page, **details):
 
 
 def shop_global_weapons_list(page, **details):
-    shop_weapons = list(weapons.get_global_weapons().values())
-    shop_weapons.remove(weapons.NO_WEAPON)
+    shop_weapons = list(weapons.global_weapons.values())
     shop_weapons.sort(key=lambda weapon: weapon.price)
     shop_list = weap_cmds.weapons_page(
         shop_weapons,
@@ -271,13 +270,13 @@ departments = {
     "globalweapons": {
         "alias": ["globalweapons", "globalweaps", "globalweap", "globalweapon"],
         "actions": {
-            "info_action": weap_cmds.weapon_info,
+            "info_action": weap_cmds.global_weapon_info,
             "list_action": shop_global_weapons_list,
             "buy_action": weap_cmds.buy_weapon,
             "sell_action": weap_cmds.sell_weapon,
         },
         "item_exists": lambda details, name: name.lower() != "none"
-        and weapons.does_weapon_exist("global", name),
+        and weapons.does_global_weapon_exist(name),
         "item_exists_sell": lambda details, name: (
             name != "none" and details["author"].weapon.name.lower() == name or details["author"].owns_weapon(name)
         ),

@@ -21,7 +21,7 @@ class ValidationInteraction(ui.View):
         if interaction.user.id == self._author.id:
             return True
 
-        await interaction.response.send_message("This is not your validation!", ephemeral=True)
+        await interaction.response.send_message("This is not your interaction!", ephemeral=True)
 
         return False
 
@@ -30,19 +30,19 @@ class ValidationInteraction(ui.View):
         return self.value
 
     @ui.button(label="Accept", style=ButtonStyle.success)
-    async def accept(self, interaction: discord.Interaction, _: ui.Button):
+    async def btn_accept(self, interaction: discord.Interaction, _: ui.Button):
         await interaction.response.defer()
         self.value = "accept"
         self.stop()
 
     @ui.button(label="Refuse", style=ButtonStyle.danger)
-    async def refuse(self, interaction: discord.Interaction, _: ui.Button):
+    async def btn_refuse(self, interaction: discord.Interaction, _: ui.Button):
         await interaction.response.defer()
         self.value = "refuse"
         self.stop()
 
     @ui.button(label="Stop", style=ButtonStyle.secondary)
-    async def stop(self, interaction: discord.Interaction, _: ui.Button):
+    async def btn_stop(self, interaction: discord.Interaction, _: ui.Button):
         await interaction.response.defer()
         self.value = "stop"
         self.stop()

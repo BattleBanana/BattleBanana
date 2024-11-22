@@ -45,7 +45,7 @@ async def cache_resized_image(image: Image.Image, url):
     filename = get_resized_cached_filename(url, image.width, image.height)
     try:
         # cache image
-        Thread(target=save_image, args=(filename, image)).start()
+        await save_image(filename, image)
         return image
     except Exception:
         # We don't care what went wrong
@@ -78,14 +78,13 @@ def get_resized_cached_filename(name, width, height):
 
     return filename + ".webp"
 
-
 async def cache_image(url):
     filename = get_cached_filename(url)
     try:
         image_data = await util.download_file(url)
         image = Image.open(image_data)
         # cache image
-        Thread(target=save_image, args=(filename, image)).start()
+        await save_image(filename, image)
         return image
     except Exception:
         # We don't care what went wrong
