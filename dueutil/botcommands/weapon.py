@@ -6,6 +6,7 @@ from .. import commands, util
 from ..game import awards, battles, players, stats, weapons
 from ..game.helpers import imagehelper, misc
 from ..permissions import Permission
+from ..interactions import ValidationInteraction
 
 
 @misc.paginator
@@ -519,6 +520,8 @@ async def resetweapons(ctx, **_):
 async def buy_weapon(weapon_name, **details):
     customer = details["author"]
     weapon = weapons.get_weapon_for_server(details["server_id"], weapon_name)
+    if weapon is None:
+        weapon = weapons.get_global_weapon(weapon_name)
     channel = details["channel"]
 
     if weapon is None or weapon_name == "none":
@@ -621,6 +624,8 @@ def weapon_info(weapon_name=None, **details):
     if weapon is None:
         weapon = weapons.get_weapon_for_server(details["server_id"], weapon_name)
         if weapon is None:
+            weapon = weapons.get_global_weapon(weapon_name)
+        if weapon is None:
             raise util.BattleBananaException(details["channel"], weapons.WEAPON_NOT_FOUND)
     embed.title = weapon.icon + " | " + weapon.name_clean
     embed.set_thumbnail(url=weapon.image_url)
@@ -632,3 +637,224 @@ def weapon_info(weapon_name=None, **details):
     embed.add_field(name="Hit Message", value=weapon.hit_message)
     embed.set_footer(text="Image supplied by weapon creator.")
     return embed
+
+
+def global_weapon_info(weapon_name=None, **details):
+    weapon = details.get("weapon")
+    if weapon is None:
+        weapon = weapons.get_global_weapon(weapon_name)
+    details["weapon"] = weapon
+
+    embed = weapon_info(weapon_name, **details)
+    creator = players.find_player(weapon.server_id)
+    embed.add_field(name="Creator", value=f"{creator.name_clean} (<@{creator.id}>)", inline=False)
+    return embed
+
+
+@commands.command(args_pattern="SSC%B?S?S?")
+async def submitglobalweapon(ctx, name, hit_message, damage, accy, ranged=False, icon="🔫", image_url=None, **_):
+    """
+    [CMD_KEY]submitglobalweapon "weapon name" "hit message" damage accy
+
+    Submits a global weapon for the global shop validation queue!
+
+    For extra customization you add the following:
+
+    (ranged) (icon) (image url)
+
+    __Example__:
+    Basic Weapon:
+        ``[CMD_KEY]submitglobalweapon "Laser" "FIRES THEIR LAZOR AT" 100 50``
+        This creates a weapon named "Laser" with the hit message
+        "FIRES THEIR LAZOR AT", 100 damage and 50% accy
+    Advanced Weapon:
+        ``[CMD_KEY]submitglobalweapon "Banana Gun" "splats" 12 10 True :banana: https://i.imgur.com/6etFBta.png``
+        The first four properties work like before. This weapon also has ranged set to ``true``
+        as it fires projectiles, a icon (for the shop) ':banana:' and image of the weapon from the url.
+    """
+
+    extras = {"melee": not ranged, "icon": icon}
+    if image_url is not None:
+        extras["image_url"] = image_url
+
+    if "image_url" in extras and not await imagehelper.is_url_image(image_url):
+        extras.pop("image_url")
+        await imagehelper.warn_on_invalid_image(ctx.channel)
+
+    if weapons.get_global_weapon(name) is not None:
+        raise util.BattleBananaException(ctx.channel, "A global weapon with that name already exists!")
+
+    weapon = weapons.GlobalWeapon(name, hit_message, damage, accy, **extras, ctx=ctx)
+    weapon.server_id = ctx.author.id
+    weapon.save()
+
+    await util.reply(
+        ctx,
+        (
+            weapon.icon
+            + " **"
+            + weapon.name_clean
+            + "** has been submitted for validation!"
+        ),
+    )
+
+
+@commands.command(permission=Permission.PLAYER)
+async def myglobalweapons(ctx, **_):
+    """
+    [CMD_KEY]myglobalweapons
+
+    Lists the global weapons you have submitted.
+    """
+
+    player = players.find_player(ctx.author.id)
+    global_weapons = weapons.global_weapons.values()
+    global_weapons = [weapon for weapon in global_weapons if weapon.server_id == ctx.author.id]
+    if len(global_weapons) == 0:
+        raise util.BattleBananaException(ctx.channel, "You have not submitted any global weapons!")
+
+    weapon_store = weapons_page(
+        global_weapons,
+        0,
+        title=player.get_name_possession_clean() + " Global Weapons",
+        price_divisor=4 / 3,
+        empty_list="",
+    )
+    await util.reply(ctx, embed=weapon_store)
+
+
+@commands.command(permission=Permission.PLAYER, args_pattern="SS*")
+@commands.extras.dict_command(optional={"message/hit/hit_message": "S", "ranged": "B", "icon": "S", "image": "S"})
+async def editglobalweapon(ctx, weapon_name, updates, **_):
+    """
+    [CMD_KEY]editglobalweapon name (property value)+
+
+    Any number of properties can be set at once.
+
+    Properties:
+        __message__, __icon__, __ranged__, and __image__
+
+    Example usage:
+
+        [CMD_KEY]editglobalweapon laser message "pews at" icon :gun:
+
+        [CMD_KEY]editglobalweapon "a gun" image https://i.imgur.com/QuZQm4D.png
+    """
+
+    weapon = weapons.get_global_weapon(weapon_name)
+    if weapon is None:
+        raise util.BattleBananaException(ctx.channel, "Weapon not found!")
+
+    # In the case of global weapons, server_id is the owner id
+    if weapon.server_id != ctx.author.id:
+        raise util.BattleBananaException(ctx.channel, "You can't edit a global weapon that you don't own!")
+
+    new_image_url = None
+    for weapon_property, value in updates.items():
+        if weapon_property == "icon":
+            if util.is_discord_emoji(ctx.guild, value):
+                weapon.icon = value
+            else:
+                updates[weapon_property] = "Must be an emoji! (custom emojis must be on this guild)"
+        elif weapon_property == "ranged":
+            weapon.melee = not value
+            updates[weapon_property] = str(value).lower()
+        else:
+            updates[weapon_property] = util.ultra_escape_string(value)
+            if weapon_property == "image":
+                new_image_url = weapon.image_url = value
+                updates[weapon_property] = f"<{new_image_url}>"
+            else:
+                if weapon.acceptable_string(value, 32):
+                    weapon.hit_message = value
+                    updates[weapon_property] = f'"{updates[weapon_property]}"'
+                else:
+                    updates[weapon_property] = "Cannot be over 32 characters!"
+
+    if len(updates) == 0:
+        await util.reply(ctx, "You need to provide a list of valid changes for the weapon!")
+    else:
+        result = weapon.icon + f" **{weapon.name_clean}** updates!\n"
+
+        if new_image_url is not None and not await imagehelper.is_url_image(new_image_url):
+            weapon.image_url = weapon.DEFAULT_IMAGE
+            updates["image"] = None
+            await imagehelper.warn_on_invalid_image(ctx.channel)
+
+        weapon.validation_state = "pending"
+        weapon.save()
+        await util.reply(ctx, result)
+
+
+@commands.command(permission=Permission.PLAYER, args_pattern="S")
+async def removeglobalweapon(ctx, weapon_name, **_):
+    """
+    [CMD_KEY]removeglobalweapon (weapon name)
+
+    Removes a global weapon from the validation queue.
+    """
+
+    weapon = weapons.get_global_weapon(weapon_name)
+    if weapon is None:
+        raise util.BattleBananaException(ctx.channel, weapons.WEAPON_NOT_FOUND)
+
+    if weapon.server_id != ctx.author.id:
+        raise util.BattleBananaException(ctx.channel, "You can't remove a global weapon that you don't own!")
+
+    weapons.remove_global_weapon_from_shop(weapon_name)
+    await util.reply(ctx, f"**{weapon.name_clean}** has been removed from the validation queue!")
+
+
+@commands.command(permission=Permission.BANANA_MOD)
+async def validateglobalweapons(ctx, **_):
+    """
+    [CMD_KEY]validateglobalweapon
+
+    Validates global weapons that are in the validation queue.
+    """
+
+    global_weapons = list(weapons.global_weapons.values())
+    util.logger.info(global_weapons)
+    pending_weapons = [weapon for weapon in global_weapons if weapon.validation_state == "pending"]
+
+    if not pending_weapons:
+        await util.reply(ctx, "No pending global weapons in the validation queue.")
+        return
+
+    message = await util.reply(ctx, f"Validating {len(pending_weapons)} global weapons in the validation queue.")
+
+    accepted = 0
+    rejected = 0
+    for current_weapon in pending_weapons:
+        validation_interaction = ValidationInteraction(ctx.author)
+        embed = global_weapon_info(weapon=current_weapon, embed=discord.Embed(type="rich", color=gconf.DUE_COLOUR))
+        await message.edit(
+            content=f"Validating global weapon **{current_weapon.name_clean}**. Please choose an action:",
+            embed=embed,
+            view=validation_interaction,
+        )
+        action = await validation_interaction.start()
+
+        if action == "accept":
+            current_weapon.update_validation_state("accepted")
+
+            util.logger.info(f"Global weapon {current_weapon.name_clean} ({current_weapon.w_id}) has been accepted by ({ctx.author.mention})!")
+            await util.duelogger.info(f"Global weapon **{current_weapon.name_clean}** ({current_weapon.w_id}) has been accepted by ({ctx.author.mention})!")
+            accepted += 1
+        elif action == "refuse":
+            current_weapon.update_validation_state("rejected")
+
+            util.logger.info(f"Global weapon {current_weapon.name_clean} ({current_weapon.w_id}) has been rejected by ({ctx.author.mention})!")
+            await util.duelogger.info(f"Global weapon **{current_weapon.name_clean}** ({current_weapon.w_id}) has been rejected by ({ctx.author.mention})!")
+            rejected += 1
+        elif action == "stop":
+            break
+
+    summary_embed = discord.Embed(type="rich", color=gconf.DUE_COLOUR)
+    summary_embed.title = "Global Weapons Validation Queue"
+    summary_embed.description = f"Total weapons in queue: {len(pending_weapons)}"
+    summary_embed.add_field(name="Accepted", value=str(accepted))
+    summary_embed.add_field(name="Rejected", value=str(rejected))
+    summary_embed.add_field(name="Remaining", value=str(len(pending_weapons) - accepted - rejected))
+
+    await message.edit(content="Validation complete.", embed=summary_embed, view=None)

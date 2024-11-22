@@ -143,6 +143,19 @@ def shop_banner_list(page, **details):
     return shop_list
 
 
+def shop_global_weapons_list(page, **details):
+    shop_weapons = list(weapons.global_weapons.values())
+    shop_weapons.sort(key=lambda weapon: weapon.price)
+    shop_list = weap_cmds.weapons_page(
+        shop_weapons,
+        page,
+        title="BattleBanana's Global Weapon Shop!",
+        footer_more=f"But wait there's more! Do {details['cmd_key']}shop globalweapons {page + 2}",
+        footer_end="More global weapons coming soon!",
+    )
+    return shop_list
+
+
 def get_department_from_name(name):
     return next(
         (department_info for department_info in departments.values() if name.lower() in department_info["alias"]), None
@@ -254,21 +267,20 @@ departments = {
         ),
         "item_exists_sell": lambda details, name: name.lower() in details["author"].inventory["banners"],
     },
-    # "shields": {
-    #     "alias": ["shields", "shield", "armors", "armor"],
-    #     "actions": {
-    #         "info_action": player_cmds.banner_info,
-    #         "list_action": shop_banner_list,
-    #         "buy_action": buy_sell_banners.buy_item,
-    #         "sell_action": buy_sell_banners.sell_item,
-    #     },
-    #     "item_exists": lambda details, name: (
-    #         name.lower() != DEFAULT_BANNER
-    #         and name.lower() in customizations.banners
-    #         and customizations.get_banner(name).can_use_banner(details["author"])
-    #     ),
-    #     "item_exists_sell": lambda details, name: name.lower() in details["author"].inventory["banners"],
-    # },
+    "globalweapons": {
+        "alias": ["globalweapons", "globalweaps", "globalweap", "globalweapon"],
+        "actions": {
+            "info_action": weap_cmds.global_weapon_info,
+            "list_action": shop_global_weapons_list,
+            "buy_action": weap_cmds.buy_weapon,
+            "sell_action": weap_cmds.sell_weapon,
+        },
+        "item_exists": lambda details, name: name.lower() != "none"
+        and weapons.does_global_weapon_exist(name),
+        "item_exists_sell": lambda details, name: (
+            name != "none" and details["author"].weapon.name.lower() == name or details["author"].owns_weapon(name)
+        ),
+    },
 }
 
 

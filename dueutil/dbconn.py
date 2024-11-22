@@ -67,6 +67,10 @@ def get_blacklist():
     return conn()["Blacklist"].find()
 
 
+def get_global_weapons():
+    return conn()["GlobalWeapon"].find()
+
+
 def _load_config():
     global config
     with open("dbconfig.json", encoding="utf-8") as config_file:
