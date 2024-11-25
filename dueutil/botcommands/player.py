@@ -8,7 +8,8 @@ import dueutil.game.awards as game_awards
 import generalconfig as gconf
 
 from .. import commands, dbconn, util
-from ..game import customizations, emojis, game, gamerules, players, quests, stats
+from ..game import (customizations, emojis, game, gamerules, players, quests,
+                    stats)
 from ..game.configs import dueserverconfig
 from ..game.helpers import imagehelper, misc, playersabstract
 from ..permissions import Permission
@@ -323,7 +324,7 @@ async def createaccount(ctx, **details):
             + "and we'll be more than happy to help you out!"
         ),
     )
-    embed.set_footer(text="BattleBanana is a bot created by DeveloperAnonymous#9830")
+    embed.set_footer(text="BattleBanana is a bot created by @DeveloperAnonymous")
 
     await util.reply(ctx, "Your account has been created!", embed=embed)
 
@@ -341,7 +342,6 @@ async def deleteme(ctx, **details):
     player = details["author"]
 
     dbconn.delete_player(player)
-    players.players.pop(ctx.author.id)
 
     await util.reply(ctx, "Your account has been deleted.")
 

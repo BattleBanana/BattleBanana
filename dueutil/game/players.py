@@ -7,11 +7,13 @@ import random
 import time
 from collections import defaultdict
 from copy import copy
+from decimal import localcontext
 from itertools import chain
 
 import discord
 import jsonpickle
 import numpy
+from bson.decimal128 import Decimal128, create_decimal128_context
 
 import generalconfig as gconf
 
@@ -32,31 +34,6 @@ class FakeMember:
         self.mention = f"<@{user_id}>"
         self.name = name
         self.roles = roles or []
-
-
-class Players(dict):
-    """A dict of cached players."""
-
-    # Amount of time before the bot will prune a player.
-    PRUNE_INACTIVITY_TIME = 3600 * 6
-
-    def prune(self):
-        """
-        Removes player that the bot has not seen
-        for over an hour. If anyone mentions these
-        players (in a command) their data will be
-        fetched directly from the database
-        """
-        players_pruned = 0
-        for player_id, player in list(self.items()):
-            if time.time() - player.last_progress >= Players.PRUNE_INACTIVITY_TIME:
-                del self[player_id]
-                players_pruned += 1
-        gc.collect()
-        util.logger.info("Pruned %d players for inactivity", players_pruned)
-
-
-players = Players()
 
 
 class Player(BattleBananaObject, SlotPickleMixin):
@@ -114,11 +91,15 @@ class Player(BattleBananaObject, SlotPickleMixin):
     DEFAULT_FACTORIES = {"equipped": lambda: "default", "inventory": lambda: ["default"]}
 
     def __init__(self, *args, **kwargs):
-        if len(args) > 0 and isinstance(args[0], discord.Member):
+        if kwargs.get("loading", False) and isinstance(args[0], (discord.Member, FakeMember)):
+            super().__init__(args[0].id, args[0].name)
+            return
+
+        if len(args) > 0 and isinstance(args[0], (discord.Member, FakeMember)):
             super().__init__(args[0].id, args[0].name, **kwargs)
-            players[self.id] = self
         else:
             super().__init__("NO_ID", "BattleBanana Player", **kwargs)
+
         self.reset()
 
     def prestige(self):
@@ -464,12 +445,12 @@ class Player(BattleBananaObject, SlotPickleMixin):
         else:
             raise util.BotException(f"{thing} cannot be set to {value}")
 
-    def __setstate__(self, object_state):
+    def __setstate__(self, object_state: dict):
         SlotPickleMixin.__setstate__(self, object_state)
-        # TODO Remove:
         if not hasattr(self, "command_rate_limits"):
             self.command_rate_limits = {}
         self.last_message_hashes = Ring(10)
+        self.last_message_hashes.extend(object_state.get("last_message_hashes", []))
         self.inventory = defaultdict(Player.DEFAULT_FACTORIES["inventory"], **self.inventory)
         self.equipped = defaultdict(Player.DEFAULT_FACTORIES["equipped"], **self.equipped)
         self.misc_stats = defaultdict(int, **self.misc_stats)
@@ -477,21 +458,28 @@ class Player(BattleBananaObject, SlotPickleMixin):
             quest.quester = self
 
     def __getstate__(self):
-        object_state = SlotPickleMixin.__getstate__(self)
-        del object_state["last_message_hashes"]
-        object_state["command_rate_limits"] = {
-            command_name: last_used
-            for (command_name, last_used) in self.command_rate_limits.items()
-            if command_name.endswith("_saved_cooldown")
-        }
-        if len(object_state["command_rate_limits"]) == 0:
-            del object_state["command_rate_limits"]
-        # Know need to save the default dict info (as the
-        # defaults are known)
-        object_state["inventory"] = dict(object_state["inventory"])
-        object_state["equipped"] = dict(object_state["equipped"])
-        object_state["misc_stats"] = dict(object_state["misc_stats"])
+        object_state = dict(SlotPickleMixin.__getstate__(self))
+
+        object_state["quests"] = [jsonpickle.encode(quest) for quest in self.quests]
+
+        del object_state["id"]
+
         return object_state
+
+    def to_mongo(self) -> dict:
+        """
+        Convert the document to a mongo-ready insert/update dict
+
+        Numbers > int64 are converted to bson.decimal128
+        """
+        document: dict = self.__getstate__()
+
+        for attr, value in document.items():
+            if isinstance(value, (int, float)) and  value > 2 ** 63 - 1:
+                with localcontext(create_decimal128_context()) as ctx:
+                    document[attr] = Decimal128(ctx.create_decimal(value))
+
+        return document
 
     def __iter__(self):
         for attr in chain.from_iterable(getattr(cls, "__slots__", []) for cls in self.__class__.__mro__):
@@ -501,26 +489,41 @@ class Player(BattleBananaObject, SlotPickleMixin):
                 continue
 
 
-def find_player(user_id: int) -> Player:
-    if user_id in players:
-        return players[user_id]
-    elif load_player(user_id):
-        player = players[user_id]
-        player.id = user_id
-        return player
+def find_player(user_id: int) -> Player | None:
+    if user_id > 2 ** 63 - 1:
+        return None
+
+    return load_player(user_id)
 
 
 REFERENCE_PLAYER = Player(no_save=True)
 
 
-def load_player(player_id: int):
+def load_player(player_id: int) -> Player | None:
     response = dbconn.get_collection_for_object(Player).find_one({"_id": player_id})
 
-    if response is not None and "data" in response:
-        player_data = response["data"]
-        loaded_player = jsonpickle.decode(player_data)
-        players[player_id] = loaded_player
-        return True
+    if response is not None:
+        if "data" not in response:
+            player_data = response
+
+            for attr, value in player_data.items():
+                if isinstance(value, Decimal128):
+                    player_data[attr] = int(value.to_decimal())
+
+            player_data["quests"] = [jsonpickle.decode(quest) for quest in player_data["quests"]]
+
+            player = Player(FakeMember(player_id, player_data["name"]), loading=True)
+            player.__setstate__(player_data)
+
+            return player
+        else:
+            player_data = response["data"]
+            loaded_player = jsonpickle.decode(player_data)
+            loaded_player.id = player_id
+
+            return loaded_player
+
+    return None
 
 
 def get_stuff(self):

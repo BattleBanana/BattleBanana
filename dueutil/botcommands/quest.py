@@ -6,7 +6,8 @@ import discord
 import generalconfig as gconf
 
 from .. import commands, util
-from ..game import awards, battles, emojis, game, players, quests, stats, weapons
+from ..game import (awards, battles, emojis, game, players, quests, stats,
+                    weapons)
 from ..game.helpers import imagehelper, misc
 from ..permissions import Permission
 
@@ -395,7 +396,7 @@ async def createquest(ctx, name, attack, strg, accy, hp, task=None, weapon=None,
             Accy = 1.1
             HP = 32
     Advanced Quest:
-        ``[CMD_KEY]createquest "Snek Man" 1.3 2 1.1 32 "Kill the" "Dagger" https://i.imgur.com/sP8Rnhc.png 21``
+        ``[CMD_KEY]createquest "Snek Man" 1.3 2 1.1 32 "Kill the" "Dagger" https://battlebanana.xyz/img/snek_man.png 21``
         This creates a quest with the same base values as before but with the message "Kill the"
         when the quest pops up, a dagger, a quest icon image and a spawn chance of 21%
     """

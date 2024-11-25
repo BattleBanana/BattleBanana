@@ -10,12 +10,15 @@ import random
 import re
 import secrets
 from io import BytesIO
+from typing import Literal
 from urllib.parse import urlparse
 
 import aiohttp
 import discord
 from colour import Color
+from discord import Message
 from PIL import Image, ImageDraw, ImageFont
+from PIL.Image import Resampling
 
 from dueutil import util
 
@@ -23,14 +26,14 @@ from .. import awards, customizations, emojis, gamerules, stats, weapons
 from ..configs import dueserverconfig
 from ..customizations import _Themes
 from ..players import Player
+from ..quests import ActiveQuest
 from . import imagecache
 
 try:
     from .speedup import quest_colorize_helper
 except ImportError:
-
     def quest_colorize_helper(*args):
-        raise ImportError("Something broke, please tell Theelx#4980")
+        raise ImportError("Something broke, please tell @theelx")
 
 
 DUE_FONT = "assets/fonts/Due_Robo.ttf"
@@ -66,7 +69,7 @@ def traffic_light(colour_scale):
     return tuple((int(ci * 255) for ci in colour))
 
 
-def set_opacity(image, opacity_level):
+def set_opacity(image: Image.Image, opacity_level: int):
     # Opaque is 1.0, input between 0-1.0
     opacity_level = int(255 * opacity_level)
     pixel_data = list(image.getdata())
@@ -76,7 +79,7 @@ def set_opacity(image, opacity_level):
     return image
 
 
-def colourize(image, colours, intensity, **extras):
+def colourize(image: Image.Image, colours, intensity, **extras):
     image = image.copy()
     pixel_data = list(image.getdata())
     threshold = extras.get("threshold", 0)
@@ -104,7 +107,7 @@ def colourize(image, colours, intensity, **extras):
     return image
 
 
-def quest_colorize(image, colors, cycle_colors):
+def quest_colorize(image: Image.Image, colors, cycle_colors):
     image = image.copy()
     pixel_data = list(image.getdata())
     color_index = -1
@@ -115,7 +118,7 @@ def quest_colorize(image, colors, cycle_colors):
     return image
 
 
-def paste_alpha(background, image, position):
+def paste_alpha(background: Image.Image, image: Image.Image, position: tuple[int, int, int, int] | tuple[int, int]):
     """
     A paste function that does not fuck up the background when
     pasting with an image with alpha.
@@ -166,7 +169,7 @@ async def warn_on_invalid_image(channel: discord.TextChannel):
     )
 
 
-async def load_image_url(url, **kwargs):
+async def load_image_url(url: str, **kwargs):
     if url is None:
         return None
     parsed_url = urlparse(url)
@@ -187,17 +190,17 @@ async def load_image_url(url, **kwargs):
         return await imagecache.cache_image(url)
 
 
-def resize(image, width, height):
+def resize(image: Image.Image, width: int, height: int):
     if image is None:
         return None
-    return image.resize((width, height), Image.LANCZOS)
+    return image.resize((width, height), Resampling.LANCZOS)
 
 
-async def resize_avatar(player, server, width, height):
-    return await resize_image_url((await player.get_avatar_url(server)), width, height)
+async def resize_avatar(player: Player, guild: discord.Guild, width: int, height: int):
+    return await resize_image_url((await player.get_avatar_url(guild)), width, height)
 
 
-async def resize_image_url(url, width, height):
+async def resize_image_url(url: str, width: int, height: int):
     resized_image = imagecache.get_cached_resized_image(url, width, height)
 
     if resized_image is None:
@@ -207,12 +210,12 @@ async def resize_image_url(url, width, height):
     return resized_image
 
 
-def has_dimensions(image, dimensions):
+def has_dimensions(image: Image.Image, dimensions: tuple[int, int]):
     width, height = image.size
     return width == dimensions[0] and height == dimensions[1]
 
 
-def image_to_discord_file(image, filename):
+def image_to_discord_file(image: Image.Image, filename: str):
     if image is None:
         return None
     with BytesIO() as image_binary:
@@ -221,17 +224,17 @@ def image_to_discord_file(image, filename):
         return discord.File(fp=image_binary, filename=filename)
 
 
-async def send_image(ctx, image, send_type, **kwargs):
+async def send_image(ctx: Message, image: Image.Image, send_type: Literal["s", "r"], **kwargs):
     stats.increment_stat(stats.Stat.IMAGES_SERVED)
 
-    discord_file = image_to_discord_file(image, kwargs.pop("file_name"))
+    discord_file = image_to_discord_file(image, kwargs.pop("file_name", "image"))
     if send_type == "s":
         await util.say(ctx.channel, file=discord_file, **kwargs)
     elif send_type == "r":
         await util.reply(ctx, file=discord_file, **kwargs)
 
 
-async def level_up_screen(ctx, player, cash):
+async def level_up_screen(ctx: Message, player: Player, cash: int):
     image = level_up_template.copy()
     level = math.trunc(player.level)
     try:
@@ -251,7 +254,7 @@ async def level_up_screen(ctx, player, cash):
     )
 
 
-async def new_quest(ctx, quest, player):
+async def new_quest(ctx: Message, quest: ActiveQuest, player: Player):
     image = new_quest_template.copy()
     try:
         avatar = await resize_avatar(quest, ctx.channel.guild, 54, 54)
@@ -294,7 +297,7 @@ async def new_quest(ctx, quest, player):
     return image
 
 
-async def new_quest_screen(ctx, quest, player):
+async def new_quest_screen(ctx: Message, quest: ActiveQuest, player: Player):
     image = await new_quest(ctx, quest, player)
 
     await send_image(
@@ -306,7 +309,7 @@ async def new_quest_screen(ctx, quest, player):
     )
 
 
-async def awards_screen(ctx, player, page, **kwargs):
+async def awards_screen(ctx: Message, player: Player, page: int, **kwargs):
     for_player = kwargs.get("is_player_sender", False)
     image = awards_screen_template.copy()
 
@@ -369,7 +372,7 @@ async def awards_screen(ctx, player, page, **kwargs):
     )
 
 
-async def quests_screen(ctx, player, page):
+async def quests_screen(ctx: Message, player: Player, page: int):
     image = awards_screen_template.copy()
     draw = ImageDraw.Draw(image)
     suffix = " Quests"
@@ -469,7 +472,7 @@ async def quests_screen(ctx, player, page):
     )
 
 
-async def stats_screen(ctx, player: Player):
+async def stats_screen(ctx: Message, player: Player):
     theme = player.theme
 
     if "fontColour" in theme:
@@ -488,13 +491,13 @@ async def stats_screen(ctx, player: Player):
         side_colour = theme["sideColour"]
         exp_colour = theme["expColour"]
 
-    image = player.background.image.copy()
+    image: Image.Image = player.background.image.copy()
 
     draw = ImageDraw.Draw(image)
     profile_screen = profile_parts["screen"][theme["screen"]]
     paste_alpha(image, profile_screen, (0, 0))
 
-    banner = player.banner.image
+    banner: Image.Image = player.banner.image
     paste_alpha(image, banner, (91, 34))
 
     # draw avatar slot
@@ -608,7 +611,7 @@ async def stats_screen(ctx, player: Player):
     )
 
 
-async def quest_screen(ctx, quest):
+async def quest_screen(ctx: Message, quest: ActiveQuest):
     image = quest_info_template.copy()
 
     try:
@@ -662,7 +665,7 @@ async def quest_screen(ctx, quest):
     )
 
 
-async def battle_screen(ctx, player_one, player_two):
+async def battle_screen(ctx: Message, player_one: Player, player_two: Player):
     image = battle_screen_template.copy()
     width, height = image.size
 
@@ -722,7 +725,7 @@ async def battle_screen(ctx, player_one, player_two):
     await send_image(ctx, image, "r", file_name="battle.png")
 
 
-async def googly_eyes(ctx, eye_descriptor):
+async def googly_eyes(ctx: Message, eye_descriptor: str = ""):
     """
     Googly eye generator.
     """
@@ -864,7 +867,7 @@ async def googly_eyes(ctx, eye_descriptor):
     await send_image(ctx, image, "r", file_name="eyes.png")
 
 
-def get_text_limit_len(draw, text, given_font, length):
+def get_text_limit_len(draw: ImageDraw.ImageDraw, text: str, given_font, length: int):
     removed_chars = False
     text = re.sub(r"[\u200B-\u200D\uFEFF]", "", text)
     for _ in range(0, len(text)):

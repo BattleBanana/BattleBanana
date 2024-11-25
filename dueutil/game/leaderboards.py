@@ -15,11 +15,13 @@ _LocalLeaderboard = namedtuple("LocalLeaderboard", ["updated", "data"])
 
 
 def calculate_player_rankings(rank_name, sort_function, reverse=True):
-    ranked_players = sorted(
-        filter(lambda player: player.id != util.gconf.DEAD_BOT_ID, players.players.values()),
-        key=sort_function,
-        reverse=reverse,
-    )
+    # ranked_players = sorted(
+    #     filter(lambda player: player.id != util.gconf.DEAD_BOT_ID, players.players.values()),
+    #     key=sort_function,
+    #     reverse=reverse,
+    # )
+
+    ranked_players = []
 
     leaderboards[rank_name] = (tuple(player.id for player in ranked_players), sort_function, reverse)
 

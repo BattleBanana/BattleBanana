@@ -1,146 +1,135 @@
 import json
 import os
 import re
-
 from threading import Thread
 
 from PIL import Image
 
 from dueutil import dbconn, tasks, util
 
-JPEG_EXTENSION = ".jpeg"
-WEBP_EXTENSION = ".png"
+CACHE_DIR = "assets/imagecache/"
+WEBP_EXTENSION = ".webp"
 
-class _CacheStats:
-    # Simple holder class (to work with dbconn)
-    # (since it's easier than getting a namedturple to serialize)
+class CacheStats:
+    """Tracks repeated usages of cached images."""
     def __init__(self):
-        self.repeated_usages = dict()
+        self.repeated_usages = {}
+
+stats = CacheStats()
 
 
-stats = _CacheStats()
-# Imaged used in more than 1 quest or weapon
-repeated_usages = stats.repeated_usages
-
-
-def image_used(url):
-    # Called when an image is first used.
-    # Keeps track of images that are used > 1 times
+def track_image_usage(url: str):
+    """Track the usage count of a cached image."""
     if os.path.isfile(get_cached_filename(url)):
-        if url not in repeated_usages:
-            repeated_usages[url] = 2
-        else:
-            repeated_usages[url] += 1
+        stats.repeated_usages[url] = stats.repeated_usages.get(url, 1) + 1
 
 
-async def save_image(filename: str, image: Image.Image):
+def _save_image(filename: str, image: Image.Image):
+    """Save an image to a file with high quality."""
     try:
+        util.logger.info(f"Saving image: {image}")
         image.save(filename, exact=True, lossless=True, quality=100)
-    except Exception:
-        pass
+    except Exception as e:
+        util.logger.error(f"Failed to save image {filename}: {e}")
 
 
-async def cache_resized_image(image: Image.Image, url):
-    if image is None:
-        return None
-
-    filename = get_resized_cached_filename(url, image.width, image.height)
-    try:
-        # cache image
-        Thread(target=save_image, args=(filename, image)).start()
-        return image
-    except Exception:
-        # We don't care what went wrong
-        if os.path.isfile(filename):
-            os.remove(filename)
-        return None
+def async_save_image(filename: str, image: Image.Image):
+    """Save an image asynchronously."""
+    Thread(target=_save_image, args=(filename, image.copy())).start()
 
 
-def get_cached_resized_image(url, width, height):
-    filename = get_resized_cached_filename(url, width, height)
-    try:
-        image = Image.open(filename)
-        return image
-    except Exception:
-        # We don't care what went wrong
-        if os.path.isfile(filename):
-            os.remove(filename)
-        return None
+def generate_filename(base: str, extension: str, width: int = None, height: int = None) -> str:
+    """Generate a cache filename based on base name, dimensions, and extension."""
+    sanitized_name = re.sub(r"\W+", "", base)[:128]
+    if width and height:
+        sanitized_name += f"_{width}_{height}"
+    return f"{CACHE_DIR}{sanitized_name}{extension}"
 
 
-def rename_and_create_cached_image(old_filename, new_filename):
-    if os.path.isfile(old_filename):
-        image = Image.open(old_filename)
-        save_image(new_filename, image)
-        os.remove(old_filename)
-    return None
-
-def get_resized_cached_filename(name, width, height):
-    if name is None:
-        name = ""
-    filename = "assets/imagecache/" + re.sub(r"\W+", "", name)
-    if len(filename) > 128:
-        filename = filename[:128]
-
-    if None not in (width, height):
-        filename += f"{width}_{height}"
-
-    rename_and_create_cached_image(filename + JPEG_EXTENSION, filename + WEBP_EXTENSION)
-
-    return filename + WEBP_EXTENSION
+def get_cached_filename(name: str) -> str:
+    """Generate a standard cached image filename."""
+    return generate_filename(name, WEBP_EXTENSION)
 
 
-async def cache_image(url):
+def get_resized_cached_filename(name: str, width: int, height: int) -> str:
+    """Generate a resized image cache filename."""
+    return generate_filename(name, WEBP_EXTENSION, width, height)
+
+
+async def cache_image(url: str):
+    """Cache an image from a URL."""
     filename = get_cached_filename(url)
     try:
         image_data = await util.download_file(url)
         image = Image.open(image_data)
-        # cache image
-        Thread(target=save_image, args=(filename, image)).start()
+        async_save_image(filename, image)
+
         return image
-    except Exception:
-        # We don't care what went wrong
+    except Exception as e:
+        util.logger.error(f"Failed to cache image from {url}: {e}")
+        if os.path.isfile(filename):
+            os.remove(filename)
+
+    return None
+
+
+async def cache_resized_image(image: Image.Image, url: str):
+    """Cache a resized version of the image."""
+    if not image:
+        return None
+
+    filename = get_resized_cached_filename(url, image.width, image.height)
+    try:
+        async_save_image(filename, image)
+        return image
+    except Exception as e:
+        util.logger.error(f"Failed to cache resized image: {e}")
         if os.path.isfile(filename):
             os.remove(filename)
         return None
 
 
-def uncache(url):
-    if url in repeated_usages:
-        # Don't delete the image while it's still used elsewhere
-        repeated_usages[url] -= 1
-        if repeated_usages[url] == 1:
-            del repeated_usages[url]
+def load_cached_image(filename: str):
+    """Load a cached image from disk."""
+    try:
+        return Image.open(filename)
+    except Exception as e:
+        util.logger.warning(f"Failed to load cached image {filename}: {e}")
+        if os.path.isfile(filename):
+            os.remove(filename)
+        return None
+
+
+def get_cached_resized_image(url: str, width: int, height: int):
+    """Retrieve a resized image from the cache."""
+    filename = get_resized_cached_filename(url, width, height)
+    return load_cached_image(filename)
+
+
+def remove_cached_image(url: str):
+    """Remove a cached image unless it's still in use."""
+    if stats.repeated_usages.get(url, 0) > 1:
+        stats.repeated_usages[url] -= 1
     else:
-        try:
-            filename = get_cached_filename(url)
-            if os.path.isfile(filename):
-                os.remove(filename)
-                util.logger.info("Removed %s from image cache (no longer needed)", url)
-        except IOError as exception:
-            util.logger.warning("Failed to delete cached image %s (%s)", url, exception)
-
-
-def get_cached_filename(name):
-    filename = "assets/imagecache/" + re.sub(r"\W+", "", name)
-    if len(filename) > 128:
-        filename = filename[:128]
-    return filename + WEBP_EXTENSION
+        filename = get_cached_filename(url)
+        if os.path.isfile(filename):
+            os.remove(filename)
+            util.logger.info(f"Removed cached image: {url}")
 
 
 @tasks.task(timeout=3600)
-def save_cache_info():
+async def save_cache_info():
+    """Persist cache statistics."""
     dbconn.insert_object("stats", stats)
 
 
-def _load():
-    collection = dbconn.get_collection_for_object(_CacheStats)
-    stats_json = collection.find_one({"_id": "stats"})
-    if stats_json is None:
-        util.logger.info("No cache data loaded.")
+def _load_cache_info():
+    """Load cache statistics from the database."""
+    collection = dbconn.get_collection_for_object(CacheStats)
+    stats_json: dict = collection.find_one({"_id": "stats"})
+    if stats_json:
+        stats.repeated_usages.update(json.loads(stats_json.get("data", "{}")))
     else:
-        stats_data = json.loads(stats_json["data"])
-        repeated_usages.update(stats_data["repeated_usages"])
+        util.logger.info("No cache data found.")
 
-
-_load()
+_load_cache_info()

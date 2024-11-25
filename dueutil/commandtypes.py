@@ -7,8 +7,6 @@ from .game.helpers import misc
 from .permissions import Permission
 
 # The max number the bot will accept. To avoid issues with crazy big numbers.
-MAX_NUMBER = sys.maxsize
-MIN_NUMBER = -MAX_NUMBER
 STRING_TYPES = ("S", "M")
 THOUSANDS_REGEX = re.compile(r"(\,)(\d\d\d)")
 
@@ -42,7 +40,7 @@ def parse_team(value):
 def parse_int(value):
     # An int limited between min and max number
     try:
-        return util.clamp(int(strip_thousands_separators(value)), MIN_NUMBER, MAX_NUMBER)
+        return int(strip_thousands_separators(value))
     except ValueError:
         return False
 
@@ -77,7 +75,7 @@ def parse_count(value):
 def parse_float(value):
     # Float between min and max number
     try:
-        return util.clamp(float(strip_thousands_separators(value)), MIN_NUMBER, MAX_NUMBER)
+        return float(strip_thousands_separators(value))
     except ValueError:
         return False
 

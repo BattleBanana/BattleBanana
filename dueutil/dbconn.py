@@ -25,10 +25,16 @@ def insert_object(id, pickleable_object):
     if isinstance(id, str) and id.strip() == "":
         return
 
-    # TODO: Insert values atomicly instead of saving them as a JSON string
-    conn()[type(pickleable_object).__name__].update_one(
-        {"_id": id}, {"$set": {"data": jsonpickle.encode(pickleable_object)}}, upsert=True
-    )
+    if hasattr(pickleable_object, "to_mongo"):
+        data = pickleable_object.to_mongo()
+
+        conn()[type(pickleable_object).__name__].update_one(
+            {"_id": id}, {"$set": data, "$unset": {"data": 1}}, upsert=True
+        )
+    else:
+        conn()[type(pickleable_object).__name__].update_one(
+            {"_id": id}, {"$set": {"data": jsonpickle.encode(pickleable_object)}}, upsert=True
+        )
 
 
 def drop_and_insert(collection, data):

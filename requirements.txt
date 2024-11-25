@@ -1,6 +1,6 @@
 discord.py[speed]<3.0.0
 aiohttp[speedups]
-pymongo[srv]
+pymongo
 objgraph
 validators
 colour
@@ -20,3 +20,5 @@ psutil
 setuptools
 py-cpuinfo
 black
+audioop-lts
+mongoengine

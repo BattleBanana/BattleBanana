@@ -45,7 +45,7 @@ class Quest(BattleBananaObject, SlotPickleMixin):
         "times_beaten",
     ]
 
-    DEFAULT_IMAGE = "https://i.imgur.com/zOIJM9T.png"
+    DEFAULT_IMAGE = "https://battlebanana.xyz/img/default_quest.png"
 
     _BASE_STATS = namedtuple("BaseStats", ["attack", "strg", "accy", "hp"])
 
