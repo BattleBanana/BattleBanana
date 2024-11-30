@@ -107,7 +107,7 @@ def colourize(image: Image.Image, colours: list[tuple[int, int, int]] | tuple[in
     return image
 
 
-def quest_colorize(image: Image.Image, colors, cycle_colors):
+def quest_colorize(image: Image.Image, colors: list[tuple[int, int, int]], cycle_colors: list[int]):
     image = image.copy()
     pixel_data = list(image.getdata())
     color_index = -1
