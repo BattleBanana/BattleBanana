@@ -4,6 +4,7 @@ pymongo
 objgraph
 validators
 colour
+cachetools
 numpy
 repoze.timeago
 jsonpickle<3.0.4

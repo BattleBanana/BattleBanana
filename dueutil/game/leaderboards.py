@@ -1,17 +1,15 @@
 import threading
 import time
-from collections import namedtuple
 
+from cachetools.func import ttl_cache
 from discord import Guild
 
 from dueutil import dbconn, events, util
 from dueutil.game.players import Player
 
-leaderboards = dict()
-last_leaderboard_update = 0
 UPDATE_INTERVAL = 3600 / 12
 
-_LocalLeaderboard = namedtuple("LocalLeaderboard", ["updated", "data"])
+last_leaderboard_update = 0
 
 
 def calculate_level_leaderboard():
@@ -27,7 +25,7 @@ def calculate_level_leaderboard():
         db.get_collection("levels").create_index("player_id", unique=True)
         db.get_collection("levels").insert_many(ranks, ordered=False)
 
-
+@ttl_cache(maxsize=16, ttl=UPDATE_INTERVAL)
 def get_leaderboard(rank_name: str):
     leaderboard = dbconn.conn().get_collection(rank_name).find().sort("rank")
     return [entry["player_id"] for entry in leaderboard]
