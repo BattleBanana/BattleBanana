@@ -4,10 +4,9 @@ pymongo
 objgraph
 validators
 colour
-cachetools
 numpy
 repoze.timeago
-jsonpickle
+jsonpickle<3.0.4
 emoji
 Pillow
 beautifulsoup4

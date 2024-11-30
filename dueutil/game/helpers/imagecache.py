@@ -93,8 +93,7 @@ def load_cached_image(filename: str):
     """Load a cached image from disk."""
     try:
         return Image.open(filename)
-    except Exception as e:
-        util.logger.warning(f"Failed to load cached image {filename}: {e}")
+    except Exception:
         if os.path.isfile(filename):
             os.remove(filename)
         return None

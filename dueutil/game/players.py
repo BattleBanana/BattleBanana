@@ -461,6 +461,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
         object_state = dict(SlotPickleMixin.__getstate__(self))
 
         object_state["quests"] = [jsonpickle.encode(quest) for quest in self.quests]
+        object_state["received_wagers"] = [jsonpickle.encode(wager) for wager in self.received_wagers]
 
         del object_state["id"]
 
@@ -503,25 +504,19 @@ def load_player(player_id: int) -> Player | None:
     response = dbconn.get_collection_for_object(Player).find_one({"_id": player_id})
 
     if response is not None:
-        if "data" not in response:
-            player_data = response
+        player_data = response
 
-            for attr, value in player_data.items():
-                if isinstance(value, Decimal128):
-                    player_data[attr] = int(value.to_decimal())
+        for attr, value in player_data.items():
+            if isinstance(value, Decimal128):
+                player_data[attr] = int(value.to_decimal())
 
-            player_data["quests"] = [jsonpickle.decode(quest) for quest in player_data["quests"]]
+        player_data["quests"] = [jsonpickle.decode(quest) for quest in player_data["quests"]]
+        player_data["received_wagers"] = [jsonpickle.decode(wager) for wager in player_data["received_wagers"]]
 
-            player = Player(FakeMember(player_id, player_data["name"]), loading=True)
-            player.__setstate__(player_data)
+        player = Player(FakeMember(player_id, player_data["name"]), loading=True)
+        player.__setstate__(player_data)
 
-            return player
-        else:
-            player_data = response["data"]
-            loaded_player = jsonpickle.decode(player_data)
-            loaded_player.id = player_id
-
-            return loaded_player
+        return player
 
     return None
 
