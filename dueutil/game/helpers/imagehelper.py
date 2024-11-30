@@ -79,7 +79,7 @@ def set_opacity(image: Image.Image, opacity_level: int):
     return image
 
 
-def colourize(image: Image.Image, colours, intensity, **extras):
+def colourize(image: Image.Image, colours: list[tuple[int, int, int]] | tuple[int, int, int], intensity: float, **extras: dict):
     image = image.copy()
     pixel_data = list(image.getdata())
     threshold = extras.get("threshold", 0)
