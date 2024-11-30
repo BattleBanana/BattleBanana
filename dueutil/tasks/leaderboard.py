@@ -3,7 +3,7 @@ from datetime import datetime
 import jsonpickle
 from pymongo import CursorType
 
-from dueutil import dbconn, tasks, util
+from dueutil import dbconn, util
 from dueutil.game.players import Player
 
 
