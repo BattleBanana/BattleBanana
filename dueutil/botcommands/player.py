@@ -324,7 +324,7 @@ async def createaccount(ctx, **details):
             + "and we'll be more than happy to help you out!"
         ),
     )
-    embed.set_footer(text="BattleBanana - Created by DeveloperAnonymous")
+    embed.set_footer(text="BattleBanana - Created by @DeveloperAnonymous")
 
     await util.reply(ctx, "Your account has been created!", embed=embed)
 

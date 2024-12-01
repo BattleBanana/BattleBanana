@@ -29,7 +29,7 @@ def insert_object(id, pickleable_object):
         data = pickleable_object.to_mongo()
 
         conn()[type(pickleable_object).__name__].update_one(
-            {"_id": id}, {"$set": data},upsert=True,
+            {"_id": id}, {"$set": data}, upsert=True,
         )
     else:
         # TODO: Migrate all entities to new method of storage
