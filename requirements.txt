@@ -9,7 +9,7 @@ numpy
 repoze.timeago
 jsonpickle>=2.0.0,<3.0.4
 emoji
-Pillow
+Pillow>=9.1.0
 beautifulsoup4
 sentry_sdk
 pydealer
