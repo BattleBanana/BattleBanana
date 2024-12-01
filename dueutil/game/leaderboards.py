@@ -10,6 +10,7 @@ from dueutil.game.players import Player
 UPDATE_INTERVAL = 3600 / 12
 
 last_leaderboard_update = 0
+update_lock = threading.Lock()
 
 
 def calculate_level_leaderboard():
@@ -25,6 +26,9 @@ def calculate_level_leaderboard():
         db.get_collection("levels").create_index("player_id", unique=True)
         db.get_collection("levels").insert_many(ranks, ordered=False)
 
+    get_leaderboard.cache_clear()
+
+
 @ttl_cache(maxsize=16, ttl=UPDATE_INTERVAL)
 def get_leaderboard(rank_name: str):
     leaderboard = dbconn.conn().get_collection(rank_name).find().sort("rank")
@@ -33,10 +37,11 @@ def get_leaderboard(rank_name: str):
 
 def get_local_leaderboard(guild: Guild, rank_name: str):
     leaderboard = get_leaderboard(rank_name)
+    member_ids = [member.id for member in guild.members]
     rankings = [
         entry
         for entry in leaderboard
-        if guild.get_member(entry) is not None and entry != util.gconf.DEAD_BOT_ID
+        if entry in member_ids and entry != util.gconf.DEAD_BOT_ID
     ]
     return rankings
 
@@ -55,11 +60,12 @@ def get_rank(player: Player, rank_name: str, guild: Guild = None):
 
 async def update_leaderboards(_):
     global last_leaderboard_update
-    if time.time() - last_leaderboard_update >= UPDATE_INTERVAL:
-        last_leaderboard_update = time.time()
-        leaderboard_thread = threading.Thread(target=calculate_level_leaderboard)
-        leaderboard_thread.start()
-        util.logger.info("Global leaderboard updated!")
+    with update_lock:
+        if time.time() - last_leaderboard_update >= UPDATE_INTERVAL:
+            last_leaderboard_update = time.time()
+            leaderboard_thread = threading.Thread(target=calculate_level_leaderboard)
+            leaderboard_thread.start()
+            util.logger.info("Global leaderboard updated!")
 
 
 events.register_message_listener(update_leaderboards)

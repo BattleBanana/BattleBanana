@@ -3,7 +3,7 @@ FROM python:3-slim
 WORKDIR /usr/src/app
 
 # Install dependencies for ssdeep
-RUN apt-get update && apt-get install --no-install-recommends -y build-essential libfuzzy-dev libwebp-dev
+RUN apt-get update && apt-get install --no-install-recommends -y build-essential libfuzzy-dev libwebp-dev && rm -rf /var/lib/apt/lists/*
 
 # Copy the requirements file and install dependencies
 COPY requirements.txt .

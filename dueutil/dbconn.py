@@ -32,6 +32,7 @@ def insert_object(id, pickleable_object):
             {"_id": id}, {"$set": data}, upsert=True
         )
     else:
+        # TODO: Migrate all entities to new method of storage
         conn()[type(pickleable_object).__name__].update_one(
             {"_id": id}, {"$set": {"data": jsonpickle.encode(pickleable_object)}}, upsert=True
         )

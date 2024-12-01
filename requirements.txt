@@ -7,7 +7,7 @@ colour
 cachetools
 numpy
 repoze.timeago
-jsonpickle<3.0.4
+jsonpickle>=2.0.0,<3.0.4
 emoji
 Pillow
 beautifulsoup4

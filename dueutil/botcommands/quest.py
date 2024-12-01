@@ -4,12 +4,11 @@ import time
 import discord
 
 import generalconfig as gconf
-
-from .. import commands, util
-from ..game import (awards, battles, emojis, game, players, quests, stats,
-                    weapons)
-from ..game.helpers import imagehelper, misc
-from ..permissions import Permission
+from dueutil import commands, util
+from dueutil.game import (awards, battles, emojis, game, players, quests,
+                          stats, weapons)
+from dueutil.game.helpers import imagehelper, misc
+from dueutil.permissions import Permission
 
 
 @commands.command(permission=Permission.BANANA_MOD, args_pattern="S?P?C?", hidden=True)

@@ -91,7 +91,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
     DEFAULT_FACTORIES = {"equipped": lambda: "default", "inventory": lambda: ["default"]}
 
     def __init__(self, *args, **kwargs):
-        if kwargs.get("loading", False) and isinstance(args[0], (discord.Member, FakeMember)):
+        if kwargs.get("loading", False) and len(args) > 0 and isinstance(args[0], (discord.Member, FakeMember)):
             super().__init__(args[0].id, args[0].name)
             return
 
@@ -476,7 +476,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
         document: dict = self.__getstate__()
 
         for attr, value in document.items():
-            if isinstance(value, (int, float)) and  value > 2 ** 63 - 1:
+            if isinstance(value, (int, float)) and abs(value) > 2 ** 63 - 1:
                 with localcontext(create_decimal128_context()) as ctx:
                     document[attr] = Decimal128(ctx.create_decimal(value))
 
@@ -491,7 +491,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
 
 
 def find_player(user_id: int) -> Player | None:
-    if user_id > 2 ** 63 - 1:
+    if user_id > 2 ** 63 - 1 or user_id < 0:
         return None
 
     return load_player(user_id)
@@ -508,7 +508,7 @@ def load_player(player_id: int) -> Player | None:
 
         for attr, value in player_data.items():
             if isinstance(value, Decimal128):
-                player_data[attr] = int(value.to_decimal())
+                player_data[attr] = float(value.to_decimal())
 
         player_data["quests"] = [jsonpickle.decode(quest) for quest in player_data["quests"]]
         player_data["received_wagers"] = [jsonpickle.decode(wager) for wager in player_data["received_wagers"]]

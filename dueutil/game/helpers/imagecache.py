@@ -1,7 +1,7 @@
 import json
 import os
 import re
-from threading import Thread
+from concurrent.futures import ThreadPoolExecutor
 
 from PIL import Image
 
@@ -9,6 +9,8 @@ from dueutil import dbconn, tasks, util
 
 CACHE_DIR = "assets/imagecache/"
 WEBP_EXTENSION = ".webp"
+
+executor = ThreadPoolExecutor(max_workers=8)
 
 class CacheStats:
     """Tracks repeated usages of cached images."""
@@ -21,21 +23,20 @@ stats = CacheStats()
 def track_image_usage(url: str):
     """Track the usage count of a cached image."""
     if os.path.isfile(get_cached_filename(url)):
-        stats.repeated_usages[url] = stats.repeated_usages.get(url, 1) + 1
+        stats.repeated_usages[url] = stats.repeated_usages.get(url, 0) + 1
 
 
 def _save_image(filename: str, image: Image.Image):
     """Save an image to a file with high quality."""
     try:
-        util.logger.info(f"Saving image: {image}")
-        image.save(filename, exact=True, lossless=True, quality=100)
+        image.save(filename, quality=100, method=6)
     except Exception as e:
         util.logger.error(f"Failed to save image {filename}: {e}")
 
 
 def async_save_image(filename: str, image: Image.Image):
     """Save an image asynchronously."""
-    Thread(target=_save_image, args=(filename, image.copy())).start()
+    executor.submit(_save_image, filename, image.copy())
 
 
 def generate_filename(base: str, extension: str, width: int = None, height: int = None) -> str:
@@ -101,6 +102,9 @@ def load_cached_image(filename: str):
 
 def get_cached_resized_image(url: str, width: int, height: int):
     """Retrieve a resized image from the cache."""
+    if not url:
+        return None
+
     filename = get_resized_cached_filename(url, width, height)
     return load_cached_image(filename)
 
@@ -117,7 +121,7 @@ def remove_cached_image(url: str):
 
 
 @tasks.task(timeout=3600)
-async def save_cache_info():
+def save_cache_info():
     """Persist cache statistics."""
     dbconn.insert_object("stats", stats)
 

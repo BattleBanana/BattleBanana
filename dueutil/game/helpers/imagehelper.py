@@ -196,8 +196,8 @@ def resize(image: Image.Image, width: int, height: int):
     return image.resize((width, height), Resampling.LANCZOS)
 
 
-async def resize_avatar(player: Player, guild: discord.Guild, width: int, height: int):
-    return await resize_image_url((await player.get_avatar_url(guild)), width, height)
+async def resize_avatar(player: Player | ActiveQuest, guild: discord.Guild, width: int, height: int):
+    return await resize_image_url(await player.get_avatar_url(guild), width, height)
 
 
 async def resize_image_url(url: str, width: int, height: int):
