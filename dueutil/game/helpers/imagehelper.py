@@ -69,7 +69,7 @@ def traffic_light(colour_scale):
     return tuple((int(ci * 255) for ci in colour))
 
 
-def set_opacity(image: Image.Image, opacity_level: int):
+def set_opacity(image: Image.Image, opacity_level: float):
     # Opaque is 1.0, input between 0-1.0
     opacity_level = int(255 * opacity_level)
     pixel_data = list(image.getdata())
@@ -107,7 +107,7 @@ def colourize(image: Image.Image, colours: list[tuple[int, int, int]] | tuple[in
     return image
 
 
-def quest_colorize(image: Image.Image, colors: list[tuple[int, int, int]], cycle_colors: list[int]):
+def quest_colorize(image: Image.Image, colors: list[tuple[int, int, int]], cycle_colors: tuple[int, int, int, int, int]):
     image = image.copy()
     pixel_data = list(image.getdata())
     color_index = -1
@@ -870,13 +870,13 @@ async def googly_eyes(ctx: Message, eye_descriptor: str = ""):
 def get_text_limit_len(draw: ImageDraw.ImageDraw, text: str, given_font, length: int) -> str:
     """
     Truncates text to fit within a given length, adding ellipsis if necessary.
-    
+
     Args:
         draw: ImageDraw object for text measurements
         text: Text to truncate
         given_font: Font to use for measurements
         length: Maximum pixel length allowed
-    
+
     Returns:
         str: Truncated text with ellipsis if necessary
     """
