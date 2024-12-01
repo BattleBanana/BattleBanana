@@ -138,7 +138,7 @@ async def check_url(url: str):
         headers = {"Range": "bytes=0-10", "User-Agent": "BattleBanana", "Accept": "*/*"}
 
         async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers) as response:
+            async with session.head(url, headers=headers) as response:
                 return (response.status in range(200, 300)) and response.content_type.lower().startswith("image")
     except asyncio.TimeoutError:
         util.logger.warning("Timeout error when checking url %s", url)
