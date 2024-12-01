@@ -107,7 +107,7 @@ def colourize(image: Image.Image, colours: list[tuple[int, int, int]] | tuple[in
     return image
 
 
-def quest_colorize(image: Image.Image, colors, cycle_colors):
+def quest_colorize(image: Image.Image, colors: list[tuple[int, int, int]], cycle_colors: list[int]):
     image = image.copy()
     pixel_data = list(image.getdata())
     color_index = -1
@@ -867,7 +867,19 @@ async def googly_eyes(ctx: Message, eye_descriptor: str = ""):
     await send_image(ctx, image, "r", file_name="eyes.png")
 
 
-def get_text_limit_len(draw: ImageDraw.ImageDraw, text: str, given_font, length: int):
+def get_text_limit_len(draw: ImageDraw.ImageDraw, text: str, given_font, length: int) -> str:
+    """
+    Truncates text to fit within a given length, adding ellipsis if necessary.
+    
+    Args:
+        draw: ImageDraw object for text measurements
+        text: Text to truncate
+        given_font: Font to use for measurements
+        length: Maximum pixel length allowed
+    
+    Returns:
+        str: Truncated text with ellipsis if necessary
+    """
     removed_chars = False
     text = re.sub(r"[\u200B-\u200D\uFEFF]", "", text)
     for _ in range(0, len(text)):
