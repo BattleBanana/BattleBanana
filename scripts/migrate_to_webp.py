@@ -13,8 +13,6 @@ from concurrent.futures import ThreadPoolExecutor
 
 from PIL import Image
 
-executor = ThreadPoolExecutor(max_workers=16, thread_name_prefix="ImageConverter")
-
 
 def count_jpg_files(source_dir):
     count = 0
@@ -30,6 +28,8 @@ def convert_images(jpg_path, webp_path):
 
 
 def migrate_to_webp(source_dir):
+    executor = ThreadPoolExecutor(max_workers=16, thread_name_prefix="ImageConverter")
+
     total_files = count_jpg_files(source_dir)
     queued = 0
     for root, _, files in os.walk(source_dir):

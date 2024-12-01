@@ -1,7 +1,7 @@
 import json
 import os
 import re
-from concurrent.futures import ThreadPoolExecutor
+from threading import Thread
 
 from PIL import Image
 
@@ -9,8 +9,6 @@ from dueutil import dbconn, tasks, util
 
 CACHE_DIR = "assets/imagecache/"
 WEBP_EXTENSION = ".webp"
-
-executor = ThreadPoolExecutor(max_workers=8)
 
 class CacheStats:
     """Tracks repeated usages of cached images."""
@@ -36,7 +34,7 @@ def _save_image(filename: str, image: Image.Image):
 
 def async_save_image(filename: str, image: Image.Image):
     """Save an image asynchronously."""
-    executor.submit(_save_image, filename, image.copy())
+    Thread(target=_save_image, args=(filename, image.copy())).start()
 
 
 def generate_filename(base: str, extension: str, width: int = None, height: int = None) -> str:
