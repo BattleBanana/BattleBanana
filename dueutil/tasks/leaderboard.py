@@ -10,6 +10,7 @@ from dueutil.game.players import Player
 async def set_calculating_leaderboard(is_calculating: bool) -> None:
     dbconn.conn().get_collection("configs").update_one({"calculating_leaderboard": is_calculating}, upsert=True)
 
+
 # @tasks.task(60*30)
 async def calculate_leaderboard():
     t = datetime.now().timestamp()
@@ -27,14 +28,16 @@ async def calculate_leaderboard():
         try:
             player: Player = jsonpickle.decode(document["data"])
 
-            to_insert.append({
-                "_id": player.id,
-                "name": player.name,
-                "level": player.level,
-                "exp": player.total_exp,
-                "money": player.money,
-                "quests_won": player.quests_won
-            })
+            to_insert.append(
+                {
+                    "_id": player.id,
+                    "name": player.name,
+                    "level": player.level,
+                    "exp": player.total_exp,
+                    "money": player.money,
+                    "quests_won": player.quests_won,
+                }
+            )
 
             if len(to_insert) % 1000 == 0:
                 leaderboard.insert_many(to_insert)

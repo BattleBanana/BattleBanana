@@ -19,6 +19,7 @@ def calculate_level_leaderboard():
     ranks = []
     for rank, player in enumerate(players):
         if player["_id"] == util.gconf.DEAD_BOT_ID:
+            rank -= 1
             continue
 
         ranks.append({"rank": rank + 1, "player_id": player["_id"]})
@@ -41,11 +42,7 @@ def get_leaderboard(rank_name: str):
 def get_local_leaderboard(guild: Guild, rank_name: str):
     leaderboard = get_leaderboard(rank_name)
     member_ids = [member.id for member in guild.members]
-    rankings = [
-        entry
-        for entry in leaderboard
-        if entry in member_ids
-    ]
+    rankings = [entry for entry in leaderboard if entry in member_ids]
     return rankings
 
 

@@ -17,7 +17,7 @@ from PIL import Image
 def count_jpg_files(source_dir):
     count = 0
     for _, _, files in os.walk(source_dir):
-        count += len([f for f in files if f.endswith('.jpg')])
+        count += len([f for f in files if f.endswith(".jpg")])
     return count
 
 
@@ -45,7 +45,7 @@ def migrate_to_webp(source_dir):
 
     print("\nWaiting for tasks to finish...")
     executor.shutdown(wait=True)
-    
+
     # Check for failures
     failures = []
     for jpg_path, future in futures:
@@ -53,7 +53,7 @@ def migrate_to_webp(source_dir):
             future.result()  # This will raise any exception from the worker
         except Exception as e:
             failures.append((jpg_path, str(e)))
-    
+
     # Report results
     print(f"\nSuccessfully converted: {total_files - len(failures)}")
     if failures:
@@ -61,6 +61,7 @@ def migrate_to_webp(source_dir):
         for jpg_path, error in failures:
             print(f"  {jpg_path}: {error}")
     print("Done.")
+
 
 if __name__ == "__main__":
     t = time.time()

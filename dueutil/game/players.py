@@ -381,8 +381,6 @@ class Player(BattleBananaObject, SlotPickleMixin):
     def background(self):
         current_background = self.equipped["background"]
         if current_background not in customizations.backgrounds:
-            # Check (just to quick fix)
-            # TODO: Remove later
             if current_background in self.inventory["backgrounds"]:
                 self.inventory["backgrounds"].remove(current_background)
             self.equipped["background"] = "default"
@@ -476,7 +474,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
         document: dict = self.__getstate__()
 
         for attr, value in document.items():
-            if isinstance(value, (int, float)) and abs(value) > 2 ** 63 - 1:
+            if isinstance(value, (int, float)) and abs(value) > 2**63 - 1:
                 with localcontext(create_decimal128_context()) as ctx:
                     document[attr] = Decimal128(ctx.create_decimal(value))
 
@@ -491,7 +489,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
 
 
 def find_player(user_id: int) -> Player | None:
-    if user_id > 2 ** 63 - 1 or user_id < 0:
+    if user_id > 2**63 - 1 or user_id < 0:
         return None
 
     return load_player(user_id)

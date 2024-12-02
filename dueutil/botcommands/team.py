@@ -372,13 +372,9 @@ async def showteams(ctx, page=1, **details):
 
     limit = top if top < len(db_teams) else len(db_teams)
     for index in range(page * page_size, limit, 1):
-        # TODO: Make this team loading more efficient
-        loaded_team = jsonpickle.decode(db_teams[index - 1]["data"])
-        if loaded_team.id in teams.teams:
-            team = teams.teams[loaded_team.id]
-        else:
-            teams.teams[loaded_team.id] = util.load_and_update(teams.REFERENCE_TEAM, loaded_team)
-            team = teams.teams[loaded_team.id]
+        team: teams.Team = jsonpickle.decode(db_teams[index - 1]["data"])
+        if team.id not in teams.teams:
+            teams.teams[team.id] = team
 
         owner = players.find_player(team.owner)
         teams_embed.add_field(

@@ -32,6 +32,7 @@ from . import imagecache
 try:
     from .speedup import quest_colorize_helper
 except ImportError:
+
     def quest_colorize_helper(*args):
         raise ImportError("Something broke, please tell @theelx")
 
@@ -79,7 +80,9 @@ def set_opacity(image: Image.Image, opacity_level: float):
     return image
 
 
-def colourize(image: Image.Image, colours: list[tuple[int, int, int]] | tuple[int, int, int], intensity: float, **extras: dict):
+def colourize(
+    image: Image.Image, colours: list[tuple[int, int, int]] | tuple[int, int, int], intensity: float, **extras: dict
+):
     image = image.copy()
     pixel_data = list(image.getdata())
     threshold = extras.get("threshold", 0)
@@ -107,7 +110,9 @@ def colourize(image: Image.Image, colours: list[tuple[int, int, int]] | tuple[in
     return image
 
 
-def quest_colorize(image: Image.Image, colors: list[tuple[int, int, int]], cycle_colors: tuple[int, int, int, int, int]):
+def quest_colorize(
+    image: Image.Image, colors: list[tuple[int, int, int]], cycle_colors: tuple[int, int, int, int, int]
+):
     image = image.copy()
     pixel_data = list(image.getdata())
     color_index = -1

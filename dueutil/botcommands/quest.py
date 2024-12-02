@@ -5,8 +5,7 @@ import discord
 
 import generalconfig as gconf
 from dueutil import commands, util
-from dueutil.game import (awards, battles, emojis, game, players, quests,
-                          stats, weapons)
+from dueutil.game import awards, battles, emojis, game, players, quests, stats, weapons
 from dueutil.game.helpers import imagehelper, misc
 from dueutil.permissions import Permission
 

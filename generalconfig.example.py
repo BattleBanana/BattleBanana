@@ -1,6 +1,7 @@
 """
 Global vars
 """
+
 import json
 import sys
 from datetime import datetime

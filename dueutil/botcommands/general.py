@@ -149,37 +149,44 @@ def get_department_from_name(name):
     )
 
 
+async def guess_department_from_item_name(item_name, **details):
+    exists_check = details.get("exists_check", "item_exists")
+    message = details.get("error", "An item with that name exists in multiple departments!")
+    possible_departments = [
+        department_info for department_info in departments.values() if department_info[exists_check](details, item_name)
+    ]
+    if len(possible_departments) > 1:
+        error = ":confounded: " + message + "\n" + "Please be more specific!\n"
+        if " " in item_name:
+            item_name = f'"{item_name}"'
+        for department_info in possible_departments:
+            error += (
+                "``"
+                + details["cmd_key"]
+                + details["command_name"]
+                + " "
+                + department_info["alias"][0]
+                + " "
+                + item_name
+                + "``\n"
+            )
+        await util.say(details["channel"], error)
+        return None  # Too many possible departments
+    elif len(possible_departments) == 0:
+        raise util.BattleBananaException(details["channel"], ITEM_NOT_FOUND)
+    return possible_departments[0]
+
+
 async def item_action(item_name, action, department=None, **details):
     # Does not support list action page. Since I have no case where I need that.
     exists_check = details.get("exists_check", "item_exists")
     if department is None:
         # We have to find where it could be
-        message = details.get("error", "An item with that name exists in multiple departments!")
-        possible_departments = [
-            department_info
-            for department_info in departments.values()
-            if department_info[exists_check](details, item_name)
-        ]
-        if len(possible_departments) > 1:
-            error = ":confounded: " + message + "\n" + "Please be more specific!\n"
-            if " " in item_name:
-                item_name = f'"{item_name}"'
-            for department_info in possible_departments:
-                error += (
-                    "``"
-                    + details["cmd_key"]
-                    + details["command_name"]
-                    + " "
-                    + department_info["alias"][0]
-                    + " "
-                    + item_name
-                    + "``\n"
-                )
-            await util.say(details["channel"], error)
-            return  # Too many possible departments
-        elif len(possible_departments) == 0:
-            raise util.BattleBananaException(details["channel"], ITEM_NOT_FOUND)
-        department = possible_departments[0]
+        department = await guess_department_from_item_name(item_name, **details)
+
+        if department is None:
+            return
+
     # We should know have a department if we get this far
     # First condition we found it so must exist. 2nd We were given the department.
     if "possible_departments" in locals() or department[exists_check](details, item_name):
@@ -324,24 +331,25 @@ async def shop(ctx, *args, **details):
             department_available += "``" + details["cmd_key"] + "shop " + department_info["alias"][0] + "``\n"
         shop_help = "For more info on the new shop do ``" + details["cmd_key"] + "help shop``"
         await util.reply(ctx, greet + department_available + shop_help)
-    else:
-        # If 1 args could be department or name.
-        # If two. Department then name.
-        department = get_department_from_name(args[0])
-        if department is not None:
-            list_action = department["actions"]["list_action"]
-            if len(args) == 1:
-                await util.reply(ctx, embed=list_action(0, **details))
-            else:
-                if isinstance(args[1], int):
-                    await util.reply(ctx, embed=list_action(args[1] - 1, **details))
-                else:
-                    # Use item_action since it will do the check if item exists
-                    await item_action(args[1], "info_action", department=department, **details)
-        elif len(args) == 1:
-            await item_action(args[0].lower(), "info_action", **details)
+        return
+
+    # If 1 args could be department or name.
+    # If two. Department then name.
+    department = get_department_from_name(args[0])
+    if department is not None:
+        list_action = department["actions"]["list_action"]
+        if len(args) == 1:
+            await util.reply(ctx, embed=list_action(0, **details))
         else:
-            raise util.BattleBananaException(ctx.channel, DEPARTMENT_NOT_FOUND)
+            if isinstance(args[1], int):
+                await util.reply(ctx, embed=list_action(args[1] - 1, **details))
+            else:
+                # Use item_action since it will do the check if item exists
+                await item_action(args[1], "info_action", department=department, **details)
+    elif len(args) == 1:
+        await item_action(args[0].lower(), "info_action", **details)
+    else:
+        raise util.BattleBananaException(ctx.channel, DEPARTMENT_NOT_FOUND)
 
 
 @commands.command(args_pattern="SS?")

@@ -69,16 +69,10 @@ if __name__ == "__main__":
 
     print("Creating new indexes...")
     # Add index on total_exp, level, money descending for leaderboard
-    db.get_collection("Player").create_index([
-        ("total_exp", pymongo.DESCENDING)
-    ], background=True)
+    db.get_collection("Player").create_index([("total_exp", pymongo.DESCENDING)], background=True)
 
-    db.get_collection("Player").create_index([
-        ("level", pymongo.DESCENDING)
-    ], background=True)
+    db.get_collection("Player").create_index([("level", pymongo.DESCENDING)], background=True)
 
-    db.get_collection("Player").create_index([
-        ("money", pymongo.DESCENDING)
-    ], background=True)
+    db.get_collection("Player").create_index([("money", pymongo.DESCENDING)], background=True)
     print("Done.")
     os._exit(0)

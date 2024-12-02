@@ -8,8 +8,7 @@ import dueutil.game.awards as game_awards
 import generalconfig as gconf
 
 from .. import commands, dbconn, util
-from ..game import (customizations, emojis, game, gamerules, players, quests,
-                    stats)
+from ..game import customizations, emojis, game, gamerules, players, quests, stats
 from ..game.configs import dueserverconfig
 from ..game.helpers import imagehelper, misc, playersabstract
 from ..permissions import Permission

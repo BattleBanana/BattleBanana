@@ -14,7 +14,12 @@ translations = {}
 def _get_translation(language: str, full_key: str) -> str:
     category, command, key = full_key.split(".")
 
-    return translations.get(language, translations.get(DEFAULT_LANGUAGE, {})).get(category, {}).get(command, {}).get(key, full_key)
+    return (
+        translations.get(language, translations.get(DEFAULT_LANGUAGE, {}))
+        .get(category, {})
+        .get(command, {})
+        .get(key, full_key)
+    )
 
 
 def find_translation(_: commands.Context, key: str, *args, force_update: bool = False):
