@@ -10,12 +10,12 @@ from dueutil import dbconn, tasks, util
 CACHE_DIR = "assets/imagecache/"
 WEBP_EXTENSION = ".webp"
 
-class CacheStats:
+class _CacheStats:
     """Tracks repeated usages of cached images."""
     def __init__(self):
         self.repeated_usages = {}
 
-stats = CacheStats()
+stats = _CacheStats()
 
 
 def track_image_usage(url: str):
@@ -126,7 +126,7 @@ def save_cache_info():
 
 def _load_cache_info():
     """Load cache statistics from the database."""
-    collection = dbconn.get_collection_for_object(CacheStats)
+    collection = dbconn.get_collection_for_object(_CacheStats)
     stats_json: dict = collection.find_one({"_id": "stats"})
     if stats_json:
         stats.repeated_usages.update(json.loads(stats_json.get("data", "{}")))
