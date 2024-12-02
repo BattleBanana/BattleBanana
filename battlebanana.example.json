@@ -1,0 +1,27 @@
+{
+  "botToken": "",
+  "owner": 123456789012345678,
+  "shardNames": ["Shard 1", "Shard 2", "Shard 3", "Shard 4", "Shard 5"],
+  "logChannel": "<server_id>/<channel_id>",
+  "errorChannel": "<server_id>/<channel_id>",
+  "feedbackChannel": "<server_id>/<channel_id>",
+  "bugChannel": "<server_id>/<channel_id>",
+  "announcementsChannel": "<server_id>/<channel_id>",
+  "transactions": "<server_id>/<channel_id>",
+  "votes": "<server_id>/<channel_id>",
+  "topGGKey": "",
+  "botsOnDiscordKey": "",
+  "rovelStarsKey": "",
+  "discordLabsKey": "",
+  "discoinKey": "",
+  "sentryAuth": "",
+  "connectionIP": "",
+  "connectionPort": 0,
+  "vpn": {
+    "protocol": "",
+    "host": "",
+    "username": "",
+    "password": "",
+    "port": 0
+  }
+}

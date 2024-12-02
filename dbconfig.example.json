@@ -1,0 +1,5 @@
+{
+  "host": "host.docker.internal",
+  "user": "battlebanana",
+  "pwd": "dev123"
+}

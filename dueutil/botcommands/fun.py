@@ -1,13 +1,11 @@
 import asyncio
 from datetime import datetime
-import jsonpickle
 
 import discord
 import repoze.timeago
 
 import generalconfig as gconf
-
-from dueutil import commands, dbconn, util, tasks
+from dueutil import commands, dbconn, util
 from dueutil.game import awards, battles, emojis, leaderboards, players
 from dueutil.game.helpers import imagehelper, misc
 
@@ -118,10 +116,10 @@ async def leaderboard(ctx, mixed=1, page_alt=1, **details):
     # Local/Global
     if local:
         title = f"BattleBanana Leaderboard on {details["server_name_clean"]}"
-        # Cached.
-        local_leaderboard = leaderboards.get_local_leaderboard(ctx.guild, "levels")
-        leaderboard_data = local_leaderboard.data
-        last_updated = local_leaderboard.updated
+        if not ctx.guild.chunked:
+            await ctx.guild.chunk()
+        leaderboard_data = leaderboards.get_local_leaderboard(ctx.guild, "levels")
+        last_updated = leaderboards.last_leaderboard_update
     else:
         title = "BattleBanana Global Leaderboard"
         leaderboard_data = leaderboards.get_leaderboard("levels")
@@ -166,7 +164,7 @@ async def generate_leaderboard_embed(
         leaderboard_embed.add_field(
             name=f"#{index + 1}{bonus}",
             value=(
-                f"[{player.name_clean} **``Level {player.level}``**]"
+                f"[{player.name_clean} **``Level {player.level}, Prestige {player.prestige_level}``**]"
                 + f"(https://battlebanana.xyz/player/id/{player.id}) "
                 + f"({util.ultra_escape_string(str(user_info))}) | **Total EXP** {player.total_exp}"
             ),

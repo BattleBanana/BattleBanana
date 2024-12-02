@@ -13,7 +13,8 @@ import pymongo
 import sentry_sdk
 
 import generalconfig as gconf
-from dueutil import blacklist, dbconn, events, loader, permissions, servercounts, tasks, util
+from dueutil import (blacklist, dbconn, events, loader, permissions,
+                     servercounts, tasks, util)
 from dueutil.game import emojis, players
 from dueutil.game.configs import dueserverconfig
 from dueutil.game.helpers import imagecache

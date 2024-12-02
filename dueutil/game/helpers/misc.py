@@ -69,26 +69,25 @@ class BattleBananaObject:
             dbconn.insert_object(self.id, self)
 
     def __setattr__(self, name, value):
-        current_thread = threading.current_thread()
         # We need to be being called within a shard.
         # (so a command or creation not load)
-        if current_thread.__class__.__name__ == "ShardThread" and name == "image_url":
+        if name == "image_url":
             if not validators.url(value):
                 # All classes with a image_url attr MUST have a default image too.
                 value = self.DEFAULT_IMAGE
             old_value = self.image_url if hasattr(self, "image_url") else None
 
             if old_value != value or old_value is None:
-                imagecache.image_used(value)
+                imagecache.track_image_usage(value)
             if old_value is not None:
-                imagecache.uncache(self.image_url)
+                imagecache.remove_cached_image(self.image_url)
         super().__setattr__(name, value)
 
     def __del__(self):
         try:
             if hasattr(self, "image_url"):
                 if dbconn.get_collection_for_object(self.__class__).find_one({"_id": self.id}) is None:
-                    imagecache.uncache(self.image_url)
+                    imagecache.remove_cached_image(self.image_url)
                     util.logger.info("%s, (%s) has been deleted", self.__class__.__name__, self.id)
         except (TypeError, AttributeError):
             pass  # del is being called as the script as been stopped.
