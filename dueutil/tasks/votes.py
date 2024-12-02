@@ -5,7 +5,6 @@ from discord import Embed
 import generalconfig as gconf
 from dueutil import dbconn, tasks, util
 from dueutil.botcommands.player import DAILY_AMOUNT
-
 from dueutil.game import players
 
 

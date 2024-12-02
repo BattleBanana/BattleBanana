@@ -5,7 +5,6 @@ from discord import Embed
 
 import generalconfig as gconf
 from dueutil import util
-
 from dueutil.game import players, stats
 from dueutil.game.stats import Stat
 

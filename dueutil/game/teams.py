@@ -2,11 +2,10 @@ import discord
 import jsonpickle
 
 import generalconfig as gconf
-
 from dueutil import dbconn, util
 from dueutil.game import players
-from dueutil.game.players import Player
 from dueutil.game.helpers.misc import BattleBananaObject
+from dueutil.game.players import Player
 from dueutil.util import SlotPickleMixin
 
 PLAYER_FORMAT = "%s (%s)\n"

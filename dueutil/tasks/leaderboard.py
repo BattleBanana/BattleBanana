@@ -28,16 +28,14 @@ async def calculate_leaderboard():
         try:
             player: Player = jsonpickle.decode(document["data"])
 
-            to_insert.append(
-                {
-                    "_id": player.id,
-                    "name": player.name,
-                    "level": player.level,
-                    "exp": player.total_exp,
-                    "money": player.money,
-                    "quests_won": player.quests_won,
-                }
-            )
+            to_insert.append({
+                "_id": player.id,
+                "name": player.name,
+                "level": player.level,
+                "exp": player.total_exp,
+                "money": player.money,
+                "quests_won": player.quests_won,
+            })
 
             if len(to_insert) % 1000 == 0:
                 leaderboard.insert_many(to_insert)
