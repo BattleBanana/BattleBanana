@@ -404,18 +404,50 @@ INTERVALS = (
     ("seconds", 1),
 )
 
+MILLISECOND_INTERVALS = (
+    ("weeks", 604800000),  # 1000 * 60 * 60 * 24 * 7
+    ("days", 86400000),  # 1000 * 60 * 60 * 24
+    ("hours", 3600000),  # 1000 * 60 * 60
+    ("minutes", 60000),
+    ("seconds", 1000),
+    ("ms", 1),
+)
 
-def display_time(seconds, granularity=2):
+
+def display_time(duration: int | float, granularity=2, milliseconds=False):
+    """
+    Display a human-readable time duration.
+
+    Args:
+        duration (int or float): The time duration in seconds (or milliseconds if milliseconds=True).
+        granularity (int): The number of units to include in the output.
+        milliseconds (bool): If True, treat 'duration' as milliseconds.
+
+    Returns:
+        str: A human-readable string representing the duration.
+    """
+    if milliseconds:
+        intervals = MILLISECOND_INTERVALS
+    else:
+        intervals = INTERVALS
+
     result = []
+    if milliseconds:
+        duration = int(duration)
 
-    for name, count in INTERVALS:
-        value = seconds // count
-        if value:
-            seconds -= value * count
-            if value == 1:
+    for name, count in intervals:
+        value = duration // count
+        if value > 0:
+            duration -= value * count
+            if value == 1 and name != "ms":
                 name = name.rstrip("s")
-            result.append(f"{int(value)} {name}")
-    return ", ".join(result[:granularity])
+            result.append(f"{value} {name}")
+    if result:
+        return ", ".join(result[:granularity])
+    else:
+        # If duration is zero or less than the smallest unit
+        smallest_unit = intervals[-1][0]
+        return f"0 {smallest_unit}"
 
 
 def s_suffix(word, count):

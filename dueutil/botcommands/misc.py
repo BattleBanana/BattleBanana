@@ -8,19 +8,22 @@ import textwrap
 import time
 import traceback
 from contextlib import redirect_stdout
+from functools import partial
 from io import StringIO
+from unittest.mock import AsyncMock, patch
 
 import discord
 import objgraph
 
 import dueutil.permissions
 import generalconfig as gconf
-
-from .. import commands, dbconn, events, loader, util
-from ..game import awards, customizations, emojis, game, leaderboards
-from ..game.configs import codes
-from ..game.helpers import imagehelper
-from ..permissions import Permission
+from dueutil import commands, dbconn, events, loader, util
+from dueutil.botcommands import fun
+from dueutil.botcommands import util as bcutil
+from dueutil.game import awards, customizations, emojis, game, leaderboards
+from dueutil.game.configs import codes, dueserverconfig
+from dueutil.game.helpers import imagehelper
+from dueutil.permissions import Permission
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern=None)
@@ -627,6 +630,64 @@ async def ping(ctx, **_):
 
     embed.add_field(name="Database Latency:", value=f"``{dbms}ms``", inline=False)
     await message.edit(embed=embed)
+
+
+@commands.command(args_pattern=None)
+@commands.ratelimit(cooldown=5, error="You can't benchmark the bot again for **[COOLDOWN]**!", save=True)
+async def benchmark(ctx, **details):
+    """
+    [CMD_KEY]benchmark
+
+    Runs a few commands to test time taken to do stuff, and outputs results in a nice pretty embed.
+    [PERM]
+    """
+
+    message = await util.say(ctx.channel, "Results coming within a few seconds!")
+    with (
+        patch("dueutil.game.helpers.imagehelper.send_image", new_callable=AsyncMock),
+        patch("dueutil.util.say", new_callable=AsyncMock),
+        patch("dueutil.util.reply", new_callable=AsyncMock),
+    ):
+        ping = discord.Embed(title="Ping Stats!", type="rich", color=gconf.DUE_COLOUR)
+        player = details["author"]
+        image_funcs = [
+            partial(imagehelper.stats_screen, player=player),
+            partial(imagehelper.quests_screen, player=player, page=0),
+            partial(imagehelper.battle_screen, player_one=player, player_two=player),
+        ]
+
+        text_funcs = [fun.topdog, bcutil.botstats, bcutil.help]
+        times = []
+        begin = time.time()
+        for func in image_funcs:
+            time1 = time.time()
+            await func(ctx)
+            times.append(util.display_time(int((time.time() - time1) * 1000), milliseconds=True))
+
+        for func in text_funcs:
+            time1 = time.time()
+            await func(ctx, dueserverconfig.server_cmd_key(ctx.guild), "", [], **details)
+            idk = util.display_time(int((time.time() - time1) * 1000), milliseconds=True)
+            if idk is None or str(idk) == "":
+                times.append("<1 ms")
+            else:
+                times.append(idk)
+
+    total_elapsed = util.display_time(int((time.time() - begin) * 1000), milliseconds=True)
+    ping.add_field(name="Total Time Taken for Every Command:", value="**" + total_elapsed + "**")
+    icantnamethings = round((util.clients[0].latency * 1000), 2)
+    ping.add_field(
+        name="Pings by Image Command:",
+        value=f"Myinfo: **{times[0]}**\nMyquests: **{times[1]}**\nBattle: **{times[2]}**",
+    )
+    ping.add_field(
+        name="Pings by Text Command:",
+        value=f"Topdog: **{times[3]}**\nBotstats: **{times[4]}**\nHelp: **{times[5]}**",
+    )
+    ping.add_field(name="Discord API Ping:", value="**" + str(icantnamethings) + "ms**")
+    ping.set_footer(text="Times don't include the time spent while sending the image/text to Discord!")
+
+    await message.edit(content=None, embed=ping)
 
 
 @commands.command(args_pattern=None)
