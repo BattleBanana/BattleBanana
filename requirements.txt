@@ -21,4 +21,3 @@ setuptools
 py-cpuinfo
 black
 audioop-lts
-mongoengine
