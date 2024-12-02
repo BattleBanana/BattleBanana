@@ -52,7 +52,7 @@ def get_local_leaderboard(guild: Guild, rank_name: str):
 def get_rank(player: Player, rank_name: str, guild: Guild = None):
     if guild is not None:
         # Local
-        rankings = get_local_leaderboard(guild, rank_name).data
+        rankings = get_local_leaderboard(guild, rank_name)
     else:
         rankings = get_leaderboard(rank_name)
     try:
