@@ -18,6 +18,9 @@ def calculate_level_leaderboard():
     players = db.get_collection("Player").find({}, {"_id": 1}).sort("total_exp", -1)
     ranks = []
     for rank, player in enumerate(players):
+        if player["_id"] == util.gconf.DEAD_BOT_ID:
+            continue
+
         ranks.append({"rank": rank + 1, "player_id": player["_id"]})
 
     if len(ranks) > 0:
@@ -41,7 +44,7 @@ def get_local_leaderboard(guild: Guild, rank_name: str):
     rankings = [
         entry
         for entry in leaderboard
-        if entry in member_ids and entry != util.gconf.DEAD_BOT_ID
+        if entry in member_ids
     ]
     return rankings
 
