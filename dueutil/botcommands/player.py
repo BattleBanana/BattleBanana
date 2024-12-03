@@ -34,7 +34,11 @@ async def daily(ctx, **details):
     balanced_amount = DAILY_AMOUNT * player.level * player.prestige_multiplicator()
 
     # 10% more for joining the support server
-    is_in_support_server = await util.get_guild(gconf.THE_DEN).fetch_member(player.id)
+    support_server = util.get_guild(gconf.THE_DEN)
+    if not support_server.chunked:
+        await support_server.chunk()
+
+    is_in_support_server = support_server.get_member(player.id)
     if is_in_support_server:
         balanced_amount = int(balanced_amount * 1.1)
 
