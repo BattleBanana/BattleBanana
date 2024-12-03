@@ -447,11 +447,15 @@ class Player(BattleBananaObject, SlotPickleMixin):
         SlotPickleMixin.__setstate__(self, object_state)
         if not hasattr(self, "command_rate_limits"):
             self.command_rate_limits = {}
+
         self.last_message_hashes = Ring(10)
-        self.last_message_hashes.extend(object_state.get("last_message_hashes", []))
+        for message in object_state.get("last_message_hashes", []):
+            self.last_message_hashes.append(message)
+
         self.inventory = defaultdict(Player.DEFAULT_FACTORIES["inventory"], **self.inventory)
         self.equipped = defaultdict(Player.DEFAULT_FACTORIES["equipped"], **self.equipped)
         self.misc_stats = defaultdict(int, **self.misc_stats)
+
         for quest in self.quests:
             quest.quester = self
 
