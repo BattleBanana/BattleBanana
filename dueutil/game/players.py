@@ -493,7 +493,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
 
 
 def find_player(user_id: int) -> Player | None:
-    if user_id > 2**63 - 1 or user_id < 0:
+    if user_id is None or user_id > 2**63 - 1 or user_id < 0:
         return None
 
     return load_player(user_id)

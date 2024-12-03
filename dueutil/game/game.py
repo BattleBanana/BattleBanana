@@ -31,7 +31,6 @@ def get_spam_level(player, message_content):
     Get's a spam level for a message using a
     fuzzy hash > 50% means it's probably spam
     """
-
     message_hash = ssdeep.hash(message_content)
     spam_level = 0
     spam_levels = [
