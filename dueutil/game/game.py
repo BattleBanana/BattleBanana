@@ -22,7 +22,7 @@ old_players = open("oldplayers.txt", encoding="utf-8").read()  # For comeback aw
 testers = open("testers.txt", encoding="utf-8").read()  # For testers award
 
 
-def get_responses():
+def get_responses() -> list[str]:
     return json.load(open("dueutil/game/configs/daily.json", "r", encoding="utf-8"))
 
 

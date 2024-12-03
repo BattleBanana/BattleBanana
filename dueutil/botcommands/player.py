@@ -6,12 +6,11 @@ import discord
 
 import dueutil.game.awards as game_awards
 import generalconfig as gconf
-
-from .. import commands, dbconn, util
-from ..game import customizations, emojis, game, gamerules, players, quests, stats
-from ..game.configs import dueserverconfig
-from ..game.helpers import imagehelper, misc, playersabstract
-from ..permissions import Permission
+from dueutil import commands, dbconn, util
+from dueutil.game import customizations, emojis, game, gamerules, players, quests, stats
+from dueutil.game.configs import dueserverconfig
+from dueutil.game.helpers import imagehelper, misc, playersabstract
+from dueutil.permissions import Permission
 
 DAILY_AMOUNT = 50
 TRAIN_RANGE = (0.1, 0.3)
@@ -26,16 +25,26 @@ async def daily(ctx, **details):
     ¤50 * your level! Your daily pocket money!
 
     You can use this command once every 24 hours!
+
+    Joining the support server will give you 10% more! <https://battlebanana.xyz/support>
     """
     player = details["author"]
     responses = game.get_responses()
 
     balanced_amount = DAILY_AMOUNT * player.level * player.prestige_multiplicator()
 
+    # 10% more for joining the support server
+    is_in_support_server = await util.get_guild(gconf.THE_DEN).fetch_member(player.id)
+    if is_in_support_server:
+        balanced_amount = int(balanced_amount * 1.1)
+
     player.money += balanced_amount
     player.save()
+
     await util.reply(
-        ctx, emojis.BBT + f' {secrets.choice(responses).format(user=f"**{player}**", daily=f"¤{balanced_amount}")}'
+        ctx,
+        emojis.BBT
+        + f" {secrets.choice(responses).format(user=f"**{player}**", daily=f"{util.format_money(balanced_amount)}")}\n{"" if is_in_support_server else "-# Did you know? You can get 10% more by joining the [support server](<https://battlebanana.xyz/support>)!"}",
     )
 
 
