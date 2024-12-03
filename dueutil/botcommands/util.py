@@ -762,7 +762,7 @@ async def status(ctx, message=None, **_):
 @commands.require_cnf(
     warning="Transferring your data will override your current data, assuming you have any, on TheelUtil!"
 )
-@commands.ratelimit(cooldown=604800, error="You can't transfer your data again for **[COOLDOWN]**!", save=True)
+@commands.ratelimit(cooldown=604800, error="You can transfer your data again **[COOLDOWN]**!", save=True)
 async def transferdata(ctx, **details):
     _, writer = await asyncio.open_connection(
         gconf.other_configs["connectionIP"], gconf.other_configs["connectionPort"]

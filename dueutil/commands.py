@@ -196,8 +196,8 @@ def ratelimit(**command_info):
             if time_since_last_used < command_info["cooldown"]:
                 error = command_info["error"]
                 if "[COOLDOWN]" in error:
-                    time_to_wait = command_info["cooldown"] - time_since_last_used
-                    error = error.replace("[COOLDOWN]", util.display_time(time_to_wait))
+                    time_to_wait = f"<t:{(command_info["cooldown"] - time_since_last_used) + round(time.time())}:R>"
+                    error = error.replace("[COOLDOWN]", time_to_wait)
                 await util.reply(ctx, error)
             else:
                 player.command_rate_limits[command_name] = now

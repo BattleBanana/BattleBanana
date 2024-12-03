@@ -633,7 +633,7 @@ async def ping(ctx, **_):
 
 
 @commands.command(args_pattern=None)
-@commands.ratelimit(cooldown=5, error="You can't benchmark the bot again for **[COOLDOWN]**!", save=True)
+@commands.ratelimit(cooldown=5, error="Please wait to benchmark the bot again **[COOLDOWN]**!", save=True)
 async def benchmark(ctx, **details):
     """
     [CMD_KEY]benchmark
