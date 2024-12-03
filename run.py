@@ -13,7 +13,16 @@ import pymongo
 import sentry_sdk
 
 import generalconfig as gconf
-from dueutil import blacklist, dbconn, events, loader, permissions, servercounts, tasks, util
+from dueutil import (
+    blacklist,
+    dbconn,
+    events,
+    loader,
+    permissions,
+    servercounts,
+    tasks,
+    util,
+)
 from dueutil.game import emojis, players
 from dueutil.game.configs import dueserverconfig
 from dueutil.game.helpers import imagecache
@@ -356,7 +365,7 @@ class BattleBananaClient(discord.AutoShardedClient):
             old_image = await player.get_avatar_url(member=before)
             new_image = await player.get_avatar_url(member=after)
             if old_image != new_image:
-                imagecache.uncache(old_image)
+                imagecache.remove_cached_image(old_image)
 
             if member.guild.id == gconf.THE_DEN and any(role.id in gconf.DONOR_ROLES_ID for role in member.roles):
                 player.donor = True
