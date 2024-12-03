@@ -22,7 +22,7 @@ from ..game import players
 
 
 @commands.command(args_pattern="I", aliases=["bj"])
-@commands.ratelimit(cooldown=5, error="You can't use blackjack again for **[COOLDOWN]**!", save=True)
+@commands.ratelimit(cooldown=5, error="You can use blackjack again **[COOLDOWN]**!", save=True)
 async def blackjack(ctx, price, **details):
     """
     [CMD_KEY]blackjack (bet)
@@ -146,7 +146,7 @@ async def blackjack(ctx, price, **details):
 
 
 @commands.command(args_pattern="I", aliases=["rr"])
-@commands.ratelimit(cooldown=5, error="You can't use russian roulette again for **[COOLDOWN]**!", save=True)
+@commands.ratelimit(cooldown=5, error="You can use russian roulette again **[COOLDOWN]**!", save=True)
 async def russianroulette(ctx, price, **details):
     """
     [CMD_KEY]russianroulette (bet)

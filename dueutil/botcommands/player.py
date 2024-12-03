@@ -17,7 +17,7 @@ TRAIN_RANGE = (0.1, 0.3)
 
 
 @commands.command(args_pattern=None)
-@commands.ratelimit(cooldown=86400, error="You can't collect your daily reward again for **[COOLDOWN]**!", save=True)
+@commands.ratelimit(cooldown=86400, error="You can collect your daily reward again **[COOLDOWN]**!", save=True)
 async def daily(ctx, **details):
     """
     [CMD_KEY]daily
@@ -55,7 +55,7 @@ async def daily(ctx, **details):
 @commands.command(args_pattern=None)
 @commands.ratelimit(
     cooldown=21600,
-    error="You've done all the training you can for now! You can train again in **[COOLDOWN]**!",
+    error="You've done all the training you can for now! You can train again **[COOLDOWN]**!",
     save=True,
 )
 async def train(ctx, **details):
@@ -94,7 +94,7 @@ async def train(ctx, **details):
 
 
 @commands.command(args_pattern=None)
-@commands.ratelimit(cooldown=604800, error="You can't collect your weekly reward again for **[COOLDOWN]**!", save=True)
+@commands.ratelimit(cooldown=604800, error="You can collect your weekly reward again **[COOLDOWN]**!", save=True)
 async def weekly(ctx, **details):
     """
     [CMD_KEY]weekly
