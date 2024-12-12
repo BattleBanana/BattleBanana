@@ -125,7 +125,10 @@ class Quest(BattleBananaObject, SlotPickleMixin):
 
     @property
     def creator(self):
-        creator = players.find_player(self.created_by or None)
+        if self.created_by == "":
+            self.created_by = None
+
+        creator = players.find_player(self.created_by)
         if creator is not None:
             return creator.name
         else:

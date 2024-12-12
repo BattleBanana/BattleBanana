@@ -1,4 +1,5 @@
 {
+  "python.analysis.importFormat": "absolute",
   "files.trimTrailingWhitespace": true,
   "editor.defaultFormatter": "ms-python.black-formatter",
   "editor.formatOnSave": true,
