@@ -9,7 +9,7 @@ from dueutil import dbconn
 if __name__ == "__main__":
     db = dbconn.conn()
     start = time.time()
-    players = db.get_collection("Player").find()
+    players = db.get_collection("Player").find({"awards": "TopDog"})
     total = db.get_collection("Player").count_documents({})
     count = 0
     threads: list[Thread] = []
