@@ -1,10 +1,8 @@
 """Player related classes & functions"""
 
-import gc
 import json
 import math
 import random
-import time
 from collections import defaultdict
 from copy import copy
 from decimal import localcontext
@@ -91,7 +89,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
     DEFAULT_FACTORIES = {"equipped": lambda: "default", "inventory": lambda: ["default"]}
 
     def __init__(self, *args, **kwargs):
-        if kwargs.get("loading", False) and len(args) > 0 and isinstance(args[0], (discord.Member, FakeMember)):
+        if len(args) > 0 and isinstance(args[0], (discord.Member, FakeMember)):
             super().__init__(args[0].id, args[0].name)
             return
 
@@ -515,8 +513,9 @@ def load_player(player_id: int) -> Player | None:
         player_data["quests"] = [jsonpickle.decode(quest) for quest in player_data["quests"]]
         player_data["received_wagers"] = [jsonpickle.decode(wager) for wager in player_data["received_wagers"]]
 
-        player = Player(FakeMember(player_id, player_data["name"]), loading=True)
+        player = object.__new__(Player)
         player.__setstate__(player_data)
+        player.id = player_data["_id"]
 
         return player
 

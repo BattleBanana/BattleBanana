@@ -265,10 +265,10 @@ async def globalrank(ctx, player=None, **details):
     await rank_command(ctx, player, "global", **details)
 
 
-async def give_emoji(channel, sender, receiver, emoji):
+async def give_emoji(channel: discord.TextChannel, sender: players.Player, receiver: players.Player, emoji: str):
     if not util.char_is_emoji(emoji) and not util.is_server_emoji(channel.guild, emoji):
         raise util.BattleBananaException(channel, "You can only send emoji!")
-    if sender == receiver:
+    if sender.id == receiver.id:
         raise util.BattleBananaException(channel, "You can't send a " + emoji + " to yourself!")
     await util.say(channel, "**" + receiver.name_clean + "** " + emoji + " :heart: **" + sender.name_clean + "**")
 

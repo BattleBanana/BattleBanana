@@ -163,7 +163,7 @@ async def wagerbattle(ctx, receiver, money, **details):
     """
     sender = details["author"]
 
-    if sender == receiver:
+    if sender.id == receiver.id:
         raise util.BattleBananaException(ctx.channel, "You can't wager against yourself!")
 
     if sender.money - money < 0:
@@ -178,15 +178,7 @@ async def wagerbattle(ctx, receiver, money, **details):
 
     await util.reply(
         ctx,
-        (
-            "**"
-            + sender.name_clean
-            + "** wagers **"
-            + receiver.name_clean
-            + "** ``"
-            + util.format_number(money, full_precision=True, money=True)
-            + "`` that they will win in a battle!"
-        ),
+        f"**{sender.name_clean}** wagers **{receiver.name_clean}** `{util.format_number(money, full_precision=True, money=True)}` that they will win in a battle!",
     )
 
 
