@@ -162,7 +162,7 @@ async def check_for_level_up(ctx, player):
             await awards.give_award(ctx.channel, player, f"Rank{rank}", f"Attain rank {rank}.")
 
 
-async def manage_quests(message, player, spam_level):
+async def manage_quests(message, player: players.Player, spam_level):
     """
     Gives out quests!
     """
@@ -171,11 +171,13 @@ async def manage_quests(message, player, spam_level):
     if time.time() - player.quest_day_start > quests.QUEST_DAY and player.quest_day_start != 0:
         player.quests_completed_today = 0
         player.quest_day_start = 0
+        player.save()
         util.logger.info("%s (%s) daily completed quests reset", player.name_assii, player.id)
 
     # Testing
     if len(quests.get_server_quest_list(channel.guild)) == 0:
         quests.add_default_quest_to_server(message.guild)
+
     if (quest_time(player) and spam_level < SPAM_TOLERANCE) and (
         quests.has_quests(channel)
         and len(player.quests) < quests.MAX_ACTIVE_QUESTS
@@ -186,6 +188,7 @@ async def manage_quests(message, player, spam_level):
         new_quest = await quests.ActiveQuest.create(quest.q_id, player)
         stats.increment_stat(stats.Stat.QUESTS_GIVEN)
         player.quest_spawn_build_up = 1
+        player.save()
         if dueserverconfig.mute_level(message.channel) < 0:
             await imagehelper.new_quest_screen(message, new_quest, player)
         else:
