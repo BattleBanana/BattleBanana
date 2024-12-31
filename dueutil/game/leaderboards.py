@@ -17,12 +17,13 @@ def calculate_level_leaderboard():
     db = dbconn.conn()
     players = db.get_collection("Player").find({}, {"_id": 1}).sort("total_exp", -1)
     ranks = []
-    for rank, player in enumerate(players):
-        if player["_id"] == util.gconf.DEAD_BOT_ID:
-            rank -= 1
+    rank = 1
+    for _, player in enumerate(players):
+        if player["_id"] == util.gconf.DEAD_BOT_ID or player["_id"] in (261799488719552513, 267654519536615435):
             continue
 
-        ranks.append({"rank": rank + 1, "player_id": player["_id"]})
+        ranks.append({"rank": rank, "player_id": player["_id"]})
+        rank += 1
 
     if len(ranks) > 0:
         db.drop_collection("levels")
