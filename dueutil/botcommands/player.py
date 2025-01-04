@@ -317,7 +317,8 @@ async def createaccount(ctx, **details):
     if player:
         return await util.reply(ctx, "You are already registered")
 
-    players.Player(ctx.author)
+    player = players.Player(ctx.author)
+    player.save()
     stats.increment_stat(stats.Stat.NEW_PLAYERS_JOINED)
 
     embed = discord.Embed(title="Welcome to BattleBanana!", color=0xFEE761)

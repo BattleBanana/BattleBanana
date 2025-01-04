@@ -90,10 +90,6 @@ class Player(BattleBananaObject, SlotPickleMixin):
 
     def __init__(self, *args, **kwargs):
         if len(args) > 0 and isinstance(args[0], (discord.Member, FakeMember)):
-            super().__init__(args[0].id, args[0].name)
-            return
-
-        if len(args) > 0 and isinstance(args[0], (discord.Member, FakeMember)):
             super().__init__(args[0].id, args[0].name, **kwargs)
         else:
             super().__init__("NO_ID", "BattleBanana Player", **kwargs)
