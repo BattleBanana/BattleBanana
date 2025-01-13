@@ -508,19 +508,12 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
         return
 
     max_receive = int(receiver.item_value_limit * 10)
-    if transaction_amount > max_receive:
+    if transaction_amount > max_receive and sender.id != 426822266412728323:  # Chara
         await util.reply(
             ctx,
             (
-                "**"
-                + amount_string
-                + "** is more than ten times **"
-                + receiver.name_clean
-                + "**'s limit!\nThe maximum **"
-                + receiver.name_clean
-                + "** can receive is **"
-                + util.format_number(max_receive, money=True, full_precision=True)
-                + "**!"
+                f"**{amount_string}** is more than ten times **{receiver.name_clean}**'s limit!\n"
+                + f"The maximum **{receiver.name_clean}** can receive is **{util.format_number(max_receive, money=True, full_precision=True)}**!"
             ),
         )
         return
@@ -543,7 +536,7 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
         await game_awards.give_award(ctx.channel, sender, "SugarDaddy", "Sugar daddy!")
 
     transaction_log = discord.Embed(
-        title=emojis.BBT_WITH_WINGS + " Transaction complete!", type="rich", color=gconf.DUE_COLOUR
+        title=f"{emojis.BBT_WITH_WINGS} transaction complete!", type="rich", color=gconf.DUE_COLOUR
     )
     transaction_log.add_field(name="Sender:", value=sender.name_clean)
     transaction_log.add_field(name="Recipient:", value=receiver.name_clean)
@@ -551,7 +544,7 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
     if message != "":
         transaction_log.add_field(name=":pencil: Attached note:", value=message, inline=False)
     transaction_log.set_footer(
-        text=f"Please keep this receipt for your records. • {taxed_total_string} (13%) was subtracted for taxes"
+        text=f"Please keep this receipt for your records • {taxed_total_string} (13%) was subtracted for taxes"
     )
     util.logger.info(
         "%s (%s) sent %s (%s) to %s (%s)",
