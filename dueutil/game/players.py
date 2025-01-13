@@ -141,7 +141,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
 
         self.save()
 
-    def reset(self, discord_user=None):
+    def reset(self, discord_user: discord.User = None):
         ### New rule: The default of all new items MUST have the id default now.
 
         if discord_user is not None:
@@ -419,7 +419,7 @@ class Player(BattleBananaObject, SlotPickleMixin):
         self.equipped["banner"] = theme["banner"]
         self.equipped["background"] = theme["background"]
 
-    def to_member(self, guild=None):
+    def to_member(self, guild=None) -> discord.Member | FakeMember:
         """
         Returns a discord member or a fake member.
         """

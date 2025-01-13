@@ -64,13 +64,19 @@ async def give_awards_for_battle(channel, battle_log: _BattleLog):
         if "TopDog" in loser.awards:
             if not permissions.has_permission(winner, Permission.BANANA_ADMIN):
                 loser.awards.remove("TopDog")
-                await awards.give_award(channel, winner, "TopDog")
-                awards.update_award_stat("TopDog", "top_dog", str(winner.id))
-                await util.save_old_topdog(loser)
                 loser.save()
-                winner.save()
+
+                await awards.give_award(channel, winner, "TopDog")
+                await util.save_old_topdog(loser)
+
+                awards.update_award_stat("TopDog", "top_dog", str(winner.id))
+
+                user: discord.User = await util.fetch_user(loser.id)
+                await util.say(user, f"You have lost TopDog to <@{winner.id}>!")
+
         if battle_log.turn_count == 1 and winner.level - loser.level <= 2.5:
             await awards.give_award(channel, winner, "CritHit")
+
         # If it's me
         if loser.id == gconf.other_configs["owner"]:
             await awards.give_award(channel, winner, "KillMe")
@@ -95,6 +101,7 @@ def get_battle_log(**battleargs):
             battle_log += move.message + "\n"
         else:
             battle_log += f"({move.message}) × {move.repetitions}\n"
+
     if len(battle_log) > MAX_BATTLE_LOG_LEN:
         # Too long battle.
         # Mini summary.
@@ -113,6 +120,7 @@ def get_battle_log(**battleargs):
         )
     else:
         battle_embed.add_field(name="Battle log", value=battle_log)
+
     battle_info = battle_result._asdict()
     # Deleted unneeded keys
     del battle_info["moves"], battle_info["opponents"], battle_info["p1_hits"], battle_info["p2_hits"]
