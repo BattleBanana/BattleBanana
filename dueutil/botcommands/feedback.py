@@ -1,10 +1,9 @@
 import discord
 
 import generalconfig as gconf
+from dueutil import commands, util
+from dueutil.permissions import Permission
 from dueutil.trello import TrelloClient
-
-from .. import commands, util
-from ..permissions import Permission
 
 BUG_REPORT = "Bug report"
 SUGGESTION = "Suggestion"

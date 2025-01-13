@@ -1,11 +1,10 @@
 import discord
 
 import generalconfig as gconf
-
-from .. import commands, util
-from ..game import awards, battles, players, stats, weapons
-from ..game.helpers import imagehelper, misc
-from ..permissions import Permission
+from dueutil import commands, util
+from dueutil.game import awards, battles, players, stats, weapons
+from dueutil.game.helpers import imagehelper, misc
+from dueutil.permissions import Permission
 
 
 @misc.paginator

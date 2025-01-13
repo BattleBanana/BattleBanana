@@ -1,6 +1,6 @@
 import json
 
-from .. import dbconn
+from dueutil import dbconn
 
 exp_per_level = {}
 

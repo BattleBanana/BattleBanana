@@ -7,8 +7,8 @@ import json
 import discord
 from PIL import Image
 
-from .. import dbconn, util
-from ..game.configs import dueserverconfig
+from dueutil import dbconn, util
+from dueutil.game.configs import dueserverconfig
 
 awards = {}
 

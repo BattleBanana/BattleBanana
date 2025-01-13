@@ -4,10 +4,9 @@ from collections import OrderedDict, namedtuple
 import discord
 
 import generalconfig as gconf
-
-from .. import util
-from ..game import awards, weapons
-from ..game.players import Permission, Player, permissions
+from dueutil import util
+from dueutil.game import awards, weapons
+from dueutil.game.players import Permission, Player, permissions
 
 # Some tuples for use within this module.
 _BattleResults = namedtuple(

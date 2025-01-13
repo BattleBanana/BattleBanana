@@ -14,14 +14,12 @@ import numpy
 from bson.decimal128 import Decimal128, create_decimal128_context
 
 import generalconfig as gconf
-
-from .. import dbconn, permissions, util
-from ..game import awards, gamerules, weapons
-from ..game.helpers.misc import BattleBananaObject, Ring
-from ..permissions import Permission
-from ..util import SlotPickleMixin
-from . import customizations, emojis
-from .customizations import Theme
+from dueutil import dbconn, permissions, util
+from dueutil.game import awards, customizations, emojis, gamerules, weapons
+from dueutil.game.customizations import Theme
+from dueutil.game.helpers.misc import BattleBananaObject, Ring
+from dueutil.permissions import Permission
+from dueutil.util import SlotPickleMixin
 
 STAT_GAIN_FORMAT = emojis.ATK + ": +%.2f " + emojis.STRG + ": +%.2f " + emojis.ACCY + ": +%.2f"
 

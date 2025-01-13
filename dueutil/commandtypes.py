@@ -1,10 +1,10 @@
 import re
 import sys
 
-from . import util
-from .game import players, teams
-from .game.helpers import misc
-from .permissions import Permission
+from dueutil import util
+from dueutil.game import players, teams
+from dueutil.game.helpers import misc
+from dueutil.permissions import Permission
 
 # The max number the bot will accept. To avoid issues with crazy big numbers.
 MAX_NUMBER = sys.maxsize

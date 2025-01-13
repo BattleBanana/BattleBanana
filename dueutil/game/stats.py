@@ -6,7 +6,7 @@ from collections import defaultdict
 from enum import Enum
 from typing import Dict
 
-from .. import dbconn
+from dueutil import dbconn
 
 
 class Stat(Enum):

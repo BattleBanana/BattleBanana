@@ -5,10 +5,10 @@ from typing import Dict, Union
 import discord
 import jsonpickle
 
-from .. import dbconn, util
-from ..game.helpers.misc import BattleBananaObject, DueMap
-from ..util import SlotPickleMixin
-from . import emojis
+from dueutil import dbconn, util
+from dueutil.game import emojis
+from dueutil.game.helpers.misc import BattleBananaObject, DueMap
+from dueutil.util import SlotPickleMixin
 
 stock_weapons = ["none"]
 weapons = DueMap()

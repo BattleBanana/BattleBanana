@@ -10,12 +10,10 @@ import discord
 from discord import ui
 from discord.enums import ButtonStyle
 
-from dueutil.game import stats
-
-from . import commandextras, commandtypes, events, permissions, util
-from .game import emojis, players
-from .game.configs import dueserverconfig
-from .permissions import Permission
+from dueutil import commandextras, commandtypes, events, permissions, util
+from dueutil.game import emojis, players, stats
+from dueutil.game.configs import dueserverconfig
+from dueutil.permissions import Permission
 
 extras = commandextras
 

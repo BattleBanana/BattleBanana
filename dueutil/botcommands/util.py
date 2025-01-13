@@ -11,15 +11,14 @@ import psutil
 import repoze.timeago
 
 import generalconfig as gconf
-
-from .. import blacklist as bl
-from .. import commands, events, permissions, util
+from dueutil import blacklist as bl
+from dueutil import commands, events, permissions, util
 
 # Shorthand for emoji as I use gconf to hold emoji constants
-from ..game import awards, emojis, players, stats
-from ..game.configs import dueserverconfig
-from ..game.stats import Stat
-from ..permissions import Permission
+from dueutil.game import awards, emojis, players, stats
+from dueutil.game.configs import dueserverconfig
+from dueutil.game.stats import Stat
+from dueutil.permissions import Permission
 
 
 @commands.command(permission=Permission.DISCORD_USER, args_pattern="S?", aliases=("helpme",))

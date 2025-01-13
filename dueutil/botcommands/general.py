@@ -4,12 +4,11 @@ from functools import wraps
 import discord
 
 import generalconfig as gconf
-
-from .. import commands, util
-from ..game import customizations, weapons
-from ..game.helpers.shopabstract import ShopBuySellItem
-from . import player as player_cmds
-from . import weapon as weap_cmds
+from dueutil import commands, util
+from dueutil.botcommands import player as player_cmds
+from dueutil.botcommands import weapon as weap_cmds
+from dueutil.game import customizations, weapons
+from dueutil.game.helpers.shopabstract import ShopBuySellItem
 
 ### Fill in the blanks buy/sell functions
 DEPARTMENT_NOT_FOUND = "Department not found"

@@ -9,12 +9,11 @@ from typing import Dict, List
 import discord
 import jsonpickle
 
-from .. import dbconn, util
-from ..game import players, weapons
-from ..game.helpers.misc import BattleBananaObject, DueMap
-from ..util import SlotPickleMixin
-from . import gamerules
-from .players import Player
+from dueutil import dbconn, util
+from dueutil.game import gamerules, players, weapons
+from dueutil.game.helpers.misc import BattleBananaObject, DueMap
+from dueutil.game.players import Player
+from dueutil.util import SlotPickleMixin
 
 quests = DueMap()
 

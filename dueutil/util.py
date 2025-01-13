@@ -22,8 +22,7 @@ from aiohttp_socks import ProxyConnector
 
 import generalconfig as gconf
 from dueutil import dbconn
-
-from .game import stats
+from dueutil.game import stats
 
 client = None
 clients = []

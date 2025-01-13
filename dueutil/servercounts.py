@@ -3,8 +3,7 @@ import json
 import aiohttp
 
 import generalconfig
-
-from . import util
+from dueutil import util
 
 config = generalconfig.other_configs
 

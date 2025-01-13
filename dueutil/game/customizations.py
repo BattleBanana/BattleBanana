@@ -8,9 +8,9 @@ from typing import Dict
 
 from PIL import Image
 
-from .. import permissions, util
-from ..game.helpers.misc import BattleBananaObject
-from ..permissions import Permission
+from dueutil import permissions, util
+from dueutil.game.helpers.misc import BattleBananaObject
+from dueutil.permissions import Permission
 
 BACKGROUND_PATH = "assets/backgrounds/backgrounds.json"
 

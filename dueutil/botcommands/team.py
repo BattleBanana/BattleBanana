@@ -2,9 +2,8 @@ import discord
 import jsonpickle
 
 import generalconfig as gconf
-
-from .. import commands, dbconn, util
-from ..game import players, teams
+from dueutil import commands, dbconn, util
+from dueutil.game import players, teams
 
 NOT_IN_TEAM = "You are not in a team!"
 ALREADY_IN_TEAM = "You are already in a team!"

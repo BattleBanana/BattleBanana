@@ -4,9 +4,9 @@ from typing import Callable
 
 from discord import Message
 
-from . import commands
-from .game.configs import dueserverconfig
-from .game.helpers.misc import DueMap
+from dueutil import commands
+from dueutil.game.configs import dueserverconfig
+from dueutil.game.helpers.misc import DueMap
 
 
 class MessageEvent(list):

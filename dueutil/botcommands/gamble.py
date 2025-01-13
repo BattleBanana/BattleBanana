@@ -15,10 +15,9 @@ from discord import ui
 from pydealer import Deck
 
 import generalconfig as gconf
-
-from .. import commands, util
-from ..game import blackjack as blackjackGame
-from ..game import players
+from dueutil import commands, util
+from dueutil.game import blackjack as blackjackGame
+from dueutil.game import players
 
 
 @commands.command(args_pattern="I", aliases=["bj"])

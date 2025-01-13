@@ -4,12 +4,10 @@ import secrets
 import time
 
 import generalconfig as gconf
-
-from .. import dbconn, events, util
-from ..game import awards, players, quests, stats, weapons
-from ..game.configs import dueserverconfig
-from ..game.helpers import imagehelper
-from . import gamerules
+from dueutil import dbconn, events, util
+from dueutil.game import awards, gamerules, players, quests, stats, weapons
+from dueutil.game.configs import dueserverconfig
+from dueutil.game.helpers import imagehelper
 
 try:
     import ssdeep

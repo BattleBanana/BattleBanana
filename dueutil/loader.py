@@ -2,7 +2,7 @@ import importlib
 import pkgutil
 import sys
 
-from . import dbconn, events, util
+from dueutil import dbconn, events, util
 
 MODULE_EXTENSIONS = (".py", ".pyc", ".pyo")
 GAME = "dueutil.game"
