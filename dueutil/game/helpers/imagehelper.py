@@ -331,6 +331,7 @@ async def awards_screen(ctx: Message, player: Player, page: int, **kwargs):
     draw.text((15, 17), title, "white", font=font)
     count = 0
     player_award = 0
+    msg = ""
     for player_award in range(len(player.awards) - 1 - (5 * page), -1, -1):
         image.paste(award_slot, (14, 40 + 44 * count))
         award = awards.get_award(player.awards[player_award])
@@ -343,7 +344,6 @@ async def awards_screen(ctx: Message, player: Player, page: int, **kwargs):
         draw.text((52, 61 + 44 * count), award.description, DUE_BLACK, font=font_small)
         image.paste(award.icon, (19, 45 + 44 * count))
         count += 1
-        msg = ""
         if count == 5:
             if player_award != 0:
                 command = "myawards"
@@ -360,12 +360,13 @@ async def awards_screen(ctx: Message, player: Player, page: int, **kwargs):
                     + " for the next page."
                 )
             break
-    msg = ""
+
     if player_award == 0:
         msg = "That's all folks!"
     if len(player.awards) == 0:
         name = get_text_limit_len(draw, player.name, font, 100)
         msg = name + " doesn't have any awards!"
+
     width = draw.textlength(text=msg, font=font_small)
     draw.text(((256 - width) / 2, 42 + 44 * count), msg, "white", font=font_small)
     await send_image(

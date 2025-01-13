@@ -406,8 +406,9 @@ async def determine_args(pattern, args, called, ctx):
         return False
     elif pattern is None and len(args) == 0:
         return args
-    if len(pattern) == 0:
+    if pattern is None or len(pattern) == 0:
         return args
+
     if "*" not in pattern:
         pattern_optional_removed = remove_optional(pattern)
         if pattern_optional_removed is False or len(args) > len(pattern_optional_removed):

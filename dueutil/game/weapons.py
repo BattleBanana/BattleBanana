@@ -1,6 +1,5 @@
 import json
 from collections import namedtuple
-from typing import Dict, Union
 
 import discord
 import jsonpickle
@@ -176,11 +175,11 @@ def remove_weapon_from_shop(guild: discord.Guild, weapon_name: str) -> bool:
     return False
 
 
-def get_weapons_for_server(guild: discord.Guild) -> Dict[str, Weapon]:
+def get_weapons_for_server(guild: discord.Guild) -> dict[str, Weapon]:
     return dict(weapons[guild], **weapons["STOCK"])
 
 
-def find_weapon(guild: discord.Guild, weapon_name_or_id: str) -> Union[Weapon, None]:
+def find_weapon(guild: discord.Guild, weapon_name_or_id: str) -> Weapon | None:
     weapon = get_weapon_for_server(guild.id, weapon_name_or_id)
     if weapon is None:
         weapon_id = weapon_name_or_id.lower()

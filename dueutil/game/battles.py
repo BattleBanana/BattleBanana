@@ -262,6 +262,7 @@ def battle(**battleargs):
     else:
         # Inconceivable
         winner = loser = None
+
     turns = current_move - 1
     moves["winner"] = _Move(
         message=(
@@ -270,6 +271,7 @@ def battle(**battleargs):
         ),
         repetitions=1,
     )
+
     # Results as a simple namedturple
     return _BattleResults(
         moves=moves,
