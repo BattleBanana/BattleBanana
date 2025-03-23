@@ -533,7 +533,6 @@ async def editquest(ctx, quest_name, updates, **_):
     if len(updates) == 0:
         await util.reply(ctx, "You need to provide a valid list of changes for the quest!")
     else:
-        quest.save()
         result = f"{emojis.QUEST} **{quest.name_clean}** updates!\n"
 
         if new_image_url is not None and not await imagehelper.is_url_image(new_image_url):

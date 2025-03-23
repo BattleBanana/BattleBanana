@@ -30,7 +30,7 @@ def track_image_usage(url: str):
 def _save_image(filename: str, image: Image.Image):
     """Save an image to a file with high quality."""
     try:
-        image.save(filename, quality=100, method=6)
+        image.save(filename, lossless=True, quality=100, method=6)
     except Exception as e:
         util.logger.error(f"Failed to save image {filename}: {e}")
 

@@ -220,7 +220,7 @@ class ActiveQuest(Player, util.SlotPickleMixin):
         self.cash_iv = min(self.info.base_values()) * 3 * random.uniform(0.8, 1.6)
 
     async def get_avatar_url(self, *_):
-        quest_info = self.info
+        quest_info: Quest = self.info
         if quest_info is not None:
             return quest_info.image_url
 

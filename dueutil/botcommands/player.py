@@ -76,6 +76,17 @@ async def train(ctx, **details):
     strg_increase = random.uniform(*TRAIN_RANGE) * player.level * player.prestige_multiplicator()
     accy_increase = random.uniform(*TRAIN_RANGE) * player.level * player.prestige_multiplicator()
 
+    # 10% more for joining support server
+    support_server = util.get_guild(gconf.THE_DEN)
+    if not support_server.chunked:
+        await support_server.chunk()
+
+    is_in_support_server = support_server.get_member(player.id)
+    if is_in_support_server:
+        attack_increase *= 1.1
+        strg_increase *= 1.1
+        accy_increase *= 1.1
+
     player.progress(attack_increase, strg_increase, accy_increase, max_exp=maxstats, max_attr=maxstats)
     progress_message = players.STAT_GAIN_FORMAT % (attack_increase, strg_increase, accy_increase)
 
@@ -87,6 +98,10 @@ async def train(ctx, **details):
     )
     train_embed.add_field(name="Training result:", value=progress_message, inline=True)
     train_embed.set_footer(text="You feel exhausted and may train again in 6 hours!")
+    if not is_in_support_server:
+        train_embed.set_footer(
+            text="Did you know? You can get 10% more by joining the [support server](<https://battlebanana.xyz/support>)!"
+        )
 
     await game.check_for_level_up(ctx, player)
     player.save()

@@ -72,12 +72,12 @@ class BattleBananaObject:
         # We need to be being called within a shard.
         # (so a command or creation not load)
         if name == "image_url":
-            if not validators.url(value):
+            if not validators.url(value, strict_query=False):
                 # All classes with a image_url attr MUST have a default image too.
                 value = self.DEFAULT_IMAGE
             old_value = self.image_url if hasattr(self, "image_url") else None
 
-            if old_value != value or old_value is None:
+            if old_value != value:
                 imagecache.track_image_usage(value)
             if old_value is not None:
                 imagecache.remove_cached_image(self.image_url)
