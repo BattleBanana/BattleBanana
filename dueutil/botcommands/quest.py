@@ -119,6 +119,7 @@ async def acceptquest(ctx, quest_index, **details):
             + "``"
         )
         player.money -= quest.money // 2
+        stats.increment_stat(stats.Stat.MONEY_REMOVED, quest.money // 2, source="quests")
         player.quest_spawn_build_up += 0.1
         player.misc_stats["quest_losing_streak"] += 1
         if player.misc_stats["quest_losing_streak"] == 10:
@@ -174,6 +175,7 @@ async def acceptquest(ctx, quest_index, **details):
 
         player.money += quest.money
         stats.increment_stat(stats.Stat.MONEY_CREATED, quest.money)
+        stats.increment_stat(stats.Stat.MONEY_GENERATED, quest.money, source="quests")
 
         quest_info = quest.info
         if quest_info is not None:
@@ -253,6 +255,7 @@ async def acceptallquests(ctx, **details):
         if winner == quest:
             lose += 1
             player.money -= quest.money // 2
+            stats.increment_stat(stats.Stat.MONEY_REMOVED, quest.money // 2, source="quests")
             player.quest_spawn_build_up += 0.1
             player.misc_stats["quest_losing_streak"] += 1
             if player.misc_stats["quest_losing_streak"] == 10:
@@ -273,6 +276,7 @@ async def acceptallquests(ctx, **details):
             )
 
             stats.increment_stat(stats.Stat.MONEY_CREATED, quest.money)
+            stats.increment_stat(stats.Stat.MONEY_GENERATED, quest.money, source="quests")
 
             quest_info = quest.info
             if quest_info is not None:

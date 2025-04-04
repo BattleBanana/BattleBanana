@@ -17,7 +17,7 @@ from pydealer import Deck
 import generalconfig as gconf
 from dueutil import commands, util
 from dueutil.game import blackjack as blackjackGame
-from dueutil.game import players
+from dueutil.game import players, stats
 
 
 @commands.command(args_pattern="I", aliases=["bj"])
@@ -124,8 +124,10 @@ async def blackjack(ctx, price, **details):
 
     if gain > 0:
         result += f" You were rewarded with `¤{gain}`"
+        stats.increment_stat(stats.Stat.MONEY_GENERATED, gain, source="blackjack")
     elif gain < 0:
         result += f" You lost `¤{price}`."
+        stats.increment_stat(stats.Stat.MONEY_REMOVED, price, source="blackjack")
 
         battle_banana = players.find_player(ctx.guild.me.id)
         if battle_banana is not None:
@@ -166,9 +168,11 @@ async def russianroulette(ctx, price, **details):
     if secrets.randbelow(6) == 1:
         reward = price * 5
         player.money += reward
+        stats.increment_stat(stats.Stat.MONEY_GENERATED, reward, source="russianroulette") # gamble tax when
         await message.edit(content=message.content + f"\nYou survived and won `¤{reward}`!")
     else:
         player.money -= price
+        stats.increment_stat(stats.Stat.MONEY_REMOVED, price, source="russianroulette")
         battle_banana = players.find_player(ctx.guild.me.id)
         if battle_banana is not None:
             battle_banana.money += price

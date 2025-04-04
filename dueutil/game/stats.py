@@ -8,10 +8,13 @@ from typing import Dict
 
 from dueutil import dbconn
 
+from datetime import datetime
 
 class Stat(Enum):
     """Enum of all the stats we track"""
 
+    MONEY_GENERATED = "moneygenerated"
+    MONEY_REMOVED = "moneyremoved"
     MONEY_CREATED = "moneycreated"
     MONEY_TRANSFERRED = "moneytransferred"
     MONEY_TAXED = "moneytaxed"
@@ -24,8 +27,17 @@ class Stat(Enum):
     COMMANDS_USED = "commandsused"
 
 
-def increment_stat(dueutil_stat: Stat, increment=1):
-    dbconn.conn()["stats"].update_one({"stat": dueutil_stat.value}, {"$inc": {"count": increment}}, upsert=True)
+def increment_stat(dueutil_stat: Stat, increment=1, **details):
+    if details.get("source"):
+        current_time = datetime.now().strftime("%Y-%m")
+        path = f"details.{current_time}.{details["source"]}"
+
+        dbconn.conn()["stats"].update_one(
+            { "stat": dueutil_stat.value },
+            { "$inc": { path: increment, "count": increment } },
+            upsert=True)
+    else:
+        dbconn.conn()["stats"].update_one({"stat": dueutil_stat.value}, {"$inc": {"count": increment}}, upsert=True)
 
 
 def get_stats() -> Dict[Stat, int]:

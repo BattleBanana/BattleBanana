@@ -217,6 +217,7 @@ async def check_for_recalls(ctx, player):
     recall_amount = sum([weapons.get_weapon_summary_from_id(weapon_id).price for weapon_id in weapons_to_recall])
     player.money += recall_amount
     player.save()
+    stats.increment_stat(stats.Stat.MONEY_GENERATED, recall_amount, source="shop")
     await util.reply(
         ctx,
         (

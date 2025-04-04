@@ -21,3 +21,4 @@ setuptools
 py-cpuinfo
 black
 audioop-lts
+matplotlib

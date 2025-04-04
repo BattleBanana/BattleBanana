@@ -5,6 +5,7 @@ Helper classes to make sell/buy actions faster
 from abc import ABC, abstractmethod
 
 from dueutil import util
+from dueutil.game import stats
 
 
 class ShopBuySellItem(ABC):
@@ -40,6 +41,7 @@ class ShopBuySellItem(ABC):
         setattr(player, self.item_type, self.default_item)
         player.inventory[self.inventory_slot].remove(item_name)
         player.money += sell_price
+        stats.increment_stat(stats.Stat.MONEY_GENERATED, sell_price, source="shop")
         await util.say(
             channel,
             (
@@ -68,6 +70,7 @@ class ShopBuySellItem(ABC):
             return True
         if customer.money - item.price >= 0:
             customer.money -= item.price
+            stats.increment_stat(stats.Stat.MONEY_REMOVED, item.price, source="shop")
             customer.inventory[self.inventory_slot].append(item_name)
             message = (
                 f"**{customer.name_clean}** bought the {self.item_type} **{item.name_clean}** "

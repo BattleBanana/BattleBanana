@@ -44,6 +44,7 @@ async def daily(ctx, **details):
 
     player.money += balanced_amount
     player.save()
+    stats.increment_stat(stats.Stat.MONEY_GENERATED, balanced_amount, source="daily")
 
     await util.reply(
         ctx,
@@ -536,7 +537,7 @@ async def sendcash(ctx, receiver, transaction_amount, message="", **details):
     sender.money -= transaction_amount
 
     battle_banana = players.find_player(ctx.guild.me.id)
-    taxed_transaction_amount = await util.tax(transaction_amount, battle_banana)
+    taxed_transaction_amount = await util.tax(transaction_amount, battle_banana, "sendcash")
     taxed_amount_string = util.format_number(taxed_transaction_amount, money=True, full_precision=True)
     taxed_total_string = util.format_number(
         transaction_amount - taxed_transaction_amount, money=True, full_precision=True
@@ -600,6 +601,7 @@ async def prestige(ctx, **details):
         )
 
     player.money -= req_money
+    stats.increment_stat(stats.Stat.MONEY_REMOVED, req_money, source="prestige")
     player.prestige()
 
     if prestige_level > 0:

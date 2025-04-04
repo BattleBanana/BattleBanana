@@ -9,6 +9,8 @@ import os
 import random
 import re
 import secrets
+import matplotlib.pyplot as plt
+import numpy as np
 from io import BytesIO
 from typing import Literal
 from urllib.parse import urlparse
@@ -19,8 +21,9 @@ from colour import Color
 from discord import Message
 from PIL import Image, ImageDraw, ImageFont
 from PIL.Image import Resampling
+from datetime import datetime
 
-from dueutil import util
+from dueutil import util, dbconn
 
 from .. import awards, customizations, emojis, gamerules, stats, weapons
 from ..configs import dueserverconfig
@@ -921,6 +924,110 @@ def _init_banners():
         if banner.image is None:
             banner.image = set_opacity(Image.open("screens/info_banners/" + banner.image_name), 0.9)
 
+
+async def draw_graph(ctx: Message, which):
+    stat_docs = {
+        "moneygenerated": dbconn.conn()["stats"].find_one({"stat": "moneygenerated"}),
+        "moneyremoved": dbconn.conn()["stats"].find_one({"stat": "moneyremoved"})
+    }
+    details_moneygenerated = stat_docs["moneygenerated"]["details"]
+    details_moneyremoved_full = stat_docs["moneyremoved"]["details"]
+    if which == "2":
+        details_moneyremoved = {
+            month: {"sendcash": cmds.get("sendcash", 0)}
+            for month, cmds in details_moneyremoved_full.items()
+        }
+    else:
+        details_moneyremoved = stat_docs["moneyremoved"]["details"]
+
+    sorted_month = sorted(set(details_moneygenerated.keys()).union(details_moneyremoved.keys()))
+    sorted_month_dt = [datetime.strptime(month, "%Y-%m") for month in sorted_month]
+    x_positions = np.arange(len(sorted_month))
+
+    all_commands = sorted(set(cmd for month_data in details_moneygenerated.values() for cmd in month_data.keys())
+                           .union(cmd for month_data in details_moneyremoved.values() for cmd in month_data.keys()))
+    command_color = plt.cm.get_cmap("tab10", len(all_commands))
+    command_color_dict = {cmd: command_color(i) for i, cmd in enumerate(all_commands)}
+    command_data_net = {cmd: np.zeros(len(sorted_month)) for cmd in all_commands}
+    # it gives me a lot of pain to use american english (illiterate english)
+
+    for i, month in enumerate(sorted_month):
+        for cmd in all_commands:
+            generated_amount = details_moneygenerated.get(month, {}).get(cmd, 0)
+            removed_amount = details_moneyremoved.get(month, {}).get(cmd, 0)
+            command_data_net[cmd][i] = generated_amount - removed_amount
+
+    plt.figure(figsize=(12, 6))
+
+    bar_width = 0.4
+    positive_bottom_values = np.zeros(len(sorted_month))
+    negative_bottom_values = np.zeros(len(sorted_month))
+    legend_handles, legend_labels = [], []
+
+    def plot_bars(values, bottom_values, color, cmd, shift):
+        bar = plt.bar(
+            x_positions + shift,
+            values,
+            width=bar_width,
+            bottom=bottom_values,
+            label=cmd,
+            color=color
+        )
+        return bar
+
+    for cmd, values in command_data_net.items():
+        positive_values = np.clip(values, 0, None)
+        negative_values = np.clip(values, None, 0)
+
+        positive_bar = plot_bars(positive_values, positive_bottom_values, command_color_dict[cmd], cmd, -bar_width / 2)
+        positive_bottom_values += positive_values
+
+        negative_bar = plot_bars(negative_values, negative_bottom_values, command_color_dict[cmd], cmd, -bar_width / 2)
+        negative_bottom_values += negative_values
+
+        if cmd not in legend_labels:
+            legend_handles.append(positive_bar)
+            legend_labels.append(cmd)
+
+    total_net_money = np.sum(list(command_data_net.values()), axis=0)
+    net_bar = plot_bars(total_net_money, np.zeros(len(sorted_month)), "blue", "Net Money", bar_width / 2)
+
+    for i, net_value in enumerate(total_net_money):
+        plt.text(
+            x_positions[i] + bar_width / 2,
+            net_value + (10 if net_value > 0 else -10),
+            f"{int(net_value)}",
+            ha="center",
+            va="bottom" if net_value > 0 else "top",
+            fontsize=9,
+            fontweight="bold",
+            color="blue"
+        )
+
+    max_positive = np.max(positive_bottom_values)
+    max_negative = np.min(negative_bottom_values)
+    max_abs = max(abs(max_positive), abs(max_negative))
+    plt.ylim(-max_abs, max_abs)
+
+    plt.xticks(x_positions, [time.strftime("%Y-%m") for time in sorted_month_dt], rotation=45, fontsize=8)
+    plt.xlabel("Time (Monthly)")
+    plt.ylabel("Amount")
+    plt.title("Net Money Generated and Removed Per Command")
+    plt.axhline(0, color='black', linewidth=1)
+
+    legend_handles.append(net_bar)
+    legend_labels.append("Net Money")
+    plt.legend(handles=legend_handles, labels=legend_labels, loc="upper left", bbox_to_anchor=(1, 1), fontsize=8)
+
+    plt.grid(True, linestyle="--", alpha=0.5)
+    plt.tight_layout()
+    img_buffer = BytesIO()
+    plt.savefig(img_buffer, format="PNG", bbox_inches="tight")
+    img_buffer.seek(0)
+    plt.close()
+
+    img = Image.open(img_buffer)
+    await send_image(ctx, img, "r", file_name="money_graph.png")
 
 _init_banners()
 _load_profile_parts()

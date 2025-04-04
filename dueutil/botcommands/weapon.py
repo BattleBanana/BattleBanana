@@ -531,6 +531,7 @@ async def buy_weapon(weapon_name, **details):
             if weapon.w_id not in customer.inventory["weapons"] and weapon.w_id != customer.equipped["weapon"]:
                 customer.store_weapon(weapon)
                 customer.money -= weapon.price
+                stats.increment_stat(stats.Stat.MONEY_REMOVED, weapon.price, source="shop")
                 await util.say(
                     channel,
                     (
@@ -556,6 +557,7 @@ async def buy_weapon(weapon_name, **details):
     else:
         customer.weapon = weapon
         customer.money -= weapon.price
+        stats.increment_stat(stats.Stat.MONEY_REMOVED, weapon.price, source="shop")
         await util.say(
             channel,
             (
@@ -590,6 +592,7 @@ async def sell_weapon(weapon_name, **details):
 
     sell_price = weapon_to_sell.price // price_divisor
     player.money += sell_price
+    stats.increment_stat(stats.Stat.MONEY_GENERATED, sell_price, source="shop")
     await util.say(
         channel,
         (

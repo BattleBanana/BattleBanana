@@ -232,6 +232,14 @@ def get_syntax_error(e):
     return f'```py\n{e.text}{"^":>{e.offset}}\n{e.__class__.__name__}: {e}```'
 
 
+@commands.command(permission=Permission.BANANA_OWNER, args_pattern="S")
+@commands.imagecommand()
+async def drawgraph(ctx, input, **details):
+    if input not in ("1", "2"):
+        await util.reply(ctx, "https://www.youtube.com/watch?v=2naim9F4010")
+    else:
+        await imagehelper.draw_graph(ctx, input)
+
 @commands.command(permission=Permission.BANANA_OWNER, args_pattern="S", aliases=["eval"])
 async def evaluate(ctx, body, **details):
     """

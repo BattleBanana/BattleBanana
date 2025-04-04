@@ -153,9 +153,9 @@ async def run_script(name: str):
         return err.output
 
 
-async def tax(amount, bb):
-    # cuddle me mr. tax man
-    if amount < 10000:
+async def tax(amount, bb, source):
+    # in case you ever wanted to do that variable tax rate?
+    if amount < 10000: # tax free allowance
         return amount
 
     tax_rate = 0.13  # 13%
@@ -163,6 +163,8 @@ async def tax(amount, bb):
     taxed_amount = math.floor(amount - taxed_total)
 
     stats.increment_stat(stats.Stat.MONEY_TAXED, taxed_total)
+    stats.increment_stat(stats.Stat.MONEY_REMOVED, taxed_total, source=source)
+
     if bb is not None:
         bb.money += taxed_total
         bb.save()
