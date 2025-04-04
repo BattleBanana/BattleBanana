@@ -235,6 +235,12 @@ def get_syntax_error(e):
 @commands.command(permission=Permission.BANANA_OWNER, args_pattern="S")
 @commands.imagecommand()
 async def drawgraph(ctx, input, **details):
+    """
+    [CMD_KEY]drawgraph (1 or 2)
+    Both options show all moneygenerated
+    1 - Also shows all moneyremoved
+    2 - Only shows moneyremoved from taxed sources (currently only sendcash)
+    """
     if input not in ("1", "2"):
         await util.reply(ctx, "https://www.youtube.com/watch?v=2naim9F4010")
     else:

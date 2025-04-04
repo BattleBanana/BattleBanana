@@ -932,36 +932,34 @@ async def draw_graph(ctx: Message, which):
     }
     details_moneygenerated = stat_docs["moneygenerated"]["details"]
     details_moneyremoved_full = stat_docs["moneyremoved"]["details"]
-    if which == "2":
-        details_moneyremoved = {
-            month: {"sendcash": cmds.get("sendcash", 0)}
-            for month, cmds in details_moneyremoved_full.items()
-        }
-    else:
-        details_moneyremoved = stat_docs["moneyremoved"]["details"]
+    details_moneyremoved = (
+        {month: {"sendcash": cmds.get("sendcash", 0)} for month, cmds in details_moneyremoved_full.items()}
+        if which == "2" else details_moneyremoved_full
+    )
 
-    sorted_month = sorted(set(details_moneygenerated.keys()).union(details_moneyremoved.keys()))
-    sorted_month_dt = [datetime.strptime(month, "%Y-%m") for month in sorted_month]
-    x_positions = np.arange(len(sorted_month))
+    sorted_month_keys = sorted(set(details_moneygenerated.keys()).union(details_moneyremoved.keys()))
+    sorted_month_dt = [datetime.strptime(month, "%Y-%m") for month in sorted_month_keys]
+    x_positions = np.arange(len(sorted_month_keys))
 
     all_commands = sorted(set(cmd for month_data in details_moneygenerated.values() for cmd in month_data.keys())
                            .union(cmd for month_data in details_moneyremoved.values() for cmd in month_data.keys()))
+
     command_color = plt.cm.get_cmap("tab10", len(all_commands))
     command_color_dict = {cmd: command_color(i) for i, cmd in enumerate(all_commands)}
-    command_data_net = {cmd: np.zeros(len(sorted_month)) for cmd in all_commands}
+    command_data_net = {cmd: np.zeros(len(sorted_month_keys)) for cmd in all_commands}
     # it gives me a lot of pain to use american english (illiterate english)
+    # "That little British vs. American spelling comment is gold. 😂 Keep it forever." - chatgpt
 
-    for i, month in enumerate(sorted_month):
+    for i, month in enumerate(sorted_month_keys):
         for cmd in all_commands:
             generated_amount = details_moneygenerated.get(month, {}).get(cmd, 0)
             removed_amount = details_moneyremoved.get(month, {}).get(cmd, 0)
             command_data_net[cmd][i] = generated_amount - removed_amount
 
     plt.figure(figsize=(12, 6))
-
     bar_width = 0.4
-    positive_bottom_values = np.zeros(len(sorted_month))
-    negative_bottom_values = np.zeros(len(sorted_month))
+    positive_bottom_values = np.zeros(len(sorted_month_keys))
+    negative_bottom_values = np.zeros(len(sorted_month_keys))
     legend_handles, legend_labels = [], []
 
     def plot_bars(values, bottom_values, color, cmd, shift):
@@ -982,7 +980,7 @@ async def draw_graph(ctx: Message, which):
         positive_bar = plot_bars(positive_values, positive_bottom_values, command_color_dict[cmd], cmd, -bar_width / 2)
         positive_bottom_values += positive_values
 
-        negative_bar = plot_bars(negative_values, negative_bottom_values, command_color_dict[cmd], cmd, -bar_width / 2)
+        plot_bars(negative_values, negative_bottom_values, command_color_dict[cmd], cmd, -bar_width / 2)
         negative_bottom_values += negative_values
 
         if cmd not in legend_labels:
@@ -990,7 +988,7 @@ async def draw_graph(ctx: Message, which):
             legend_labels.append(cmd)
 
     total_net_money = np.sum(list(command_data_net.values()), axis=0)
-    net_bar = plot_bars(total_net_money, np.zeros(len(sorted_month)), "blue", "Net Money", bar_width / 2)
+    net_bar = plot_bars(total_net_money, np.zeros(len(sorted_month_keys)), "blue", "Net Money", bar_width / 2)
 
     for i, net_value in enumerate(total_net_money):
         plt.text(
@@ -1014,12 +1012,12 @@ async def draw_graph(ctx: Message, which):
     plt.ylabel("Amount")
     plt.title("Net Money Generated and Removed Per Command")
     plt.axhline(0, color='black', linewidth=1)
+    plt.grid(True, linestyle="--", alpha=0.5)
 
     legend_handles.append(net_bar)
     legend_labels.append("Net Money")
     plt.legend(handles=legend_handles, labels=legend_labels, loc="upper left", bbox_to_anchor=(1, 1), fontsize=8)
 
-    plt.grid(True, linestyle="--", alpha=0.5)
     plt.tight_layout()
     img_buffer = BytesIO()
     plt.savefig(img_buffer, format="PNG", bbox_inches="tight")
