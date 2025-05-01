@@ -401,11 +401,9 @@ class BattleBananaClient(discord.AutoShardedClient):
             util.logger.error("Failed to change presence")
 
         util.logger.info(
-            "\nLogged in shard %d as %s\nWith account @%s ID:%s \n-------",
+            "Shard %d (%s) ready",
             shard_id + 1,
             shard_names[shard_id],
-            self.user.name,
-            self.user.id,
         )
 
 
