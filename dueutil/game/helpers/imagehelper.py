@@ -9,21 +9,21 @@ import os
 import random
 import re
 import secrets
-import matplotlib.pyplot as plt
-import numpy as np
+from datetime import datetime
 from io import BytesIO
 from typing import Literal
 from urllib.parse import urlparse
 
 import aiohttp
 import discord
+import matplotlib.pyplot as plt
+import numpy as np
 from colour import Color
 from discord import Message
 from PIL import Image, ImageDraw, ImageFont
 from PIL.Image import Resampling
-from datetime import datetime
 
-from dueutil import util, dbconn
+from dueutil import dbconn, util
 
 from .. import awards, customizations, emojis, gamerules, stats, weapons
 from ..configs import dueserverconfig
@@ -905,44 +905,28 @@ def get_text_limit_len(draw: ImageDraw.ImageDraw, text: str, given_font, length:
             return text
 
 
-def _load_profile_parts():
-    """
-    Loads the images that make up themes
-    (so they don't need to be constantly reloaded)
-    """
-
-    for theme in customizations.get_themes().values():
-        for part in _Themes.PROFILE_PARTS:
-            if part not in profile_parts:
-                profile_parts[part] = dict()
-            part_path = theme[part]
-            profile_parts[part][part_path] = Image.open(part_path)
-
-
-def _init_banners():
-    for banner in customizations.banners.values():
-        if banner.image is None:
-            banner.image = set_opacity(Image.open("screens/info_banners/" + banner.image_name), 0.9)
-
-
 async def draw_graph(ctx: Message, which):
     stat_docs = {
         "moneygenerated": dbconn.conn()["stats"].find_one({"stat": "moneygenerated"}),
-        "moneyremoved": dbconn.conn()["stats"].find_one({"stat": "moneyremoved"})
+        "moneyremoved": dbconn.conn()["stats"].find_one({"stat": "moneyremoved"}),
     }
     details_moneygenerated = stat_docs["moneygenerated"]["details"]
     details_moneyremoved_full = stat_docs["moneyremoved"]["details"]
     details_moneyremoved = (
         {month: {"sendcash": cmds.get("sendcash", 0)} for month, cmds in details_moneyremoved_full.items()}
-        if which == "2" else details_moneyremoved_full
+        if which == "2"
+        else details_moneyremoved_full
     )
 
     sorted_month_keys = sorted(set(details_moneygenerated.keys()).union(details_moneyremoved.keys()))
     sorted_month_dt = [datetime.strptime(month, "%Y-%m") for month in sorted_month_keys]
     x_positions = np.arange(len(sorted_month_keys))
 
-    all_commands = sorted(set(cmd for month_data in details_moneygenerated.values() for cmd in month_data.keys())
-                           .union(cmd for month_data in details_moneyremoved.values() for cmd in month_data.keys()))
+    all_commands = sorted(
+        set(cmd for month_data in details_moneygenerated.values() for cmd in month_data.keys()).union(
+            cmd for month_data in details_moneyremoved.values() for cmd in month_data.keys()
+        )
+    )
 
     command_color = plt.cm.get_cmap("tab10", len(all_commands))
     command_color_dict = {cmd: command_color(i) for i, cmd in enumerate(all_commands)}
@@ -963,14 +947,7 @@ async def draw_graph(ctx: Message, which):
     legend_handles, legend_labels = [], []
 
     def plot_bars(values, bottom_values, color, cmd, shift):
-        bar = plt.bar(
-            x_positions + shift,
-            values,
-            width=bar_width,
-            bottom=bottom_values,
-            label=cmd,
-            color=color
-        )
+        bar = plt.bar(x_positions + shift, values, width=bar_width, bottom=bottom_values, label=cmd, color=color)
         return bar
 
     for cmd, values in command_data_net.items():
@@ -999,7 +976,7 @@ async def draw_graph(ctx: Message, which):
             va="bottom" if net_value > 0 else "top",
             fontsize=9,
             fontweight="bold",
-            color="blue"
+            color="blue",
         )
 
     max_positive = np.max(positive_bottom_values)
@@ -1011,7 +988,7 @@ async def draw_graph(ctx: Message, which):
     plt.xlabel("Time (Monthly)")
     plt.ylabel("Amount")
     plt.title("Net Money Generated and Removed Per Command")
-    plt.axhline(0, color='black', linewidth=1)
+    plt.axhline(0, color="black", linewidth=1)
     plt.grid(True, linestyle="--", alpha=0.5)
 
     legend_handles.append(net_bar)
@@ -1026,6 +1003,27 @@ async def draw_graph(ctx: Message, which):
 
     img = Image.open(img_buffer)
     await send_image(ctx, img, "r", file_name="money_graph.png")
+
+
+def _load_profile_parts():
+    """
+    Loads the images that make up themes
+    (so they don't need to be constantly reloaded)
+    """
+
+    for theme in customizations.get_themes().values():
+        for part in _Themes.PROFILE_PARTS:
+            if part not in profile_parts:
+                profile_parts[part] = dict()
+            part_path = theme[part]
+            profile_parts[part][part_path] = Image.open(part_path)
+
+
+def _init_banners():
+    for banner in customizations.banners.values():
+        if banner.image is None:
+            banner.image = set_opacity(Image.open("screens/info_banners/" + banner.image_name), 0.9)
+
 
 _init_banners()
 _load_profile_parts()

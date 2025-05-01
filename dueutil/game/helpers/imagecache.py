@@ -3,9 +3,10 @@ import os
 import re
 from threading import Thread
 
+from discord.ext import tasks
 from PIL import Image
 
-from dueutil import dbconn, tasks, util
+from dueutil import dbconn, util
 
 CACHE_DIR = "assets/imagecache/"
 WEBP_EXTENSION = ".webp"
@@ -121,8 +122,8 @@ def remove_cached_image(url: str):
             util.logger.info(f"Removed cached image: {url}")
 
 
-@tasks.task(timeout=3600)
-def save_cache_info():
+@tasks.loop(seconds=3600)
+async def save_cache_info():
     """Persist cache statistics."""
     dbconn.insert_object("stats", stats)
 

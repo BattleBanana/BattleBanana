@@ -13,20 +13,12 @@ import pymongo
 import sentry_sdk
 
 import generalconfig as gconf
-from dueutil import (
-    blacklist,
-    dbconn,
-    events,
-    loader,
-    permissions,
-    servercounts,
-    tasks,
-    util,
-)
+from dueutil import blacklist, dbconn, events, loader, permissions, servercounts, util
 from dueutil.game import emojis, players
 from dueutil.game.configs import dueserverconfig
 from dueutil.game.helpers import imagecache
 from dueutil.permissions import Permission
+from dueutil.tasks.votes import process_votes
 
 sentry_sdk.init(
     gconf.other_configs.get("sentryAuth"),
@@ -85,6 +77,8 @@ class BattleBananaClient(discord.AutoShardedClient):
         util.logger.info("Listening for data transfer requests on port %s!", server_port)
 
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
+
+        process_votes.start()
 
     async def __check_task_queue(self):
         while True:
@@ -469,9 +463,6 @@ def run_bb():
         ### Tasks
         loop = asyncio.new_event_loop()
 
-        for task in tasks.tasks:
-            asyncio.ensure_future(task(), loop=loop)
-
         try:
             loop.run_forever()
         except KeyboardInterrupt:
@@ -488,4 +479,5 @@ if __name__ == "__main__":
     bot_key = config["botToken"]
     shard_names = config["shardNames"]
     util.load(clients)
+    asyncio.set_event_loop(asyncio.new_event_loop())
     run_bb()

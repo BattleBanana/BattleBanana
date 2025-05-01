@@ -1,19 +1,22 @@
 import traceback
 
-from discord import Embed
+from discord import Embed, User
+from discord.ext import tasks
 
 import generalconfig as gconf
-from dueutil import dbconn, tasks, util
+from dueutil import dbconn, util
 from dueutil.botcommands.player import DAILY_AMOUNT
 from dueutil.game import players
 
 
-@tasks.task(timeout=300)
+@tasks.loop(seconds=300)
 async def process_votes():
+    client = util.clients[0]
+    if not client.is_ready():
+        return
+
+    util.logger.info("Processing Votes.")
     try:
-        if not util.clients[0].is_ready():
-            return
-        util.logger.info("Processing Votes.")
         try:
             votes = dbconn.conn()["Votes"].find()
         except Exception as exception:
@@ -22,8 +25,6 @@ async def process_votes():
 
         if votes is None:
             return
-
-        client = util.clients[0]
 
         for vote in votes:
             if isinstance(vote, dict):
@@ -62,7 +63,7 @@ async def notify_complete(user_id, vote, reward):
     client = util.clients[0]
 
     try:
-        user = await client.fetch_user(user_id)
+        user: User = await client.fetch_user(user_id)
         await user.create_dm()
 
         embed = Embed(title="Vote notification", type="rich", colour=gconf.DUE_COLOUR)
