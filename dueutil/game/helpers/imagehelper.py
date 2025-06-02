@@ -9,6 +9,7 @@ import os
 import random
 import re
 import secrets
+from decimal import Decimal
 from datetime import datetime
 from io import BytesIO
 from typing import Literal
@@ -31,6 +32,7 @@ from ..customizations import _Themes
 from ..players import Player
 from ..quests import ActiveQuest
 from . import imagecache
+from bson.decimal128 import Decimal128
 
 try:
     from .speedup import quest_colorize_helper
@@ -934,11 +936,16 @@ async def draw_graph(ctx: Message, which):
     # it gives me a lot of pain to use american english (illiterate english)
     # "That little British vs. American spelling comment is gold. 😂 Keep it forever." - chatgpt
 
+    def as_decimal(val):
+        if isinstance(val, Decimal128):
+            return val.to_decimal()
+        return Decimal(val)
+
     for i, month in enumerate(sorted_month_keys):
         for cmd in all_commands:
             generated_amount = details_moneygenerated.get(month, {}).get(cmd, 0)
             removed_amount = details_moneyremoved.get(month, {}).get(cmd, 0)
-            command_data_net[cmd][i] = generated_amount - removed_amount
+            command_data_net[cmd][i] = as_decimal(generated_amount) - as_decimal(removed_amount)
 
     plt.figure(figsize=(12, 6))
     bar_width = 0.4
