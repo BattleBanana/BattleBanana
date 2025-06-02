@@ -509,6 +509,7 @@ async def givecash(ctx, amount, *players, **_):
 @commands.command(permission=Permission.BANANA_ADMIN, args_pattern="PI")
 async def setcash(ctx, player, amount, **_):
     player.money = amount
+    player.save()
     amount_str = util.format_number(amount, money=True, full_precision=True)
     await util.reply(ctx, f"Set **{player.get_name_possession_clean()}** balance to ``{amount_str}``")
 
