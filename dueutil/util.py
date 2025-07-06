@@ -19,6 +19,7 @@ import cpuinfo
 import discord
 import emoji  # The emoji list in this is outdated/not complete.
 from aiohttp_socks import ProxyConnector
+from bson.decimal128 import Decimal128
 
 import generalconfig as gconf
 from dueutil import dbconn
@@ -155,7 +156,7 @@ async def run_script(name: str):
 
 async def tax(amount, bb, source):
     # in case you ever wanted to do that variable tax rate?
-    if amount < 10000: # tax free allowance
+    if amount < 10000:  # tax free allowance
         return amount
 
     tax_rate = 0.13  # 13%
@@ -172,7 +173,7 @@ async def tax(amount, bb, source):
     return taxed_amount
 
 
-async def reply(ctx: discord.Message, *args, **kwargs):
+async def reply(ctx: discord.Message, *args, **kwargs) -> discord.Message:
     if isinstance(ctx.channel, str):
         # Guild/Channel id
         server_id, channel_id = ctx.channel.split("/")
@@ -325,6 +326,9 @@ def format_number(number, **kwargs):
         number = int(number * 100) / float(100)
         formatted_number = f"{number:g}"
         return formatted_number + string if len(formatted_number) < 17 else str(math.trunc(number)) + string
+
+    if isinstance(number, Decimal128):
+        number = float(number.to_decimal())
 
     if number >= 1000000 and not kwargs.get("full_precision", False):
         formatted = really_large_format()
