@@ -70,11 +70,14 @@ class BattleBananaClient(discord.AutoShardedClient):
         super().__init__(intents=intents, max_messages=None, **details)
 
     async def setup_hook(self):
-        async_server = await asyncio.start_server(players.handle_client, "", gconf.other_configs["connectionPort"])
-        server_port = async_server.sockets[0].getsockname()[
-            1
-        ]  # get port that the server is on, to confirm it started on 4000
-        util.logger.info("Listening for data transfer requests on port %s!", server_port)
+        try:
+            async_server = await asyncio.start_server(players.handle_client, "", gconf.other_configs["connectionPort"])
+            server_port = async_server.sockets[0].getsockname()[
+                1
+            ]  # get port that the server is on, to confirm it started on 4000
+            util.logger.info("Listening for data transfer requests on port %s!", server_port)
+        except OSError as error:
+            util.logger.error("Unable to start data transfer server: %s", error)
 
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
 
