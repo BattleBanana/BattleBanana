@@ -76,9 +76,9 @@ You can host BattleBanana yourself in a few easy steps
 1. Make sure you have [Docker](https://docs.docker.com/get-docker/) installed
 2. Clone this repository `git clone https://github.com/BattleBanana/BattleBanana.git`
 3. Rename and edit the example config files:
-    a. `battlebanana.example.json` -> `battlebanana.json`
-    b. `dbconfig.example.json` -> `dbconfig.json`
-    c. `generalconfig.example.json` -> `generalconfig.json`
+    1. `battlebanana.example.json` -> `battlebanana.json`
+    2. `dbconfig.example.json` -> `dbconfig.json`
+    3. `generalconfig.example.json` -> `generalconfig.json`
 4. Edit the database configuration in `docker-compose.yml` to match your `dbconfig.json` file
 5. Run `docker-compose up -d --build` to build and start the bot
 
