@@ -166,9 +166,9 @@ async def russianroulette(ctx, price, **details):
     message = await util.reply(ctx, "Click...")
     await asyncio.sleep(random.random() * 2)
     if secrets.randbelow(6) == 1:
-        reward = price * 5
+        reward = price * 4
         player.money += reward
-        stats.increment_stat(stats.Stat.MONEY_GENERATED, reward, source="russianroulette") # gamble tax when
+        stats.increment_stat(stats.Stat.MONEY_GENERATED, reward, source="russianroulette")  # gamble tax when
         await message.edit(content=message.content + f"\nYou survived and won `¤{reward}`!")
     else:
         player.money -= price

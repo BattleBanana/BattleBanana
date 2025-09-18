@@ -13,12 +13,12 @@ Pillow>=9.1.0
 beautifulsoup4
 sentry_sdk
 pydealer
-ssdeep
+ssdeep; platform_system != "Windows"
+ppdeep; platform_system == "Windows"
 aiohttp_socks
 cython
 psutil
 setuptools
 py-cpuinfo
 black
-audioop-lts
 matplotlib
