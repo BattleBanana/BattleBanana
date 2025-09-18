@@ -69,6 +69,19 @@ or [donating](https://patreon.com/developeranonymous) to help pay for server cos
 If you have a solid understanding of python, you can help BattleBanana by contributing towards the source code by fixing
 bugs, adding new features or fixing up the repo.
 
+## Hosting
+
+You can host BattleBanana yourself in a few easy steps
+
+1. Make sure you have [Docker](https://docs.docker.com/get-docker/) installed
+2. Clone this repository `git clone https://github.com/BattleBanana/BattleBanana.git`
+3. Rename and edit the example config files:
+    a. `battlebanana.example.json` -> `battlebanana.json`
+    b. `dbconfig.example.json` -> `dbconfig.json`
+    c. `generalconfig.example.json` -> `generalconfig.json`
+4. Edit the database configuration in `docker-compose.yml` to match your `dbconfig.json` file
+5. Run `docker-compose up -d --build` to build and start the bot
+
 ## License
 
 Licensed under [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.en.html)

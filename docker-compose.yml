@@ -1,0 +1,37 @@
+services:
+  database:
+    image: mongo:latest
+    container_name: battlebanana-database
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: battlebanana
+      MONGO_INITDB_ROOT_PASSWORD: dev123
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    networks:
+      - battlebanana-network
+
+  bot:
+    build: .
+    container_name: battlebanana-bot
+    restart: unless-stopped
+    depends_on:
+      - database
+    volumes:
+      - ./logs:/usr/src/app/logs
+      - ./assets:/usr/src/app/assets
+    networks:
+      - battlebanana-network
+
+volumes:
+  mongodb_data:
+    driver: local
+  mongodb_config:
+    driver: local
+
+networks:
+  battlebanana-network:
+    driver: bridge
