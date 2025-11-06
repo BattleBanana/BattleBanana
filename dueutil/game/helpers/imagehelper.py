@@ -978,7 +978,7 @@ async def draw_graph(ctx: Message, which):
         plt.text(
             x_positions[i] + bar_width / 2,
             net_value + (10 if net_value > 0 else -10),
-            f"{int(net_value)}",
+            util.format_number(abs(net_value)),
             ha="center",
             va="bottom" if net_value > 0 else "top",
             fontsize=9,
@@ -994,7 +994,7 @@ async def draw_graph(ctx: Message, which):
     plt.xticks(x_positions, [time.strftime("%Y-%m") for time in sorted_month_dt], rotation=45, fontsize=8)
     plt.xlabel("Time (Monthly)")
     plt.ylabel("Amount")
-    plt.title("Net Money Generated and Removed Per Command")
+    plt.title("Net Money Generated and Removed Per Command" if which == "1" else "Only Money Generated Per Command + Money taxed from sendcash")
     plt.axhline(0, color="black", linewidth=1)
     plt.grid(True, linestyle="--", alpha=0.5)
 
