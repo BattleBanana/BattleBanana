@@ -13,7 +13,16 @@ import pymongo
 import sentry_sdk
 
 import generalconfig as gconf
-from dueutil import blacklist, dbconn, events, loader, permissions, servercounts, util
+from dueutil import (
+    bananaguard,
+    blacklist,
+    dbconn,
+    events,
+    loader,
+    permissions,
+    servercounts,
+    util,
+)
 from dueutil.game import emojis, players
 from dueutil.game.configs import dueserverconfig
 from dueutil.game.helpers import imagecache
@@ -249,18 +258,6 @@ class BattleBananaClient(discord.AutoShardedClient):
                         pass
                 return
         elif isinstance(error, discord.HTTPException):
-            if error.code == 429 or "rate limit" in str(error):
-                bl_entry = blacklist.find(ctx.author.id)
-                if not bl_entry:
-                    await util.duelogger.error(
-                        f"**Blacklisted user:** {ctx.author.mention}\n<@{gconf.other_configs["owner"]}>"
-                    )
-                    blacklist.add(ctx.author.id, "Ratelimit")
-                    await ctx.author.send(
-                        "You have been blocked for exceeding rate limits. If you think this is a mistake, please join our [discord server](https://discord.gg/P7DBDEC)."
-                    )
-                return
-
             util.logger.error("Discord HTTP error: %s", error)
             if ctx_is_message:
                 trigger_message = discord.Embed(title="Trigger", type="rich", color=gconf.DUE_COLOUR)
@@ -269,15 +266,6 @@ class BattleBananaClient(discord.AutoShardedClient):
                     ("**Message/command triggred error!**\n" + STACKTRACE_FORMAT % (traceback.format_exc()[-1500:])),
                     embed=trigger_message,
                 )
-        elif isinstance(error, discord.NotFound):
-            if "Unknown Channel" in str(error):
-                bl_entry = blacklist.find(ctx.author.id)
-                if not bl_entry:
-                    await util.duelogger.error(
-                        f"**Blacklisted user:** {ctx.author.mention}\n<@{gconf.other_configs['owner']}>"
-                    )
-                    blacklist.add(ctx.author.id, "Unknown Channel")
-                return
         elif isinstance(error, discord.DiscordServerError):
             util.logger.error("Discord Server error: %s", error)
             if ctx_is_message:
@@ -331,6 +319,13 @@ class BattleBananaClient(discord.AutoShardedClient):
             or isinstance(message.channel, discord.abc.PrivateChannel)
             or blacklist.exists(message.author.id)
         ):
+            return
+
+        if bananaguard.is_ratelimited(message.author.id):
+            return
+
+        if bananaguard.record_message(message):
+            await util.say(message.channel, ":no_entry: You are being rate limited. Please slow down.")
             return
 
         owner = message.author

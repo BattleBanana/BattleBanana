@@ -587,6 +587,9 @@ async def prestige(ctx, **details):
     """
 
     player = details["author"]
+    if player.is_top_dog():
+        raise util.BattleBananaException(ctx.channel, "You cannot prestige when you are the Top Dog!")
+
     prestige_level = gamerules.get_level_for_prestige(player.prestige_level)
     req_money = gamerules.get_money_for_prestige(player.prestige_level)
 
