@@ -6,7 +6,7 @@ from discord.ext import tasks
 import generalconfig as gconf
 from dueutil import dbconn, util
 from dueutil.botcommands.player import DAILY_AMOUNT
-from dueutil.game import players
+from dueutil.game import players, stats
 
 
 @tasks.loop(seconds=300)
@@ -43,6 +43,7 @@ async def process_votes():
                     reward *= 2
                 player.money += reward
                 player.save()
+                stats.increment_stat(stats.Stat.MONEY_GENERATED, reward, source="votes")
 
                 client.run_task(notify_complete, user_id, vote, reward)
 
