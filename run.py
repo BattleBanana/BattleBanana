@@ -321,7 +321,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         ):
             return
 
-        if bananaguard.is_ratelimited(message.author.id):
+        if bananaguard.is_ratelimited(message):
             return
 
         if bananaguard.record_message(message):
