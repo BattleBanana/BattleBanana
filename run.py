@@ -13,16 +13,7 @@ import pymongo
 import sentry_sdk
 
 import generalconfig as gconf
-from dueutil import (
-    bananaguard,
-    blacklist,
-    dbconn,
-    events,
-    loader,
-    permissions,
-    servercounts,
-    util,
-)
+from dueutil import blacklist, dbconn, events, loader, permissions, servercounts, util
 from dueutil.game import emojis, players
 from dueutil.game.configs import dueserverconfig
 from dueutil.game.helpers import imagecache
@@ -319,13 +310,6 @@ class BattleBananaClient(discord.AutoShardedClient):
             or isinstance(message.channel, discord.abc.PrivateChannel)
             or blacklist.exists(message.author.id)
         ):
-            return
-
-        if bananaguard.is_ratelimited(message):
-            return
-
-        if bananaguard.record_message(message):
-            await util.say(message.channel, ":no_entry: You are being rate limited. Please slow down.")
             return
 
         owner = message.author

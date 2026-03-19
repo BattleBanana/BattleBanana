@@ -4,7 +4,7 @@ from typing import Callable
 
 from discord import Message
 
-from dueutil import commands
+from dueutil import bananaguard, commands, util
 from dueutil.game.configs import dueserverconfig
 from dueutil.game.helpers.misc import DueMap
 
@@ -72,6 +72,14 @@ class CommandEvent(dict):
         # mentioning the bot
         if not ctx.content.startswith(dueserverconfig.server_cmd_key(ctx.guild)):
             return
+
+        if bananaguard.is_ratelimited(ctx):
+            return
+
+        if bananaguard.record_message(ctx):
+            await util.say(ctx.channel, ":no_entry: You are being rate limited. Please slow down.")
+            return
+
         args = commands.parse(ctx)
         command = get_command(args[1])
         if command is not None:
