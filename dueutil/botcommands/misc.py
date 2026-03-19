@@ -246,6 +246,7 @@ async def drawgraph(ctx, input, **details):
     else:
         await imagehelper.draw_graph(ctx, input)
 
+
 @commands.command(permission=Permission.BANANA_OWNER, args_pattern="S", aliases=["eval"])
 async def evaluate(ctx, body, **details):
     """
