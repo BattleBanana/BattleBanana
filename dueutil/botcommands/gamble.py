@@ -308,7 +308,7 @@ async def ridethebus(ctx, price, **details):
 
         last_multiplier = current_multiplier
 
-    if last_multiplier == 0.0:
+    if last_multiplier == 0:
         embed.title = "Ride the Bus"
         embed.description = "The bus ride ended before it started. No money was lost."
         await message.edit(embed=embed, view=None)
