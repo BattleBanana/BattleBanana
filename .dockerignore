@@ -3,3 +3,4 @@
 **/avatars
 .git/
 logs/
+.vllm_cache

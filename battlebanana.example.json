@@ -17,6 +17,8 @@
   "sentryAuth": "",
   "connectionIP": "",
   "connectionPort": 0,
+  "llmUrl": "http://vllm:8000",
+  "llmModel": "Qwen/Qwen2.5-7B-Instruct-AWQ",
   "vpn": {
     "protocol": "",
     "host": "",

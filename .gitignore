@@ -10,3 +10,4 @@ start_fixed.sh
 logs/
 dueutil/game/helpers/build
 *speedup*
+.vllm_cache

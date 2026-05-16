@@ -51,6 +51,53 @@ This bot is not well structured...
 """
 
 
+async def _warmup_llm():
+    """Wait for vLLM to finish loading its model, then send a warmup request."""
+    if not gconf.llm_url:
+        return
+
+    util.logger.info("Waiting for vLLM to be ready (model download/load may take a while)...")
+    max_wait = 3600
+    interval = 10
+    elapsed = 0
+    while elapsed < max_wait:
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(
+                    f"{gconf.llm_url}/health",
+                    timeout=aiohttp.ClientTimeout(total=5),
+                ) as resp:
+                    if resp.status == 200:
+                        break
+        except Exception:
+            pass
+        await asyncio.sleep(interval)
+        elapsed += interval
+    else:
+        util.logger.error("vLLM did not become ready within %ds — AI features will be unavailable.", max_wait)
+        return
+
+    util.logger.info("Warming up vLLM model '%s'...", gconf.llm_model)
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                f"{gconf.llm_url}/v1/chat/completions",
+                json={
+                    "model": gconf.llm_model,
+                    "messages": [{"role": "user", "content": "hi"}],
+                    "max_tokens": 5,
+                },
+                timeout=aiohttp.ClientTimeout(total=120),
+            ) as resp:
+                if resp.status == 200:
+                    gconf.llm_ready = True
+                    util.logger.info("vLLM is warm and ready.")
+                else:
+                    util.logger.warning("vLLM warmup returned HTTP %s.", resp.status)
+    except Exception as e:
+        util.logger.warning("vLLM warmup failed: %s: %s", type(e).__name__, e)
+
+
 class BattleBananaClient(discord.AutoShardedClient):
     """
     BattleBanana client
@@ -80,6 +127,7 @@ class BattleBananaClient(discord.AutoShardedClient):
             util.logger.error("Unable to start data transfer server: %s", error)
 
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
+        asyncio.ensure_future(_warmup_llm())
 
         process_votes.start()
 

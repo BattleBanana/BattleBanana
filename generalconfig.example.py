@@ -54,3 +54,5 @@ discoin_channel = other_configs.get("transactions")
 announcement_channel = other_configs.get("announcementsChannel")
 shard_names = other_configs.get("shardNames")
 vpn_config = other_configs.get("vpn", None)  # Optional
+ollama_url = other_configs.get("ollamaUrl", "http://ollama:11434")
+ollama_model = other_configs.get("ollamaModel", "qwen3:1.7b")
