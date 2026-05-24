@@ -311,7 +311,13 @@ def parse(command_message):
                 if current_char == "\\" and not (current_char.isspace() or current_char.isalpha()):
                     escaped = True
                     continue
-                elif current_char == '"':
+                elif (
+                    current_char == '"'
+                    or current_char == "\u201c"
+                    or current_char == "\u201d"
+                    or current_char == "\u2018"
+                    or current_char == "\u2019"
+                ):
                     is_string = not is_string
                     add_arg()
                     continue
