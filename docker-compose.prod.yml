@@ -1,30 +1,23 @@
 services:
-  vllm:
-    image: vllm/vllm-openai:latest
-    container_name: battlebanana-vllm
+  ollama:
+    image: ollama/ollama:0.30.6
+    container_name: battlebanana-ollama
     restart: unless-stopped
-    ports:
-      - "8000:8000"
     gpus: all
-    shm_size: '1gb'
+    environment:
+      OLLAMA_KEEP_ALIVE: 24h
+      OLLAMA_HOST: 0.0.0.0:11434
     networks:
       - battlebanana-network
     volumes:
-      - ./.vllm_cache:/root/.cache/huggingface
-    command: >
-      --model Qwen/Qwen2.5-7B-Instruct-AWQ
-      --quantization awq_marlin
-      --max-model-len 8192
-      --max-num-seqs 64
-      --gpu-memory-utilization 0.90
-      --safetensors-load-strategy prefetch
+      - ollama_data:/root/.ollama
 
   bot:
     build: .
     container_name: battlebanana-bot
     restart: unless-stopped
     depends_on:
-      - vllm
+      - ollama
     volumes:
       - ./logs:/usr/src/app/logs
       - ./assets:/usr/src/app/assets
@@ -36,3 +29,7 @@ services:
 networks:
   battlebanana-network:
     driver: bridge
+
+volumes:
+  ollama_data:
+    driver: local

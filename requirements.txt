@@ -1,5 +1,6 @@
 discord.py[speed]<3.0.0
 aiohttp[speedups]
+ollama>=0.5.0,<1.0.0
 pymongo
 objgraph
 validators

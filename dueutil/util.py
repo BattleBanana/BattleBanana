@@ -31,6 +31,7 @@ _PROCESSOR = ""
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("battlebanana")
 logging.getLogger("discord.state").setLevel(logging.ERROR)
+logging.getLogger("httpx").setLevel(logging.WARNING)
 
 
 class DueLog:

@@ -6,5 +6,8 @@
   "editor.codeActionsOnSave": {
     "source.organizeImports": "always",
     "source.fixAll": "always"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   }
 }
