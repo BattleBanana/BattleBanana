@@ -191,7 +191,6 @@ class Ring(list):
         self.clear()
         self.extend([None] * size)
         self.size = size
-        self.wrap_index = 0
 
     def __getitem__(self, index):
         return super().__getitem__(index % self.size)
@@ -211,12 +210,11 @@ class Ring(list):
         super().__delitem__(index % self.size)
 
     def append(self, item):
-        try:
-            next_index = self.index(None)
-            self[next_index] = item
-        except ValueError:
-            self[self.wrap_index] = item
-            self.wrap_index += 1
+        if None in self:
+            self[self.index(None)] = item
+            return
+        super().__delitem__(0)
+        super().append(item)
 
 
 #### End - MacDue's wacky data classes

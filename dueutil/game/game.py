@@ -275,6 +275,7 @@ async def on_message(message):
         await check_for_recalls(message, player)
         await check_for_missing_new_stats(player)
         await check_for_removed_stats(player)
+        player.save()
 
 
 events.register_message_listener(on_message)
