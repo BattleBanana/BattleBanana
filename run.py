@@ -80,6 +80,9 @@ class BattleBananaClient(discord.AutoShardedClient):
         super().__init__(intents=intents, max_messages=None, **details)
 
     async def setup_hook(self):
+        process_transactions.start()
+        process_votes.start()
+
         try:
             async_server = await asyncio.start_server(players.handle_client, "", gconf.other_configs["connectionPort"])
             server_port = async_server.sockets[0].getsockname()[
@@ -91,9 +94,6 @@ class BattleBananaClient(discord.AutoShardedClient):
 
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
         asyncio.ensure_future(llm.warmup())
-
-        process_transactions.start()
-        process_votes.start()
 
     async def __check_task_queue(self):
         while True:

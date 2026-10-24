@@ -9,7 +9,7 @@ from dueutil import util
 from dueutil.game import players, stats
 from dueutil.game.stats import Stat
 
-DISCOIN = "https://discoin.zws.im"
+DISCOIN = "https://discoin.theelutil.xyz"
 DISCOINDASH = "https://discoin.theelutil.xyz/#/transactions"
 CURRENCY_CODE = "BBT"
 TRANSACTIONS = DISCOIN + "/transactions"
