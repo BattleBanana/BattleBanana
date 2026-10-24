@@ -27,6 +27,7 @@ from dueutil.game import emojis, players
 from dueutil.game.configs import dueserverconfig
 from dueutil.game.helpers import imagecache
 from dueutil.permissions import Permission
+from dueutil.tasks.discoin import process_transactions
 from dueutil.tasks.votes import process_votes
 
 sentry_sdk.init(
@@ -91,6 +92,7 @@ class BattleBananaClient(discord.AutoShardedClient):
         asyncio.ensure_future(self.__check_task_queue(), loop=self.loop)
         asyncio.ensure_future(llm.warmup())
 
+        process_transactions.start()
         process_votes.start()
 
     async def __check_task_queue(self):
