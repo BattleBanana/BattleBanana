@@ -2,23 +2,21 @@ import json
 
 import aiohttp
 from discord import Embed
+from discord.ext import tasks
 
 import generalconfig as gconf
 from dueutil import util
 from dueutil.game import players, stats
 from dueutil.game.stats import Stat
 
-# A quick discoin implementation.
-
 DISCOIN = "https://discoin.zws.im"
-DISCOINDASH = "https://dash.discoin.zws.im/#/transactions"
+DISCOINDASH = "https://discoin.theelutil.xyz/#/transactions"
 CURRENCY_CODE = "BBT"
-# Endpoints
 TRANSACTIONS = DISCOIN + "/transactions"
 BOTS = DISCOIN + "/bots"
 FILTER = f"?filter=to.id||eq||{CURRENCY_CODE}&filter=handled||eq||false"
-headers = {"Authorization": gconf.other_configs["discoinKey"], "Content-Type": "application/json"}
-handled = {"handled": True}
+HEADERS = {"Authorization": gconf.other_configs["discoinKey"], "Content-Type": "application/json"}
+HANDLED = {"handled": True}
 MAX_TRANSACTION = 500000
 
 
@@ -79,7 +77,7 @@ async def make_transaction(sender_id, amount, to, cfrom=CURRENCY_CODE):
     transaction_data = {"amount": amount, "from": cfrom, "to": to, "user": str(sender_id)}
 
     async with aiohttp.ClientSession(conn_timeout=10) as session:
-        async with session.post(TRANSACTIONS, data=json.dumps(transaction_data), headers=headers) as response:
+        async with session.post(TRANSACTIONS, data=json.dumps(transaction_data), headers=HEADERS) as response:
             return await response.json()
 
 
@@ -90,20 +88,19 @@ async def reverse_transaction(user, currency_from, amount, id):
 
 async def unprocessed_transactions():
     async with aiohttp.ClientSession() as session:
-        async with session.get(TRANSACTIONS + FILTER, headers=headers) as response:
+        async with session.get(TRANSACTIONS + FILTER, headers=HEADERS) as response:
             return await response.json()
 
 
 async def mark_as_completed(transaction):
     async with aiohttp.ClientSession() as session:
         async with session.patch(
-            url=TRANSACTIONS + "/" + transaction["id"], data=json.dumps(handled), headers=headers
+            url=TRANSACTIONS + "/" + transaction["id"], data=json.dumps(HANDLED), headers=HEADERS
         ) as response:
             return await response.json()
 
 
-# Task is disabled because discoin is probably never coming back.
-# @tasks.task(timeout=150)
+@tasks.loop(seconds=150)
 async def process_transactions():
     try:
         if not util.clients[0].is_ready():
