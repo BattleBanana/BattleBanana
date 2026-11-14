@@ -1,11 +1,11 @@
+import asyncio
 import collections
-import threading
-import urllib
+import io
+import json
 
 import aiohttp
 import discord
 import validators
-from bs4 import BeautifulSoup
 
 import generalconfig as gconf
 from dueutil import dbconn, util
@@ -14,11 +14,36 @@ from . import imagecache
 
 POSITIVE_BOOLS = ("true", "1", "t", "y", "yes", "yeah", "yup", "certainly", "uh-huh")
 auto_replies = []
-GLITTER_TEXT_URL = (
-    "https://www.gigaglitters.com/procesing.php?text=%s"
-    + "&size=90&text_color=img/DCdarkness.gif"
-    + "&angle=0&border=0&border_yes_no=4&shadows=1&font='fonts/Super 911.ttf'"
-)
+GLITTER_SITE_URL = "https://www.gigaglitters.com"
+GLITTER_RENDER_URL = GLITTER_SITE_URL + "/api/render"
+GLITTER_HEADERS = {
+    "User-Agent": "BattleBanana-Bot",
+    "Origin": GLITTER_SITE_URL,
+    "Referer": GLITTER_SITE_URL + "/",
+}
+GLITTER_STYLE = {
+    "type": "text",
+    "font": "action-man",
+    "glitter": "glit15",
+    "size": "64",
+    "angle": "0",
+    "border": "2",
+    "shadow": "1",
+    "outline": "#000000",
+    "bg": "",
+    "lang": "en",
+}
+GLITTER_TEXT_MAX_LENGTH = 40
+GLITTER_ERROR_BODY_PREVIEW_LENGTH = 200
+GIF_MAGIC_BYTES = b"GIF8"
+
+
+class GlitterTextError(Exception):
+    """Raised when glitter text cannot be created"""
+
+
+class GlitterTextTooLongError(GlitterTextError):
+    """Raised when the requested glitter text is over the site's length limit"""
 
 
 class BattleBananaObject:
@@ -250,16 +275,58 @@ def paginator(item_add):
 
 async def get_glitter_text(gif_text):
     """
-    Screen scrape glitter text
+    Render glitter text with gigaglitters.com and download the gif
     """
 
-    async with aiohttp.ClientSession(conn_timeout=10) as session:
-        async with session.get(GLITTER_TEXT_URL % urllib.parse.quote(gif_text.replace("'", ""))) as page_response:
-            html = await page_response.text()
-            soup = BeautifulSoup(html, "html.parser")
-            box = soup.find("textarea", {"id": "dLink"})
-            gif_text_area = str(box)
-            gif_url = gif_text_area.replace(
-                '<textarea class="field" cols="12" id="dLink" onclick="this.focus();this.select()" readonly="">', "", 1
-            ).replace("</textarea>", "", 1)
-            return await util.download_file(gif_url)
+    if len(gif_text) > GLITTER_TEXT_MAX_LENGTH:
+        raise GlitterTextTooLongError(f"Glitter text can be at most {GLITTER_TEXT_MAX_LENGTH} characters")
+
+    async with aiohttp.ClientSession(timeout=util.HTTP_TIMEOUT, headers=GLITTER_HEADERS) as session:
+        gif_path = await _render_glitter_gif_path(session, gif_text)
+
+        return await _download_glitter_gif(session, gif_path)
+
+
+async def _render_glitter_gif_path(session, gif_text):
+    form = {**GLITTER_STYLE, "text": gif_text}
+
+    status, body = await _read_glitter_response("Glitter render", session.post(GLITTER_RENDER_URL, data=form))
+    if not _is_success(status):
+        preview = body[:GLITTER_ERROR_BODY_PREVIEW_LENGTH].decode(errors="replace")
+        raise GlitterTextError(f"Glitter render returned HTTP {status}: {preview}")
+
+    try:
+        render = json.loads(body)
+    except ValueError as error:
+        raise GlitterTextError("Glitter render response is not valid JSON") from error
+
+    if "error" in render:
+        raise GlitterTextError(f"Glitter render returned an error: {render['error']}")
+
+    if "gif" not in render:
+        raise GlitterTextError(f"Glitter render response has no gif field: {render}")
+
+    return render["gif"]
+
+
+async def _download_glitter_gif(session, gif_path):
+    status, gif_data = await _read_glitter_response("Glitter gif download", session.get(GLITTER_SITE_URL + gif_path))
+    if not _is_success(status):
+        raise GlitterTextError(f"Glitter gif download returned HTTP {status}")
+
+    if not gif_data.startswith(GIF_MAGIC_BYTES):
+        raise GlitterTextError("Glitter gif download is not a GIF")
+
+    return io.BytesIO(gif_data)
+
+
+async def _read_glitter_response(step, request):
+    try:
+        async with request as response:
+            return response.status, await response.read()
+    except (aiohttp.ClientError, asyncio.TimeoutError) as error:
+        raise GlitterTextError(f"{step} request failed: {error!r}") from error
+
+
+def _is_success(status):
+    return 200 <= status < 300

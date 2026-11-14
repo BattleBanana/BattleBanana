@@ -32,6 +32,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("battlebanana")
 logging.getLogger("discord.state").setLevel(logging.ERROR)
 logging.getLogger("httpx").setLevel(logging.WARNING)
+HTTP_TIMEOUT = aiohttp.ClientTimeout(total=300, connect=10)
+HTTP_HEADERS = {"User-Agent": "BattleBanana"}
 
 
 class DueLog:
@@ -74,6 +76,11 @@ class BattleBananaException(BotException):
         if self.additional_info != "":
             message += "```css\n" + self.additional_info + "```"
         return message
+
+
+class ImageDownloadError(Exception):
+    def __init__(self, url: str, response: aiohttp.ClientResponse):
+        super().__init__(f"{url} returned status {response.status} with content type {response.content_type}")
 
 
 class DueReloadException(BotException):
@@ -122,9 +129,16 @@ def get_cpu_info():
     return _PROCESSOR
 
 
-async def download_file(url):
-    async with aiohttp.ClientSession(conn_timeout=10) as session:
+def is_image_response(response: aiohttp.ClientResponse) -> bool:
+    return 200 <= response.status < 300 and response.content_type.lower().startswith("image/")
+
+
+async def download_image(url):
+    async with aiohttp.ClientSession(timeout=HTTP_TIMEOUT, headers=HTTP_HEADERS) as session:
         async with session.get(url) as response:
+            if not is_image_response(response):
+                raise ImageDownloadError(url, response)
+
             file_data = io.BytesIO()
             while True:
                 chunk = await response.content.read(128)

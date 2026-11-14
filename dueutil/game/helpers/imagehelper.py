@@ -9,8 +9,8 @@ import os
 import random
 import re
 import secrets
-from decimal import Decimal
 from datetime import datetime
+from decimal import Decimal
 from io import BytesIO
 from typing import Literal
 from urllib.parse import urlparse
@@ -20,6 +20,7 @@ import discord
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+from bson.decimal128 import Decimal128
 from colour import Color
 from discord import Message
 from PIL import Image, ImageDraw, ImageFont
@@ -33,7 +34,6 @@ from ..customizations import _Themes
 from ..players import Player
 from ..quests import ActiveQuest
 from . import imagecache
-from bson.decimal128 import Decimal128
 
 try:
     from .speedup import quest_colorize_helper
@@ -142,21 +142,23 @@ def paste_alpha(background: Image.Image, image: Image.Image, position: tuple[int
 
 async def check_url(url: str):
     """
-    Returns True if the url returns a response code between 200-300,
-    otherwise return False.
+    Returns True if the url responds 2xx with an image content type.
     """
     try:
-        headers = {"Range": "bytes=0-10", "User-Agent": "BattleBanana", "Accept": "*/*"}
+        headers = {"Range": "bytes=0-10", "Accept": "*/*"}
 
-        async with aiohttp.ClientSession() as session:
-            async with session.head(url, headers=headers) as response:
-                return (response.status in range(200, 300)) and response.content_type.lower().startswith("image")
+        async with aiohttp.ClientSession(timeout=util.HTTP_TIMEOUT, headers=util.HTTP_HEADERS) as session:
+            async with session.head(url, headers=headers, allow_redirects=True) as response:
+                if util.is_image_response(response):
+                    return True
+
+                util.logger.warning(
+                    "Rejected image url %s: status %s, content type %s", url, response.status, response.content_type
+                )
     except asyncio.TimeoutError:
         util.logger.warning("Timeout error when checking url %s", url)
     except asyncio.CancelledError as e:
         util.logger.warning("Error when checking url %s: %s", url, e)
-    finally:
-        await session.close()
 
     return False
 
@@ -995,7 +997,11 @@ async def draw_graph(ctx: Message, which):
     plt.xticks(x_positions, [time.strftime("%Y-%m") for time in sorted_month_dt], rotation=45, fontsize=8)
     plt.xlabel("Time (Monthly)")
     plt.ylabel("Amount")
-    plt.title("Net Money Generated and Removed Per Command" if which == "1" else "Only Money Generated Per Command + Money taxed from sendcash")
+    plt.title(
+        "Net Money Generated and Removed Per Command"
+        if which == "1"
+        else "Only Money Generated Per Command + Money taxed from sendcash"
+    )
     plt.axhline(0, color="black", linewidth=1)
     plt.grid(True, linestyle="--", alpha=0.5)
 

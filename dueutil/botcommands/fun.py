@@ -1,4 +1,3 @@
-import asyncio
 from datetime import datetime
 
 import discord
@@ -11,16 +10,21 @@ from dueutil.game.helpers import imagehelper, misc
 
 TOPDOGS_PER_PAGE = 10
 TOPDOG_NOT_FOUND = "Sorry there was an error trying to find the topdog!"
+GLITTER_FETCH_FAILED = ":cry: Could not fetch glitter text! Please try again later."
 
 
 async def glitter_text(channel, text):
     try:
         gif_text = await misc.get_glitter_text(text)
+    except misc.GlitterTextTooLongError as error:
+        await util.say(channel, f":cry: {error}!")
+    except misc.GlitterTextError as error:
+        util.logger.error("glitter command failed for text %r: %s", text, error, exc_info=error)
+        await util.say(channel, GLITTER_FETCH_FAILED)
+    else:
         await util.say(
             channel, ":sparkles: Your glitter text!", file=discord.File(fp=gif_text, filename="glittertext.gif")
         )
-    except (ValueError, asyncio.TimeoutError):
-        await util.say(channel, ":cry: Could not fetch glitter text! Please try again later.")
 
 
 @commands.command(
@@ -36,6 +40,7 @@ async def glitter(ctx, text, **details):
     [CMD_KEY]glitter(text)
 
     Creates a glitter text gif!
+    Text can be at most 40 characters.
 
     (Glitter text from https://www.gigaglitters.com/)
     """

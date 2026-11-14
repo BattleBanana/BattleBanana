@@ -63,7 +63,7 @@ async def cache_image(url: str):
     """Cache an image from a URL."""
     filename = get_cached_filename(url)
     try:
-        image_data = await util.download_file(url)
+        image_data = await util.download_image(url)
         image = Image.open(image_data)
         async_save_image(filename, image)
 

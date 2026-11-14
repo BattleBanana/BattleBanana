@@ -76,7 +76,7 @@ async def update_discoin():
 async def make_transaction(sender_id, amount, to, cfrom=CURRENCY_CODE):
     transaction_data = {"amount": amount, "from": cfrom, "to": to, "user": str(sender_id)}
 
-    async with aiohttp.ClientSession(conn_timeout=10) as session:
+    async with aiohttp.ClientSession(timeout=util.HTTP_TIMEOUT) as session:
         async with session.post(TRANSACTIONS, data=json.dumps(transaction_data), headers=HEADERS) as response:
             return await response.json()
 
