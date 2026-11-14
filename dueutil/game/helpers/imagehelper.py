@@ -17,6 +17,7 @@ from urllib.parse import urlparse
 
 import aiohttp
 import discord
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from colour import Color
@@ -930,7 +931,7 @@ async def draw_graph(ctx: Message, which):
         )
     )
 
-    command_color = plt.cm.get_cmap("tab10", len(all_commands))
+    command_color = matplotlib.colormaps["tab10"].resampled(len(all_commands))
     command_color_dict = {cmd: command_color(i) for i, cmd in enumerate(all_commands)}
     command_data_net = {cmd: np.zeros(len(sorted_month_keys)) for cmd in all_commands}
     # it gives me a lot of pain to use american english (illiterate english)

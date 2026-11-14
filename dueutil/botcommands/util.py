@@ -16,7 +16,7 @@ from dueutil import commands, events, llm, permissions, util
 
 # Shorthand for emoji as I use gconf to hold emoji constants
 from dueutil.game import awards
-from dueutil.game import emojis as e
+from dueutil.game import emojis
 from dueutil.game import players, stats
 from dueutil.game.configs import dueserverconfig
 from dueutil.game.stats import Stat
@@ -813,7 +813,7 @@ async def currencies(ctx, **_):
 
     Display every currencies currently available on Discoin
     """
-    embed = discord.Embed(title=e.DISCOIN + " Current currencies!", type="rich", color=gconf.DUE_COLOUR)
+    embed = discord.Embed(title=emojis.DISCOIN + " Current currencies!", type="rich", color=gconf.DUE_COLOUR)
     for bot in discoin.bots:
         for currency in bot.currencies:
             embed.add_field(name=currency.code, value=currency.bot_name)
@@ -888,7 +888,7 @@ async def exchange(ctx, amount, currency, **details):
     transaction = response
     receipt = discoin.DISCOINDASH + "/" + transaction["id"] + "/show"
 
-    exchange_embed = discord.Embed(title=e.DISCOIN + " Exchange complete!", type="rich", color=gconf.DUE_COLOUR)
+    exchange_embed = discord.Embed(title=emojis.DISCOIN + " Exchange complete!", type="rich", color=gconf.DUE_COLOUR)
     exchange_embed.add_field(
         name=f"Exchange amount ({discoin.CURRENCY_CODE}):",
         value=util.format_number(amount, money=True, full_precision=True),
