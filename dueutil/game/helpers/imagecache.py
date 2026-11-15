@@ -4,12 +4,14 @@ import re
 from threading import Thread
 
 from discord.ext import tasks
-from PIL import Image
+from PIL import Image, ImageFile
 
 from dueutil import dbconn, util
 
 CACHE_DIR = "assets/imagecache/"
 WEBP_EXTENSION = ".webp"
+
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 class _CacheStats:
@@ -69,7 +71,7 @@ async def cache_image(url: str):
 
         return image
     except Exception as e:
-        util.logger.error(f"Failed to cache image from {url}: {e}")
+        util.logger.error(f"Failed to cache image from {url}: {e}", exc_info=e)
         if os.path.isfile(filename):
             os.remove(filename)
 
