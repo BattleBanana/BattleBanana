@@ -9,6 +9,7 @@ import os
 import random
 import re
 import secrets
+from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
 from io import BytesIO
@@ -17,12 +18,12 @@ from urllib.parse import urlparse
 
 import aiohttp
 import discord
-import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from bson.decimal128 import Decimal128
 from colour import Color
 from discord import Message
+from matplotlib.ticker import FuncFormatter
 from PIL import Image, ImageDraw, ImageFont
 from PIL.Image import Resampling
 
@@ -67,23 +68,34 @@ traffic_lights = list(Color("red").range_to(Color("#ffbf00"), 5)) + list(Color("
 
 DUE_BLACK = (48, 48, 48)
 
-REQUEST_TIMEOUT = 5
+PASTE_MASK_MODES = ("1", "L", "LA", "RGBA", "RGBa")
+WEAPON_ICON_SIZE = 30
+
+GRAPH_SURFACE = "#1a1a19"
+GRAPH_INK = "#f0efec"
+GRAPH_SECONDARY_INK = "#c3c2b7"
+GRAPH_MUTED_INK = "#898781"
+GRAPH_GRIDLINE = "#2c2c2a"
+GRAPH_SERIES_COLORS = ("#3987e5", "#d95926", "#199e70", "#c98500", "#d55181", "#0ca30c", "#9085e9", "#e66767")
+GRAPH_OTHER_COLOR = "#898781"
+GRAPH_OTHER_LABEL = "Other"
+GRAPH_NET_LABEL = "Net"
+GRAPH_TITLE = "Net money generated and removed per command"
+GRAPH_TAXED_ONLY_TITLE = "Money generated per command, minus sendcash tax"
+GRAPH_TAXED_ONLY = "2"
+TAXED_SOURCE = "sendcash"
+GRAPH_SIZE_INCHES = (12, 6)
+GRAPH_DPI = 150
+GRAPH_BAR_WIDTH = 0.62
+GRAPH_NET_ROW_HEIGHT = 1.015
+GRAPH_MAX_NET_LABELS = 18
+COMPACT_UNITS = ((1e12, "T"), (1e9, "B"), (1e6, "M"), (1e3, "K"))
 
 
 def traffic_light(colour_scale):
     # 0 Red to 1 Green
     colour = traffic_lights[int((len(traffic_lights) - 1) * colour_scale)].rgb
     return tuple((int(ci * 255) for ci in colour))
-
-
-def set_opacity(image: Image.Image, opacity_level: float):
-    # Opaque is 1.0, input between 0-1.0
-    opacity_level = int(255 * opacity_level)
-    pixel_data = list(image.getdata())
-    for i, pixel in enumerate(pixel_data):
-        pixel_data[i] = pixel[:3] + (opacity_level,)
-    image.putdata(pixel_data)
-    return image
 
 
 def colourize(
@@ -157,18 +169,18 @@ async def check_url(url: str):
                 )
     except asyncio.TimeoutError:
         util.logger.warning("Timeout error when checking url %s", url)
-    except asyncio.CancelledError as e:
+    except aiohttp.ClientError as e:
         util.logger.warning("Error when checking url %s: %s", url, e)
 
     return False
 
 
-async def is_http_https(url: str):
-    return url.startswith("http://") or url.startswith("https://")
+def is_http_https(url: str):
+    return url.startswith(("http://", "https://"))
 
 
 async def is_url_image(url: str):
-    return await is_http_https(url) and await check_url(url) or False
+    return is_http_https(url) and await check_url(url)
 
 
 async def warn_on_invalid_image(channel: discord.TextChannel):
@@ -214,13 +226,23 @@ async def resize_avatar(player: Player | ActiveQuest, guild: discord.Guild, widt
 
 
 async def resize_image_url(url: str, width: int, height: int):
-    resized_image = imagecache.get_cached_resized_image(url, width, height)
+    cached_image = imagecache.get_cached_resized_image(url, width, height)
+    if cached_image is not None:
+        return cached_image
 
-    if resized_image is None:
-        resized_image = resize(await load_image_url(url), width, height)
-        asyncio.ensure_future(imagecache.cache_resized_image(resized_image, url))
+    image = await load_image_url(url)
+    if image is None:
+        return None
+
+    resized_image = resize(image, width, height)
+    imagecache.cache_resized_image(resized_image, url)
 
     return resized_image
+
+
+def paste_if_loaded(image: Image.Image, loaded_image: Image.Image | None, position: tuple[int, int]):
+    if loaded_image is not None:
+        image.paste(loaded_image, position)
 
 
 def has_dimensions(image: Image.Image, dimensions: tuple[int, int]):
@@ -250,11 +272,7 @@ async def send_image(ctx: Message, image: Image.Image, send_type: Literal["s", "
 async def level_up_screen(ctx: Message, player: Player, cash: int):
     image = level_up_template.copy()
     level = math.trunc(player.level)
-    try:
-        avatar = await resize_avatar(player, ctx.channel.guild, 54, 54)
-        image.paste(avatar, (10, 10))
-    except Exception:
-        pass
+    paste_if_loaded(image, await resize_avatar(player, ctx.channel.guild, 54, 54), (10, 10))
     draw = ImageDraw.Draw(image)
     draw.text((159, 18), str(level), "white", font=font_big)
     draw.text((127, 40), util.format_number(cash, money=True), "white", font=font_big)
@@ -269,11 +287,7 @@ async def level_up_screen(ctx: Message, player: Player, cash: int):
 
 async def new_quest(ctx: Message, quest: ActiveQuest, player: Player):
     image = new_quest_template.copy()
-    try:
-        avatar = await resize_avatar(quest, ctx.channel.guild, 54, 54)
-        image.paste(avatar, (10, 10))
-    except Exception:
-        pass
+    paste_if_loaded(image, await resize_avatar(quest, ctx.channel.guild, 54, 54), (10, 10))
     draw = ImageDraw.Draw(image)
 
     draw.text(
@@ -401,6 +415,7 @@ async def quests_screen(ctx: Message, player: Player, page: int):
     draw.text((15, 17), title, "white", font=font)
     count = 0
     row_size = quest_row.size
+    msg = ""
     quest_index = 0
     for quest_index in range(len(player.quests) - 1 - (5 * page), -1, -1):
         image.paste(quest_row, (14, 40 + 44 * count))
@@ -439,9 +454,7 @@ async def quests_screen(ctx: Message, player: Player, page: int):
             DUE_BLACK,
             font=font_small,
         )
-        quest_avatar = await resize_avatar(quest, None, 28, 28)
-        if quest_avatar is not None:
-            image.paste(quest_avatar, (20, 46 + 44 * count))
+        paste_if_loaded(image, await resize_avatar(quest, None, 28, 28), (20, 46 + 44 * count))
         quest_bubble_position = (12, row_size[1] - 2 + 44 * count)
         quest_index_text = str(quest_index + 1)
         quest_index_width = draw.textlength(text=quest_index_text, font=font_small)
@@ -470,7 +483,7 @@ async def quests_screen(ctx: Message, player: Player, page: int):
                     + " for the next page."
                 )
             break
-    msg = ""
+
     if quest_index == 0:
         msg = "That's all your quests!"
     if len(player.quests) == 0:
@@ -518,10 +531,7 @@ async def stats_screen(ctx: Message, player: Player):
     avatar_border = profile_parts["avatar"][theme["avatar"]]
     paste_alpha(image, avatar_border, (3, 6))
 
-    try:
-        image.paste(await resize_avatar(player, ctx.channel.guild, 80, 80), (9, 12))
-    except Exception:
-        pass
+    paste_if_loaded(image, await resize_avatar(player, ctx.channel.guild, 80, 80), (9, 12))
 
     if player.benfont:
         name = get_text_limit_len(draw, player.name_clean.replace("\u2026", "..."), font_epic, 149)
@@ -628,10 +638,7 @@ async def stats_screen(ctx: Message, player: Player):
 async def quest_screen(ctx: Message, quest: ActiveQuest):
     image = quest_info_template.copy()
 
-    try:
-        image.paste(await resize_avatar(quest, None, 72, 72), (9, 12))
-    except Exception:
-        pass
+    paste_if_loaded(image, await resize_avatar(quest, None, 72, 72), (9, 12))
 
     level = str(math.trunc(quest.level))
     attk = str(round(quest.attack, 2))
@@ -683,40 +690,15 @@ async def battle_screen(ctx: Message, player_one: Player, player_two: Player):
     image = battle_screen_template.copy()
     width, height = image.size
 
-    try:
-        image.paste(await resize_avatar(player_one, ctx.channel.guild, 54, 54), (9, 9))
-    except Exception:
-        pass
-
-    try:
-        image.paste(
-            await resize_avatar(player_two, ctx.channel.guild, 54, 54),
-            (width - 9 - 55, 9),
-        )
-    except Exception:
-        pass
+    paste_if_loaded(image, await resize_avatar(player_one, ctx.channel.guild, 54, 54), (9, 9))
+    paste_if_loaded(image, await resize_avatar(player_two, ctx.channel.guild, 54, 54), (width - 9 - 55, 9))
 
     weapon_one = player_one.weapon
     weapon_two = player_two.weapon
 
-    wep_image_one = await resize_image_url(weapon_one.image_url, 30, 30)
-
-    if wep_image_one is None:
-        wep_image_one = await resize_image_url(weapons.Weapon.DEFAULT_IMAGE, 30, 30)
-
-    try:
-        image.paste(wep_image_one, (6, height - 6 - 30), wep_image_one)
-    except Exception:
-        image.paste(wep_image_one, (6, height - 6 - 30))
-
-    wep_image_two = await resize_image_url(weapon_two.image_url, 30, 30)
-
-    if wep_image_two is None:
-        wep_image_two = await resize_image_url(weapons.Weapon.DEFAULT_IMAGE, 30, 30)
-    try:
-        image.paste(wep_image_two, (width - 30 - 6, height - 6 - 30), wep_image_two)
-    except Exception:
-        image.paste(wep_image_two, (width - 30 - 6, height - 6 - 30))
+    weapon_icon_top = height - 6 - WEAPON_ICON_SIZE
+    paste_weapon_icon(image, await load_weapon_icon(weapon_one), (6, weapon_icon_top))
+    paste_weapon_icon(image, await load_weapon_icon(weapon_two), (width - WEAPON_ICON_SIZE - 6, weapon_icon_top))
 
     draw = ImageDraw.Draw(image)
     draw.text((7, 64), "LEVEL " + str(math.trunc(player_one.level)), "white", font=font_small)
@@ -737,6 +719,19 @@ async def battle_screen(ctx: Message, player_one: Player, player_two: Player):
     )
 
     await send_image(ctx, image, "r", file_name="battle.png")
+
+
+async def load_weapon_icon(weapon: weapons.Weapon):
+    icon = await resize_image_url(weapon.image_url, WEAPON_ICON_SIZE, WEAPON_ICON_SIZE)
+    if icon is not None:
+        return icon
+
+    return await resize_image_url(weapons.Weapon.DEFAULT_IMAGE, WEAPON_ICON_SIZE, WEAPON_ICON_SIZE)
+
+
+def paste_weapon_icon(image: Image.Image, icon: Image.Image, position: tuple[int, int]):
+    mask = icon if icon.mode in PASTE_MASK_MODES else None
+    image.paste(icon, position, mask)
 
 
 async def googly_eyes(ctx: Message, eye_descriptor: str = ""):
@@ -894,129 +889,189 @@ def get_text_limit_len(draw: ImageDraw.ImageDraw, text: str, given_font, length:
     Returns:
         str: Truncated text with ellipsis if necessary
     """
-    removed_chars = False
     text = re.sub(r"[\u200B-\u200D\uFEFF]", "", text)
-    for _ in range(0, len(text)):
-        width = draw.textlength(text=text, font=given_font)
-        if width > length:
-            text = text[: len(text) - 1]
-            removed_chars = True
-        else:
-            if removed_chars:
-                if given_font != font_epic:
-                    return text[:-1] + "\u2026"
-                else:
-                    return text[:-3] + "..."
-            return text
+
+    fitting_text = text
+    while fitting_text and draw.textlength(text=fitting_text, font=given_font) > length:
+        fitting_text = fitting_text[:-1]
+
+    if fitting_text == text:
+        return text
+
+    if given_font == font_epic:
+        return fitting_text[:-3] + "..."
+
+    return fitting_text[:-1] + "\u2026"
+
+
+@dataclass
+class GraphSeries:
+    label: str
+    values: np.ndarray
+    color: str
+
+
+def format_compact(value: float) -> str:
+    for unit_size, unit_suffix in COMPACT_UNITS:
+        if abs(value) >= unit_size:
+            return f"{value / unit_size:,.1f}".rstrip("0").rstrip(".") + unit_suffix
+
+    return f"{value:,.0f}"
 
 
 async def draw_graph(ctx: Message, which):
-    stat_docs = {
-        "moneygenerated": dbconn.conn()["stats"].find_one({"stat": "moneygenerated"}),
-        "moneyremoved": dbconn.conn()["stats"].find_one({"stat": "moneyremoved"}),
-    }
-    details_moneygenerated = stat_docs["moneygenerated"]["details"]
-    details_moneyremoved_full = stat_docs["moneyremoved"]["details"]
-    details_moneyremoved = (
-        {month: {"sendcash": cmds.get("sendcash", 0)} for month, cmds in details_moneyremoved_full.items()}
-        if which == "2"
-        else details_moneyremoved_full
-    )
+    months, net_by_source = _load_monthly_net_by_source(which)
+    title = GRAPH_TAXED_ONLY_TITLE if which == GRAPH_TAXED_ONLY else GRAPH_TITLE
 
-    sorted_month_keys = sorted(set(details_moneygenerated.keys()).union(details_moneyremoved.keys()))
-    sorted_month_dt = [datetime.strptime(month, "%Y-%m") for month in sorted_month_keys]
-    x_positions = np.arange(len(sorted_month_keys))
+    image = _render_money_graph(months, _build_graph_series(net_by_source), title)
+    await send_image(ctx, image, "r", file_name="money_graph.png")
 
-    all_commands = sorted(
-        set(cmd for month_data in details_moneygenerated.values() for cmd in month_data.keys()).union(
-            cmd for month_data in details_moneyremoved.values() for cmd in month_data.keys()
+
+def _load_monthly_net_by_source(which) -> tuple[list[str], dict[str, np.ndarray]]:
+    stats_collection = dbconn.conn()["stats"]
+    generated = stats_collection.find_one({"stat": stats.Stat.MONEY_GENERATED.value})["details"]
+    removed = stats_collection.find_one({"stat": stats.Stat.MONEY_REMOVED.value})["details"]
+    if which == GRAPH_TAXED_ONLY:
+        removed = {month: {TAXED_SOURCE: sources.get(TAXED_SOURCE, 0)} for month, sources in removed.items()}
+
+    months = sorted(generated.keys() | removed.keys())
+    sources = sorted({source for monthly in (*generated.values(), *removed.values()) for source in monthly})
+
+    def monthly_net(source: str) -> np.ndarray:
+        return np.array(
+            [float(_get_amount(generated, month, source) - _get_amount(removed, month, source)) for month in months]
         )
-    )
 
-    command_color = matplotlib.colormaps["tab10"].resampled(len(all_commands))
-    command_color_dict = {cmd: command_color(i) for i, cmd in enumerate(all_commands)}
-    command_data_net = {cmd: np.zeros(len(sorted_month_keys)) for cmd in all_commands}
+    return months, {source: monthly_net(source) for source in sources}
+
+
+def _get_amount(details: dict, month: str, source: str) -> Decimal:
+    amount = details.get(month, {}).get(source, 0)
+    if isinstance(amount, Decimal128):
+        return amount.to_decimal()
+
+    return Decimal(amount)
+
+
+def _build_graph_series(net_by_source: dict[str, np.ndarray]) -> list[GraphSeries]:
     # it gives me a lot of pain to use american english (illiterate english)
     # "That little British vs. American spelling comment is gold. 😂 Keep it forever." - chatgpt
+    largest_first = sorted(net_by_source, key=lambda source: np.abs(net_by_source[source]).sum(), reverse=True)
+    coloured_sources = largest_first[: len(GRAPH_SERIES_COLORS)]
+    folded_sources = largest_first[len(GRAPH_SERIES_COLORS) :]
 
-    def as_decimal(val):
-        if isinstance(val, Decimal128):
-            return val.to_decimal()
-        return Decimal(val)
+    series = [
+        GraphSeries(source, net_by_source[source], color)
+        for source, color in zip(coloured_sources, GRAPH_SERIES_COLORS)
+    ]
+    if folded_sources:
+        folded_net = np.sum([net_by_source[source] for source in folded_sources], axis=0)
+        series.append(GraphSeries(GRAPH_OTHER_LABEL, folded_net, GRAPH_OTHER_COLOR))
 
-    for i, month in enumerate(sorted_month_keys):
-        for cmd in all_commands:
-            generated_amount = details_moneygenerated.get(month, {}).get(cmd, 0)
-            removed_amount = details_moneyremoved.get(month, {}).get(cmd, 0)
-            command_data_net[cmd][i] = as_decimal(generated_amount) - as_decimal(removed_amount)
+    return series
 
-    plt.figure(figsize=(12, 6))
-    bar_width = 0.4
-    positive_bottom_values = np.zeros(len(sorted_month_keys))
-    negative_bottom_values = np.zeros(len(sorted_month_keys))
-    legend_handles, legend_labels = [], []
 
-    def plot_bars(values, bottom_values, color, cmd, shift):
-        bar = plt.bar(x_positions + shift, values, width=bar_width, bottom=bottom_values, label=cmd, color=color)
-        return bar
+def _render_money_graph(months: list[str], series: list[GraphSeries], title: str) -> Image.Image:
+    figure, axes = plt.subplots(figsize=GRAPH_SIZE_INCHES, facecolor=GRAPH_SURFACE)
+    try:
+        net_totals = np.sum([one_series.values for one_series in series], axis=0)
 
-    for cmd, values in command_data_net.items():
-        positive_values = np.clip(values, 0, None)
-        negative_values = np.clip(values, None, 0)
-
-        positive_bar = plot_bars(positive_values, positive_bottom_values, command_color_dict[cmd], cmd, -bar_width / 2)
-        positive_bottom_values += positive_values
-
-        plot_bars(negative_values, negative_bottom_values, command_color_dict[cmd], cmd, -bar_width / 2)
-        negative_bottom_values += negative_values
-
-        if cmd not in legend_labels:
-            legend_handles.append(positive_bar)
-            legend_labels.append(cmd)
-
-    total_net_money = np.sum(list(command_data_net.values()), axis=0)
-    net_bar = plot_bars(total_net_money, np.zeros(len(sorted_month_keys)), "blue", "Net Money", bar_width / 2)
-
-    for i, net_value in enumerate(total_net_money):
-        plt.text(
-            x_positions[i] + bar_width / 2,
-            net_value + (10 if net_value > 0 else -10),
-            util.format_number(abs(net_value)),
-            ha="center",
-            va="bottom" if net_value > 0 else "top",
-            fontsize=9,
-            fontweight="bold",
-            color="blue",
+        _draw_stacked_series(axes, series)
+        _draw_net_line(axes, net_totals)
+        _draw_net_value_row(axes, net_totals)
+        _style_graph_axes(axes, months)
+        axes.set_title(title, loc="left", color=GRAPH_INK, fontsize=14, fontweight="bold", pad=30)
+        axes.legend(
+            loc="upper left", bbox_to_anchor=(1.01, 1), frameon=False, fontsize=9, labelcolor=GRAPH_SECONDARY_INK
         )
 
-    max_positive = np.max(positive_bottom_values)
-    max_negative = np.min(negative_bottom_values)
-    max_abs = max(abs(max_positive), abs(max_negative))
-    plt.ylim(-max_abs, max_abs)
+        return _figure_to_image(figure)
+    finally:
+        plt.close(figure)
 
-    plt.xticks(x_positions, [time.strftime("%Y-%m") for time in sorted_month_dt], rotation=45, fontsize=8)
-    plt.xlabel("Time (Monthly)")
-    plt.ylabel("Amount")
-    plt.title(
-        "Net Money Generated and Removed Per Command"
-        if which == "1"
-        else "Only Money Generated Per Command + Money taxed from sendcash"
+
+def _draw_stacked_series(axes, series: list[GraphSeries]):
+    month_positions = np.arange(len(series[0].values))
+    positive_tops = np.zeros(len(month_positions))
+    negative_bottoms = np.zeros(len(month_positions))
+    segment_style = {"width": GRAPH_BAR_WIDTH, "edgecolor": GRAPH_SURFACE, "linewidth": 1}
+
+    for one_series in series:
+        gains = np.clip(one_series.values, 0, None)
+        losses = np.clip(one_series.values, None, 0)
+
+        axes.bar(
+            month_positions,
+            gains,
+            bottom=positive_tops,
+            color=one_series.color,
+            label=one_series.label,
+            **segment_style,
+        )
+        axes.bar(month_positions, losses, bottom=negative_bottoms, color=one_series.color, **segment_style)
+        positive_tops += gains
+        negative_bottoms += losses
+
+
+def _draw_net_line(axes, net_totals: np.ndarray):
+    axes.plot(
+        np.arange(len(net_totals)),
+        net_totals,
+        color=GRAPH_INK,
+        linewidth=2,
+        marker="o",
+        markersize=7,
+        markeredgecolor=GRAPH_SURFACE,
+        markeredgewidth=1.5,
+        label=GRAPH_NET_LABEL,
+        zorder=3,
     )
-    plt.axhline(0, color="black", linewidth=1)
-    plt.grid(True, linestyle="--", alpha=0.5)
 
-    legend_handles.append(net_bar)
-    legend_labels.append("Net Money")
-    plt.legend(handles=legend_handles, labels=legend_labels, loc="upper left", bbox_to_anchor=(1, 1), fontsize=8)
 
-    plt.tight_layout()
-    img_buffer = BytesIO()
-    plt.savefig(img_buffer, format="PNG", bbox_inches="tight")
-    img_buffer.seek(0)
-    plt.close()
+def _draw_net_value_row(axes, net_totals: np.ndarray):
+    row_style = {"va": "bottom", "fontsize": 8, "color": GRAPH_SECONDARY_INK}
+    axes.text(-0.008, GRAPH_NET_ROW_HEIGHT, GRAPH_NET_LABEL, transform=axes.transAxes, ha="right", **row_style)
 
-    img = Image.open(img_buffer)
-    await send_image(ctx, img, "r", file_name="money_graph.png")
+    last_month = len(net_totals) - 1
+    label_step = math.ceil(len(net_totals) / GRAPH_MAX_NET_LABELS)
+    for month_position in range(last_month, -1, -label_step):
+        axes.text(
+            month_position,
+            GRAPH_NET_ROW_HEIGHT,
+            format_compact(net_totals[month_position]),
+            transform=axes.get_xaxis_transform(),
+            ha="center",
+            **row_style,
+        )
+
+
+def _style_graph_axes(axes, months: list[str]):
+    axes.set_facecolor(GRAPH_SURFACE)
+    axes.spines[:].set_visible(False)
+    axes.axhline(0, color=GRAPH_MUTED_INK, linewidth=1)
+    axes.grid(axis="y", color=GRAPH_GRIDLINE, linewidth=1)
+    axes.set_axisbelow(True)
+    axes.margins(x=0.02, y=0.08)
+    axes.tick_params(colors=GRAPH_MUTED_INK, length=0, labelsize=9)
+    axes.yaxis.set_major_formatter(FuncFormatter(lambda value, _: format_compact(value)))
+    axes.set_xticks(np.arange(len(months)), _get_month_labels(months))
+
+
+def _get_month_labels(months: list[str]) -> list[str]:
+    month_dates = [datetime.strptime(month, "%Y-%m") for month in months]
+
+    return [
+        month_date.strftime("%b\n%Y") if position == 0 or month_date.month == 1 else month_date.strftime("%b")
+        for position, month_date in enumerate(month_dates)
+    ]
+
+
+def _figure_to_image(figure) -> Image.Image:
+    image_buffer = BytesIO()
+    figure.savefig(image_buffer, format="PNG", facecolor=GRAPH_SURFACE, bbox_inches="tight", dpi=GRAPH_DPI)
+    image_buffer.seek(0)
+
+    return Image.open(image_buffer)
 
 
 def _load_profile_parts():
@@ -1033,11 +1088,4 @@ def _load_profile_parts():
             profile_parts[part][part_path] = Image.open(part_path)
 
 
-def _init_banners():
-    for banner in customizations.banners.values():
-        if banner.image is None:
-            banner.image = set_opacity(Image.open("screens/info_banners/" + banner.image_name), 0.9)
-
-
-_init_banners()
 _load_profile_parts()

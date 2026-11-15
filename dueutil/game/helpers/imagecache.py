@@ -1,7 +1,7 @@
 import json
 import os
 import re
-from threading import Thread
+from threading import Thread, get_ident
 
 from discord.ext import tasks
 from PIL import Image, ImageFile
@@ -10,6 +10,8 @@ from dueutil import dbconn, util
 
 CACHE_DIR = "assets/imagecache/"
 WEBP_EXTENSION = ".webp"
+WEBP_FORMAT = "WEBP"
+PARTIAL_SUFFIX = ".partial"
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
@@ -31,11 +33,16 @@ def track_image_usage(url: str):
 
 
 def _save_image(filename: str, image: Image.Image):
-    """Save an image to a file with high quality."""
+    """Save an image to a file with high quality, never exposing a half-written file."""
+    partial_filename = f"{filename}.{get_ident()}{PARTIAL_SUFFIX}"
     try:
-        image.save(filename, lossless=True, quality=100, method=6)
+        image.save(partial_filename, format=WEBP_FORMAT, lossless=True, quality=100, method=6)
+        os.replace(partial_filename, filename)
     except Exception as e:
-        util.logger.error(f"Failed to save image {filename}: {e}")
+        util.logger.error(f"Failed to save image {filename}: {e}", exc_info=e)
+
+        if os.path.isfile(partial_filename):
+            os.remove(partial_filename)
 
 
 def async_save_image(filename: str, image: Image.Image):
@@ -45,10 +52,14 @@ def async_save_image(filename: str, image: Image.Image):
 
 def generate_filename(base: str, extension: str, width: int = None, height: int = None) -> str:
     """Generate a cache filename based on base name, dimensions, and extension."""
-    sanitized_name = re.sub(r"\W+", "", base)[:128]
+    sanitized_name = _sanitize_name(base)
     if width and height:
         sanitized_name += f"_{width}_{height}"
     return f"{CACHE_DIR}{sanitized_name}{extension}"
+
+
+def _sanitize_name(base: str) -> str:
+    return re.sub(r"\W+", "", base)[:128]
 
 
 def get_cached_filename(name: str) -> str:
@@ -78,29 +89,22 @@ async def cache_image(url: str):
     return None
 
 
-async def cache_resized_image(image: Image.Image, url: str):
+def cache_resized_image(image: Image.Image, url: str):
     """Cache a resized version of the image."""
-    if not image:
-        return None
-
-    filename = get_resized_cached_filename(url, image.width, image.height)
-    try:
-        async_save_image(filename, image)
-        return image
-    except Exception as e:
-        util.logger.error(f"Failed to cache resized image: {e}")
-        if os.path.isfile(filename):
-            os.remove(filename)
-        return None
+    async_save_image(get_resized_cached_filename(url, image.width, image.height), image)
 
 
 def load_cached_image(filename: str):
-    """Load a cached image from disk."""
+    """Load a cached image from disk, dropping it when it is unreadable."""
+    if not os.path.isfile(filename):
+        return None
+
     try:
         return Image.open(filename)
-    except Exception:
-        if os.path.isfile(filename):
-            os.remove(filename)
+    except OSError as e:
+        util.logger.warning(f"Removing unreadable cached image {filename}: {e}")
+        os.remove(filename)
+
         return None
 
 
@@ -114,14 +118,24 @@ def get_cached_resized_image(url: str, width: int, height: int):
 
 
 def remove_cached_image(url: str):
-    """Remove a cached image unless it's still in use."""
+    """Remove a cached image and its resized variants unless it's still in use."""
     if stats.repeated_usages.get(url, 0) > 1:
         stats.repeated_usages[url] -= 1
-    else:
-        filename = get_cached_filename(url)
-        if os.path.isfile(filename):
-            os.remove(filename)
-            util.logger.info(f"Removed cached image: {url}")
+        return
+
+    filename = get_cached_filename(url)
+    if os.path.isfile(filename):
+        os.remove(filename)
+        util.logger.info(f"Removed cached image: {url}")
+
+    for resized_filename in _get_resized_cached_filenames(url):
+        os.remove(resized_filename)
+
+
+def _get_resized_cached_filenames(url: str) -> list[str]:
+    resized_name = re.compile(rf"{re.escape(_sanitize_name(url))}_\d+_\d+{re.escape(WEBP_EXTENSION)}")
+
+    return [CACHE_DIR + entry for entry in os.listdir(CACHE_DIR) if resized_name.fullmatch(entry)]
 
 
 @tasks.loop(seconds=3600)
