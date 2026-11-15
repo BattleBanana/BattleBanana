@@ -232,7 +232,7 @@ def get_syntax_error(e):
     return f'```py\n{e.text}{"^":>{e.offset}}\n{e.__class__.__name__}: {e}```'
 
 
-@commands.command(permission=Permission.BANANA_OWNER, args_pattern="S?")
+@commands.command(permission=Permission.BANANA_OWNER, args_pattern="S")
 @commands.imagecommand()
 async def drawgraph(ctx, input, **details):
     """

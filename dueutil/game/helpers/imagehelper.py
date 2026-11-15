@@ -89,7 +89,11 @@ GRAPH_DPI = 150
 GRAPH_BAR_WIDTH = 0.62
 GRAPH_NET_ROW_HEIGHT = 1.015
 GRAPH_MAX_NET_LABELS = 18
-COMPACT_UNITS = ((1e12, "T"), (1e9, "B"), (1e6, "M"), (1e3, "K"))
+THOUSAND_UNIT = (1e3, "K")
+COMPACT_UNITS = (
+    *((unit_size, abbreviation) for unit_size, _, abbreviation in reversed(util.NUMBER_UNITS)),
+    THOUSAND_UNIT,
+)
 
 
 def traffic_light(colour_scale):

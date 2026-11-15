@@ -25,15 +25,26 @@ import generalconfig as gconf
 from dueutil import dbconn
 from dueutil.game import stats
 
+_PROCESSOR = ""
+HTTP_TIMEOUT = aiohttp.ClientTimeout(total=300, connect=10)
+HTTP_HEADERS = {"User-Agent": "BattleBanana"}
+NUMBER_UNITS = (
+    (1e6, "Million", "M"),
+    (1e9, "Billion", "B"),
+    (1e12, "Trillion", "T"),
+    (1e15, "Quadrillion", "Qa"),
+    (1e18, "Quintillion", "Qi"),
+    (1e21, "Sextillion", "Sx"),
+    (1e24, "Septillion", "Sp"),
+    (1e27, "Octillion", "Oc"),
+)
+
 client = None
 clients = []
-_PROCESSOR = ""
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("battlebanana")
 logging.getLogger("discord.state").setLevel(logging.ERROR)
 logging.getLogger("httpx").setLevel(logging.WARNING)
-HTTP_TIMEOUT = aiohttp.ClientTimeout(total=300, connect=10)
-HTTP_HEADERS = {"User-Agent": "BattleBanana"}
 
 
 class DueLog:
@@ -320,16 +331,7 @@ def format_number(number, **kwargs):
 
     def really_large_format():
         nonlocal number
-        units = [
-            "Million",
-            "Billion",
-            "Trillion",
-            "Quadrillion",
-            "Quintillion",
-            "Sextillion",
-            "Septillion",
-            "Octillion",
-        ]
+        units = [unit_name for _, unit_name, _ in NUMBER_UNITS]
         reg = len(str(math.floor(number / 1000)))
         if (reg - 1) % 3 != 0:
             reg -= (reg - 1) % 3
