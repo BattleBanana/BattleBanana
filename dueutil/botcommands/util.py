@@ -6,6 +6,7 @@ import time
 from datetime import datetime
 from itertools import chain
 
+import aiohttp
 import discord
 import psutil
 import repoze.timeago
@@ -814,16 +815,16 @@ async def currencies(ctx, **_):
     Display every currencies currently available on Discoin
     """
     embed = discord.Embed(title=emojis.DISCOIN + " Current currencies!", type="rich", color=gconf.DUE_COLOUR)
-    for bot in discoin.bots:
-        for currency in bot.currencies:
-            embed.add_field(name=currency.code, value=currency.bot_name)
+
+    for currency in discoin.currencies:
+        embed.add_field(name=currency.abbreviation, value=currency.name)
 
     if len(embed.fields) == 0:
         embed.add_field(name="An error occured!", value="There was an error retrieving Discoin's currencies.")
-    embed.set_footer(text="Visit https://discoin.theelutil.xyz/#/currencies for exchange rate.")
+
+    embed.set_footer(text=f"Visit {discoin.DISCOIN_SITE} for exchange rate.")
 
     await util.reply(ctx, embed=embed)
-    raise util.BattleBananaException(ctx.channel, "Discoin is currently offline.")
 
 
 @commands.command(args_pattern="CS", aliases=["convert"], hidden=True)
@@ -832,7 +833,7 @@ async def exchange(ctx, amount, currency, **details):
     [CMD_KEY]exchange (amount) (currency)
 
     Exchange your BBT (BattleBanana Tokens) for other bot currencies!
-    For more information go to: https://discoin.theelutil.xyz/#/
+    For more information go to: https://discoin.dev
 
     Note: Exchanges can take a few minutes to process!
     """
@@ -849,12 +850,6 @@ async def exchange(ctx, amount, currency, **details):
             ctx.channel,
             "Not a valid currency! Use `%scurrencies` to know which currency is available." % details["cmd_key"],
         )
-    if amount > discoin.MAX_TRANSACTION:
-        raise util.BattleBananaException(
-            ctx.channel,
-            "The amount you try to exchange exceeds the maximum %s transfer limit of %s."
-            % (discoin.CURRENCY_CODE, discoin.MAX_TRANSACTION),
-        )
 
     amount = int(amount)
     if player.money - amount < 0:
@@ -866,27 +861,14 @@ async def exchange(ctx, amount, currency, **details):
         )
         return
 
-    try:
-        response = await discoin.make_transaction(player.id, amount, currency)
-    except Exception as discoin_error:
-        util.logger.error("Discoin exchange failed %s", discoin_error)
-        raise util.BattleBananaException(ctx.channel, "Something went wrong at Discoin!")
-
-    if response.get("statusCode"):
-        code = response.get("statusCode")
-        if code >= 500:
-            raise util.BattleBananaException(
-                ctx.channel, "Something went wrong at Discoin! %s: %s" % (code, response["error"])
-            )
-        elif 400 <= code < 500:
-            raise util.BattleBananaException(ctx.channel, "Something went wrong! %s: %s" % (code, response["error"]))
+    transaction = await _make_discoin_transaction(ctx, player, amount, currency)
 
     await awards.give_award(ctx.channel, player, "Discoin")
     player.money -= amount
     player.save()
 
-    transaction = response
-    receipt = discoin.DISCOINDASH + "/" + transaction["id"] + "/show"
+    receipt = discoin.receipt_url(transaction["id"])
+    destination = discoin.destination_currency_code(transaction)
 
     exchange_embed = discord.Embed(title=emojis.DISCOIN + " Exchange complete!", type="rich", color=gconf.DUE_COLOUR)
     exchange_embed.add_field(
@@ -894,16 +876,14 @@ async def exchange(ctx, amount, currency, **details):
         value=util.format_number(amount, money=True, full_precision=True),
     )
     exchange_embed.add_field(
-        name="Result amount (%s):" % currency, value="$" + util.format_number_precise(transaction["payout"])
+        name="Result amount (%s):" % destination, value="$" + util.format_number_precise(transaction["payout"])
     )
     exchange_embed.add_field(name="Receipt:", value=receipt, inline=False)
     exchange_embed.set_footer(text="Keep the receipt for if something goes wrong!")
 
     await util.reply(ctx, embed=exchange_embed)
 
-    to = transaction.get("to")
-    to_id = to.get("id")
-    payout = float(transaction.get("payout"))
+    payout = float(transaction["payout"])
 
     logs_embed = discord.Embed(
         title="Discion Transaction",
@@ -913,10 +893,29 @@ async def exchange(ctx, amount, currency, **details):
     )
     logs_embed.add_field(name="User:", value=f"{player.user_id}")
     logs_embed.add_field(
-        name="Exchange", value="%s %s => %.2f %s" % (amount, discoin.CURRENCY_CODE, payout, to_id), inline=False
+        name="Exchange", value="%s %s => %.2f %s" % (amount, discoin.CURRENCY_CODE, payout, destination), inline=False
     )
 
     await util.say(gconf.discoin_channel, embed=logs_embed)
+
+
+async def _make_discoin_transaction(ctx, player, amount, currency):
+    try:
+        return await discoin.make_transaction(player.id, amount, currency)
+    except discoin.DiscoinError as discoin_error:
+        raise util.BattleBananaException(ctx.channel, _discoin_error_message(discoin_error)) from discoin_error
+    except discoin.CurrencyNotListedError as listing_error:
+        raise util.BattleBananaException(ctx.channel, str(listing_error)) from listing_error
+    except (aiohttp.ClientError, asyncio.TimeoutError) as connection_error:
+        util.logger.error("Discoin exchange failed %s", connection_error)
+        raise util.BattleBananaException(ctx.channel, "Something went wrong at Discoin!") from connection_error
+
+
+def _discoin_error_message(discoin_error):
+    if discoin_error.is_server_error():
+        return "Something went wrong at Discoin! %s: %s" % (discoin_error.status, discoin_error.message)
+
+    return discoin_error.message
 
 
 @commands.command(args_pattern="S?", permission=Permission.BANANA_ADMIN, hidden=True)

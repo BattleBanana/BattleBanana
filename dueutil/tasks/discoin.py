@@ -1,4 +1,4 @@
-import json
+import asyncio
 
 import aiohttp
 from discord import Embed
@@ -9,158 +9,237 @@ from dueutil import util
 from dueutil.game import players, stats
 from dueutil.game.stats import Stat
 
-DISCOIN = "https://discoin.theelutil.xyz"
-DISCOINDASH = "https://discoin.theelutil.xyz/#/transactions"
+DISCOIN_SITE = "https://discoin.dev"
+DISCOIN_API = DISCOIN_SITE + "/api"
 CURRENCY_CODE = "BBT"
-TRANSACTIONS = DISCOIN + "/transactions"
-BOTS = DISCOIN + "/bots"
-FILTER = f"?filter=to.id||eq||{CURRENCY_CODE}&filter=handled||eq||false"
-HEADERS = {"Authorization": gconf.other_configs["discoinKey"], "Content-Type": "application/json"}
-HANDLED = {"handled": True}
-MAX_TRANSACTION = 500000
+CURRENCIES = DISCOIN_API + "/currencies"
+TRANSACTIONS = DISCOIN_API + "/transactions"
+PENDING_TRANSACTIONS = TRANSACTIONS + "/pending"
+AUTH_HEADERS = {"Authorization": "Bearer " + gconf.other_configs["discoinKey"]}
+COMPLETED = "Completed"
+REFUNDED = "Refunded"
+MINIMUM_PAYOUT = 1
+SERVER_ERROR_STATUS = 500
+POLL_INTERVAL_SECONDS = 150
+JSON_CONTENT_TYPE = "application/json"
+
+
+class DiscoinError(Exception):
+    def __init__(self, status: int, message: str):
+        super().__init__(f"Discoin answered {status}: {message}")
+        self.status = status
+        self.message = message
+
+    def is_server_error(self) -> bool:
+        return self.status >= SERVER_ERROR_STATUS
+
+
+class CurrencyNotListedError(LookupError):
+    def __init__(self, abbreviation: str):
+        super().__init__(f"Discoin does not list the currency {abbreviation}")
 
 
 class Currency:
-    def __init__(self, code: str, name: str, bot_name: str):
-        self.code = code
-        self.name = name
-        self.bot_name = bot_name
-
-
-class Bot:
-    def __init__(self, name: str, currencies):
+    def __init__(self, currency_id: str, abbreviation: str, name: str):
+        self.id = currency_id
+        self.abbreviation = abbreviation
         self.name = name
 
-        sorted_currencies = sorted(currencies, key=lambda k: k.code)
-        self.currencies = sorted_currencies
 
-
-bots = []
 currencies = []
 codes = []
 
 
-async def get_raw_bots():
-    async with aiohttp.ClientSession() as session:
-        async with session.get(BOTS) as response:
-            return await response.json()
+def receipt_url(transaction_id):
+    return f"{DISCOIN_SITE}/transactions/{transaction_id}"
+
+
+def source_currency_code(transaction):
+    return transaction["fromCurrency"]["abbreviation"]
+
+
+def destination_currency_code(transaction):
+    return transaction["toCurrency"]["abbreviation"]
+
+
+async def read_response(response):
+    if not response.ok:
+        raise DiscoinError(response.status, await read_error_message(response))
+
+    return await response.json()
+
+
+async def read_error_message(response):
+    if response.content_type == JSON_CONTENT_TYPE:
+        error_body = await response.json()
+
+        return error_body["message"]
+
+    return response.reason
+
+
+async def request_discoin(method, url, **request_options):
+    async with aiohttp.ClientSession(timeout=util.HTTP_TIMEOUT) as session:
+        async with session.request(method, url, **request_options) as response:
+            return await read_response(response)
 
 
 async def update_discoin():
-    try:
-        raw_bots = await get_raw_bots()
-        new_bots = []
-        new_currencies = []
+    raw_currencies = await request_discoin("GET", CURRENCIES)
+    new_currencies = [
+        Currency(raw_currency["id"], raw_currency["abbreviation"], raw_currency["name"])
+        for raw_currency in raw_currencies
+    ]
 
-        for raw_bot in raw_bots:
-            bot_currencies = []
-            bot_name = raw_bot["name"]
-            for raw_currency in raw_bot["currencies"]:
-                currency = Currency(raw_currency["id"], raw_currency["name"], bot_name)
-
-                bot_currencies.append(currency)
-                new_currencies.append(currency)
-
-            new_bots.append(Bot(bot_name, bot_currencies))
-
-        sorted_bots = sorted(new_bots, key=lambda k: k.name)
-
-        global bots, currencies, codes
-        bots = sorted_bots
-        currencies = new_currencies
-        codes = [currency.code for currency in currencies]
-    except Exception:
-        pass
+    global currencies, codes
+    currencies = sorted(new_currencies, key=lambda currency: currency.abbreviation)
+    codes = [currency.abbreviation for currency in currencies]
 
 
-async def make_transaction(sender_id, amount, to, cfrom=CURRENCY_CODE):
-    transaction_data = {"amount": amount, "from": cfrom, "to": to, "user": str(sender_id)}
+def find_currency_id(abbreviation):
+    for currency in currencies:
+        if currency.abbreviation == abbreviation:
+            return currency.id
 
-    async with aiohttp.ClientSession(timeout=util.HTTP_TIMEOUT) as session:
-        async with session.post(TRANSACTIONS, data=json.dumps(transaction_data), headers=HEADERS) as response:
-            return await response.json()
-
-
-async def reverse_transaction(user, currency_from, amount, id):
-    util.logger.warning("Reversed transaction: %s", id)
-    await make_transaction(user, amount, currency_from)
+    raise CurrencyNotListedError(abbreviation)
 
 
-async def unprocessed_transactions():
-    async with aiohttp.ClientSession() as session:
-        async with session.get(TRANSACTIONS + FILTER, headers=HEADERS) as response:
-            return await response.json()
+async def make_transaction(sender_id, amount, to):
+    transaction_data = {
+        "userId": str(sender_id),
+        "fromCurrencyId": find_currency_id(CURRENCY_CODE),
+        "toCurrencyId": find_currency_id(to),
+        "amount": amount,
+    }
+
+    return await request_discoin("POST", TRANSACTIONS, json=transaction_data, headers=AUTH_HEADERS)
+
+
+async def pending_transactions():
+    query = {"currencyId": find_currency_id(CURRENCY_CODE)}
+
+    return await request_discoin("GET", PENDING_TRANSACTIONS, params=query, headers=AUTH_HEADERS)
+
+
+def transaction_url(transaction):
+    return f"{TRANSACTIONS}/{transaction['id']}"
+
+
+async def set_transaction_status(transaction, status):
+    await request_discoin("PATCH", transaction_url(transaction), json={"status": status}, headers=AUTH_HEADERS)
 
 
 async def mark_as_completed(transaction):
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(timeout=util.HTTP_TIMEOUT) as session:
         async with session.patch(
-            url=TRANSACTIONS + "/" + transaction["id"], data=json.dumps(HANDLED), headers=HEADERS
+            transaction_url(transaction), json={"status": COMPLETED}, headers=AUTH_HEADERS
         ) as response:
-            return await response.json()
+            return response.ok
 
 
-@tasks.loop(seconds=150)
+async def refund_transaction(transaction):
+    await set_transaction_status(transaction, REFUNDED)
+    util.logger.warning("Reversed transaction: %s", transaction["id"])
+
+
+@tasks.loop(seconds=POLL_INTERVAL_SECONDS)
 async def process_transactions():
+    if not util.clients[0].is_ready():
+        return
+
+    await update_discoin()
+    util.logger.info("Processing Discoin transactions.")
+
+    transactions = await pending_transactions()
+    for transaction in transactions:
+        await process_or_skip_transaction(transaction)
+
+
+@process_transactions.error
+async def restart_failed_polling(error):
+    util.logger.error("Discoin polling failed, restarting in %s seconds", POLL_INTERVAL_SECONDS, exc_info=error)
+    await asyncio.sleep(POLL_INTERVAL_SECONDS)
+    process_transactions.restart()
+
+
+async def process_or_skip_transaction(transaction):
     try:
-        if not util.clients[0].is_ready():
-            return
-        await update_discoin()
-        util.logger.info("Processing Discoin transactions.")
-        try:
-            unprocessed = await unprocessed_transactions()
-        except Exception as exception:
-            util.logger.error("Failed to fetch Discoin transactions: %s", exception)
-            return
+        await process_transaction(transaction)
+    except Exception:
+        util.logger.exception(
+            "Discoin transaction %s for user %s with payout %s failed",
+            transaction["id"],
+            transaction["userId"],
+            transaction["payout"],
+        )
 
-        if unprocessed is None:
-            return
 
-        client = util.clients[0]
+async def process_transaction(transaction):
+    client = util.clients[0]
+    user_id = int(transaction["userId"])
+    payout = int(transaction["payout"])
 
-        for transaction in unprocessed:
-            if isinstance(transaction, dict):
-                transaction_id = transaction.get("id")
-                user_id = int(transaction.get("user"))
-                payout = transaction.get("payout")
-                if payout is None:
-                    continue
-                payout = int(payout)
-                amount = float(transaction.get("amount"))
+    player = players.find_player(user_id)
+    if player is None or payout < MINIMUM_PAYOUT:
+        await refund_transaction(transaction)
+        client.run_task(notify_complete, user_id, transaction, failed=True)
 
-                source = transaction.get("from")
-                source_id = source.get("id")
+        return
 
-                player = players.find_player(user_id)
-                if player is None or payout < 1:
-                    await reverse_transaction(user_id, source_id, payout, transaction_id)
-                    client.run_task(notify_complete, user_id, transaction, failed=True)
-                    continue
+    if not await mark_as_completed(transaction):
+        return
 
-                stats.increment_stat(Stat.DISCOIN_RECEIVED, payout)
-                player.money += payout
-                player.save()
-                client.run_task(notify_complete, user_id, transaction)
+    await credit_completed_transaction(player, transaction)
+    client.run_task(notify_complete, user_id, transaction)
+    await log_received_transaction(user_id, transaction)
 
-                embed = Embed(
-                    title="Discion Transaction",
-                    description="Receipt ID: [%s](%s)" % (transaction["id"], f"{DISCOINDASH}/{transaction['id']}/show"),
-                    type="rich",
-                    colour=gconf.DUE_COLOUR,
-                )
-                embed.add_field(name="User:", value=f"{user_id}")
-                embed.add_field(
-                    name="Exchange", value="%.2f %s => %s %s" % (amount, source_id, payout, CURRENCY_CODE), inline=False
-                )
 
-                util.logger.info("Processed discoin transaction %s", transaction_id)
-                await util.say(gconf.discoin_channel, embed=embed)
-    except Exception as e:
-        util.logging.warn(e)
+async def credit_completed_transaction(player, transaction):
+    try:
+        add_payout(player, int(transaction["payout"]))
+    except Exception:
+        await report_uncredited_transaction(transaction)
+        raise
+
+
+def add_payout(player, payout):
+    stats.increment_stat(Stat.DISCOIN_RECEIVED, payout)
+    player.money += payout
+    player.save()
+
+
+async def report_uncredited_transaction(transaction):
+    message = "Discoin transaction %s is Completed on Discoin but user %s was not credited the payout of %s" % (
+        transaction["id"],
+        transaction["userId"],
+        transaction["payout"],
+    )
+    util.logger.critical(message)
+    await util.duelogger.error(message + f" <@{gconf.other_configs['owner']}>")
+
+
+async def log_received_transaction(user_id, transaction):
+    amount = float(transaction["amount"])
+    payout = int(transaction["payout"])
+
+    embed = Embed(
+        title="Discion Transaction",
+        description="Receipt ID: [%s](%s)" % (transaction["id"], receipt_url(transaction["id"])),
+        type="rich",
+        colour=gconf.DUE_COLOUR,
+    )
+    embed.add_field(name="User:", value=f"{user_id}")
+    embed.add_field(
+        name="Exchange",
+        value="%.2f %s => %s %s" % (amount, source_currency_code(transaction), payout, CURRENCY_CODE),
+        inline=False,
+    )
+
+    util.logger.info("Processed discoin transaction %s", transaction["id"])
+    await util.say(gconf.discoin_channel, embed=embed)
 
 
 async def notify_complete(user_id, transaction, failed=False):
-    await mark_as_completed(transaction)
     user_id = int(user_id)
     client = util.clients[0]
     user = await client.fetch_user(user_id)
@@ -175,19 +254,19 @@ async def notify_complete(user_id, transaction, failed=False):
         embed.set_footer(text="Keep the receipt in case something goes wrong!")
 
         if not failed:
-            payout = int(transaction.get("payout"))
-            amount = float(transaction.get("amount"))
+            payout = int(transaction["payout"])
+            amount = float(transaction["amount"])
 
-            source = transaction.get("from")
-            source_id = source.get("id")
-
-            embed.add_field(name="Exchange amount (%s):" % source_id, value="$" + util.format_number_precise(amount))
+            embed.add_field(
+                name="Exchange amount (%s):" % source_currency_code(transaction),
+                value="$" + util.format_number_precise(amount),
+            )
             embed.add_field(
                 name=f"Result amount ({CURRENCY_CODE}):",
                 value=util.format_number(payout, money=True, full_precision=True),
             )
-            embed.add_field(name="Receipt:", value="%s/%s/show" % (DISCOINDASH, transaction["id"]), inline=False)
-        elif failed:
+            embed.add_field(name="Receipt:", value=receipt_url(transaction["id"]), inline=False)
+        else:
             embed.add_field(
                 name=":warning: Your Discoin exchange has been reversed",
                 value="To exchange to BattleBanana you must be a player and the amount has to be worth at least 1 BBT.",
